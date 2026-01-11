@@ -9,16 +9,8 @@ import nodeWasi from 'node:wasi';
 
 (async () => {
 	// arguments
+	const cmd = nodePath.basename(nodeProcess.argv[1] || 'w4.js');
 	const argv = nodeProcess.argv.slice(2);
-
-	if (!argv.length || !argv[0]) {
-		console.log(`Usage: ${nodePath.basename(argv[0] || 'w4.js')} <file.f>`);
-		nodeProcess.exit(-1);
-	}
-
-	// start the timers for ok/err
-	console.time('ok');
-	console.time('err');
 
 	// exposed forward
 	let /** @type {WasmExports | null} */ exposed = null
@@ -52,6 +44,16 @@ import nodeWasi from 'node:wasi';
 			console.log(`${now.toLocaleString()}kB used (${max.toLocaleString()}kB max)`);
 		}
 	}
+
+	// ensure we have a source file
+	if (!argv.length || !argv[0]) {
+		console.log(`Usage: ${cmd} <file.f>`);
+		nodeProcess.exit(-1);
+	}
+
+	// start the timers for ok/err
+	console.time('ok');
+	console.time('err');
 
 	try {
 		// instantiate WASM, including getting a memory view
