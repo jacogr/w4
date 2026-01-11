@@ -1,0 +1,25 @@
+{
+	// As per
+	// https://github.com/tsconfig/bases/blob/ebe629c2857d386a0bc2c5d60cab18b9f1a425d0/bases/strictest.json
+	"compilerOptions": {
+		"lib": ["es2020", "dom"],
+		"module": "es2020",
+		"target": "es2020",
+		"strict": true,
+		"allowUnusedLabels": false,
+		"allowUnreachableCode": false,
+		"exactOptionalPropertyTypes": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"noUncheckedIndexedAccess": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"isolatedModules": true,
+		"checkJs": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true
+	},
+	"$schema": "https://json.schemastore.org/tsconfig"
+}
