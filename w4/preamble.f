@@ -6,7 +6,7 @@
 	: drop depth dup 0= #-4 and throw $1 - $0140 @ ! ;
 	: over sp@ $1 cells - @ ;
 	: swap over over sp@ $3 cells - ! sp@ $1 cells - ! ;
-	: or over over xor sp@ $2 cells - @ sp@ $2 cells - @ and  + sp@ $2 cells - ! drop ;
+	: or over over xor sp@ $2 cells - @ sp@ $2 cells - @ and + sp@ $2 cells - ! drop ;
 
 	: >string dup @ swap $1 cells + @ ;
 	: >hash $2 cells + ;
@@ -68,28 +68,105 @@
 \ comments. Start using it immediately by documenting what
 \ has been defined above.
 
-\ https://forth-standard.org/standard/core/OR
-
 \ https://forth-standard.org/standard/core/CELLS
 \
+\ NOTE: * is only defined at a later point, so the 4 *
+\ multiplication is in terms of shifts (possibly even optimal)
+\
 \		: cells ( n -- n * 4 )
-\			#4 * 	\ cells are 32-bit, 4 bytes each
+\			$2 lshift 	\ cells are 32-bit, 4 bytes each
 \		;
+
+\ https://forth-standard.org/standard/core/DEPTH
+\
+\ Retrieved the count for the stack which is located at
+\ $0140 (at this point we don't have constants yet, so the
+\ value is hard-coded as an address)
+\
+\		: depth ( ... -- ... n )
+\			$0140 @ @	\ first cell on stack is count
+\		;
+
+\ sp@ non-standard in forth2012, but widely known
+\
+\ We define this quite early since it makes the base stack words
+\ eay to define (without resorting to yet more "magic constants")
+\
+\		: sp@ ( -- addr )
+\			depth cells \ depth in terms of cells
+\			$0140 @ + 	\ add to stack pointer for offet addr
+\		;
+
+\ https://forth-standard.org/standard/core/DUP
+\
+\ Duplicates the top stack value via sp@
+\
+\		: dup ( n -- n n ) sp@ @ ;
+
+\ https://forth-standard.org/standard/core/DROP
+\
+\ Drops the top value from the stack by decrementing the
+\ stack pointer (count - 1) and storing it
+\
+\	: drop ( n -- )
+\		depth dup 0= #-4 and throw	\ assert non-0 count
+\		$1 - $0140 @ ! 				\ write count -1
+\	;
+
+\ https://forth-standard.org/standard/core/OVER
+\
+\ Duplicates the second-from-tos item to the top
+\
+\	: over ( x y -- x y x )
+\		sp@ $1 cells - @ 	\ calculate offset and read
+\	;
+
+\ https://forth-standard.org/standard/core/SWAP
+\
+\ Swap the two topmost items on the stack
+\
+\	: swap ( x y -- y x )
+\		over over 			( x y -- x y x y )
+\		sp@ $3 cells - !	( x y x y -- y y x )
+\		sp@ $1 cells - ! 	( y y x -- y x )
+\	;
 
 \ https://forth-standard.org/standard/core/ALLOT
 \
-\		: allot ( n -- )
-\			$0f + $4 rshift $4 lshift 	\ ((n + 15) >> 4) << 4
-\			here @ +			( n -- a-addr )
-\			here !				( a-addr -- )
-\		;
+\ Allot is defined in the same way as the internal $__alloc
+\ in the WASM system. All addresses are always aligned on i32
+\ boundaries.
+\
+\ NOTE: As earlier, here is not yet available, $0100 is the pointer
+\ that would later (once we have constants) be known as here
+\
+\ 	: allot ( n -- a-addr )
+\		$3 + $-4 and 		\ align size on 4-byte (cellsize) boundary
+\		$0100 @ + dup		\ increment here by the number of bytes
+\		$a0000 				\ hardcoded maximum available memory
+\		- $80000000 and 	\ check for negative value (high bit set)
+\		0= #-23 and throw	\ throw on
+\		$0100 !				\ write new value, return it
+\	;
 
-\ https://forth-standard.org/standard/core/ALLOT
+\ https://forth-standard.org/standard/core/OR
+\
+\ Implements bitwise or in terms of xor & and so
+\ that or(a, b) = a^b + a&b
+\
+\ 	: or ( a b -- a|b )
+\		over over 			( a b -- a b a b )
+\		xor 				( a b a b -- a b a^b )
+\		sp@ $2 cells - @	( a b a^b -- a b a^b a )
+\		sp@ $2 cells - @	( a b a^b a -- a b a^b a b )
+\		and +				( a b a^b a b -- a b a|b )
+\		sp@ $2 cells - !	( a b a|b -- a|b b )
+\		drop				( a|b b -- a|b )
+\	;
+
 \ https://forth-standard.org/standard/core/IMMEDIATE
 \ https://forth-standard.org/standard/core/CREATE
-\ https://forth-standard.org/standard/core/DUP
-\ https://forth-standard.org/standard/core/DROP
-\ https://forth-standard.org/standard/core/SWAP
+
 \ https://forth-standard.org/standard/core/VARIABLE
 \ https://forth-standard.org/standard/core/CONSTANT
 
@@ -99,10 +176,15 @@
 
 \ https://forth-standard.org/standard/core/IMMEDIATE
 \
+\ Adjusts the flags of the latest definition to be immediate
+\ by setting the correct flag, toggling the $02 bit
+\
+\ see ext/debug.f for all the known flags
+\
 \		: immediate ( -- )
-\			$c0de0041       ( -- $41 )  \ immediate ($01) + tokens ($40)
-\			latest			\ last compiled token
-\			{xt-set-flg}	\ write flag as set
+\			$0120 @ >flags 	\ get flags pointer
+\			dup @ $2 or 	\ toggle $02 via or
+\			swap ! 			\ write updated flags
 \		;
 
 \ https://forth-standard.org/standard/core/SOURCE
@@ -125,23 +207,10 @@
 \			drop 	( c-addr -- )					\ Drop the stored address value
 \		; immediate
 
-
-\ : (new-xt) ( body flags -- ptr )
-\ 	$0100 @ $5 cells allot 	( body flags -- body flags ptr )
-\ 	swap over 				( body flags ptr --- body ptr flags ptr )
-\ 	>flags !				( body ptr flags ptr -- body ptr )
-\ 	swap over				( body ptr -- ptr body ptr )
-\ 	>body !					( ptr body ptr -- ptr )
-\ ;
-
-\ : lit ( n -- ptr )
-\ 	$c0de0140	( n -- n flags )
-\ 	(new-xt) 	( n flags -- ptr )
-\ ;
-
 \ https://forth-standard.org/standard/core/p
 \
-\ TODO it should use refill internally for multi-line (as per std)
+\ TODO it should use refill internally for multi-line (as per std),
+\ this can only happen much later with more base words available to us
 
 	: ( \ ( -- )
 		')' parse			\ ( -- c-addr u )

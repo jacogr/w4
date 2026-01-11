@@ -14,26 +14,6 @@
 
 	: 1+ ( n -- n++ ) 1 + ;
 
-\ 	: xor ( a b -- a^b )
-\   over over or               \ a b ob
-\   sp@ $2 cells - @
-\   sp@ $2 cells - @
-\ and     \ a b ob ab
-\   -                     \ a b (ob-ab)
-\   swap drop swap drop	\ nip nip
-\ ;
-
-\ : or ( a b -- a|b )
-\ 	over over xor              \ a b ax
-\   sp@ $2 cells - @
-\   sp@ $2 cells - @
-\ and     \ a b ox ab
-\   +                     \ a b (ax+ab)
-\   sp@ $2 cells - !
-\   drop	\ nip nip
-\ \  swap drop swap drop            \ drop original a b
-\ ;
-
 \ https://forth-standard.org/standard/core/INVERT
 
 	: invert ( x -- !x ) -1 xor ;

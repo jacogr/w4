@@ -17,14 +17,14 @@ require preamble.f
 \
 \	<builds ] ( -- )	\ define "]"
 \		1 $0050 ! 		\ compile, 1 state ! (state constant not defined yet)
-\		1 $0050 !		\ apply to children
+\		1 $0050 !		\ apply when executed
 \	;
 
 \ https://forth-standard.org/standard/core/Colon
 \
 \	<builds : ( -- )	\ define ":"
-\		]				\ compile
-\		<builds	] 		\ apply "<builds [" to children
+\		]				\ switch to compile
+\		<builds	] 		\ apply "<builds ]" to children
 \	;
 
 \ https://forth-standard.org/standard/core/PARSE-NAME

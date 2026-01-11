@@ -32,6 +32,8 @@ The core tests are from the [forth2012-test-suite](https://github.com/gerryjacks
 - `git submodule init` initializes the submodules
 - `git submodule update` updates the actual code from the test suite
 
+At the root, tests can be executed with `node w4.js test/forth2012-test-suite/src/runtests.fth` - expect a lot of failures to start.
+
 
 ## future
 

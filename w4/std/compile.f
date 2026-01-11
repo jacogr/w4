@@ -14,6 +14,12 @@ require stack.f
 	: [ ( -- ) #0 state ! ; immediate \ interpret state
 
 \ https://forth-standard.org/standard/core/Comma
+\
+\ FIXME: This is not _quite_ compliant. In normal compilers, this
+\ would take _any_ stack value and compile it, we need an xt on
+\ the stack, i.e. 15 compile, will fail.
+\
+\ Needs a further check.
 
 	: , ( xt -- ) compile, ;
 
