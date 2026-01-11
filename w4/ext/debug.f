@@ -55,7 +55,7 @@ require w4/std/text.f
 	: (.r-tab) ( u -- ) #12 .r ;
 
 	\ hack blank with actual offsets inside the buffer (one past .)
-	: (see-text-skip) space s" .            " swap 1+ swap 1- type ;
+	: (see-text-skip) space s" .            " 1 /string type ;
 	: (see-text-imm.) space ." [imm.] " ;
 
 	: (see-xt) ( a-addr -- )

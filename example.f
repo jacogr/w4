@@ -1,5 +1,3 @@
-testing
-
 : foo
 	true if
 		$11
@@ -27,7 +25,7 @@ testing
 	\ 	then
 ;
 
-\ see foo
+see foo
 
 \ foo
 words

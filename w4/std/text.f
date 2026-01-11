@@ -48,6 +48,10 @@ require w4/std/stack.f
 
 	: bl ( -- char ) #32 ;
 
+\ https://forth-standard.org/standard/core/CHARS
+
+	: chars ( n -- n ) ; \ noop, char = 1 byte in size
+
 \ https://forth-standard.org/standard/core/CHARPlus
 
 	: char+ ( a-addr -- a-addr' ) 1+ ;
@@ -75,6 +79,14 @@ require w4/std/stack.f
 \ https://forth-standard.org/standard/core/BracketCHAR
 
 	: [char] ( -- ) char postpone literal ; immediate
+
+\ https://forth-standard.org/standard/string/DivSTRING
+
+	: /string ( c-addr u n -- c-addr' u' )
+		tuck - 		( c-addr u n -- c-addr n u' )
+		>r chars + 	( c-addr n u' -- c-addr' ) ( r: -- u' )
+		r> 			( c-addr' -- c-addr' u' ) ( r: u' -- )
+	;
 
 \ https://forth-standard.org/standard/core/HOLD
 
@@ -177,3 +189,10 @@ require w4/std/stack.f
 \ https://forth-standard.org/standard/core/Dotq
 
 	: ." ( "input<quote>" -- ) (s") state @ if postpone type else type then ; immediate
+
+\ https://forth-standard.org/standard/core/Dotp
+
+	: .( ( "ccc<paren>" -- )
+		')' parse	\ equiv: [char] )
+		type
+	; immediate
