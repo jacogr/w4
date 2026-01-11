@@ -215,24 +215,20 @@
 		(local $prev i32)
 
 		;; find last '/' in base path
-		(local.set $slash
+		(local.set $dir_len
 			(call $__strposr
 				(i32.const 47) ;; '/'
 				(local.get $base_ptr)
 				(local.get $base_len)))
 
-		;; slash in first position or empty dir?
+		;; absolute or empty dir?
 		(i32.or
 			(i32.eq
 				(i32.load8_u (local.get $inc_ptr))
 				(i32.const 47))
-			(i32.eqz (local.tee $dir_len
-				(select
-					(local.get $slash)
-					(i32.const 0)
-					(i32.ge_s (local.get $slash) (i32.const 0)))))) (if
+			(i32.eq (local.get $dir_len) (i32.const -1))) (if
 
-			;; absolute or empty, return as-is
+			;; absolute or no slash, return as-is
 			(then (return (local.get $inc_ptr) (local.get $inc_len)))
 
 			;; valid, continue
@@ -256,6 +252,8 @@
 			;; pop one directory component from dir (if any)
 			;; If dir_len == 0 => can't pop further; just drop the "../" anyway (clamp to empty)
 			(local.get $dir_len) (if
+
+				;; have a length
 				(then
 					;; find previous '/' within base[0..dir_len)
 					(local.set $prev
@@ -270,6 +268,8 @@
 							(local.get $prev)
 							(i32.const 0)
 							(i32.ge_s (local.get $prev) (i32.const 0)))))
+
+				;; nothing remaining
 				(else))
 
 			;; advance inc past "../"
@@ -287,13 +287,16 @@
 						(local.get $inc_len)))))
 
 		;; copy directory part
-		(memory.copy (local.get $ret_ptr) (local.get $base_ptr) (local.get $dir_len))
-
-		;; store current end location
-		(local.set $dst (i32.add (local.get $ret_ptr) (local.get $dir_len)))
+		(memory.copy
+			(local.get $ret_ptr)
+			(local.get $base_ptr)
+			(local.get $dir_len))
 
 		;; write '/'
-		(i32.store8 (local.get $dst) (i32.const 47))
+		(i32.store8
+			(local.tee $dst
+				(i32.add (local.get $ret_ptr) (local.get $dir_len)))
+			(i32.const 47))
 
 		;; copy include filename (possibly trimmed)
 		(memory.copy

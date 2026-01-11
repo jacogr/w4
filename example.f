@@ -25,9 +25,8 @@
 	\ 	then
 ;
 
-see foo
+\ see foo
 
-\ foo
 words
 
-.sa
+\ .sa
