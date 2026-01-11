@@ -23,8 +23,7 @@
 	;; Populates an iov header using the supplied string and length
 	;;
 	(func $__iov_fill (param $ptr i32) (param $str i32) (param $len i32) (param $hash i32) (result i32)
-		(call $__iov_set_str (local.get $ptr) (local.get $str))
-		(call $__iov_set_len (local.get $ptr) (local.get $len))
+		(call $__iov_set_str_len (local.get $ptr) (local.get $str) (local.get $len))
 		(call $__iov_set_hash (local.get $ptr) (local.get $hash))
 
 		;; return pointer
@@ -160,3 +159,7 @@
 	(func $__iov_get_str_len (param $ptr i32) (result i32 i32)
 		(call $__iov_get_str (local.get $ptr))
 		(call $__iov_get_len (local.get $ptr)))
+
+	(func $__iov_set_str_len (param $ptr i32) (param $str i32) (param $len i32)
+		(call $__iov_set_str (local.get $ptr) (local.get $str))
+		(call $__iov_set_len (local.get $ptr) (local.get $len)))

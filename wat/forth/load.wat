@@ -128,23 +128,7 @@
 	;; https://forth-standard.org/standard/file/REQUIRED
 	;;
 	(func $__internal_required (param $str i32) (param $len i32)
-		(local $hash i32)
-
-		;; included?
-		(call $__lookup_find
-			(global.get $list_incl)
-			(local.get $str)
-			(local.get $len)
-			(local.tee $hash
-				(call $__hash
-					(local.get $str)
-					(local.get $len)))) (if
-
-			;; already included, skip it
-			(then)
-
-			;; not found, include it
-			(else (call $__internal_included_inner (local.get $str) (local.get $len) (local.get $hash))))
+		(call $__internal_included_inner (local.get $str) (local.get $len) (i32.const 1))
 	)
 
 	;;
@@ -157,15 +141,68 @@
 		(call $__internal_included_inner
 			(local.get $str)
 			(local.get $len)
-			(call $__hash (local.get $str) (local.get $len)))
+			(i32.const 0))
 	)
 
-	(func $__internal_included_inner (param $str i32) (param $len i32) (param $hash i32)
+	(func $__internal_included_inner (param $str i32) (param $len i32) (param $is_req i32)
 		(local $f i32)
 		(local $s i32)
+		(local $p i32)
+		(local $hash i32)
+		(local $rel_str i32)
+		(local $rel_len i32)
 
 		;; zero name, -16 attempt to use zero-length string as a name
 		(call $__assert (local.get $len) (i32.const -16))
+
+		;; is there a previous frame?
+		(local.tee $p (call $__src_frame_peek)) (if
+
+			;; previous
+			(then
+				;; file?
+				(call $__src_get_kind (local.get $p)) (if
+
+					;; file
+					(then
+						;; create relative
+						(call $__file_relative
+							(call $__iov_get_str_len
+								(call $__src_get_ptr (local.get $p)))
+							(local.get $str)
+							(local.get $len))
+						local.set $len
+						local.set $str)
+
+					;; memory, skip
+					(else)))
+
+			;; none, no adjustments
+			(else))
+
+		;; create hash on adjusted values
+		(local.set $hash (call $__hash (local.get $str) (local.get $len)))
+
+		;; duplicate check?
+		(local.get $is_req) (if
+
+			;; check dupes
+			(then
+				;; included?
+				(call $__lookup_find
+					(global.get $list_incl)
+					(local.get $str)
+					(local.get $len)
+					(local.get $hash)) (if
+
+					;; already included, return
+					(then return)
+
+					;; not included, continue
+					(else)))
+
+			;; no checking
+			(else))
 
 		;; add to the known includes
 		(call $__lookup_append

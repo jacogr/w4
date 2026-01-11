@@ -81,6 +81,36 @@
 	)
 
 	;;
+	;; Find the occurence of a character in a string, -1 if
+	;; not found, else the position
+	;;
+	;; returns index of last char or -1 if not found
+	(func $__strposr (param $ch i32) (param $ptr i32) (param $len i32) (result i32)
+		(local $i i32)
+
+		(local.set $i (local.get $len))
+
+		(block $exit (loop $loop
+			;; -1, not found
+			(br_if $exit
+				(i32.eq
+					(local.tee $i (i32.sub (local.get $i) (i32.const 1)))
+					(i32.const -1)))
+
+			;; if ptr[i] == ch
+			(br_if $exit
+				(i32.eq
+					(i32.load8_u (i32.add (local.get $ptr) (local.get $i)))
+					(local.get $ch)))
+
+			;; next position
+			br $loop))
+
+		;; return last position
+		local.get $i
+	)
+
+	;;
 	;; Returns a character value if it would end a line
 	;;
 	;; Returns a non-zero (4 for eof/eos, 10 for eol) if the line
