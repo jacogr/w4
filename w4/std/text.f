@@ -1,6 +1,6 @@
-require w4/std/compile.f
-require w4/std/math.f
-require w4/std/stack.f
+require compile.f
+require math.f
+require stack.f
 
 \ https://forth-standard.org/standard/core/CFetch
 \

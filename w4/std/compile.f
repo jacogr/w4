@@ -1,5 +1,5 @@
-require w4/std/parse.f
-require w4/std/stack.f
+require parse.f
+require stack.f
 
 \ Non-standard, but well-known
 

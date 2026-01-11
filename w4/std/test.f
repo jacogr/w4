@@ -1,5 +1,5 @@
-require w4/std/parse.f
-require w4/std/text.f
+require parse.f
+require text.f
 
 \ Adapted from
 \ https://github.com/gerryjackson/forth2012-test-suite/blob/387ca77a3586dcc5f366f8ac3ff707ab80a1e3df/src/tester.fr

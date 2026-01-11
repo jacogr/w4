@@ -1,5 +1,5 @@
-require w4/std/logic.f
-require w4/std/stack.ptr.f
+require logic.f
+require stack.ptr.f
 
 \ https://forth-standard.org/standard/core/CELLPlus
 

@@ -1,6 +1,6 @@
-require w4/std/compile.f
-require w4/std/loops.f
-require w4/std/text.f
+require compile.f
+require loops.f
+require text.f
 
 \ \ https://forth-standard.org/standard/exception/CATCH
 \ \ https://forth-standard.org/standard/implement#imp:exception:CATCH

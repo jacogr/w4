@@ -1,6 +1,6 @@
-require w4/std/logic.f
-require w4/std/loops.f
-require w4/std/stack.f
+require logic.f
+require loops.f
+require stack.f
 
 \ https://forth-standard.org/standard/core/DECIMAL
 

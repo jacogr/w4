@@ -1,5 +1,4 @@
-require w4/std/compile.f
-require w4/std/loops.f
+require ../std/loops.f
 
 \ djb2a hash
 

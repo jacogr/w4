@@ -62,7 +62,7 @@
 
 \ mid-point require, we need the sp-n@ versions for <
 
-require w4/std/stack.ptr.f
+require stack.ptr.f
 
 \ https://forth-standard.org/standard/core/Equal
 

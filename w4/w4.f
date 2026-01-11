@@ -5,7 +5,7 @@
 	: parse-name #32 parse ;
 	: require parse-name required ;
 
-require w4/std/preamble.f
+require preamble.f
 
 \
 \ From here we should now be able to actually (mostly) parse
@@ -35,18 +35,18 @@ require w4/std/preamble.f
 \
 \ 	: require ( i * x "name" -- j * x ) parse-name required ;
 
-require w4/std/compile.f
+require std/compile.f
 \ require w4/std/exceptions.f
-require w4/std/logic.f
-require w4/std/loops.f
-require w4/std/math.f
-require w4/std/parse.f
-require w4/std/stack.f
-require w4/std/test.f
-require w4/std/text.f
+require std/logic.f
+require std/loops.f
+require std/math.f
+require std/parse.f
+require std/stack.f
+require std/test.f
+require std/text.f
 
-require w4/ext/debug.f
-\ require w4/ext/hash.f
+require ext/debug.f
+\ require ext/hash.f
 
 \
 \ End of library

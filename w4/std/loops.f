@@ -1,6 +1,6 @@
-require w4/std/compile.f
-require w4/std/logic.f
-require w4/std/stack.f
+require compile.f
+require logic.f
+require stack.f
 
 \ Conditional branch when top of stack is 0
 \ (Standard in older versions of ANS Forth, not in 2012)

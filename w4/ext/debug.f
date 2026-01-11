@@ -1,5 +1,4 @@
-require w4/std/compile.f
-require w4/std/text.f
+require ../std/text.f
 
 \ builtin flags for the environment
 
