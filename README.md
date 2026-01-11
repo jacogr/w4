@@ -2,6 +2,7 @@
 
 What you found is a [Forth](https://forth-standard.org/) interpreter (and possibly a compiler in the future) implemented with [WAT](https://developer.mozilla.org/en-US/docs/WebAssembly/Guides/Understanding_the_text_format) using [WASI](https://github.com/WebAssembly/WASI/blob/main/docs/Proposals.md) to ensure compatibility accross platforms.
 
+
 ## requirements
 
 There are a couple of tools needed to actually build and run the demos. There certainly should not be the need for installation-fatigue, so it is meant to be kept simple:
@@ -11,15 +12,26 @@ There are a couple of tools needed to actually build and run the demos. There ce
 - [wat2wasm & wasmopt](https://github.com/WebAssembly/wabt) - Used to build the WAT sources
 - (optional) [node](https://nodejs.org/en) - Used to run the included `w4.js` sample (other language bridges should follow)
 
+
 ## building
 
 `make clean && make` will build the source (assuming a unix-y OS) into the `build/` folder.
+
 
 ## executing
 
 Currently only a Node wrapper is available to execute a single file. After building, you can do `node w4.js example.f` which will execute the code in `example.f`.
 
 Something useful in development has been `make clean && make && ls -al build && node w4.js example.f` (everything is still small enough that there is no major penalty to do _everything_ in the build)
+
+
+## testing
+
+The core tests are from the [forth2012-test-suite](https://github.com/gerryjackson/forth2012-test-suite). Instead of just copying, these are added as a git submodule. On a fresh clone, this is not immediate available, so a couple of command are needed to pull it down (if you wish to run the tests).
+
+- `git submodule init` initializes the submodules
+- `git submodule update` updates the actual code from the test suite
+
 
 ## future
 
@@ -30,8 +42,9 @@ Current plans are -
 - make it fully forth-2012 compilant (extends and build all missing words)
 - expand the tests to actually pass the whole forth-2012 suite
 - cater for an interactive evaluation environment (bonus: available on the web) - it focussses on interpreting files and then exiting
-- expand this into a forth2wat compiler, we have the definitiaons, it can output calls from there
+- expand this into a forth2wat compiler, we have the definitions, it can output calls from there
 - probably a lot of other things
+
 
 ## faq
 
