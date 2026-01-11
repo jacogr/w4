@@ -14,6 +14,8 @@ require stack.ptr.f
 	: pick 1+ cells sp@ swap - @ ;
 
 \ https://forth-standard.org/standard/core/TUCK
+\
+\ Copy the first (top) stack item below the second stack item.
 
 	: tuck ( x y -- y x y ) swap over ;
 

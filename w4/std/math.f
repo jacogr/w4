@@ -133,10 +133,16 @@ require stack.f
 	: mod ( q r - q ) /mod drop ;
 
 \ https://forth-standard.org/standard/core/TwoTimes
+\
+\ x' is the result of shifting x one bit toward the most-significant
+\ bit, filling the vacated least-significant bit with zero.
 
 	: 2* ( x -- x' ) dup + ;
 
 \ https://forth-standard.org/standard/core/TwoDiv
+\
+\ x' is the result of shifting x1 one bit toward the least-significant
+\ bit, leaving the most-significant bit unchanged.
 
 	: 2/ ( x -- x' )
 		dup 0< msb and	\ n signbitmask (0 or msb)
@@ -144,11 +150,24 @@ require stack.f
 		or				\ arithmetic result
 	;
 
+\ https://forth-standard.org/standard/core/PlusStore
+\
+\ Add n | u to the single-cell number at a-addr.
+
+	: +! ( n|u a-addr -- )
+		tuck		( n a-addr -- a-addr n a-addr )
+		@ + 		( a-addr n a-addr -- a-addr n' )
+		swap ! 		( a-addr n' -- )
+	;
+
 \ https://forth-standard.org/standard/core/MAX
+\
+\ n3 is the greater of n1 and n2.
 
 	: max ( n1 n2 -- n3 ) over 2dup > >r - r> and + ;
 
 \ https://forth-standard.org/standard/core/MIN
+\
+\ n3 is the lesser of n1 and n2.
 
 	: min ( n1 n2 -- n3 ) over 2dup < >r - r> and + ;
-

@@ -42,7 +42,7 @@
 	: (mmio:) constant ;
 	: (mmio@) constant does> @ ;
 
-	$0100 (mmio:) here
+	$0100 (mmio@) here
 	$0104 (mmio:) (here-min)
 	$0104 (mmio:) (here-max)
 	$0110 (mmio:) source-id

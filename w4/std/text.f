@@ -38,7 +38,8 @@ require stack.f
 
 \ https://forth-standard.org/standard/core/EMIT
 
-	: emit ( ch -- )
+	: emit ( x -- )
+		$ff and			( x -- ch )
 		sp@ 1			( ch -- ch c-addr 1 )
 		1 iov>fd		( ch c-addr 1 -- ch ) \ emit to stdout
 		drop			( ch -- )
@@ -196,3 +197,83 @@ require stack.f
 		')' parse	\ equiv: [char] )
 		type
 	; immediate
+
+\ https://forth-standard.org/standard/string/CMOVE
+\
+\ If u is greater than zero, copy u consecutive characters from the data
+\ space starting at c-addr1 to that starting at c-addr2, proceeding
+\ character-by-character from lower addresses to higher addresses.
+
+	: cmove ( src dst u -- )
+		begin
+			dup
+		while
+			>r                 \ save u
+			over c@            \ fetch char from src
+			>r                 \ save char
+			over r> swap c!    \ store char to dst
+			1+ swap 1+ swap    \ src++ dst++
+			r> 1-              \ restore u--
+		repeat
+		drop 2drop
+	;
+
+\ https://forth-standard.org/standard/string/CMOVEtop
+\
+\ If u is greater than zero, copy u consecutive characters from the data
+\ space starting at c-addr1 to that starting at c-addr2, proceeding
+\ character-by-character from higher addresses to lower addresses.
+
+	: cmove> ( src dst u -- )
+		dup 0= if 2drop drop exit then
+		begin
+			dup
+		while
+			1-
+			over over + c@
+			rot over + c!
+			rot
+		repeat
+		drop 2drop
+	;
+
+\ https://forth-standard.org/standard/core/MOVE
+\
+\ If u is greater than zero, copy the contents of u consecutive address units
+\ at src to the u consecutive address units at dst.
+
+	: move ( src dst u -- )
+		2dup swap u< if
+			cmove
+		else
+			cmove>
+		then
+	;
+
+\ https://forth-standard.org/standard/core/WORD
+\
+\ Skip leading delimiters. Parse characters ccc delimited by char. An
+\ ambiguous condition exists if the length of the parsed string is greater
+\ than the implementation-defined length of a counted string.
+
+	: word ( char "<chars>ccc<char>" -- c-addr )
+		parse
+		dup $ff and swap drop        ( c-addr u' )
+
+		here >r                      ( c-addr u' )   ( r: dst )
+		dup 1+ allot                 ( c-addr u' )
+		dup r@ c!                    ( c-addr u' )
+		r@ 1+ swap cmove             ( -- )
+		r>
+	;
+
+\ https://forth-standard.org/standard/core/COUNT
+\
+\ Return the character string specification for the counted string
+\ stored at c-addr1
+
+	: count ( c-addr1 -- c-addr2 u )
+		dup c@ 		\ fetch count
+		swap 1+ 	\ point to first char
+		swap
+	;
