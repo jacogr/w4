@@ -55,7 +55,7 @@
 		(local $len i32)
 
 		;; set the current alloc position (after execption, end of constant memory)
-		(i32.store (global.get $PTR_ALLOC) (call $__alloc_align (call $__excep_init)))
+		(i32.store (global.get $PTR_ALLOC) (call $__excep_init))
 
 		;; allocate dictionary & list for includes
 		(global.set $list_dict (call $__store (global.get $PTR_PTR_DICT) (call $__dict_init (i32.const 1024))))

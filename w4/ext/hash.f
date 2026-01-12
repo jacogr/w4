@@ -29,9 +29,9 @@ require ../std/loops.f
 
 	: fmix32 ( u -- u' )
 		dup 16 rshift xor	\ h ^= h >> 16
-		0x85ebca6b *		\ h *= 0x85ebca6b
+		$85ebca6b *		\ h *= 0x85ebca6b
 		dup 13 rshift xor	\ h ^= h >> 13
-		0xc2b2ae35 *		\ h *= 0xc2b2ae35
+		$c2b2ae35 *		\ h *= 0xc2b2ae35
 		dup 16 rshift xor	\ h ^= h >> 16
 	;
 

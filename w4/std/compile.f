@@ -106,6 +106,8 @@ require stack.f
 \ definition.
 
 	: recurse  ( -- )
-		latest name>xt			( -- xt )
-		compile,				( -- )
+		latest name>xt   \ get xt of current definition
+		lit,             \ compile it as a literal
+		(xt-execute) compile,
 	; immediate
+

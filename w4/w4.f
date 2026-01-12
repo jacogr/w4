@@ -47,7 +47,7 @@ require std/test.f
 require std/text.f
 
 require ext/debug.f
-\ require ext/hash.f
+require ext/hash.f
 
 \
 \ End of library

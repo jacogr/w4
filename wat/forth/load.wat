@@ -204,13 +204,13 @@
 			;; no checking
 			(else))
 
-		;; add to the known includes
+		;; add to the known includes (w/ non-transient string)
 		(call $__lookup_append
 			(global.get $list_incl)
 			(local.get $hash)
 			(local.tee $f
 				(call $__val_new
-					(local.get $str)
+					(call $__strdup_n (local.get $str) (local.get $len))
 					(local.get $len)
 					(local.get $hash)
 					(local.tee $s (call $__alloc (global.get $SIZEOF_SRC)))

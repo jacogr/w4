@@ -55,7 +55,7 @@
 		;; -19 definition name too long
 		(call $__assert (i32.le_u (local.get $len) (i32.const 48)) (i32.const -19))
 
-		;; create a hidden definition for this word with a new tokens list
+		;; create a hidden definition for this word (w/ non-transient string)
 		(global.set $list_toks (call $__list_new))
 		(global.set $xt_comp
 			(call $__store

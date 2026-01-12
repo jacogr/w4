@@ -194,8 +194,8 @@
 
 	;; https://forth-standard.org/proposals/find-name
 	;; ( c-addr u -- xt | 0 )
-	(elem (i32.const 15) $__forth_fn_find)
-	(func $__forth_fn_find (type $TypeForthFn)
+	(elem (i32.const 15) $__forth_fn_find_name)
+	(func $__forth_fn_find_name (type $TypeForthFn)
 		(local $len i32)
 		(local $str i32)
 
@@ -224,18 +224,24 @@
 	;; ( char "ccc<char>" -- c-addr u )
 	(elem (i32.const 17) $__forth_fn_parse)
 	(func $__forth_fn_parse (type $TypeForthFn)
-		(local $str i32)
-		(local $len i32)
-
-		(call $__internal_parse (call $__stack_dat_pop))
-		local.set $len
-		local.set $str
-
-		;; Duplicate the string so it can be stable/non-transient
-		;; inside the forth environment
 		(call $__stack_dat_2push
-			(call $__strdup_n (local.get $str) (local.get $len))
-			(local.get $len))
+			(call $__internal_parse (call $__stack_dat_pop)))
+
+		;; FIXME Kept around for _when_ or _if_ teh above transient
+		;; buffers become problematic. so far, so good...
+		;;
+		;; (local $str i32)
+		;; (local $len i32)
+
+		;; (call $__internal_parse (call $__stack_dat_pop))
+		;; local.set $len
+		;; local.set $str
+
+		;; ;; Duplicate the string so it can be stable/non-transient
+		;; ;; inside the forth environment
+		;; (call $__stack_dat_2push
+		;; 	(call $__strdup_n (local.get $str) (local.get $len))
+		;; 	(local.get $len))
 	)
 
 	;; https://forth-standard.org/standard/core/QUIT

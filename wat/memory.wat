@@ -59,47 +59,31 @@
 	(global $PTR_EXCEP_TEXT   i32 (i32.const 1392)) ;; exception text, 1232 + 160
 
 	;;
-	;; Calculate the required size for 4-byte alignment
+	;; Allocates a section of memory and returns the address
 	;;
-	;;		((size + (1 << 2)) >> 2) << 2) is
-	;;      ((size + 3) / 4) * 4)
-	;;
-	;; is the same as
-	;;
-	;;		((size + 4) & -4)
-	;;
-	(func $__alloc_align (param $size i32) (result i32)
-		(i32.and
-			(i32.add
-				(local.get $size)
-				(i32.const 3))
-			(i32.const -4))
+	(func $__alloc (export "alloc") (param $size i32) (result i32)
+		;; allocate w/ address alignment
+		(call $__alloc_inner
+			(i32.and
+				(i32.add
+					(i32.load (global.get $PTR_ALLOC))
+					(i32.const 3))
+				(i32.const -4))
+			(local.get $size))
 	)
 
 	;;
-	;; Allocates a section of memory and returns the address
+	;; Internal function with pointer & address allocation
 	;;
-	;; We ensure that we allocate in sizes evenly divisible by 16 bytes
-	;; to allow for v128 alignment throughout. The 16-byte alignment also
-	;; applies to the pointer.
-	;;
-	;; However Forth also has access to it, so alignment may be off, hence
-	;; adjusting the pointer value as well. In that world thinking is around
-	;; cells, which are 32-bit and allocation can happen at that level.
-	;;
-	(func $__alloc (export "alloc") (param $size i32) (result i32)
+	(func $__alloc_inner (param $ptr i32) (param $size i32) (result i32)
 		(local $nxt i32)
-		(local $ptr i32)
 
 		;; ensure max memory > next pointer, -23 address alignment exception
 		(call $__assert
 			(i32.gt_u
 				(global.get $SIZEOF_MEMORY_MAX)
 				(local.tee $nxt
-					(i32.add
-						(call $__alloc_align (local.get $size))
-						(local.tee $ptr
-							(call $__alloc_align (i32.load (global.get $PTR_ALLOC)))))))
+					(i32.add (local.get $ptr) (local.get $size))))
 			(i32.const -23))
 
 		;; update the next pointer with the calculated size
