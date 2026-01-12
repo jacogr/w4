@@ -7,12 +7,16 @@
 	: true ( -- true ) 0 0= ;
 
 \ https://forth-standard.org/standard/core/OneMinus
+\
+\ Subtract one (1) from n1 | u1 giving the difference n2 | u2.
 
-	: 1- ( n -- n-- ) 1 - ;
+	: 1- ( n1 | u1 -- n2 | u2 ) 1 - ;
 
 \ https://forth-standard.org/standard/core/OnePlus
+\
+\ Add one (1) to n1 | u1 giving the sum n2 | u2.
 
-	: 1+ ( n -- n++ ) 1 + ;
+	: 1+ ( n1 | u1 -- n2 | u2 ) 1 + ;
 
 \ https://forth-standard.org/standard/core/INVERT
 

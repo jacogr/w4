@@ -29,7 +29,10 @@
 	: (latest>tail) $0120 @ >body @ list>tail ;
 	: (latest>body) (latest>tail) name>prev	name>xt >body ;
 
-	: allot $3 + $-4 and $0100 @ + dup $a0000 - $80000000 and 0= #-23 and throw $0100 ! ;
+	: (here!) dup $a0000 - $80000000 and 0= #-23 and throw $0100 ! ;
+	: allot $0100 @ + (here!) ;
+	: aligned $3 + $-4 and ;
+	: align $0100 @ aligned (here!) ;
 	: (new-xt) $0100 @ $5 cells allot swap over >flags ! swap over >body ! ;
 	: reveal $0120 @ >flags dup @ $1 or swap ! ;
 	: immediate $0120 @ >flags dup @ $2 or swap ! ;
@@ -148,6 +151,14 @@
 \		0= #-23 and throw	\ throw on
 \		$0100 !				\ write new value, return it
 \	;
+
+\ https://forth-standard.org/standard/core/ALIGNED
+\
+\ a-addr is the first aligned address greater than or equal to addr.
+
+\ https://forth-standard.org/standard/core/ALIGN
+\
+\ If the data-space pointer is not aligned, reserve enough space to align it.
 
 \ https://forth-standard.org/standard/core/OR
 \

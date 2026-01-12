@@ -277,3 +277,29 @@ require stack.f
 		swap 1+ 	\ point to first char
 		swap
 	;
+
+\ https://forth-standard.org/standard/core/FIND
+\
+\ Find the definition named in the counted string at c-addr. If the definition
+\ is not found, return c-addr and zero. If the definition is found, return its
+\ execution token xt. If the definition is immediate, also return one (1),
+\ otherwise also return minus-one (-1).
+\
+\ TODO Factor out the flag test between here and name>compile
+
+	: find ( c-addr -- c-addr 0 | xt 1 | xt -1 )
+		dup >r                 \ save original counted-string address
+		count find-name        \ -> c-addr' u -> nt | 0
+		dup 0= if              \ not found
+			drop
+			r> 0
+			exit
+		then
+		r> drop                \ discard original c-addr
+		name>xt                \ nt -> xt
+		dup >flags @ $02 and if
+			1                    \ immediate
+		else
+			-1                   \ normal
+		then
+	;
