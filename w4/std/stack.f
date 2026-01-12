@@ -3,7 +3,9 @@ require stack.ptr.f
 
 \ https://forth-standard.org/standard/core/CELLPlus
 
-	: cell+ ( a-addr -- a-addr' ) 1 cells + ;
+	1 cells constant cell
+
+	: cell+ ( a-addr -- a-addr' ) cell + ;
 
 \ https://forth-standard.org/standard/core/NIP
 

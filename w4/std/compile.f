@@ -1,4 +1,3 @@
-require parse.f
 require stack.f
 
 \ Non-standard, but well-known
@@ -6,26 +5,46 @@ require stack.f
 	: noop ( -- ) ;
 
 \ https://forth-standard.org/standard/tools/BYE
+\
+\ Return control to the host operating system, if any.
 
 	: bye ( -- ) 0 >r ;
 
 \ https://forth-standard.org/standard/core/Bracket
+\
+\ Enter interpretation state. [ is an immediate word.
 
 	: [ ( -- ) #0 state ! ; immediate \ interpret state
 
-\ https://forth-standard.org/standard/core/Comma
-\
-\ FIXME: This is not _quite_ compliant. In normal compilers, this
-\ would take _any_ stack value and compile it, we need an xt on
-\ the stack, i.e. 15 compile, will fail.
-\
-\ Needs a further check.
-
-	: , ( xt -- ) compile, ;
-
 \ https://forth-standard.org/standard/core/LITERAL
+\
+\ Append the run-time semantics given below to the current definition.
+\
+\ At runtime place x on the stack.
 
 	: literal ( -- x ) lit, ; immediate
+
+\ https://forth-standard.org/standard/core/Tick
+\
+\ Skip leading space delimiters. Parse name delimited by a space. Find name
+\ and return xt, the execution token for name.
+
+	: ?parse-name ( "name" -- c-addr u ) parse-name dup 0= #-16 and throw ;
+
+	: ?find-name ( c-addr u -- nt ) find-name dup 0= #-13 and throw ;
+
+	: ' ( "name" -- xt ) ?parse-name ?find-name name>xt ;
+
+\ https://forth-standard.org/standard/core/BracketTick
+\
+\ Skip leading space delimiters. Parse name delimited by a space. Find name.
+\ Append the run-time semantics given below to the current definition.
+\
+\ At runtime: Place name's execution token xt on the stack. The execution token
+\ returned by the compiled phrase "['] X" is the same value returned by "' X"
+\ outside of compilation state.
+
+	: ['] ( -- xt ) ' lit, ; immediate
 
 \ branchless select: return true if flag=-1, false if flag=0
 \ matches C (cond ? true : false)
@@ -59,6 +78,9 @@ require stack.f
 	: name>string ( nt -- c-addr u ) name>xt >string ;
 
 \ https://forth-standard.org/standard/core/POSTPONE
+\
+\ Skip leading space delimiters. Parse name delimited by a space. Find name.
+\ Append the compilation semantics of name to the current definition.
 
 	: postpone  ( "name" -- )
 		?parse-name ?find-name		( "name" -- nt )
@@ -77,9 +99,11 @@ require stack.f
 	\ ;
 
 \ https://forth-standard.org/standard/core/RECURSE
+\
+\ Append the execution semantics of the current definition to the current
+\ definition.
 
 	: recurse  ( -- )
 		latest name>xt			( -- xt )
 		compile,				( -- )
 	; immediate
-

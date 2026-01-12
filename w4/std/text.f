@@ -1,27 +1,8 @@
 require compile.f
 require math.f
+require memory.f
+require parse.f
 require stack.f
-
-\ https://forth-standard.org/standard/core/CFetch
-\
-\ Fetch the character stored at c-addr. Since the cell size
-\ is greater than character size, the high-order bits are zero.
-\
-\ NOTE (also applies to c!) Since a full cell is fetch/store-ed
-\ here, the engine may have alignment issues since it won't be
-\ on a boundary. With this in mind, it certainly is probably less
-\ efficient than exposing it as a native
-
-	: c@ ( addr -- char ) @ $ff and	;
-
-\ https://forth-standard.org/standard/core/CStore
-
-	: c! ( c addr -- )
-		dup @           ( c addr -- c addr u )   \ fetch memory
-		$ff invert and  ( c addr u -- c addr u ) \ zero out low byte
-		rot $ff and     \ zero out high byte of value being stored
-		or swap !       \ overwrite low byte of existing contents
-	;
 
 \ https://forth-standard.org/standard/core/TYPE
 
@@ -50,18 +31,26 @@ require stack.f
 	: bl ( -- char ) #32 ;
 
 \ https://forth-standard.org/standard/core/CHARS
+\
+\ n2 is the size in address units of n1 characters.
 
-	: chars ( n -- n ) ; \ noop, char = 1 byte in size
+	: chars ( n1 -- n2 ) ; \ noop, char = 1 byte in size
 
 \ https://forth-standard.org/standard/core/CHARPlus
+\
+\ Add the size in address units of a character to c-addr1, giving c-addr2.
 
-	: char+ ( a-addr -- a-addr' ) 1+ ;
+	: char+ ( a-addr2 -- a-addr2 ) 1+ ;
 
 \ https://forth-standard.org/standard/core/SPACE
+\
+\ Display one space.
 
 	: space ( -- ) bl emit ;
 
 \ https://forth-standard.org/standard/core/SPACES
+\
+\ If n is greater than zero, display n spaces.
 
 	: spaces ?dup if 0 do space loop then ;
 
@@ -70,6 +59,9 @@ require stack.f
 	: cr ( -- ) #10 emit ;
 
 \ https://forth-standard.org/standard/core/CHAR
+\
+\ Skip leading space delimiters. Parse name delimited by a space. Put the
+\ value of its first character onto the stack.
 
 	: char ( "<spaces>name" -- char )
 		parse-name			( -- c-addr u )    	   \ parse the name/next
@@ -197,109 +189,3 @@ require stack.f
 		')' parse	\ equiv: [char] )
 		type
 	; immediate
-
-\ https://forth-standard.org/standard/string/CMOVE
-\
-\ If u is greater than zero, copy u consecutive characters from the data
-\ space starting at c-addr1 to that starting at c-addr2, proceeding
-\ character-by-character from lower addresses to higher addresses.
-
-	: cmove ( src dst u -- )
-		begin
-			dup
-		while
-			>r                 \ save u
-			over c@            \ fetch char from src
-			>r                 \ save char
-			over r> swap c!    \ store char to dst
-			1+ swap 1+ swap    \ src++ dst++
-			r> 1-              \ restore u--
-		repeat
-		drop 2drop
-	;
-
-\ https://forth-standard.org/standard/string/CMOVEtop
-\
-\ If u is greater than zero, copy u consecutive characters from the data
-\ space starting at c-addr1 to that starting at c-addr2, proceeding
-\ character-by-character from higher addresses to lower addresses.
-
-	: cmove> ( src dst u -- )
-		dup 0= if 2drop drop exit then
-		begin
-			dup
-		while
-			1-
-			over over + c@
-			rot over + c!
-			rot
-		repeat
-		drop 2drop
-	;
-
-\ https://forth-standard.org/standard/core/MOVE
-\
-\ If u is greater than zero, copy the contents of u consecutive address units
-\ at src to the u consecutive address units at dst.
-
-	: move ( src dst u -- )
-		2dup swap u< if
-			cmove
-		else
-			cmove>
-		then
-	;
-
-\ https://forth-standard.org/standard/core/WORD
-\
-\ Skip leading delimiters. Parse characters ccc delimited by char. An
-\ ambiguous condition exists if the length of the parsed string is greater
-\ than the implementation-defined length of a counted string.
-
-	: word ( char "<chars>ccc<char>" -- c-addr )
-		parse
-		dup $ff and swap drop        ( c-addr u' )
-
-		here >r                      ( c-addr u' )   ( r: dst )
-		dup 1+ allot                 ( c-addr u' )
-		dup r@ c!                    ( c-addr u' )
-		r@ 1+ swap cmove             ( -- )
-		r>
-	;
-
-\ https://forth-standard.org/standard/core/COUNT
-\
-\ Return the character string specification for the counted string
-\ stored at c-addr1
-
-	: count ( c-addr1 -- c-addr2 u )
-		dup c@ 		\ fetch count
-		swap 1+ 	\ point to first char
-		swap
-	;
-
-\ https://forth-standard.org/standard/core/FIND
-\
-\ Find the definition named in the counted string at c-addr. If the definition
-\ is not found, return c-addr and zero. If the definition is found, return its
-\ execution token xt. If the definition is immediate, also return one (1),
-\ otherwise also return minus-one (-1).
-\
-\ TODO Factor out the flag test between here and name>compile
-
-	: find ( c-addr -- c-addr 0 | xt 1 | xt -1 )
-		dup >r                 \ save original counted-string address
-		count find-name        \ -> c-addr' u -> nt | 0
-		dup 0= if              \ not found
-			drop
-			r> 0
-			exit
-		then
-		r> drop                \ discard original c-addr
-		name>xt                \ nt -> xt
-		dup >flags @ $02 and if
-			1                    \ immediate
-		else
-			-1                   \ normal
-		then
-	;

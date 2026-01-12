@@ -40,6 +40,7 @@ require std/compile.f
 require std/logic.f
 require std/loops.f
 require std/math.f
+require std/memory.f
 require std/parse.f
 require std/stack.f
 require std/test.f
@@ -47,6 +48,14 @@ require std/text.f
 
 require ext/debug.f
 \ require ext/hash.f
+
+create a
+a .
+here .
+1 , here .
+2 , here .
+a @ .
+a cell+ @ .
 
 \
 \ End of library
