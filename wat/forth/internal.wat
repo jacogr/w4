@@ -427,33 +427,49 @@
 
 				;; try to create literal
 				(else
+					;; set the immediate flag to false (execute below)
+					(local.set $xt_imm (i32.const 0))
+
 					;; parse it as a literal
 					(call $__str_to_num (local.get $wptr) (local.get $wlen) (call $__get_base))
 					local.set $xt_flg
 					local.set $xt_val
 
-					;; store token already (need it for assert debug trace)
-					(global.set $xt_exec
-						(local.tee $ptr_xt
-							(call $__store
-								(global.get $PTR_PTR_TOK_EXE)
-								(local.tee $ptr_xt
-									(call $__val_new
-										;; no ptr/len for lits
-										(local.get $xt_flg) (if (result i32 i32)
-											;; literal, drop string
-											(then (i32.const 0) (i32.const 0))
-											;; unknown, will error below
-											(else (local.get $wptr) (local.get $wlen)))
-										(i32.const 0)
-										(local.get $xt_val)
-										(local.get $xt_flg))))))
+					;; executing & valid literal?
+					(i32.and
+						(i32.eqz (i32.load (global.get $PTR_STATE)))
+						(call $__has_flag
+							(local.get $xt_flg)
+							(global.get $FLG_LIT))) (if
 
-					;; should have a non-zero flag, -13 undefined word
-					(call $__assert (local.get $xt_flg) (i32.const -13))
+					;; interpret state literal → push directly and continue
+					(then
+						(call $__internal_execute_literal
+							(local.get $xt_val)
+							(local.get $xt_flg))
+						br $loop)
 
-					;; set the immediate flag to false (execute below)
-					(local.set $xt_imm (i32.const 0))))
+					;; either compiling or invalid
+					(else
+						;; store token already (need it for assert debug trace)
+						(global.set $xt_exec
+							(local.tee $ptr_xt
+								(call $__store
+									(global.get $PTR_PTR_TOK_EXE)
+									(local.tee $ptr_xt
+										(call $__val_new
+											;; no ptr/len for lits
+											(local.get $xt_flg) (if (result i32 i32)
+												;; literal, drop string
+												(then (i32.const 0) (i32.const 0))
+												;; unknown, will error below
+												(else (local.get $wptr) (local.get $wlen)))
+											(i32.const 0)
+											(local.get $xt_val)
+											(local.get $xt_flg))))))
+
+						;; should have a non-zero flag, -13 undefined word
+						(call $__assert (local.get $xt_flg) (i32.const -13))))))
 
 				;; execute (immediate or state=0) or compile
 				(i32.and
