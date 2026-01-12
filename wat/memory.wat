@@ -20,7 +20,7 @@
 	;; constants and are accessible via memory location in the
 	;; interpreter
 	(global $PTR_ALLOC         i32 (i32.const 0x0100))
-	(global $PTR_ALLOC_MIN   i32 (i32.const 0x0104))
+	(global $PTR_ALLOC_MIN     i32 (i32.const 0x0104))
 	(global $PTR_ALLOC_MAX     i32 (i32.const 0x0108))
 	(global $PTR_SRC_ID        i32 (i32.const 0x0110))
 	(global $PTR_PTR_LINE_OFF  i32 (i32.const 0x0114))
