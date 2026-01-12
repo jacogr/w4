@@ -51,5 +51,11 @@ $(WASM): $(GEN_WAT)
 $(WASMOPTED): $(WASM)
 	$(WASMOPT) $(WASMOPT_FLAGS) $< -o $@
 
+# cleanup build
 clean:
 	rm -rf $(BUILD)
+
+# run tests
+check: $(WASMOPTED)
+	@echo "Running Forth 2012 test suite..."
+	node w4.js test/forth2012-test-suite/src/runtests.fth
