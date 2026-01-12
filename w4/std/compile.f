@@ -62,9 +62,11 @@ require stack.f
 	' execute  constant (xt-execute)
 	' compile, constant (xt-compile,)
 
+	: not-immediate? ( xt -- f ) >flags @ $02 and 0= ;
+
 	: name>compile ( nt -- xt action-xt )
 		name>xt						( nt -- xt )
-  		dup >flags @ $02 and 0=		( xt -- xt flag )
+  		dup not-immediate?			( xt -- xt flag )
   		(xt-compile,) (xt-execute)	( xt flag -- xt flag xtc xte )
 		select						( xt flag xtc xte -- xt action-xt )
 	;

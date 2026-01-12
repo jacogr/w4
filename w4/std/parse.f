@@ -44,19 +44,15 @@ require memory.f
 \ TODO Factor out the flag test between here and name>compile
 
 	: find ( c-addr -- c-addr 0 | xt 1 | xt -1 )
-		dup >r                 \ save original counted-string address
-		count find-name        \ -> c-addr' u -> nt | 0
-		dup 0= if              \ not found
+		dup >r
+		count find-name              \ nt | 0
+		dup 0= if
 			drop
 			r> 0
-			exit
-		then
-		r> drop                \ discard original c-addr
-		name>xt                \ nt -> xt
-		dup >flags @ $02 and if
-			1                    \ immediate
 		else
-			-1                   \ normal
+			r> drop
+			name>xt                    \ xt
+			dup not-immediate?		\ -1 if not immediate, 0 if immediate
+			-1 1 select                \ -1 normal, 1 immediate
 		then
 	;
-
