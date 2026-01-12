@@ -12,7 +12,7 @@ BUILD     = build
 
 ENTRY_WAT = $(WAT_DIR)/main.wat
 GEN_WAT   = $(BUILD)/w4.wat
-SRC_WATS  := $(wildcard $(WAT_DIR)/*.wat)
+SRC_WATS  := $(shell find $(WAT_DIR) -type f -name '*.wat' -print)
 
 WASM      = $(BUILD)/w4.wasm
 WASMOPTED = $(BUILD)/w4-opt.wasm
@@ -33,7 +33,7 @@ endif
 
 # targets
 
-.PHONY: all run clean
+.PHONY: all run clean check
 all: $(WASMOPTED)
 
 $(BUILD):

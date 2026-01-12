@@ -9,6 +9,7 @@ There are a couple of tools needed to actually build and run the demos. There ce
 
 - [make](https://en.wikipedia.org/wiki/Make_(software)) - A very widely used toolset, if you've compiled anything before, it _should_ be available on your machine
 - [m4](https://en.wikipedia.org/wiki/M4_(computer_language)) - It should be included if you are using a unix-y OS
+- [find](https://en.wikipedia.org/wiki/Find_(Unix)) - used in the Makefile to build a source list, standard on unix-y OS
 - [wat2wasm & wasmopt](https://github.com/WebAssembly/wabt) - Used to build the WAT sources
 - (optional) [node](https://nodejs.org/en) - Used to run the included `w4.js` sample (other language bridges should follow)
 
