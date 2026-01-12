@@ -49,14 +49,6 @@ require std/text.f
 require ext/debug.f
 \ require ext/hash.f
 
-create a
-a .
-here .
-1 , here .
-2 , here .
-a @ .
-a cell+ @ .
-
 \
 \ End of library
 \

@@ -50,20 +50,14 @@ require stack.f
 \ Fetch the cell pair x1 x2 stored at a-addr. x2 is stored at a-addr and x1 at
 \ the next consecutive cell. It is equivalent to the sequence DUP CELL+ @ SWAP @.
 
-	: 2@ ( a-addr -- x1 x2 )
-		dup @
-		swap cell+ @
-	;
+	: 2@ ( a-addr -- x1 x2 ) dup cell+ @ swap @ ;
 
 \ https://forth-standard.org/standard/core/TwoStore
 \
 \ Store the cell pair x1 x2 at a-addr, with x2 at a-addr and x1 at the next
 \ consecutive cell. It is equivalent to the sequence SWAP OVER ! CELL+ !.
 
-	: 2! ( x1 x2 a-addr -- )
-		swap over !
-		cell+ !
-	;
+	: 2! ( x1 x2 a-addr -- ) swap over ! cell+ ! ;
 
 \ mid-point require since the remainder rely on looping being available
 
