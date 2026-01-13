@@ -122,9 +122,5 @@ require stack.f
 \ Append the execution semantics of the current definition to the current
 \ definition.
 
-	: recurse  ( -- )
-		latest name>xt   \ get xt of current definition
-		lit,             \ compile it as a literal
-		(xt-execute) compile,
-	; immediate
+	: recurse ( -- ) latest compile, ; immediate
 
