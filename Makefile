@@ -18,6 +18,8 @@ SRC_WATS  := $(shell find $(WAT_DIR) -type f -name '*.wat' -print)
 WASM      = $(BUILD)/w4.wasm
 WASMOPTED = $(BUILD)/w4-opt.wasm
 
+TESTS_STD = test/forth2012-test-suite/src/runtests.fth
+
 
 # flags
 
@@ -59,5 +61,5 @@ clean:
 	rm -rf $(BUILD)
 
 # run tests
-check: $(WASMOPTED)
-	$(NODE) $(NODE_FLAGS) w4.js test/forth2012-test-suite/src/runtests.fth
+check: $(WASMOPTED) $(TESTS_STD)
+	$(NODE) $(NODE_FLAGS) w4.js $(TESTS_STD)
