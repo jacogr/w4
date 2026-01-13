@@ -4,6 +4,8 @@ require text.f
 \ Adapted from
 \ https://github.com/gerryjackson/forth2012-test-suite/blob/387ca77a3586dcc5f366f8ac3ff707ab80a1e3df/src/tester.fr
 \
+\ (As included in the submodule test/forth2012-test-suite/src/tester.fr file)
+\
 \ From: John Hayes S1I
 \ Subject: tester.fr
 \ Date: Mon, 27 Nov 95 13:10:09 PST
