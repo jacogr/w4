@@ -24,7 +24,7 @@ require stack.f
 
 	: (resolve) ( a-addr -- )
 		cs>						( c: orig -- )
-		name>xt >body			\ load placeholder body
+		name>xt >value			\ load placeholder body
 		(latest>tail) swap !	\ write tail location
 	;
 

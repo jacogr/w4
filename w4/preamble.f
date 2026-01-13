@@ -11,7 +11,8 @@
 	: >string dup @ swap $1 cells + @ ;
 	: >hash $2 cells + ;
 	: >flags $3 cells + ;
-	: >body $4 cells + ;
+	: >value $4 cells + ;
+	: >body >value 1 cells + >value @ >value @ ;
 
 	: name>prev @ ;
 	: name>next $1 cells + @ ;
@@ -26,22 +27,22 @@
 	: list>file $4 cells + @ ;
 	: list>rowcol $2 cells + @ ;
 
-	: (latest>tail) $0120 @ >body @ list>tail ;
-	: (latest>body) (latest>tail) name>prev	name>xt >body ;
+	: (latest>tail) $0120 @ >value @ list>tail ;
+	: (latest>value) (latest>tail) name>prev name>xt >value ;
 
 	: (here!) dup $a0000 - $80000000 and 0= #-23 and throw $0100 ! ;
 	: allot $0100 @ + (here!) ;
 	: aligned $3 + $-4 and ;
 	: align $0100 @ aligned (here!) ;
-	: (new-xt) $0100 @ $5 cells allot swap over >flags ! swap over >body ! ;
+	: (new-xt) $0100 @ $5 cells allot swap over >flags ! swap over >value ! ;
 	: reveal $0120 @ >flags dup @ $1 or swap ! ;
 	: immediate $0120 @ >flags dup @ $2 or swap ! ;
 
 	: lit $c0de0140 (new-xt) ;
 	: lit, lit compile, ;
-	: create <builds -1 lit, $0100 @ (latest>body) ! reveal ;
+	: create <builds -1 lit, $0100 @ (latest>value) ! reveal ;
 	: variable create $1 cells allot ;
-	: constant create (latest>body) ! ;
+	: constant create (latest>value) ! ;
 	: (mmio:) constant ;
 	: (mmio@) constant does> @ ;
 
@@ -153,7 +154,7 @@
 \ 	: (here!)	( a-addr -- )
 \		dup $a0000 - 		\ subtract from maxiumum memory position
 \		$80000000 and 0=	\ signed bit should not be set
-\		#-23 and throw 		\ if set, throw error
+\		#-23 and throw 		\ if negative, throw error
 \		$0100 !				\ update address, underlying here pointer
 \	;
 
@@ -165,13 +166,6 @@
 \ 	: allot ( n -- )
 \		$0100 @ + 			\ advance address ny n units
 \		(here!)				\ write updated location
-\	;
-\		$3 + $-4 and 		\ align size on 4-byte (cellsize) boundary
-\		$0100 @ + dup		\ increment here by the number of bytes
-\		$a0000 				\ hardcoded maximum available memory
-\		- $80000000 and 	\ check for negative value (high bit set)
-\		0= #-23 and throw	\ throw on
-\		$0100 !				\ write new value, return it
 \	;
 
 \ https://forth-standard.org/standard/core/ALIGNED

@@ -68,13 +68,13 @@ require ../std/text.f
 
 		dup (flg-xt-lit) is-flag? if		( a-addr flags -- a-addr flags )
 			(flg-set-var) is-flag? if		( a-addr flags -- a-addr ) \ variation?
-				dup >body @ (u.r-tabd)		( a-addr -- a-addr )
+				dup >value @ (u.r-tabd)		( a-addr -- a-addr )
 			else
-				dup >body @ (u.r-tab)		( a-addr -- a-addr )
+				dup >value @ (u.r-tab)		( a-addr -- a-addr )
 			then
 		else								( a-addr flags -- a-addr flags )
 			(flg-xt-does) is-flag? if		( a-addr flags -- a-addr )
-				dup >body @ (u.r-tab)		( a-addr -- a-addr )
+				dup >value @ (u.r-tab)		( a-addr -- a-addr )
 			else
 				(see-text-skip)					( a-addr -- a-addr )
 			then
@@ -110,7 +110,7 @@ require ../std/text.f
 		cr
 
 		dup >flags @ (flg-xt-tkn) is-flag? if
-			>body @ list>head			( base xt -- base head-nt )
+			>value @ list>head			( base xt -- base head-nt )
 			begin
 			 	dup (u.r-tab)			( base nt -- base nt )
 				dup (see-nt) cr			( base nt -- base nt )
