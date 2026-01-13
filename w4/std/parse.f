@@ -15,15 +15,21 @@ require memory.f
 \ Skip leading delimiters. Parse characters ccc delimited by char. An
 \ ambiguous condition exists if the length of the parsed string is greater
 \ than the implementation-defined length of a counted string.
+\
+\ c-addr is the address of a transient region containing the parsed word as a
+\ counted string. If the parse area was empty or contained no characters other
+\ than the delimiter, the resulting string has a zero length. A program may
+\ replace characters within the string.
+
+	create (word-tmp-buf) 256 allot
 
 	: word ( char "<chars>ccc<char>" -- c-addr )
-		parse
-		dup $ff and swap drop        ( c-addr u' )
+		parse                         ( c-addr u )
+		dup $ff and swap drop         ( c-addr u' )
 
-		here >r                      ( c-addr u' )   ( r: dst )
-		dup 1+ allot                 ( c-addr u' )
-		dup r@ c!                    ( c-addr u' )
-		r@ 1+ swap cmove             ( -- )
+		(word-tmp-buf) >r             ( c-addr u' ) ( r: dst )
+		dup r@ c!                     ( c-addr u' )        \ store count
+		r@ 1+ swap cmove              ( -- )                \ copy chars
 		r>
 	;
 
