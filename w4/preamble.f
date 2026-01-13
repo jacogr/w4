@@ -60,8 +60,6 @@
 	$0148 (mmio@) (cp^)
 	$0150 (mmio:) state
 	$0154 (mmio:) base
-	$0160 (mmio:) (tmp^)
-	$0170 (mmio:) (tmp#^)
 
 	: source (lniov^) >string ;
 

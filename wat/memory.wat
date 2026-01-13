@@ -35,8 +35,6 @@
 	(global $PTR_PTR_STACK_SRC i32 (i32.const 0x014c))
 	(global $PTR_STATE         i32 (i32.const 0x0150))
 	(global $PTR_BASE          i32 (i32.const 0x0154))
-	(global $PTR_TMP           i32 (i32.const 0x0160)) ;; temp 16-bytes, don't rely on it
-	(global $PTR_TMP_STR       i32 (i32.const 0x0170)) ;; temp 64-bytes, don't rely on it
 	;; next layout starting at 512 (0x0200)
 
 	;; init for known values

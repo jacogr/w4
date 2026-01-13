@@ -10,10 +10,12 @@ require stack.f
 \ c-addr and u. Characters are in the display range as per the runtime
 \ environment.
 
+	create (iov-tmp-out) 16 allot
+
 	: iov>fd ( c-addr-u u 1|2 -- ) \ 1=stdout, 2=stderr
 		#2 (sp@-) 			( c-addr u 1|2 -- c-addr u 1|2 a-iov )
 		1 					\ write a single iov
-		(tmp^)				( c-addr u 1|2 a-iov 1 -- c-addr u 1|2 a-iov 1 a-tmp )
+		(iov-tmp-out)		( c-addr u 1|2 a-iov 1 -- c-addr u 1|2 a-iov 1 a-tmp )
 		wasi::fd_write		( c-addr u 1|2 a-iov 1 a-tmp -- c-addr u err )
 		0<> #-37 and throw	( c-addr u err -- c-addr u )
 		2drop				( c-addr u -- )
@@ -110,11 +112,13 @@ require stack.f
 \
 \ Add char to the beginning of the pictured numeric output string.
 
+	create (#-tmp-buf) 80 allot
+
 	: hold ( char -- )
-		(tmp#^) @		\ get offset
-		(tmp#^) + c! 	\ store char at offset
-		(tmp#^) @ 1-	\ decrement offset
-		(tmp#^) !		\ store offset
+		(#-tmp-buf) @		\ get offset
+		(#-tmp-buf) + c! 	\ store char at offset
+		(#-tmp-buf) @ 1-	\ decrement offset
+		(#-tmp-buf) !		\ store offset
 	;
 
 \ https://forth-standard.org/standard/core/SIGN
@@ -130,7 +134,7 @@ require stack.f
 
 	: (#max) #63 ; \ 64 bytes available, 0..63
 
-	: (#len) ( -- n ) (#max) (tmp#^) @ - ;
+	: (#len) ( -- n ) (#max) (#-tmp-buf) @ - ;
 
 	: (#pad) ( n ud -- ud' )
 		base @ #16 = if '$' hold else base @ #2 = if '%' hold then then
@@ -139,7 +143,7 @@ require stack.f
 
 	: (#chr) ( n -- char ) dup #9 > #39 and + '0' + ; \ exploit that 'A' - '9' = 8, 'a' - '9' = 40
 
-	: <# ( -- ) (#max) (tmp#^) ! ;
+	: <# ( -- ) (#max) (#-tmp-buf) ! ;
 
 \ https://forth-standard.org/standard/core/num
 \
@@ -169,7 +173,7 @@ require stack.f
 
 	: #> ( xd -- c-addr u )
 		drop					( xd -- )
-		(tmp#^) (tmp#^) @ + 1+	( -- c-addr )
+		(#-tmp-buf) (#-tmp-buf) @ + 1+	( -- c-addr )
 		(#len)					( c-addr -- c-addr u )
 	;
 
