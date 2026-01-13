@@ -58,6 +58,10 @@ require stack.f
 	;
 
 \ https://forth-standard.org/standard/tools/NAMEtoCOMPILE
+\
+\ x xt represents the compilation semantics of the word nt. The returned xt
+\ has the stack effect ( i * x x -- j * x ). Executing xt consumes x and
+\ performs the compilation semantics of the word represented by nt.
 
 	' execute  constant (xt-execute)
 	' compile, constant (xt-compile,)
@@ -72,10 +76,23 @@ require stack.f
 	;
 
 \ https://forth-standard.org/standard/tools/NAMEtoINTERPRET
+\
+\ xt represents the interpretation semantics of the word nt. If nt has no
+\ interpretation semantics, NAME>INTERPRET returns 0.
+\
+\ NOTE We _always_ assume that we can interpret anything, this includes all
+\ immediate words as well. This assumption _may_ not be true in the future and
+\ the _may_ need adjustment
 
 	: name>interpret ( nt -- xt ) name>xt ;
 
 \ https://forth-standard.org/standard/tools/NAMEtoSTRING
+\
+\ NAME>STRING returns the name of the word nt in the character string c-addr u.
+\ The case of the characters in the string is implementation-dependent.
+\
+\ In this implementation we will output as defined, but can consume in a case-
+\ insenstive manner
 
 	: name>string ( nt -- c-addr u ) name>xt >string ;
 

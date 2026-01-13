@@ -2,18 +2,25 @@ require logic.f
 require stack.ptr.f
 
 \ https://forth-standard.org/standard/core/CELLPlus
+\
+\ Add the size in address units of a cell to a-addr1, giving a-addr2.
 
 	1 cells constant cell
 
 	: cell+ ( a-addr -- a-addr' ) cell + ;
 
 \ https://forth-standard.org/standard/core/NIP
+\
+\ Drop the first item below the top of stack.
 
 	: nip ( x y -- y ) swap drop ;
 
 \ https://forth-standard.org/standard/core/PICK
+\
+\ Copy the xu to the top of the stack. An ambiguous condition exists if there
+\ are less than u+2 items on the stack before PICK is executed.
 
-	: pick 1+ cells sp@ swap - @ ;
+	: pick ( xu...x1 x0 u -- xu...x1 x0 xu ) 1+ cells sp@ swap - @ ;
 
 \ https://forth-standard.org/standard/core/TUCK
 \
@@ -22,16 +29,22 @@ require stack.ptr.f
 	: tuck ( x y -- y x y ) swap over ;
 
 \ https://forth-standard.org/standard/core/TwoDUP
+\
+\ Duplicate cell pair
 
 	: 2dup ( x y -- x y x y ) over over ;
 
 \ https://forth-standard.org/standard/core/TwoOVER
+\
+\ Copy cell pair x1 y2 to the top of the stack.
 
-	: 2over ( x y -- x y x y ) sp-3@ sp-3@ ;
+	: 2over ( x1 y1 x2 y2 -- x1 y1 x2 y2 x1 y1 ) sp-3@ sp-3@ ;
 
 \ https://forth-standard.org/standard/core/TwoSWAP
+\
+\ Exchange the top two cell pairs.
 
-	: 2swap ( 1 2 3 4 -- 3 4 1 2 )
+	: 2swap ( a b c d -- c d a b )
 		sp-1@ sp-1@		( a b c d -- a b c d c d )
 		sp-5@ sp-5@ 	( a b c d c d -- a b c d c d a b )
 		sp-4! sp-4! 	( a b c d c d a b -- a b a b c d )
@@ -39,10 +52,14 @@ require stack.ptr.f
 	;
 
 \ https://forth-standard.org/standard/core/TwoDROP
+\
+\ Drop cell pair x y from the stack.
 
 	: 2drop ( x y -- ) drop drop ;
 
 \ https://forth-standard.org/standard/core/ROT
+\
+\ Rotate the top three stack entries. (-rot is the reverse, or rot rot)
 
 	: 3dup ( x y z -- x y z x y z ) sp-2@ sp-2@ sp-2@ ;
 
@@ -90,6 +107,10 @@ require stack.ptr.f
 	;
 
 \ https://forth-standard.org/standard/tools/CS-PICK
+\
+\ Remove u. Copy destu to the top of the control-flow stack. An ambiguous
+\ condition exists if there are less than u+1 items, each of which shall be
+\ an orig or dest, on the control-flow stack before CS-PICK is executed.
 
 	: cs-pick ( n -- x ) (cs@-) @ ;
 
@@ -99,6 +120,8 @@ require stack.ptr.f
 	: branch ( dest -- ) r! ;
 
 \ https://forth-standard.org/standard/core/toR
+\
+\ Move x to the return stack.
 
 	: >r ( x -- r:x )
 		r@ swap		\ Swap the input & address
@@ -107,6 +130,9 @@ require stack.ptr.f
 	;
 
 \ https://forth-standard.org/standard/core/TwotoR
+\
+\ Transfer cell pair x1 x2 to the return stack. Semantically
+\ equivalent to SWAP >R >R.
 
 	: (2>radd) ( ret x2 -- ) ( r: -- x1 x2 )
 		r!			( ret x2 -- ret ) ( r: x1 -- x1 x2 )
@@ -120,6 +146,8 @@ require stack.ptr.f
 	;
 
 \ https://forth-standard.org/proposals/standardize-the-well-known-rdrop#contribution-417
+\
+\ Drop the top-most return stack value
 
 	: (r-drop) ( -- )
 		r-depth 3 < #-6 and throw	\ call into r-drop & this
@@ -130,6 +158,8 @@ require stack.ptr.f
 	: r-drop ( -- ) (r-drop) ;
 
 \ https://forth-standard.org/standard/core/Rfrom
+\
+\ Move x from the return stack to the data stack.
 
 	: r> ( R:x -- x )
 		r-1@		\ fetch value under caller’s return-to
@@ -137,6 +167,9 @@ require stack.ptr.f
 	;
 
 \ https://forth-standard.org/standard/core/TwoRfrom
+\
+\ Transfer cell pair x1 x2 from the return stack. Semantically
+\ equivalent to R> R> SWAP.
 
 	: (r-2drop) ( -- )
 		r-depth 4 < #-6 and throw	\ call into r-drop & this
@@ -150,15 +183,10 @@ require stack.ptr.f
 	;
 
 \ https://forth-standard.org/standard/core/TwoRFetch
+\
+\ Copy cell pair x1 x2 from the return stack. Semantically
+\ equivalent to R> R> 2DUP >R >R SWAP.
 
 	: 2r@ ( r: x y ) ( -- x y )
 		r-2@ r-1@
 	;
-
-\ https://forth-standard.org/standard/core/ROLL
-\ https://forth-standard.org/standard/tools/CS-ROLL
-
-	\ dup 0= if drop exit then  swap >r 1- recurse r> swap
-	\ : roll ( xn-1 ... x0 i -- xn-1 ... xi-1 xi+1 ... x0 xi )
-    \ 	?dup 0= ?exit swap >r 1- recurse r> swap
-    \ ;

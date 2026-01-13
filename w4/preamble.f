@@ -149,17 +149,25 @@
 \		drop				( a|b b -- a|b )
 \	;
 
+\ Helper for allot & aligned that checks and writes to the
+\ underlying here pointer location to adavance here
+\
+\ 	: (here!)	( a-addr -- )
+\		dup $a0000 - 		\ subtract from maxiumum memory position
+\		$80000000 and 0=	\ signed bit should not be set
+\		#-23 and throw 		\ if set, throw error
+\		$0100 !				\ update address, underlying here pointer
+\	;
 
 \ https://forth-standard.org/standard/core/ALLOT
-\
-\ Allot is defined in the same way as the internal $__alloc
-\ in the WASM system. All addresses are always aligned on i32
-\ boundaries.
 \
 \ NOTE: As earlier, here is not yet available, $0100 is the pointer
 \ that would later (once we have constants) be known as here
 \
-\ 	: allot ( n -- a-addr )
+\ 	: allot ( n -- )
+\		$0100 @ + 			\ advance address ny n units
+\		(here!)				\ write updated location
+\	;
 \		$3 + $-4 and 		\ align size on 4-byte (cellsize) boundary
 \		$0100 @ + dup		\ increment here by the number of bytes
 \		$a0000 				\ hardcoded maximum available memory
@@ -171,14 +179,20 @@
 \ https://forth-standard.org/standard/core/ALIGNED
 \
 \ a-addr is the first aligned address greater than or equal to addr.
+\ We have 4-byte cells, so mask the lower bits and advance
+\
+\	: aligned ( a-addr -- a-addr' ) $3 + $-4 and ;
 
 \ https://forth-standard.org/standard/core/ALIGN
 \
 \ If the data-space pointer is not aligned, reserve enough space to align it.
+\
+\ 	: align ( -- )
+\		$0100 @ aligned		\ align current address
+\		(here!) 			\ write updated value
+\	;
 
-\ https://forth-standard.org/standard/core/IMMEDIATE
 \ https://forth-standard.org/standard/core/CREATE
-
 \ https://forth-standard.org/standard/core/VARIABLE
 \ https://forth-standard.org/standard/core/CONSTANT
 
