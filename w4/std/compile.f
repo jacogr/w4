@@ -96,6 +96,16 @@ require stack.f
 
 	: name>string ( nt -- c-addr u ) name>xt >string ;
 
+\ https://forth-standard.org/standard/core/toBODY
+\
+\ a-addr is the data-field address corresponding to xt. An ambiguous condition
+\ exists if xt is not for a word defined via CREATE.
+
+	: >body
+		>value list>head @  \ nt value is a list
+		name>xt >value @ 	\ get value of nt>xt
+	;
+
 \ https://forth-standard.org/standard/core/POSTPONE
 \
 \ Skip leading space delimiters. Parse name delimited by a space. Find name.

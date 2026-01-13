@@ -12,7 +12,6 @@
 	: >hash $2 cells + ;
 	: >flags $3 cells + ;
 	: >value $4 cells + ;
-	: >body >value 1 cells + >value @ >value @ ;
 
 	: name>prev @ ;
 	: name>next $1 cells + @ ;
