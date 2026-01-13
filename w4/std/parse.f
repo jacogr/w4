@@ -3,6 +3,10 @@ require loops.f
 require memory.f
 
 \ https://forth-standard.org/standard/file/INCLUDE
+\
+\ Skip leading white space and parse name delimited by a white space
+\ character. Push the address and length of the name on the stack and
+\ perform the function of INCLUDED.
 
 	: include ( i * x "name" -- j * x ) parse-name included	;
 
@@ -40,8 +44,6 @@ require memory.f
 \ is not found, return c-addr and zero. If the definition is found, return its
 \ execution token xt. If the definition is immediate, also return one (1),
 \ otherwise also return minus-one (-1).
-\
-\ TODO Factor out the flag test between here and name>compile
 
 	: find ( c-addr -- c-addr 0 | xt 1 | xt -1 )
 		dup >r

@@ -13,16 +13,11 @@ require ../std/text.f
 	$deadfeed constant (flg-list)
 	$feedc0de constant (flg-name)
 
-\ https://forth-standard.org/standard/tools/SEE
-\
-\ TODO
-\	- Proper message when name is not found
+\ Checks for the validity of the addresses, either valid, xt, nt or
+\ list. In this the defined flags for the implemetation is used.
 
 	: is-alloc-range? ( n -- f )
-		dup here @ <	( n -- n n<here )
-		swap dup 0> 	( n n<here -- n<here n n>0 )
-		swap $3 and 0=	( n<here n n>0 -- n<here n>0 n%4=0 )
-		and and			( n<here n>0 n%4=0 -- f )
+		here @ <	( n -- n<here )
 	;
 
 	: is-flag? ( n flag -- f ) dup >r and r> = ;
@@ -45,11 +40,18 @@ require ../std/text.f
 		else 0 and then
 	;
 
+\ https://forth-standard.org/standard/tools/SEE
+\
+\ Display a human-readable representation of the named word's definition.
+\ The source of the representation (object-code decompilation, source block
+\  etc.) and the particular form of the display is implementation defined.
+\
+\ TODO
+\	- Proper message when name is not found
+
 	: (u.r-tab) ( u -- ) #12 u.r ;
 
 	: (u.r-tabd) ( u -- ) #12 u.rd ;
-
-	: (u.r-tab2) ( u -- ) #21 u.r2 ;
 
 	: (.r-tab) ( u -- ) #12 .r ;
 
@@ -122,6 +124,9 @@ require ../std/text.f
 	;
 
 \ https://forth-standard.org/standard/tools/DotS
+\
+\ Copy and display the values currently on the data stack. The format of
+\ the display is implementation-dependent.
 
 	: (.s-cell) ( addr -- )
 		dup (u.r-tab)					( addr -- addr )
@@ -167,6 +172,9 @@ require ../std/text.f
 	: .sa ( -- ) .s .sc (.sr) ;
 
 \ https://forth-standard.org/standard/tools/WORDS
+\
+\ List the definition names in the first word list of the search order.
+\ The format of the display is implementation-dependent.
 \
 \ TODO
 \	- remove (words-count) when we have actual locals

@@ -70,18 +70,21 @@ require loops.f
 \ character-by-character from lower addresses to higher addresses.
 
 	: cmove ( src dst u -- )
+		\ stack: src dst u
 		begin
-			dup
+			dup                     \ src dst u u
 		while
-			>r                 \ save u
-			over c@            \ fetch char from src
-			>r                 \ save char
-			over r> swap c!    \ store char to dst
-			1+ swap 1+ swap    \ src++ dst++
-			r> 1-              \ restore u--
+			\ copy one byte
+			>r                      \ src dst u          r: u
+			over c@                 \ src dst u char
+			over c!                 \ src dst u          (store char to dst)
+			1+                      \ src dst' u         (dst++)
+			swap 1+ swap            \ src' dst' u        (src++)
+			r> 1-                   \ src' dst' u'       (u--)
 		repeat
-		drop 2drop
+		drop 2drop					\ (cleanup u=0, drop src dst)
 	;
+
 
 \ https://forth-standard.org/standard/string/CMOVEtop
 \
@@ -90,16 +93,22 @@ require loops.f
 \ character-by-character from higher addresses to lower addresses.
 
 	: cmove> ( src dst u -- )
-		dup 0= if 2drop drop exit then
+		\ stack: src dst u
 		begin
-			dup
+			dup                     \ src dst u u
 		while
-			1-
-			over over + c@
-			rot over + c!
-			rot
+			1-                      \ src dst u'          \ u' = u-1 (offset)
+			>r                      \ src dst             r: u'
+
+			\ fetch from src+u'
+			over r@ + c@            \ src dst char        r: u'
+
+			\ store to dst+u'
+			over r@ + c!            \ src dst             r: u'
+
+			r>                      \ src dst u'          \ keep decreased u on stack for next loop
 		repeat
-		drop 2drop
+		drop 2drop              \ drop u, drop src dst
 	;
 
 \ https://forth-standard.org/standard/core/MOVE

@@ -2,6 +2,8 @@ require ../std/loops.f
 
 \ djb2a hash
 \ loops: ((hash << 5) + hash) ^ ch
+\
+\ https://en.wikipedia.org/wiki/Daniel_J._Bernstein
 
 	: djb2a ( c-addr u -- u )
 		$1505 swap 0		( c-addr u -- c-addr hash u 0 -- )
@@ -15,6 +17,8 @@ require ../std/loops.f
 
 \ fnv1a hash
 \ loops: (hash ^ ch) * prime
+\
+\ https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
 
 	: fnv1a ( c-addr u -- u )
 		$811c9dc5 swap 0	( c-addr u -- c-addr hash u 0 -- )
@@ -26,6 +30,8 @@ require ../std/loops.f
 	;
 
 \ fmix32
+\
+\ https://github.com/aappleby/smhasher/blob/master/src/MurmurHash3.cpp
 
 	: fmix32 ( u -- u' )
 		dup 16 rshift xor	\ h ^= h >> 16
@@ -35,10 +41,7 @@ require ../std/loops.f
 		dup 16 rshift xor	\ h ^= h >> 16
 	;
 
-\ host-compatible hash values for lookups
+\ host-compatible hash values for lookups, applies fmix32(fnv1a(value))
 
 	: host::hash ( c-addr u -- u ) fnv1a fmix32	;
 
-	: host::hash'
-		parse-name host::hash
-	;

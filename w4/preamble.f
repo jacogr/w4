@@ -134,6 +134,22 @@
 \		sp@ $1 cells - ! 	( y y x -- y x )
 \	;
 
+\ https://forth-standard.org/standard/core/OR
+\
+\ Implements bitwise or in terms of xor & and so
+\ that or(a, b) = a^b + a&b
+\
+\ 	: or ( a b -- a|b )
+\		over over 			( a b -- a b a b )
+\		xor 				( a b a b -- a b a^b )
+\		sp@ $2 cells - @	( a b a^b -- a b a^b a )
+\		sp@ $2 cells - @	( a b a^b a -- a b a^b a b )
+\		and +				( a b a^b a b -- a b a|b )
+\		sp@ $2 cells - !	( a b a|b -- a|b b )
+\		drop				( a|b b -- a|b )
+\	;
+
+
 \ https://forth-standard.org/standard/core/ALLOT
 \
 \ Allot is defined in the same way as the internal $__alloc
@@ -159,21 +175,6 @@
 \ https://forth-standard.org/standard/core/ALIGN
 \
 \ If the data-space pointer is not aligned, reserve enough space to align it.
-
-\ https://forth-standard.org/standard/core/OR
-\
-\ Implements bitwise or in terms of xor & and so
-\ that or(a, b) = a^b + a&b
-\
-\ 	: or ( a b -- a|b )
-\		over over 			( a b -- a b a b )
-\		xor 				( a b a b -- a b a^b )
-\		sp@ $2 cells - @	( a b a^b -- a b a^b a )
-\		sp@ $2 cells - @	( a b a^b a -- a b a^b a b )
-\		and +				( a b a^b a b -- a b a|b )
-\		sp@ $2 cells - !	( a b a|b -- a|b b )
-\		drop				( a|b b -- a|b )
-\	;
 
 \ https://forth-standard.org/standard/core/IMMEDIATE
 \ https://forth-standard.org/standard/core/CREATE

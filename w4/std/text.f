@@ -5,6 +5,10 @@ require parse.f
 require stack.f
 
 \ https://forth-standard.org/standard/core/TYPE
+\
+\ If u is greater than zero, display the character string specified by
+\ c-addr and u. Characters are in the display range as per the runtime
+\ environment.
 
 	: iov>fd ( c-addr-u u 1|2 -- ) \ 1=stdout, 2=stderr
 		#2 (sp@-) 			( c-addr u 1|2 -- c-addr u 1|2 a-iov )
@@ -18,6 +22,14 @@ require stack.f
 	: type ( c-addr u -- ) 1 iov>fd ; \ emit to stdout
 
 \ https://forth-standard.org/standard/core/EMIT
+\
+\ If x is a graphic character in the implementation-defined character set,
+\ display x. The effect of EMIT for all other values of x is implementation-
+\ defined.
+\
+\ When passed a character whose character-defining bits have a value between
+\ hex 20 and 7E inclusive, the corresponding standard character, specified by
+\ 3.1.2.1 Graphic characters, is displayed.
 
 	: emit ( x -- )
 		$ff and			( x -- ch )
@@ -27,6 +39,8 @@ require stack.f
 	;
 
 \ https://forth-standard.org/standard/core/BL
+\
+\ char is the character value for a space.
 
 	: bl ( -- char ) #32 ;
 
@@ -55,6 +69,8 @@ require stack.f
 	: spaces ?dup if 0 do space loop then ;
 
 \ https://forth-standard.org/standard/core/CR
+\
+\ Cause subsequent output to appear at the beginning of the next line.
 
 	: cr ( -- ) #10 emit ;
 
@@ -70,10 +86,19 @@ require stack.f
 	;
 
 \ https://forth-standard.org/standard/core/BracketCHAR
+\
+\ Skip leading space delimiters. Parse name delimited by a space. Append the
+\ run-time semantics given below to the current definition.
+\
+\ At runtime: Place char, the value of the first character name, on the stack.
 
 	: [char] ( -- ) char postpone literal ; immediate
 
 \ https://forth-standard.org/standard/string/DivSTRING
+\
+\ Adjust the character string at c-addr1 by n characters. The resulting
+\ character string, specified by c-addr2 u2, begins at c-addr1 plus n
+\ characters and is u1 minus n characters long.
 
 	: /string ( c-addr u n -- c-addr' u' )
 		tuck - 		( c-addr u n -- c-addr n u' )
@@ -82,6 +107,8 @@ require stack.f
 	;
 
 \ https://forth-standard.org/standard/core/HOLD
+\
+\ Add char to the beginning of the pictured numeric output string.
 
 	: hold ( char -- )
 		(tmp#^) @		\ get offset
@@ -91,10 +118,15 @@ require stack.f
 	;
 
 \ https://forth-standard.org/standard/core/SIGN
+\
+\ If n is negative, add a minus sign to the beginning of the pictured
+\ numeric output string.
 
 	: sign ( n -- ) 0< if '-' hold then ;
 
 \ https://forth-standard.org/standard/core/num-start
+\
+\ Initialize the pictured numeric output conversion process.
 
 	: (#max) #63 ; \ 64 bytes available, 0..63
 
@@ -110,6 +142,11 @@ require stack.f
 	: <# ( -- ) (#max) (tmp#^) ! ;
 
 \ https://forth-standard.org/standard/core/num
+\
+\ Divide ud1 by the number in BASE giving the quotient ud2 and the
+\ remainder n. (n is the least significant digit of ud1.) Convert n
+\ to external form and add the resulting character to the beginning
+\ of the pictured numeric output string
 
 	: # ( ud -- ud' )
 		base @ u/mod 	( ud -- ud2 u.rem )
@@ -118,10 +155,17 @@ require stack.f
 	;
 
 \ https://forth-standard.org/standard/core/numS
+\
+\ Convert one digit of ud1 according to the rule for #. Continue conversion
+\ until the quotient is zero. ud2 is zero.
 
 	: #s ( ud -- ud' ) begin # dup 0= until ;
 
 \ https://forth-standard.org/standard/core/num-end
+\
+\ Drop xd. Make the pictured numeric output string available as a character
+\ string. c-addr and u specify the resulting character string. A program may
+\ replace characters within the string.
 
 	: #> ( xd -- c-addr u )
 		drop					( xd -- )
@@ -130,6 +174,10 @@ require stack.f
 	;
 
 \ https://forth-standard.org/standard/core/UDotR
+\
+\ Display u right aligned in a field n characters wide. If the number
+\ of characters required to display u is greater than n, all digits are
+\ displayed with no leading spaces in a field as wide as necessary.
 
 	: (u.r) swap #s (#pad) ;
 
@@ -146,21 +194,19 @@ require stack.f
 		#> type space
 	;
 
-	: u.r2 ( u1 u2 n -- )
-		<#
-			swap #s  		( u n -- n ud )
-			drop ':' hold
-			(u.r)
-		#> type space
-	;
-
 \ https://forth-standard.org/standard/core/Ud
+\
+\ Display u in free field format.
 
 	: u. ( u -- ) 0 u.r ;
 
 \ https://forth-standard.org/standard/core/DotR
+\
+\ Display n1 right aligned in a field n2 characters wide. If the number
+\ of characters required to display n1 is greater than n2, all digits are
+\ displayed with no leading spaces in a field as wide as necessary.
 
-	: .r ( n u -- )
+	: .r ( n1 n2 -- )
 		<#
 			swap dup abs #s		( n u -- u n du )
 			swap sign (#pad)	( u n ud -- u ud )
@@ -168,24 +214,48 @@ require stack.f
 	;
 
 \ https://forth-standard.org/standard/core/d
+\
+\ Display n in free field format.
 
 	: . ( n -- ) 0 .r ;
 
 \ https://forth-standard.org/standard/core/Sq
+\
+\ Parse ccc delimited by " (double-quote). Append the run-time semantics
+\ given below to the current definition.
+\
+\ At runtime: Return c-addr and u describing a string consisting of the
+\ characters ccc. A program shall not alter the returned string.
 
-	: string, ( c-addr u -- ) swap lit, lit, ;
+	: string, ( c-addr u -- )
+		\ Compiles the c-addr u on tos, into a stable buffer and then
+		\ compile the resulting address & length into the target body
+		\ for use at runtime
+		dup >r 			( c-addr u -- c-addr u ) ( r: -- u )
+		here >r 		( c-addr u -- c-addr u ) ( r: u -- u dst )
+		dup allot 		( c-addr u -- c-addr u ) ( r: u dst )		\ reserve u bytes, keep u for copy
+		r@ swap 		( c-addr u -- c-addr dst u ) ( r: u dst )
+		cmove			( c-addr dst u -- ) ( r: u dst ) \ copy u bytes: (src dst u)
+		r> lit,			( -- ) ( r: u dst -- u )
+		r> lit,			( -- ) ( r: u -- )
+	;
 
 	: (s") ( "input<quote>" -- c-addr u ) '"' parse state @ if string, then ;
 
 	: s" ( "input<quote>" -- c-addr u ) (s") ; immediate
 
 \ https://forth-standard.org/standard/core/Dotq
+\
+\ Parse ccc delimited by " (double-quote). Append the run-time semantics
+\ given below to the current definition.
+\
+\ At runtime: display the string
 
 	: ." ( "input<quote>" -- ) (s") state @ if postpone type else type then ; immediate
 
 \ https://forth-standard.org/standard/core/Dotp
+\
+\ Parse and display ccc delimited by ) (right parenthesis). .( is an
+\ immediate word.
 
-	: .( ( "ccc<paren>" -- )
-		')' parse	\ equiv: [char] )
-		type
-	; immediate
+	: .( ( "ccc<paren>" -- ) ')' parse type ; immediate

@@ -15,12 +15,23 @@ require preamble.f
 
 \ https://forth-standard.org/standard/right-bracket
 \
+\ Enter compilation state.
+\
 \	<builds ] ( -- )	\ define "]"
 \		1 $0050 ! 		\ compile, 1 state ! (state constant not defined yet)
 \		1 $0050 !		\ apply when executed
 \	;
 
 \ https://forth-standard.org/standard/core/Colon
+\
+\ Skip leading space delimiters. Parse name delimited by a space. Create a
+\ definition for name, called a "colon definition". Enter compilation state
+\ and start the current definition/ Append the initiation semantics given
+\ below to the current definition.
+\
+\ The execution semantics of name will be determined by the words compiled
+\ into the body of the definition. The current definition shall not be findable
+\ in the dictionary until it is ended.
 \
 \	<builds : ( -- )	\ define ":"
 \		]				\ switch to compile
@@ -29,9 +40,19 @@ require preamble.f
 
 \ https://forth-standard.org/standard/core/PARSE-NAME
 \
+\ Skip leading space delimiters. Parse name delimited by a space.
+\
+\ c-addr is the address of the selected string within the input buffer and
+\ u is its length in characters. If the parse area is empty or contains only
+\ white space, the resulting string has length zero.
+\
 \	: parse-name ( -- c-addr u ) #32 parse ;
 
 \ https://forth-standard.org/standard/file/REQUIRE
+\
+\ Skip leading white space and parse name delimited by a white space
+\ character. Push the address and length of the name on the stack and
+\ perform the function of REQUIRED.
 \
 \ 	: require ( i * x "name" -- j * x ) parse-name required ;
 
@@ -52,3 +73,8 @@ require ext/hash.f
 \
 \ End of library
 \
+
+depth .             \ expect 0
+123 dup = .         \ expect -1
+depth .             \ expect 0
+

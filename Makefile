@@ -3,6 +3,7 @@
 M4        = m4
 WAT2WASM  = wat2wasm
 WASMOPT   = wasm-opt
+NODE      = node
 
 
 # paths
@@ -29,6 +30,8 @@ else
 M4_FLAGS      = -P -I$(WAT_DIR) -DRELEASE
 WASMOPT_FLAGS = -O4 --enable-multivalue --enable-bulk-memory-opt --converge
 endif
+
+NODE_FLAGS = --disable-warning=ExperimentalWarning
 
 
 # targets
@@ -57,5 +60,4 @@ clean:
 
 # run tests
 check: $(WASMOPTED)
-	@echo "Running Forth 2012 test suite..."
-	node w4.js test/forth2012-test-suite/src/runtests.fth
+	$(NODE) $(NODE_FLAGS) w4.js test/forth2012-test-suite/src/runtests.fth
