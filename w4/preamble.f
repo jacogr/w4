@@ -12,6 +12,7 @@
 	: >hash $2 cells + ;
 	: >flags $3 cells + ;
 	: >value $4 cells + ;
+	: >body $5 cells + ;
 
 	: name>prev @ ;
 	: name>next $1 cells + @ ;
@@ -27,11 +28,12 @@
 	: list>rowcol $2 cells + @ ;
 
 	: (latest>tail) $0120 @ >value @ list>tail ;
+	: (latest>body) (latest>tail) name>prev name>xt >body ;
 	: (latest>value) (latest>tail) name>prev name>xt >value ;
 
 	: (here!) dup $a0000 - $80000000 and 0= #-23 and throw $0100 ! ;
 	: allot $0100 @ + (here!) ;
-	: (new-xt) $0100 @ $5 cells allot swap over >flags ! swap over >value ! ;
+	: (new-xt) $0100 @ $6 cells allot swap over >flags ! swap over >value ! ;
 	: reveal $0120 @ >flags dup @ $1 or swap ! ;
 	: immediate $0120 @ >flags dup @ $2 or swap ! ;
 
@@ -122,6 +124,13 @@
 \		sp@ $2 cells - !	( a b a|b -- a|b b )
 \		drop				( a|b b -- a|b )
 \	;
+
+
+\ https://forth-standard.org/standard/core/toBODY
+\
+\ a-addr is the data-field address corresponding to xt. An ambiguous condition
+\ exists if xt is not for a word defined via CREATE.
+
 
 \ Helper for allot & aligned that checks and writes to the
 \ underlying here pointer location to adavance here

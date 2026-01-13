@@ -1,4 +1,5 @@
 require compile.f
+require constants.f
 require math.f
 require memory.f
 require parse.f
@@ -44,7 +45,7 @@ require stack.f
 \
 \ char is the character value for a space.
 
-	: bl ( -- char ) #32 ;
+	#32 constant bl
 
 \ https://forth-standard.org/standard/core/CHARS
 \
@@ -132,7 +133,7 @@ require stack.f
 \
 \ Initialize the pictured numeric output conversion process.
 
-	: (#max) #63 ; \ 64 bytes available, 0..63
+	#63 constant (#max) \ 64 bytes available, 0..63
 
 	: (#len) ( -- n ) (#max) (#-tmp-buf) @ - ;
 

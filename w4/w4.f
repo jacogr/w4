@@ -56,6 +56,7 @@ require preamble.f
 \
 \ 	: require ( i * x "name" -- j * x ) parse-name required ;
 
+require std/constants.f
 require std/compile.f
 \ require w4/std/exceptions.f
 require std/logic.f

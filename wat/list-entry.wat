@@ -28,10 +28,12 @@
 	;;
 	;;		iov (i32) (i32) (i32), fields from 0..11
 	;;   	flags (i32)
-	;;		value (i32)
+	;;		value (i32) (cfa, specific per xt type)
+	;;		body (i32) (dfa, as used by create/does>)
 	(global $IDX_VAL_FLAGS i32 (i32.const 12)) ;; shared, always at 12
 	(global $IDX_VAL_VALUE i32 (i32.const 16))
-	(global $SIZEOF_VAL    i32 (i32.const 20))
+	(global $IDX_VAL_BODY  i32 (i32.const 20))
+	(global $SIZEOF_VAL    i32 (i32.const 24))
 
 	;; entry flags stored in list entries (0, 2^0, 2^1, 2^2, ...)
 	(global $FLG_ANY 	    i32 (i32.const 0xc0de0000)) ;; validity of xt
@@ -82,6 +84,12 @@
 
 	(func $__val_set_value (param $ptr i32) (param $val i32)
 		(i32.store (i32.add (local.get $ptr) (global.get $IDX_VAL_VALUE)) (local.get $val)))
+
+	(func $__val_get_body (param $ptr i32) (result i32)
+		(i32.load (i32.add (local.get $ptr) (global.get $IDX_VAL_BODY))))
+
+	(func $__val_set_body (param $ptr i32) (param $val i32)
+		(i32.store (i32.add (local.get $ptr) (global.get $IDX_VAL_BODY)) (local.get $val)))
 
 
 	;;
