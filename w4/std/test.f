@@ -89,28 +89,3 @@ require text.f
 			0 (test-is-error) !
 		then
 	;
-
-\ execute all included tests
-
-	: testing   \ ( -- ) TALKING COMMENT.
-		source (test-verbose) @
-   		if
-			dup
-			>r type cr r>
-			>in !
-   		else
-			>in ! drop
-			[char] * emit
-   		then
-	;
-
-	\ REMOVE Embedded tests, above is inline with tester.fth
-	\ so, we prefer it to run the standard suite. However,
-	\ keep this (for now), until we have the first batch
-	\ running and can start removing tests.f
-	\
-	\ : testing ( ... -- )
-	\ 	(test-empty-stack)
-	\ 	0 (test-num-errors) !
-	\ 	s" w4/ext/tests.f" included
-	\ ;
