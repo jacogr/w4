@@ -29,6 +29,13 @@ require stack.f
 	;
 
 \ https://forth-standard.org/standard/tools/AHEAD
+\
+\ Put the location of a new unresolved forward reference orig onto the
+\ control flow stack. Append the run-time semantics given below to the
+\ current definition. The semantics are incomplete until orig is resolved
+\ (e.g., by THEN).
+\
+\ At runtime: Continue execution at the location specified by the resolution of orig.
 
 	: ahead  ( C: -- orig )
 		(mark)
@@ -36,6 +43,14 @@ require stack.f
 	; immediate
 
 \ https://forth-standard.org/standard/core/IF
+\
+\ Put the location of a new unresolved forward reference orig onto the
+\ control flow stack. Append the run-time semantics given below to the
+\ current definition. The semantics are incomplete until orig is resolved,
+\ e.g., by THEN or ELSE.
+\
+\ At runtime: If all bits of x are zero, continue execution at the location
+\ specified by the resolution of orig.
 
 	: if  ( C: -- orig )
 		(mark)
@@ -43,12 +58,27 @@ require stack.f
 	; immediate
 
 \ https://forth-standard.org/standard/core/THEN
+\
+\ Append the run-time semantics given below to the current definition. Resolve
+\ the forward reference orig using the location of the appended run-time
+\ semantics.
+\
+\ At runtime: Continue execution.
 
 	: then  ( C: orig -- )
 		(resolve)
 	; immediate
 
 \ https://forth-standard.org/standard/core/ELSE
+\
+\ Put the location of a new unresolved forward reference orig2 onto the
+\ control flow stack. Append the run-time semantics given below to the
+\ current definition. The semantics will be incomplete until orig2 is resolved
+\ (e.g., by THEN). Resolve the forward reference orig1 using the location
+\ following the appended run-time semantics.
+\
+\ At runtime: Continue execution at the location given by the resolution
+\ of orig2.
 
 	: else ( c: orig1 -- orig2 )
 		postpone ahead	( c: orig1 -- orig1 orig2 )
@@ -57,12 +87,24 @@ require stack.f
 	; immediate
 
 \ https://forth-standard.org/standard/core/BEGIN
+\
+\ Put the next location for a transfer of control, dest, onto the control
+\ flow stack. Append the run-time semantics given below to the current
+\ definition.
+\
+\ At runtime: Continue execution.
 
 	: begin ( -- ) ( c: -- r-top )
 		(latest>tail) >cs		( c:  -- r-top )
 	; immediate
 
 \ https://forth-standard.org/standard/core/UNTIL
+\
+\ Append the run-time semantics given below to the current definition,
+\ resolving the backward reference dest.
+\
+\ At runtime: If all bits of x are zero, continue execution at the location
+\ specified by dest.
 
 	: until ( c: r-top -- ) ( test -- )
 		cs> lit,
@@ -70,6 +112,14 @@ require stack.f
 	; immediate
 
 \ https://forth-standard.org/standard/core/WHILE
+\
+\ Put the location of a new unresolved forward reference orig onto the
+\ control flow stack, under the existing dest. Append the run-time semantics
+\ given below to the current definition. The semantics are incomplete until
+\ orig and dest are resolved (e.g., by REPEAT).
+\
+\ If all bits of x are zero, continue execution at the location specified by
+\ the resolution of orig.
 
 	: while  ( C: dest -- orig dest )
 		postpone if
@@ -77,6 +127,13 @@ require stack.f
 	; immediate
 
 \ https://forth-standard.org/standard/core/AGAIN
+\
+\ Append the run-time semantics given below to the current definition,
+\ resolving the backward reference dest.
+\
+\ At runtime: Continue execution at the location specified by dest. If no
+\ other control flow words are used, any program code after AGAIN will not
+\ be executed.
 
 	: again  ( -- ) ( C: r-top -- )
 		cs> lit,
@@ -84,6 +141,12 @@ require stack.f
 	; immediate
 
 \ https://forth-standard.org/standard/core/REPEAT
+\
+\ Append the run-time semantics given below to the current definition,
+\ resolving the backward reference dest. Resolve the forward reference orig
+\ using the location following the appended run-time semantics.
+\
+\ At runtime: Continue execution at the location given by dest.
 
 	: repeat  ( C: orig dest -- )
 		postpone again
@@ -91,20 +154,34 @@ require stack.f
 	; immediate
 
 \ https://forth-standard.org/standard/core/I
+\
+\ n | u is a copy of the current (innermost) loop index. An ambiguous condition
+\ exists if the loop control parameters are unavailable.
 
 	: i ( -- i ) ( r: u i ret ) r-1@ ;
 
 \ https://forth-standard.org/standard/core/J
+\
+\ n | u is a copy of the next-outer loop index. An ambiguous condition exists if
+\ the loop control parameters of the next-outer loop, loop-sys1, are unavailable.
 
 	: j ( -- j ) ( r: u' j u i ret ) r-3@ ;
 
 \ https://forth-standard.org/standard/core/LEAVE
+\
+\ Discard the current loop control parameters. An ambiguous condition exists if
+\ they are unavailable. Continue execution immediately following the innermost
+\ syntactically enclosing DO...LOOP or DO...+LOOP.
 
 	: leave ( r: u i ret -- u i' ret )
 		r-2@ 1- r-1!	\ i := u - 1
 	;
 
 \ https://forth-standard.org/standard/core/UNLOOP
+\
+\ Discard the loop-control parameters for the current nesting level. An UNLOOP
+\ is required for each nesting level before the definition may be EXITed. An
+\ ambiguous condition exists if the loop-control parameters are unavailable.
 
 	: unloop ( r: u i ret -- )
 		r>			( -- ret ) ( r: u i ret -- u i )
@@ -113,7 +190,15 @@ require stack.f
 	;
 
 \ https://forth-standard.org/standard/core/DO
-\ Slide the u i loop values into the structure
+\
+\ Place do-sys onto the control-flow stack. Append the run-time semantics
+\ given below to the current definition. The semantics are incomplete until
+\ resolved by a consumer of do-sys such as LOOP.
+\
+\ Set up loop control parameters with index n2 | u2 and limit n1 | u1. An
+\ ambiguous condition exists if n1 | u1 and n2 | u2 are not both the same type.
+\ Anything already on the return stack becomes unavailable until the loop-
+\ control parameters are discarded.
 
 	: (do) ( u i -- ) ( r: -- u i ret )
 		r>			( u i -- u i ret ) ( r: ret -- )
@@ -140,6 +225,17 @@ require stack.f
 	; immediate
 
 \ https://forth-standard.org/standard/core/qDO
+\
+\ Put do-sys onto the control-flow stack. Append the run-time semantics
+\ given below to the current definition. The semantics are incomplete until
+\ resolved by a consumer of do-sys such as LOOP.
+\
+\ At runtime: If n1 | u1 is equal to n2 | u2, continue execution at the location
+\ given by the consumer of do-sys. Otherwise set up loop control parameters with
+\ index n2 | u2 and limit n1 | u1 and continue executing immediately following ?DO.
+\ Anything already on the return stack becomes unavailable until the loop control
+\ parameters are discarded. An ambiguous condition exists if n1 | u1 and n2 | u2 are
+\ not both of the same type.
 
 	: ?do ( u i -- ) ( C: -- orig dest )
 		postpone 2dup		( u i -- u i u i)
@@ -157,6 +253,16 @@ require stack.f
 	; immediate
 
 \ https://forth-standard.org/standard/core/LOOP
+\
+\ Append the run-time semantics given below to the current definition. Resolve
+\ the destination of all unresolved occurrences of LEAVE between the location
+\ given by do-sys and the next location for a transfer of control, to execute
+\ the words following the LOOP.
+\
+\ At runtime: An ambiguous condition exists if the loop control parameters are
+\ unavailable. Add one to the loop index. If the loop index is then equal to the
+\ loop limit, discard the loop parameters and continue execution immediately
+\ following the loop. Otherwise continue execution at the beginning of the loop.
 
 	: (loop) ( -- done? )
 		r-1@ 1+ dup r-1!	( r: u i ret )
@@ -169,14 +275,34 @@ require stack.f
 	; immediate
 
 \ https://forth-standard.org/standard/core/PlusLOOP
+\
+\ Append the run-time semantics given below to the current definition. Resolve
+\ the destination of all unresolved occurrences of LEAVE between the location
+\ given by do-sys and the next location for a transfer of control, to execute
+\ the words following +LOOP.
+\
+\ At runtime: An ambiguous condition exists if the loop control parameters are
+\ unavailable. Add n to the loop index. If the loop index did not cross the
+\ boundary between the loop limit minus one and the loop limit, continue
+\ execution at the beginning of the loop. Otherwise, discard the current loop
+\ control parameters and continue execution immediately following the loop.
 
 	: (+loop) ( n -- done? )
-		r-1@ over + dup r-1!	\ n newi
-		r-2@					\ n newi u
-		rot 0<					\ newi u flagNeg (0|-1)
-		over <					\ newi u lt
-		-rot <					\ flagNeg ge?
-		select					\ crossed?
+		r-1@ over + dup r-1!          \ n newi
+		r-2@ >r                       \ n newi           R: limit
+
+		dup r@ <                      \ n newi lt        (lt = newi < limit)
+		dup 0=                        \ n newi lt ge     (ge = newi >= limit)
+
+		>r >r                         \ n newi           R: limit ge lt
+
+		swap 0<                       \ newi n -> newi neg?
+		swap drop                     \ neg?
+
+		r> r>                         \ neg? lt ge
+		select                        \ done?
+
+		r> drop                       \ drop limit
 	;
 
 	: +loop ( n -- ) ( C: dest -- )
