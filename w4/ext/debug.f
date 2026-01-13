@@ -1,17 +1,6 @@
+
+require ../std/constants.f
 require ../std/text.f
-
-\ builtin flags for the environment
-
-	$c0de0000 constant (flg-set-any)
-	$c0de0001 constant (flg-set-vis)
-	$c0de0002 constant (flg-set-imm)
-	$c0de0004 constant (flg-set-var)
-	$c0de0010 constant (flg-xt-asm)
-	$c0de0020 constant (flg-xt-tkn)
-	$c0de0040 constant (flg-xt-lit)
-	$c0de0080 constant (flg-xt-does)
-	$deadfeed constant (flg-list)
-	$feedc0de constant (flg-name)
 
 \ Checks for the validity of the addresses, either valid, xt, nt or
 \ list. In this the defined flags for the implemetation is used.

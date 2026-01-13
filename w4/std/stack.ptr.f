@@ -1,3 +1,5 @@
+require logic.f
+
 \ Returns the address of a specific stack pointer entry offset
 \ from the topmost entry. Passing 1 would return the address of
 \ the second-from-top entry on the stack. Same logic as above,

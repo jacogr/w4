@@ -12,34 +12,9 @@
 	: >hash $2 cells + ;
 	: >flags $3 cells + ;
 	: >value $4 cells + ;
-	: >body $5 cells + ;
+	: >body $5 cells + @ ;
 
-	: name>prev @ ;
-	: name>next $1 cells + @ ;
-	: name>list $2 cells + @ ;
-	: name>flags >flags @ ;
-	: name>xt $4 cells + @ ;
-
-	: list>head @ ;
-	: list>tail $1 cells + @ ;
-	: list>owner $2 cells + @ ;
-	: list>flags >flags @ ;
-	: list>file $4 cells + @ ;
-	: list>rowcol $2 cells + @ ;
-
-	: (latest>tail) $0120 @ >value @ list>tail ;
-	: (latest>body) (latest>tail) name>prev name>xt >body ;
-	: (latest>value) (latest>tail) name>prev name>xt >value ;
-
-	: (here!) dup $a0000 - $80000000 and 0= #-23 and throw $0100 ! ;
-	: allot $0100 @ + (here!) ;
-	: (new-xt) $0100 @ $6 cells allot swap over >flags ! swap over >value ! ;
-	: reveal $0120 @ >flags dup @ $1 or swap ! ;
 	: immediate $0120 @ >flags dup @ $2 or swap ! ;
-
-	: lit $c0de0140 (new-xt) ;
-	: lit, lit compile, ;
-	: create <builds -1 lit, $0100 @ (latest>value) ! reveal ;
 
 	: \ -1 $0114 @ ! ; immediate
 
@@ -125,41 +100,17 @@
 \		drop				( a|b b -- a|b )
 \	;
 
-
 \ https://forth-standard.org/standard/core/toBODY
 \
 \ a-addr is the data-field address corresponding to xt. An ambiguous condition
 \ exists if xt is not for a word defined via CREATE.
-
-
-\ Helper for allot & aligned that checks and writes to the
-\ underlying here pointer location to adavance here
-\
-\ 	: (here!)	( a-addr -- )
-\		dup $a0000 - 		\ subtract from maxiumum memory position
-\		$80000000 and 0=	\ signed bit should not be set
-\		#-23 and throw 		\ if negative, throw error
-\		$0100 !				\ update address, underlying here pointer
-\	;
-
-\ https://forth-standard.org/standard/core/ALLOT
-\
-\ NOTE: As earlier, here is not yet available, $0100 is the pointer
-\ that would later (once we have constants) be known as here
-\
-\ 	: allot ( n -- )
-\		$0100 @ + 			\ advance address ny n units
-\		(here!)				\ write updated location
-\	;
-
-\ https://forth-standard.org/standard/core/CREATE
 
 \ https://forth-standard.org/standard/core/IMMEDIATE
 \
 \ Adjusts the flags of the latest definition to be immediate
 \ by setting the correct flag, toggling the $02 bit
 \
-\ see ext/debug.f for all the known flags
+\ see constants.f for all the known flags
 \
 \		: immediate ( -- )
 \			$0120 @ >flags 	\ get flags pointer
@@ -167,24 +118,12 @@
 \			swap ! 			\ write updated flags
 \		;
 
-\ https://forth-standard.org/standard/core/SOURCE
-\
-\		: source ( -- c-addr u )
-\			(lniov^) {xt-get-str}	( -- c-addr )
-\			(lniov^) {xt-get-len}	( c-addr -- c-addr u )
-\		;
-
-\ https://forth-standard.org/standard/core/toIN
-\
-\		: >in ( -- a-addr ) {lnoff^} ;
-
 \ https://forth-standard.org/standard/core/bs
 \
+\ Parse and discard the remainder of the parse area. \ is an immediate word.
+\
 \		: \ ( -- )
-\			source	( -- c-addr u )					\ Value of the line buffer & count
-\			>in		( c-addr u - c-addr u c-addr )	\ Address of line offset
-\			! 		( c-addr u c-addr -- c-addr )	\ Set offset to line length
-\			drop 	( c-addr -- )					\ Drop the stored address value
+\			-1 $0114 @ !	\ write max length to (here!)
 \		; immediate
 
 \ https://forth-standard.org/standard/core/p

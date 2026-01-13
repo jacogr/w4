@@ -2,7 +2,6 @@ require compile.f
 require loops.f
 require memory.f
 
-
 \ https://forth-standard.org/standard/core/SOURCE
 \
 \ c-addr is the address of, and u is the number of characters in
