@@ -74,7 +74,3 @@ require ext/hash.f
 \ End of library
 \
 
-depth .             \ expect 0
-123 dup = .         \ expect -1
-depth .             \ expect 0
-
