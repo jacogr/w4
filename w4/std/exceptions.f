@@ -51,10 +51,20 @@ require text.f
 \ 	;
 
 \ https://forth-standard.org/standard/core/ABORT
+\
+\ Empty the data stack and perform the function of QUIT, which includes
+\ emptying the return stack, without displaying a message.
 
 	: abort -1 throw ;
 
 \ https://forth-standard.org/standard/exception/ABORTq
+\
+\ Parse ccc delimited by a " (double-quote). Append the run-time semantics
+\ given below to the current definition.
+\
+\ At runtime: Remove x1 from the stack. If any bit of x1 is not zero, perform
+\ the function of -2 THROW, displaying ccc if there is no exception frame on
+\ the exception stack.
 
 	: abort"  ( "ccc<quote>" -- )
 		postpone if
