@@ -2,6 +2,14 @@ require compile.f
 require loops.f
 require memory.f
 
+
+\ https://forth-standard.org/standard/core/SOURCE
+\
+\ c-addr is the address of, and u is the number of characters in
+\ the input buffer.
+
+	: source (lniov^) >string ;
+
 \ https://forth-standard.org/standard/file/INCLUDE
 \
 \ Skip leading white space and parse name delimited by a white space

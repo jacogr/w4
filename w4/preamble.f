@@ -31,8 +31,6 @@
 
 	: (here!) dup $a0000 - $80000000 and 0= #-23 and throw $0100 ! ;
 	: allot $0100 @ + (here!) ;
-	: aligned $3 + $-4 and ;
-	: align $0100 @ aligned (here!) ;
 	: (new-xt) $0100 @ $5 cells allot swap over >flags ! swap over >value ! ;
 	: reveal $0120 @ >flags dup @ $1 or swap ! ;
 	: immediate $0120 @ >flags dup @ $2 or swap ! ;
@@ -40,30 +38,8 @@
 	: lit $c0de0140 (new-xt) ;
 	: lit, lit compile, ;
 	: create <builds -1 lit, $0100 @ (latest>value) ! reveal ;
-	: variable create $1 cells allot ;
-	: constant create (latest>value) ! ;
-	: (mmio:) constant ;
-	: (mmio@) constant does> @ ;
 
-	$0100 (mmio@) here
-	$0104 (mmio:) (here-min)
-	$0104 (mmio:) (here-max)
-	$0110 (mmio:) source-id
-	$0114 (mmio@) >in
-	$0118 (mmio@) (lniov^)
-	$0120 (mmio@) latest
-	$0124 (mmio@) (exec^)
-	$0128 (mmio@) (dict^)
-	$012c (mmio@) (incl^)
-	$0140 (mmio@) (sp^)
-	$0144 (mmio@) (rp^)
-	$0148 (mmio@) (cp^)
-	$0150 (mmio:) state
-	$0154 (mmio:) base
-
-	: source (lniov^) >string ;
-
-	: \ source >in ! drop ; immediate
+	: \ -1 $0114 @ ! ; immediate
 
 \ The lines above implements the ability to handle line
 \ comments. Start using it immediately by documenting what
@@ -167,29 +143,7 @@
 \		(here!)				\ write updated location
 \	;
 
-\ https://forth-standard.org/standard/core/ALIGNED
-\
-\ a-addr is the first aligned address greater than or equal to addr.
-\ We have 4-byte cells, so mask the lower bits and advance
-\
-\	: aligned ( a-addr -- a-addr' ) $3 + $-4 and ;
-
-\ https://forth-standard.org/standard/core/ALIGN
-\
-\ If the data-space pointer is not aligned, reserve enough space to align it.
-\
-\ 	: align ( -- )
-\		$0100 @ aligned		\ align current address
-\		(here!) 			\ write updated value
-\	;
-
 \ https://forth-standard.org/standard/core/CREATE
-\ https://forth-standard.org/standard/core/VARIABLE
-\ https://forth-standard.org/standard/core/CONSTANT
-
-\ https://forth-standard.org/standard/core/SOURCE-ID
-\ https://forth-standard.org/standard/core/STATE
-\ https://forth-standard.org/standard/core/BASE
 
 \ https://forth-standard.org/standard/core/IMMEDIATE
 \

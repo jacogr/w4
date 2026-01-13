@@ -1,3 +1,4 @@
+require constants.f
 require stack.f
 
 \ Non-standard, but well-known

@@ -1,5 +1,21 @@
 require stack.f
 
+\ https://forth-standard.org/standard/core/ALIGNED
+\
+\ a-addr is the first aligned address greater than or equal to addr.
+\ We have 4-byte cells, so mask the lower bits and advance
+
+	: aligned ( a-addr -- a-addr' ) $3 + $-4 and ;
+
+\ https://forth-standard.org/standard/core/ALIGN
+\
+\ If the data-space pointer is not aligned, reserve enough space to align it.
+
+	: align ( -- )
+		here aligned		\ align current address
+		(here!) 			\ write updated value
+	;
+
 \ https://forth-standard.org/standard/core/CFetch
 \
 \ Fetch the character stored at c-addr. Since the cell size
