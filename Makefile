@@ -18,7 +18,7 @@ SRC_WATS  := $(shell find $(WAT_DIR) -type f -name '*.wat' -print)
 WASM      = $(BUILD)/w4.wasm
 WASMOPTED = $(BUILD)/w4-opt.wasm
 
-TESTS_STD = test/forth2012-test-suite/src/runtests.fth
+TESTS_STD = test/forth2012-test-suite.f
 
 
 # flags

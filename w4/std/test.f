@@ -30,7 +30,7 @@ require text.f
 
 	: (test-error) ( c-addr u -- )
 		cr type source type
-		base @
+		base @ cr
 
 		(test-depth) @ ?dup if
 			dup decimal . hex ':' emit space
@@ -44,7 +44,7 @@ require text.f
 			." <empty stack>"
 		then
 
-		cr base !
+		base !
 		1 (test-is-error) !
 		(test-num-errors) @ 1 + (test-num-errors) !
 		(test-empty-stack)
@@ -87,5 +87,16 @@ require text.f
 			'*' emit
 		else
 			0 (test-is-error) !
+		then
+	;
+
+\ run tests (usefule for std test execution)
+
+	: testing   \ ( -- ) TALKING COMMENT.
+		source (test-verbose) @
+		if
+			dup >r type cr r> >in !
+		else
+			>in ! drop '*' emit
 		then
 	;
