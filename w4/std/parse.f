@@ -24,12 +24,12 @@ require memory.f
 	create (word-tmp-buf) 256 allot
 
 	: word ( char "<chars>ccc<char>" -- c-addr )
-		parse                         ( c-addr u )
-		dup $ff and swap drop         ( c-addr u' )
+		parse					( c-addr u )
+		$ff and					( c-addr u' )
 
-		(word-tmp-buf) >r             ( c-addr u' ) ( r: dst )
-		dup r@ c!                     ( c-addr u' )        \ store count
-		r@ 1+ swap cmove              ( -- )                \ copy chars
+		(word-tmp-buf) >r 		( c-addr u' ) ( r: dst )
+		dup r@ c! 				( c-addr u' )        \ store count
+		r@ 1+ swap cmove		( -- )                \ copy chars
 		r>
 	;
 
