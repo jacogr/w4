@@ -68,6 +68,18 @@
 	)
 
 	;;
+	;; Duplicates a list value (don't add as of yet)
+	;;
+	(func $__val_dup (param $src i32) (result i32)
+		;; store item details, value & flags
+		(call $__val_new
+			(call $__iov_get_str_len (local.get $src))
+			(i32.const 0)
+			(call $__val_get_value (local.get $src))
+			(call $__val_get_flags (local.get $src)))
+	)
+
+	;;
 	;; Helpers for list values
 	;;
 

@@ -76,13 +76,20 @@
 			(i32.sub (call $__line_get_off) (local.get $len)))
 
 		;; set the owner for the list
-		(call $__list_set_owner (global.get $list_toks) (global.get $xt_comp))
+		(call $__list_set_owner
+			(global.get $list_toks)
+			(global.get $xt_comp))
 
 		;; add an exit token
-		(call $__list_append (global.get $list_toks) (global.get $dict_exit_ptr))
+		(call $__list_append
+			(global.get $list_toks)
+			(call $__val_dup (global.get $dict_exit_ptr)))
 
 		;; add to dictionary
-		(call $__lookup_append (global.get $list_dict) (local.get $hash) (global.get $xt_comp))
+		(call $__lookup_append
+			(global.get $list_dict)
+			(local.get $hash)
+			(global.get $xt_comp))
 	)
 
 	;;
@@ -216,6 +223,8 @@
 	)
 
 	(func $__internal_execute_does (param $val i32) (param $flg i32)
+		(local $rep i32)
+
 		;; exec?
 		(call $__has_flag
 			(local.get $flg)
@@ -227,15 +236,15 @@
 			;; compile the jump, replace behaviour
 			(else
 				;; first token is hard-coded address, replace second
-				(call $__val_set_value
-					(call $__ent_get_next
-						(call $__list_get_head (global.get $list_toks)))
-					(call $__val_new
-						(global.get $PTR_DO_EXEC_TEXT)
-						(call $__strlen_z (global.get $PTR_DO_EXEC_TEXT))
-						(i32.const 0)
-						(local.get $val)
-						(global.get $FLG_DO_EXEC)))
+				(call $__iov_set_str_len
+					(local.tee $rep
+						(call $__val_get_value
+							(call $__ent_get_next
+								(call $__list_get_head (global.get $list_toks)))))
+					(global.get $PTR_DO_EXEC_TEXT)
+					(call $__strlen_z (global.get $PTR_DO_EXEC_TEXT)))
+				(call $__val_set_flags (local.get $rep) (global.get $FLG_DO_EXEC))
+				(call $__val_set_value (local.get $rep) (local.get $val))
 
 				;; skip remaining tokens, point to tail
 				(global.set $exec_next (call $__list_get_tail (global.get $exec_list)))))
