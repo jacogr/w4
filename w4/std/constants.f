@@ -1,11 +1,22 @@
 
-\ layouts for names and lists, aligned with the wasm implementation
+\ layouts for xt, aligned with wasm
+
+	: >string ( -- c-addr u ) dup @ swap $1 cells + @ ;
+	: >hash ( -- a-addr ) $2 cells + ;
+	\ : >flags ( -- a-addr ) $3 cells + ; \ defined in preamble
+	: >value ( -- a-addr ) $4 cells + ;
+	: >dfa ( -- a-addr ) $5 cells + ;
+	: >body ( -- a-addr ) >dfa @ ;
+
+\ layouts for names, aligned with wasm
 
 	: name>prev @ ;
 	: name>next $1 cells + @ ;
 	: name>list $2 cells + @ ;
 	: name>flags >flags @ ;
 	: name>xt $4 cells + @ ;
+
+\ layouts for lists, aligned with wasm
 
 	: list>head @ ;
 	: list>tail $1 cells + @ ;
@@ -14,14 +25,24 @@
 	: list>file $4 cells + @ ;
 	: list>rowcol $2 cells + @ ;
 
+\ https://forth-standard.org/standard/core/HERE
+\
+\ a-addr is the data-space pointer.
+
+	: (here^) ( -- a-addr ) $0100 ;
+	: (here-min) ( -- u ) $0104 @ ;
+	: (here-max) ( -- u ) $0108 @ ;
+
+	: here ( -- a-addr ) (here^) @ ;
+
 \ Helper for allot & aligned that checks and writes to the
 \ underlying here pointer location to adavance here
-\
+
 	: (here!)	( a-addr -- )
-		dup $a0000 - 		\ subtract from maxiumum memory position
+		dup (here-max) - 	\ subtract from maxiumum memory position
 		$80000000 and 0=	\ signed bit should not be set
 		#-23 and throw 		\ if negative, throw error
-		$0100 !				\ update address, underlying here pointer
+		(here^) !			\ update address, underlying here pointer
 	;
 
 \ https://forth-standard.org/standard/core/ALLOT
@@ -31,29 +52,27 @@
 \ be known as here
 
 	: allot ( n -- )
-		$0100 @ + 			\ advance address ny n units
-		(here!)				\ write updated location
+		here + 			\ advance address ny n units
+		(here!)			\ write updated location
 	;
 
 \ Non-standard but widely known words to create literals and compile it
 \ into the body of the latest definition
 \
-\ `$0100 @` defined below as `latest`
 \ `$c0de0140` defined below as literal
 \
 \ FIXME Move this out of constants once we have >body used correctly
 \ inside the create definition
+\ FIXME We need to ensure we are aligning the contents
 
-	: (new-xt) $0100 @ $6 cells allot swap over >flags ! swap over >value ! ;
+	: (new-xt) here $6 cells allot swap over >flags ! swap over >value ! ;
 	: lit $c0de0140 (new-xt) ;
 	: lit, lit compile, ;
 
 \ Swap a dictionary entry from "hidden" to "available to lookups" by
 \ flipping the visible flag on the token
-\
-\ `$0120` defined below as `latest`
 
-	: reveal $0120 @ >flags dup @ $1 or swap ! ;
+	: reveal latest >flags dup @ $1 or swap ! ;
 
 \ https://forth-standard.org/standard/core/CREATE
 \
@@ -63,16 +82,16 @@
 \ The new data-space pointer defines name's data field. CREATE does not
 \ allocate data space in name's data field.
 \
-\ `$0100 @` defined below as `here`
-\ `$0120` defined below as `latest`
+\ At runtime for create-ed word: a-addr is the address of name's data field.
+\ The execution semantics of name may be extended by using DOES>.
 \
-\ FIXME As per standards desciption, the contents is not (yet) aligned
+\ NOTE <builds is aligned, so the dfa is aligned as per the specification
 
 	: (latest>tail) $0120 @ >value @ list>tail ;
-	: (latest>body) (latest>tail) name>prev name>xt >body ;
-	: (latest>value) (latest>tail) name>prev name>xt >value ;
+	: (latest>prev) (latest>tail) name>prev ;
+	: (latest>value) (latest>prev) name>xt >value ;
 
-	: create <builds -1 lit, $0100 @ (latest>value) ! reveal ;
+	: create <builds -1 lit, here (latest>value) ! reveal ;
 
 \ https://forth-standard.org/standard/core/VARIABLE
 \
@@ -82,8 +101,6 @@
 \
 \ At runtime: a-addr is the address of the reserved cell. A program is
 \ responsible for initializing the contents of the reserved cell.
-\
-\ FIXME As per standards desciption, the contents is not (yet) aligned
 
 	: variable create $1 cells allot ;
 
@@ -116,34 +133,15 @@
 
 \ constants as exposed from the wasm environment
 
-\ https://forth-standard.org/standard/core/HERE
-\
-\ addr is the data-space pointer.
-
-	$0100 (mmio@) here
-	$0104 (mmio:) (here-min)
-	$0104 (mmio:) (here-max)
-
 \ https://forth-standard.org/standard/core/SOURCE-ID
 
 	$0110 (mmio:) source-id
-
-\ https://forth-standard.org/standard/core/toIN
-\
-\ a-addr is the address of a cell containing the offset in characters from
-\ the start of the input buffer to the start of the parse area.
-
-	$0114 (mmio@) >in
 
 \ https://forth-standard.org/standard/core/SOURCE
 \
 \ iov that wraps the source, >string for source c-addr u
 
 	$0118 (mmio@) (lniov^)
-
-\ latest (last compiled, in compilation) token
-
-	$0120 (mmio@) latest
 
 \ latest executing token
 
@@ -154,9 +152,8 @@
 	$0128 (mmio@) (dict^)
 	$012c (mmio@) (incl^)
 
-\ pointers for the stacks
+\ pointers for the return & control stacks
 
-	$0140 (mmio@) (sp^)
 	$0144 (mmio@) (rp^)
 	$0148 (mmio@) (cp^)
 

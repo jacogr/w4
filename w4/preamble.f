@@ -1,22 +1,21 @@
 
 	: cells $2 lshift ;
-	: depth $0140 @ @ ;
-	: sp@ depth cells $0140 @ + ;
+
+	: (sp^) $0140 @ ;
+	: depth (sp^) @ ;
+	: sp@ depth cells (sp^) + ;
 	: dup sp@ @ ;
-	: drop depth dup 0= #-4 and throw $1 - $0140 @ ! ;
+	: drop depth dup 0= #-4 and throw $1 - (sp^) ! ;
 	: over sp@ $1 cells - @ ;
 	: swap over over sp@ $3 cells - ! sp@ $1 cells - ! ;
 	: or over over xor sp@ $2 cells - @ sp@ $2 cells - @ and + sp@ $2 cells - ! drop ;
 
-	: >string dup @ swap $1 cells + @ ;
-	: >hash $2 cells + ;
+	: latest $0120 @ ;
 	: >flags $3 cells + ;
-	: >value $4 cells + ;
-	: >body $5 cells + @ ;
+	: immediate latest >flags dup @ $02 or swap ! ;
 
-	: immediate $0120 @ >flags dup @ $2 or swap ! ;
-
-	: \ -1 $0114 @ ! ; immediate
+	: >in $0114 @ ;
+	: \ -1 >in ! ; immediate
 
 \ The lines above implements the ability to handle line
 \ comments. Start using it immediately by documenting what
@@ -38,7 +37,7 @@
 \ value is hard-coded as an address)
 \
 \		: depth ( ... -- ... n )
-\			$0140 @ @	\ first cell on stack is count
+\			(sp^) @	\ first cell on stack is count
 \		;
 
 \ sp@ non-standard in forth2012, but widely known
@@ -48,7 +47,7 @@
 \
 \		: sp@ ( -- addr )
 \			depth cells \ depth in terms of cells
-\			$0140 @ + 	\ add to stack pointer for offet addr
+\			(sp^) + 	\ add to stack pointer for offet addr
 \		;
 
 \ https://forth-standard.org/standard/core/DUP
@@ -64,7 +63,7 @@
 \
 \	: drop ( n -- )
 \		depth dup 0= #-4 and throw	\ assert non-0 count
-\		$1 - $0140 @ ! 				\ write count -1
+\		$1 - (sp^) ! 				\ write count -1
 \	;
 
 \ https://forth-standard.org/standard/core/OVER
@@ -113,17 +112,24 @@
 \ see constants.f for all the known flags
 \
 \		: immediate ( -- )
-\			$0120 @ >flags 	\ get flags pointer
-\			dup @ $2 or 	\ toggle $02 via or
+\			latest >flags 	\ get flags pointer
+\			dup @ $02 or 	\ toggle $02 via or
 \			swap ! 			\ write updated flags
 \		;
+
+\ https://forth-standard.org/standard/core/toIN
+\
+\ a-addr is the address of a cell containing the offset in characters from
+\ the start of the input buffer to the start of the parse area.
+\
+\		$0114 (mmio@) >in
 
 \ https://forth-standard.org/standard/core/bs
 \
 \ Parse and discard the remainder of the parse area. \ is an immediate word.
 \
 \		: \ ( -- )
-\			-1 $0114 @ !	\ write max length to (here!)
+\			-1 >in !	\ write max length to (here!)
 \		; immediate
 
 \ https://forth-standard.org/standard/core/p

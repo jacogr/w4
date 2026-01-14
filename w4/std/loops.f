@@ -18,7 +18,7 @@ require stack.f
 
 	: (mark) ( C: -- orig )
 		-1 lit,						\ placeholder
-		(latest>tail) name>prev 	\ get placeholder address
+		(latest>prev) 				\ get placeholder address
 		>cs							( c: -- orig )
 	;
 
