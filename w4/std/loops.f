@@ -18,14 +18,14 @@ require stack.f
 
 	: (mark) ( C: -- orig )
 		-1 lit,						\ placeholder
-		(latest>prev) 				\ get placeholder address
+		(latest>prev^) 				\ get placeholder address
 		>cs							( c: -- orig )
 	;
 
 	: (resolve) ( a-addr -- )
 		cs>						( c: orig -- )
 		name>xt >value			\ load placeholder body
-		(latest>tail) swap !	\ write tail location
+		(latest>tail^) swap !	\ write tail location
 	;
 
 \ https://forth-standard.org/standard/tools/AHEAD
@@ -95,7 +95,7 @@ require stack.f
 \ At runtime: Continue execution.
 
 	: begin ( -- ) ( c: -- r-top )
-		(latest>tail) >cs		( c:  -- r-top )
+		(latest>tail^) >cs		( c:  -- r-top )
 	; immediate
 
 \ https://forth-standard.org/standard/core/UNTIL

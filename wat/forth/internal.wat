@@ -230,8 +230,8 @@
 					(local.get $val)
 					(global.get $FLG_DO_EXEC))
 
-				;; skip remaining tokens, point to tail (exit token)
-				(global.set $exec_next (call $__list_get_tail (global.get $exec_list)))))
+				;; skip remainder, no return
+				(global.set $exec_next (i32.const 0))))
 	)
 
 	(func $__internal_execute_literal (param $val i32) (param $flg i32)

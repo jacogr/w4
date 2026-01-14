@@ -86,11 +86,13 @@
 \
 \ NOTE <builds is aligned, so the dfa is aligned as per the specification
 
-	: (latest>tail) latest >value @ list>tail ;
-	: (latest>prev) (latest>tail) name>prev ;
-	: (latest>value) (latest>prev) name>xt >value ;
+	: (latest>value) latest >value @ ;
+	: (latest>head^) (latest>value) list>head ;
+	: (latest>tail^) (latest>value) list>tail ;
+	: (latest>prev^) (latest>tail^) name>prev ;
+	: (latest>body^) (latest>head^) name>xt >value ;
 
-	: create <builds -1 lit, here (latest>value) ! reveal ;
+	: create <builds -1 lit, here (latest>body^) ! reveal ;
 
 \ https://forth-standard.org/standard/core/toBODY
 \
@@ -122,7 +124,7 @@
 \
 \ At runtime: Place x on the stack.
 
-	: constant create (latest>value) ! ;
+	: constant create (latest>body^) ! ;
 
 \ builtin flags for the environment
 
