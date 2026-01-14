@@ -48,20 +48,37 @@
 	(global $FLG_ITEM		i32 (i32.const 0xfeedc0de))
 
 	;;
+	;; Fill an entry with specific values
+	;;
+	(func $__val_fill (param $ptr i32) (param $str i32) (param $len i32) (param $hash i32) (param $val i32) (param $flags i32)
+		;; store item string & value
+		(call $__val_set_value
+			(call $__iov_fill
+				(local.get $ptr)
+				(local.get $str)
+				(local.get $len)
+				(local.get $hash))
+			(local.get $val))
+
+		;; store flags
+		(call $__val_set_flags (local.get $ptr) (local.get $flags))
+	)
+
+	;;
 	;; Create a list value (don't add as of yet)
 	;;
 	(func $__val_new (param $str i32) (param $len i32) (param $hash i32) (param $val i32) (param $flags i32) (result i32)
 		(local $ptr i32)
 
 		;; store item details, value & flags
-		(call $__val_set_value
-			(local.tee $ptr
-				(call $__iov_fill
-					(call $__new (global.get $SIZEOF_VAL) (local.get $flags))
-					(local.get $str)
-					(local.get $len)
-					(local.get $hash)))
-			(local.get $val))
+		(call $__val_fill
+			;; use __alloc since __val_fill sets flags
+			(local.tee $ptr (call $__alloc (global.get $SIZEOF_VAL)))
+			(local.get $str)
+			(local.get $len)
+			(local.get $hash)
+			(local.get $val)
+			(local.get $flags))
 
 		;; return pointer
 		local.get $ptr

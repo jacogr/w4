@@ -93,31 +93,6 @@
 	)
 
 	;;
-	;; Handle does via storing the address for the specific location
-	;;
-	;; https://forth-standard.org/standard/core/DOES
-	;;
-	(func $__internal_does
-		(local $ptr_xt i32)
-
-		;; setup the jump location for inclusion (temp)
-		(call $__toks_insert
-			(local.tee $ptr_xt
-				(call $__val_new
-					(global.get $PTR_DO_MARK_TEXT)
-					(call $__strlen_z (global.get $PTR_DO_MARK_TEXT))
-					(i32.const 0)
-					(i32.const -1)
-					(global.get $FLG_DO_MARK))))
-
-		;; update the address to list tail
-		(call $__val_set_value
-			(local.get $ptr_xt)
-			(call $__list_get_tail
-				(call $__val_get_value (global.get $xt_comp))))
-	)
-
-	;;
 	;; Ends the definition of a new word via ;
 	;;
 	;; https://forth-standard.org/standard/core/Semi
@@ -159,6 +134,30 @@
 	)
 
 	;;
+	;; Handle exit, unwinds a jump
+	;;
+	;; https://forth-standard.org/standard/core/EXIT
+	;;
+	(func $__internal_exit
+		;; FIXME Would prefer if we can just _always_ pop, instead
+		;; of peeking if we have data... exit should be clean
+		;;
+		;; (global.set $exec_next (call $__stack_ret_pop))
+
+		;; set instruction pointer
+		(global.set $exec_next
+
+			;; value on return stack?
+			(call $__stack_ret_count) (if (result i32)
+
+				;; pop pointer
+				(then (call $__stack_ret_pop))
+
+				;; zero pointer
+				(else (i32.const 0))))
+	)
+
+	;;
 	;; Call to a new execution location
 	;;
 	(func $__internal_call (param $ptr_to i32)
@@ -183,27 +182,56 @@
 	)
 
 	;;
-	;; Handle exit, unwinds a jump
+	;; Handle does via storing the address for the specific location
 	;;
-	;; https://forth-standard.org/standard/core/EXIT
+	;; https://forth-standard.org/standard/core/DOES
 	;;
-	(func $__internal_exit
-		;; FIXME Would prefer if we can just _always_ pop, instead
-		;; of peeking if we have data... exit should be clean
-		;;
-		;; (global.set $exec_next (call $__stack_ret_pop))
+	(func $__internal_does
+		(local $ptr_xt i32)
 
-		;; set instruction pointer
-		(global.set $exec_next
+		;; setup the jump location for inclusion (temp -1 value, replaced below)
+		(call $__toks_insert
+			(local.tee $ptr_xt
+				(call $__val_new
+					(global.get $PTR_DO_MARK_TEXT)
+					(call $__strlen_z (global.get $PTR_DO_MARK_TEXT))
+					(i32.const 0)
+					(i32.const -1)
+					(global.get $FLG_DO_MARK))))
 
-			;; value on return stack?
-			(call $__stack_ret_count) (if (result i32)
+		;; update the address to inserted PTR_DO_MARK_TEXT (located at list tail)
+		(call $__val_set_value
+			(local.get $ptr_xt)
+			(call $__list_get_tail
+				(call $__val_get_value (global.get $xt_comp))))
+	)
 
-				;; pop pointer
-				(then (call $__stack_ret_pop))
+	(func $__internal_execute_does (param $val i32) (param $flg i32)
+		(local $rep i32)
 
-				;; zero pointer
-				(else (i32.const 0))))
+		;; exec?
+		(call $__has_flag
+			(local.get $flg)
+			(global.get $FLG_DO_EXEC)) (if
+
+			;; execute the jump
+			(then (call $__internal_jump (local.get $val)))
+
+			;; mark the jump, replace behaviour
+			(else
+				;; first token is hard-coded DFA via create, replace second
+				(call $__val_fill
+					(call $__val_get_value
+						(call $__ent_get_next
+							(call $__list_get_head (global.get $list_toks))))
+					(global.get $PTR_DO_EXEC_TEXT)
+					(call $__strlen_z (global.get $PTR_DO_EXEC_TEXT))
+					(i32.const 0)
+					(local.get $val)
+					(global.get $FLG_DO_EXEC))
+
+				;; skip remaining tokens, point to tail (exit token)
+				(global.set $exec_next (call $__list_get_tail (global.get $exec_list)))))
 	)
 
 	(func $__internal_execute_literal (param $val i32) (param $flg i32)
@@ -220,34 +248,6 @@
 
 			;; single literal, do nothing additional
 			(else))
-	)
-
-	(func $__internal_execute_does (param $val i32) (param $flg i32)
-		(local $rep i32)
-
-		;; exec?
-		(call $__has_flag
-			(local.get $flg)
-			(global.get $FLG_DO_EXEC)) (if
-
-			;; execute the jump
-			(then (call $__internal_jump (local.get $val)))
-
-			;; compile the jump, replace behaviour
-			(else
-				;; first token is hard-coded address, replace second
-				(call $__iov_set_str_len
-					(local.tee $rep
-						(call $__val_get_value
-							(call $__ent_get_next
-								(call $__list_get_head (global.get $list_toks)))))
-					(global.get $PTR_DO_EXEC_TEXT)
-					(call $__strlen_z (global.get $PTR_DO_EXEC_TEXT)))
-				(call $__val_set_flags (local.get $rep) (global.get $FLG_DO_EXEC))
-				(call $__val_set_value (local.get $rep) (local.get $val))
-
-				;; skip remaining tokens, point to tail
-				(global.set $exec_next (call $__list_get_tail (global.get $exec_list)))))
 	)
 
 	(func $__internal_execute_list (param $val i32)
