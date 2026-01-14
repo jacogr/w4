@@ -5,7 +5,7 @@
 	: >hash ( -- a-addr ) $2 cells + ;
 	\ : >flags ( -- a-addr ) $3 cells + ; \ defined in preamble
 	: >value ( -- a-addr ) $4 cells + ;
-	: >dfa ( -- a-addr ) $5 cells + ;
+	: (sizeof-xt) $5 cells ;
 
 \ layouts for names, aligned with wasm
 
@@ -13,7 +13,7 @@
 	: name>next $1 cells + @ ;
 	: name>list $2 cells + @ ;
 	: name>flags >flags @ ;
-	: name>xt $4 cells + @ ;
+	: name>xt >value @ ;
 
 \ layouts for lists, aligned with wasm
 
@@ -22,7 +22,7 @@
 	: list>owner $2 cells + @ ;
 	: list>flags >flags @ ;
 	: list>file $4 cells + @ ;
-	: list>rowcol $2 cells + @ ;
+	: list>rowcol $5 cells + @ ;
 
 \ https://forth-standard.org/standard/core/HERE
 \
@@ -64,7 +64,7 @@
 \ inside the create definition
 \ FIXME We need to ensure we are aligning the contents
 
-	: (new-xt) here $6 cells allot swap over >flags ! swap over >value ! ;
+	: (new-xt) here (sizeof-xt) allot swap over >flags ! swap over >value ! ;
 	: lit $c0de0140 (new-xt) ;
 	: lit, lit compile, ;
 
@@ -145,8 +145,11 @@
 \ constants as exposed from the wasm environment
 
 \ https://forth-standard.org/standard/core/SOURCE-ID
+\ https://forth-standard.org/standard/file/SOURCE-ID
+\
+\ Identifies the input source as follows: -1 (string), 0 (io), fileid
 
-	$0110 (mmio:) source-id
+	$0110 (mmio@) source-id
 
 \ https://forth-standard.org/standard/core/SOURCE
 \

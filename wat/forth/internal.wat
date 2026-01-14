@@ -152,9 +152,9 @@
 	)
 
 	;;
-	;; Jump to a new execution location
+	;; Call to a new execution location
 	;;
-	(func $__internal_jump (param $ptr_to i32)
+	(func $__internal_call (param $ptr_to i32)
 		;; global next available?
 		(global.get $exec_next) (if
 
@@ -163,6 +163,14 @@
 
 			(else))
 
+		;; set jump location
+		(call $__internal_jump (local.get $ptr_to))
+	)
+
+	;;
+	;; Jump to a new execution location
+	;;
+	(func $__internal_jump (param $ptr_to i32)
 		;; set jump location
 		(global.set $exec_next (local.get $ptr_to))
 	)
@@ -216,9 +224,12 @@
 			;; execute the jump
 			(then (call $__internal_jump (local.get $val)))
 
-			;; compile the jump
+			;; compile the jump, replace behaviour
 			(else
-				(call $__toks_insert
+				;; first token is hard-coded address, replace second
+				(call $__val_set_value
+					(call $__ent_get_next
+						(call $__list_get_head (global.get $list_toks)))
 					(call $__val_new
 						(global.get $PTR_DO_EXEC_TEXT)
 						(call $__strlen_z (global.get $PTR_DO_EXEC_TEXT))
@@ -233,7 +244,7 @@
 	(func $__internal_execute_list (param $val i32)
 		;; store execution list, jump to head
 		(global.set $exec_list (local.get $val))
-		(call $__internal_jump (call $__list_get_head (local.get $val)))
+		(call $__internal_call (call $__list_get_head (local.get $val)))
 	)
 
 	;;

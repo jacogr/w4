@@ -155,6 +155,13 @@
 			;; no other frames
 			(else))
 
+	m4_ifdef(`DEBUG', `
+		;; DEBUG, output stacks
+		(call $__DEBUG_emit_stack (i32.load (global.get $PTR_PTR_STACK_DAT)))
+		(call $__DEBUG_emit_stack (i32.load (global.get $PTR_PTR_STACK_RET)))
+		(call $__DEBUG_emit_stack (i32.load (global.get $PTR_PTR_STACK_CTL)))
+	')
+
 		;; TODO proper exception, pass up code on exception stack?
 		unreachable
 	)
