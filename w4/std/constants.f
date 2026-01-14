@@ -6,7 +6,6 @@
 	\ : >flags ( -- a-addr ) $3 cells + ; \ defined in preamble
 	: >value ( -- a-addr ) $4 cells + ;
 	: >dfa ( -- a-addr ) $5 cells + ;
-	: >body ( -- a-addr ) >dfa @ ;
 
 \ layouts for names, aligned with wasm
 
@@ -87,11 +86,23 @@
 \
 \ NOTE <builds is aligned, so the dfa is aligned as per the specification
 
-	: (latest>tail) $0120 @ >value @ list>tail ;
+	: (latest>tail) latest >value @ list>tail ;
 	: (latest>prev) (latest>tail) name>prev ;
 	: (latest>value) (latest>prev) name>xt >value ;
 
 	: create <builds -1 lit, here (latest>value) ! reveal ;
+
+\ https://forth-standard.org/standard/core/toBODY
+\
+\ a-addr is the data-field address corresponding to xt. An ambiguous condition
+\ exists if xt is not for a word defined via CREATE.
+
+	: >body ( xt -- a-addr )
+		>value @	\ read address of token list
+		list>head	\ first entry inside the list
+		name>xt		\ get the first token, address literal
+		>value @	\ read the value
+	;
 
 \ https://forth-standard.org/standard/core/VARIABLE
 \
