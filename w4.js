@@ -58,12 +58,17 @@ import nodeWasi from 'node:wasi';
 	try {
 		// instantiate WASM, including getting a memory view
 		const wasi = new nodeWasi.WASI({
-			version: 'preview1',
+			args: nodeProcess.argv,
+  			env: nodeProcess.env,
 			preopens: {
 				// user location first, default for includes/requires
 				/* fd:3 */ '/app': nodeProcess.cwd(),
 				/* fd:4 */ '/lib': import.meta.dirname,
-			}
+			},
+			stdin: nodeProcess.stdin.fd,
+  			stdout: nodeProcess.stdout.fd,
+  			stderr: nodeProcess.stderr.fd,
+			version: 'preview1'
 		});
 		const wasm = await WebAssembly.compile(nodeFs.readFileSync('build/w4-opt.wasm'));
 		const instance = await WebAssembly.instantiate(wasm, { ...wasi.getImportObject() });
