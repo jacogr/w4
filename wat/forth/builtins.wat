@@ -281,8 +281,8 @@
 	)
 
 	;; Expose wasmi function for writing to stdout/stderr
-	(elem (i32.const 25) $__forth_fn__wasi_fd_write)
-	(func $__forth_fn__wasi_fd_write (type $TypeForthFn)
+	(elem (i32.const 25) $__forth_fn_wasi_fd_write)
+	(func $__forth_fn_wasi_fd_write (type $TypeForthFn)
 		(local $iovs i32)
 		(local $iovs_len i32)
 		(local $n_ptr i32)
@@ -300,8 +300,8 @@
 	)
 
 	;; Expose wasmi for reading from stdin
-	(elem (i32.const 26) $__forth_fn__wasi::fd_read)
-	(func $__forth_fn__wasi::fd_read (type $TypeForthFn)
+	(elem (i32.const 26) $__forth_fn_wasi_fd_read)
+	(func $__forth_fn_wasi_fd_read (type $TypeForthFn)
 		(local $iovs i32)
 		(local $iovs_len i32)
 		(local $n_ptr i32)
