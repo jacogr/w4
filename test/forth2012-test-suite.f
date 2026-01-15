@@ -7,6 +7,8 @@
 \ this has better error reporting than the original
 \
 
+1 (test-verbose) !
+
 \ ANS Forth tests - run all tests
 
 \ Adjust the file paths as appropriate to your system
