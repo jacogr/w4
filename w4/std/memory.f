@@ -86,21 +86,17 @@ require loops.f
 \ character-by-character from lower addresses to higher addresses.
 
 	: cmove ( src dst u -- )
-		\ stack: src dst u
 		begin
-			dup                     \ src dst u u
+			dup	0<>				( src dst u -- src dst u flag )
 		while
-			\ copy one byte
-			>r                      \ src dst u          r: u
-			over c@                 \ src dst u char
-			over c!                 \ src dst u          (store char to dst)
-			1+                      \ src dst' u         (dst++)
-			swap 1+ swap            \ src' dst' u        (src++)
-			r> 1-                   \ src' dst' u'       (u--)
+			>r 					( src dst u -- src dst ) ( r: -- u )
+			over c@ 			( src dst -- src dst ch )
+			over c! 			( src dst ch -- src dst )
+			1+ swap 1+ swap 	( src dst -- src' dst' )
+			r> 1- 				( src' dst' -- src' dst' u' ) ( r: u -- )
 		repeat
-		drop 2drop					\ (cleanup u=0, drop src dst)
+		drop 2drop
 	;
-
 
 \ https://forth-standard.org/standard/string/CMOVEtop
 \
@@ -109,22 +105,15 @@ require loops.f
 \ character-by-character from higher addresses to lower addresses.
 
 	: cmove> ( src dst u -- )
-		\ stack: src dst u
 		begin
-			dup                     \ src dst u u
+			dup 0<> 			( src dst u -- src dst u flag )
 		while
-			1-                      \ src dst u'          \ u' = u-1 (offset)
-			>r                      \ src dst             r: u'
-
-			\ fetch from src+u'
-			over r@ + c@            \ src dst char        r: u'
-
-			\ store to dst+u'
-			over r@ + c!            \ src dst             r: u'
-
-			r>                      \ src dst u'          \ keep decreased u on stack for next loop
+			1- >r 				( src dst u -- src dst ) ( r: -- u )
+			over r@ + c@ 		( src dst -- src dst ch )
+			over r@ + c! 		( src dst ch -- src dst )
+			r> 					( src dst -- src dst u ) ( r: u -- )
 		repeat
-		drop 2drop              \ drop u, drop src dst
+		drop 2drop
 	;
 
 \ https://forth-standard.org/standard/core/MOVE
@@ -133,10 +122,16 @@ require loops.f
 \ at src to the u consecutive address units at dst.
 
 	: move ( src dst u -- )
-		2dup swap u< if
-			cmove
+		dup 0= if 			( src dst u -- src dst u )      \ flag consumed
+			2drop drop 		( src dst u -- )                \ drop dst, src, u
+			exit
+		then
+		sp-1@ 				( src dst u -- src dst u dst )
+		sp-3@ 				( src dst u dst -- src dst u dst src )
+		u< if               ( src dst u dst src -- src dst u )  \ dst < src ?
+			cmove 			( src dst u -- )
 		else
-			cmove>
+			cmove> 			( src dst u -- )
 		then
 	;
 
@@ -145,10 +140,13 @@ require loops.f
 \ If u is greater than zero, store char in each of u consecutive characters of
 \ memory beginning at c-addr.
 
-	: fill  ( addr u char -- )
-		>r				\ save char
-		over + swap		\ ( end start )   R: char
-		?do r@ i c! loop
-		r> drop
+	: fill ( c-addr u ch -- )
+		-rot						( c-addr u ch -- ch c-addr u )
+		begin
+			dup 0<> 				( ch c-addr u -- ch c-addr u flag )
+		while
+			sp-2@ sp-2@ c! 			( ch c-addr u -- c-addr u ch )      \ store char at c-addr
+			1- swap 1+ swap 		( ch c-addr u -- ch c-addr' u' )
+		repeat
+		2drop drop					( ch c-addr u -- )
 	;
-
