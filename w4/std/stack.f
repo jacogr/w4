@@ -102,8 +102,8 @@ require stack.ptr.f
 \ as per the sp version
 
 	: cs-swap ( c: x y -- y x )
-		cs-1@ cs-0@	( -- y x )
-		cs-1! cs-0!
+		cs-1@ cs-0@	( -- x y )
+		cs-1! cs-0!	( x y -- )
 	;
 
 \ https://forth-standard.org/standard/tools/CS-PICK
