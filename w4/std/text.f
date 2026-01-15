@@ -266,12 +266,18 @@ require wasi.f
 
 	: .r ( n1 n2 -- )
 		<#
-			swap            \ n2 n1
-			dup >r          \ n2 n1        R: n1
-			abs s>d         \ n2 lo hi
-			#s              \ n2 lo hi
-			r> sign         \ n2 lo hi     (sign consumes n1, may HOLD '-')
-			(#pad)          \ lo hi
+			swap			( n1 n2 -- n2 n1 )
+			dup >r 			( n2 n1 -- n2 n1 )           ( r: -- n1 )
+
+			\ make unsigned magnitude as a DOUBLE, safely (works for MIN-INT)
+			s>d  			( n2 n1 -- n2 lo hi )
+			r@ 0< if 		( n2 lo hi -- n2 lo hi )     \ was original n1 negative?
+				dnegate 	( n2 lo hi -- n2 lo' hi' )   \ magnitude
+			then
+
+			#s 				( n2 lo hi -- n2 0 0 )
+			r> sign			( n2 0 0 -- n2 0 0 )         \ may HOLD '-'
+			(#pad)			( n2 0 0 -- 0 0 )
 		#> type space
 	;
 
