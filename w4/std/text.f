@@ -113,7 +113,8 @@ require stack.f
 \
 \ Add char to the beginning of the pictured numeric output string.
 
-	create (#-tmp-buf) 80 allot
+	$1f constant (#max) 				\ 127 max string size
+	create (#-tmp-buf) (#max) 1+ allot	\ offset in first byte, #max + 1
 
 	: hold ( char -- )
 		(#-tmp-buf) @		\ get offset
@@ -133,8 +134,6 @@ require stack.f
 \
 \ Initialize the pictured numeric output conversion process.
 
-	#63 constant (#max) \ 64 bytes available, 0..63
-
 	: (#len) ( -- n ) (#max) (#-tmp-buf) @ - ;
 
 	: (#pad) ( n ud -- ud' )
@@ -142,7 +141,11 @@ require stack.f
 		swap (#len) - dup 0> if 0 do bl hold loop else drop then
 	;
 
-	: (#chr) ( n -- char ) dup #9 > #39 and + '0' + ; \ exploit that 'A' - '9' = 8, 'a' - '9' = 40
+	\ standard uppercase version
+	: (#chr) ( n -- char ) dup #9 > #7 and + '0' + ; \  explot that 'A' - '9' = 8
+
+	\ lowercase version, not standard, doesn't pass test suite
+	\ : (#chr) ( n -- char ) dup #9 > #39 and + '0' + ; \ exploit that 'a' - '9' = 40
 
 	: <# ( -- ) (#max) (#-tmp-buf) ! ;
 
@@ -154,9 +157,10 @@ require stack.f
 \ of the pictured numeric output string
 
 	: # ( ud -- ud' )
-		base @ u/mod 	( ud -- ud2 u.rem )
-		swap
-		(#chr) hold		( ud2 u.rem -- ud2 )
+		base @ ud/mod          \ rem qlo qhi
+		>r                     \ rem qlo    R: qhi
+		swap (#chr) hold       \ qlo
+		r>                     \ qlo qhi    (ud')
 	;
 
 \ https://forth-standard.org/standard/core/numS
@@ -164,7 +168,7 @@ require stack.f
 \ Convert one digit of ud1 according to the rule for #. Continue conversion
 \ until the quotient is zero. ud2 is zero.
 
-	: #s ( ud -- ud' ) begin # dup 0= until ;
+	: #s ( ud -- ud' ) begin # 2dup or 0= until ;
 
 \ https://forth-standard.org/standard/core/num-end
 \
@@ -173,7 +177,7 @@ require stack.f
 \ replace characters within the string.
 
 	: #> ( xd -- c-addr u )
-		drop					( xd -- )
+		2drop					( xd -- )
 		(#-tmp-buf) (#-tmp-buf) @ + 1+	( -- c-addr )
 		(#len)					( c-addr -- c-addr u )
 	;

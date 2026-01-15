@@ -169,6 +169,41 @@ require stack.f
 		or				\ arithmetic result
 	;
 
+\ https://forth-standard.org/standard/double/DTwoTimes
+\
+\ xd2 is the result of shifting xd1 one bit toward the most-significant bit,
+\ filling the vacated least-significant bit with zero.
+
+	: d2* ( lo hi -- lo' hi' )
+		over #31 rshift           \ lo hi carry
+		>r
+		swap 1 lshift             \ lo hi<<1
+		r> or                     \ lo hi'
+		swap 1 lshift             \ hi' lo<<1
+		swap                      \ lo' hi'
+	;
+
+\ https://forth-standard.org/standard/double/DTwoDiv
+\
+\ xd2 is the result of shifting xd1 one bit toward the least-significant bit,
+\ leaving the most-significant bit unchanged.
+
+	: arshift1 ( n -- n' )
+		dup 0< 			\ n flag
+		msb 0 select 	\ n mask
+		swap 1 rshift 	\ mask n>>1
+		or
+	;
+
+	: d2/ ( lo hi -- lo' hi' )
+		dup 1 and                 \ lo hi hibit
+		>r
+		arshift1                  \ lo hi'
+		swap 1 rshift             \ hi' lo>>1
+		r> 31 lshift or           \ hi' lo'
+		swap                      \ lo' hi'
+	;
+
 \ https://forth-standard.org/standard/core/PlusStore
 \
 \ Add n | u to the single-cell number at a-addr.
@@ -190,3 +225,16 @@ require stack.f
 \ n3 is the lesser of n1 and n2.
 
 	: min ( n1 n2 -- n3 ) over 2dup < >r - r> and + ;
+
+\ Non-standard extension to um/mod to work with unsigned
+\ numbers, without restrictions
+
+	: ud/mod ( lo hi u -- rem qlo qhi )
+		>r                 \ R: u
+		r@ u/mod           \ lo hi u -> lo rem qhi
+		r>                 \ lo rem qhi u
+		swap               \ lo rem u qhi
+		>r                 \ lo rem u    R: qhi
+		um/mod             \ lo rem u -> rem qlo   (LEGAL: rem < u)
+		r>                 \ rem qlo qhi
+	;
