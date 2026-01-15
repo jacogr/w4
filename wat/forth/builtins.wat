@@ -226,22 +226,6 @@
 	(func $__forth_fn_parse (type $TypeForthFn)
 		(call $__stack_dat_2push
 			(call $__internal_parse (call $__stack_dat_pop)))
-
-		;; FIXME Kept around for _when_ or _if_ teh above transient
-		;; buffers become problematic. so far, so good...
-		;;
-		;; (local $str i32)
-		;; (local $len i32)
-
-		;; (call $__internal_parse (call $__stack_dat_pop))
-		;; local.set $len
-		;; local.set $str
-
-		;; ;; Duplicate the string so it can be stable/non-transient
-		;; ;; inside the forth environment
-		;; (call $__stack_dat_2push
-		;; 	(call $__strdup_n (local.get $str) (local.get $len))
-		;; 	(local.get $len))
 	)
 
 	;; https://forth-standard.org/standard/core/QUIT

@@ -517,7 +517,7 @@
 	(func $__internal_evaluate (export "evaluate") (param $code_ptr i32) (param $code_len i32)
 		(local $s i32)
 
-		;; create structure, tee onto stack for return
+		;; create structure
 		(local.set $s (call $__alloc (global.get $SIZEOF_SRC)))
 
 		;; store base info
@@ -534,6 +534,11 @@
 	;; Runs the evaulation loop over a source
 	;;
 	(func $__internal_evaluate_frame (param $s i32)
+		(local $caller_s i32)
+
+		;; save caller frame pointer (0 if none)
+		(local.set $caller_s (i32.load (global.get $PTR_SRC_ID)))
+
 		;; enter frame
 		(call $__src_push_frame (local.get $s))
 
@@ -561,6 +566,14 @@
 
 		;; leave frame (normal exit)
 		(call $__src_pop_frame)
+
+		;; re-bind caller SOURCE so we do NOT trigger a refill
+		(local.get $caller_s) (if
+			(then
+				(call $__line_set
+				(call $__src_get_ln_iov (local.get $caller_s))
+				(call $__src_get_ln_off_ptr (local.get $caller_s))))
+			(else))
 	)
 
 	;;

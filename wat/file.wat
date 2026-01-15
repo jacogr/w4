@@ -201,6 +201,111 @@
 	)
 
 	;;
+	;; Reads a line from a meory location, mirroring the details
+	;; for __file_read_line
+	;;
+	(func $__mem_read_line (param $s i32) (result i32)
+		(local $ptr i32)
+		(local $buf_len i32)
+		(local $off i32)
+		(local $start i32)
+		(local $i i32)
+		(local $ln_len i32)
+		(local $had_nl i32)
+		(local $iov_ln i32)
+
+		;; output line iov
+		(local.set $iov_ln (call $__src_get_ln_iov (local.get $s)))
+
+		;; reset line (len/off) like file does
+		(call $__iov_set_len    (local.get $iov_ln) (i32.const 0))
+		(call $__src_set_ln_off (local.get $s)      (i32.const 0))
+
+		;; already EOF? (match file behavior: once EOF, keep returning 0)
+		(if (call $__src_get_is_eof (local.get $s))
+			(then (return (i32.const 0))))
+
+		;; load source buffer + cursor
+		(local.set $ptr     (call $__src_get_ptr (local.get $s)))
+		(local.set $buf_len (call $__src_get_len (local.get $s)))
+		(local.set $off     (call $__src_get_in_off (local.get $s)))
+
+		;; EOF before starting?
+		(if (i32.or
+				(i32.eqz (local.get $ptr))
+				(i32.ge_u (local.get $off) (local.get $buf_len)))
+			(then
+			(call $__src_set_is_eof (local.get $s) (i32.const 1))
+			(return (i32.const 0))))
+
+		;; scan from off until '\n' or EOF
+		(local.set $start  (local.get $off))
+		(local.set $i      (local.get $off))
+		(local.set $had_nl (i32.const 0))
+
+		(block $done (loop $loop
+			;; end of buffer
+			(br_if $done
+			(i32.ge_u (local.get $i) (local.get $buf_len)))
+
+			;; newline ends line (and marks "line exists" even if empty)
+			(br_if $done
+			(local.tee $had_nl
+				(i32.eq
+				(i32.load8_u (i32.add (local.get $ptr) (local.get $i)))
+				(i32.const 10))))
+
+			;; next char
+			(local.set $i (i32.add (local.get $i) (i32.const 1)))
+			(br $loop)))
+
+		;; length excluding '\n'
+		(local.set $ln_len
+			(i32.sub (local.get $i) (local.get $start)))
+
+		;; consume newline if present (advance absolute cursor)
+		(if (local.get $had_nl)
+			(then (local.set $i (i32.add (local.get $i) (i32.const 1)))))
+
+		;; persist cursor back to source (in_off)
+		(call $__src_set_in_off (local.get $s) (local.get $i))
+
+		;; if we are now at EOF after consuming, set eof flag (optional but aligns statefulness)
+		(if (i32.ge_u (local.get $i) (local.get $buf_len))
+			(then (call $__src_set_is_eof (local.get $s) (i32.const 1))))
+
+		;; strip trailing '\r' (no copy, just shorten)
+		(if (i32.and
+				(i32.gt_u (local.get $ln_len) (i32.const 0))
+				(i32.eq
+				(i32.load8_u
+					(i32.add
+					(local.get $ptr)
+					(i32.add (local.get $start)
+							(i32.sub (local.get $ln_len) (i32.const 1)))))
+				(i32.const 13)))
+			(then
+			(local.set $ln_len
+				(i32.sub (local.get $ln_len) (i32.const 1)))))
+
+		;; publish line slice (pointer update only)
+		(drop
+			(call $__iov_fill
+			(local.get $iov_ln)
+			(i32.add (local.get $ptr) (local.get $start))
+			(local.get $ln_len)
+			(i32.const 0)))
+
+		;; return:
+		;;  - 1 if we have any chars OR we hit '\n' (empty line is valid)
+		;;  - 0 only when EOF and no chars and no '\n'
+		(i32.or
+			(i32.ne (local.get $ln_len) (i32.const 0))
+			(local.get $had_nl))
+	)
+
+
+	;;
 	;; Join a relative include path against a base file path.
 	;; Handles leading "../" segments in inc only.
 	;;

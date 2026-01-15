@@ -56,7 +56,6 @@
 			(then
 				;; parse_iov_ptr from frame
 				(global.set $parse_iov_ptr (call $__src_get_ln_iov (local.get $s)))
-				(global.set $parse_code_idx (call $__src_get_ln_off (local.get $s)))
 				(global.set $parse_code_row (call $__src_get_row (local.get $s)))
 
 				;; kind?
@@ -64,13 +63,15 @@
 
 					;; file
 					(then
+						(global.set $parse_code_idx (call $__src_get_ln_off (local.get $s)))
 						(global.set $parse_code_ptr (i32.const 0))
 						(global.set $parse_code_len (i32.const 0)))
 
 					;; memory
 					(else
+						(global.set $parse_code_idx (call $__src_get_in_off (local.get $s)))
 						(global.set $parse_code_ptr (call $__src_get_ptr (local.get $s)))
-						(global.set $parse_code_len (call $__src_get_len (local.get $s))))))
+    					(global.set $parse_code_len (call $__src_get_len (local.get $s))))))
 
 			;; zero source, clear all
 			(else
@@ -247,3 +248,45 @@
 
 	(func $__src_set_pd (param $s i32) (param $v i32)
 		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_PD)) (local.get $v)))
+
+	;;
+	;; Helpers for PTR_PTR_LINE_OFF = >IN and PTR_LINE_IOV = SOURCE
+	;;
+
+	(func $__line_clear
+		(call $__line_set_off_ptr__ (i32.const 0))
+		(call $__line_set_iov__ (i32.const 0))
+	)
+
+	(func $__line_set (param $iov i32) (param $off_ptr i32)
+		(call $__line_set_off_ptr__ (local.get $off_ptr))
+		(call $__line_set_iov__ (local.get $iov))
+	)
+
+	(func $__line_set_off (param $v i32)
+		(local $ptr i32)
+
+		;; valid offset ptr
+		(call $__assert_ptr (local.tee $ptr (call $__line_get_off_ptr__)))
+
+		;; store
+		(i32.store (local.get $ptr) (local.get $v)))
+
+	(func $__line_get_off (result i32)
+		(i32.load (call $__line_get_off_ptr__)))
+
+	(func $__line_get_iov (result i32)
+		(i32.load (global.get $PTR_LINE_IOV)))
+
+	;;
+	;; Never accessed out of this location
+	;;
+
+	(func $__line_get_off_ptr__ (result i32)
+		(i32.load (global.get $PTR_PTR_LINE_OFF)))
+
+	(func $__line_set_off_ptr__ (param $v i32)
+		(i32.store (global.get $PTR_PTR_LINE_OFF) (local.get $v)))
+
+	(func $__line_set_iov__ (param $v i32)
+		(i32.store (global.get $PTR_LINE_IOV) (local.get $v)))

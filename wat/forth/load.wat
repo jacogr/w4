@@ -17,9 +17,6 @@
 	;;
 	(func $__internal_refill (result i32)
 		(local $s i32)
-		(local $len i32)
-		(local $idx_curr i32)
-		(local $idx_find i32)
 
 		;; reset >IN and SOURCE
 		(call $__line_clear)
@@ -33,93 +30,38 @@
 			;; no source frame, exit
 			(else (return (i32.const 0))))
 
-		;; kind?
+		;; read next line (file/mem), returns success flag
 		(call $__src_get_kind (local.get $s)) (if (result i32)
 
 			;; file
-			(then
-				;; do we have refill data?
-				(call $__file_read_line (local.get $s)) (if (result i32)
-
-					;; have data, add it
-					(then
-						;; new row
-						(call $__src_set_row
-							(local.get $s)
-							(i32.add
-								(call $__src_get_row (local.get $s))
-								(i32.const 1)))
-						(global.set $parse_code_row (call $__src_get_row (local.get $s)))
-
-						;; SOURCE = file line iov, >IN-ptr =
-						(call $__line_set
-							(call $__src_get_ln_iov (local.get $s))
-							(call $__src_get_ln_off_ptr (local.get $s)))
-
-						;; parse_iov_ptr already points at line iov via frame
-						(i32.const 1))
-
-					;; no data available
-					(else (i32.const 0))))
+			(then (call $__file_read_line (local.get $s)))
 
 			;; memory
-			(else
-				;; start
-				(local.set $idx_find (global.get $parse_code_idx))
+			(else (call $__mem_read_line (local.get $s)))) (if (result i32)
 
-				;; loop until eol
-				(block $exit (loop $loop
+			;; success: shared tail
+			(then
+				;; row++
+				(call $__src_set_row
+					(local.get $s)
+					(i32.add
+						(call $__src_get_row (local.get $s))
+						(i32.const 1)))
 
-					;; break is we are at eof
-					(br_if $exit
-						(i32.or
-							(i32.eqz (global.get $parse_code_ptr))
-							(i32.eq (global.get $parse_code_idx) (global.get $parse_code_len))))
+				;; mirror for diagnostics / errors
+				(global.set $parse_code_row
+					(call $__src_get_row (local.get $s)))
 
-					;; eol?
-					(call $__ch_is_eol
-						(i32.load8_u
-							(i32.add (global.get $parse_code_ptr) (global.get $parse_code_idx))))
+				;; SOURCE + >IN
+				(call $__line_set
+					(call $__src_get_ln_iov (local.get $s))
+					(call $__src_get_ln_off_ptr (local.get $s)))
 
-					;; increment column
-					(global.set $parse_code_idx (i32.add (global.get $parse_code_idx) (i32.const 1)))
+				;; success, we have a line
+				(i32.const 1))
 
-					;; continue if not eol
-					i32.eqz (br_if $loop)))
-
-				;; movement?
-				(i32.ne
-					(local.tee $idx_curr (global.get $parse_code_idx))
-					(local.get $idx_find)) (if
-
-					;; yes, new position update
-					(then
-						;; row++
-						(global.set $parse_code_row
-							(i32.add (global.get $parse_code_row) (i32.const 1)))
-						(call $__src_set_row
-							(local.get $s)
-							(global.get $parse_code_row))
-
-						;; persist idx back into frame
-						(call $__src_set_ln_off
-							(local.get $s)
-							(global.get $parse_code_idx))
-
-						;; SOURCE slice
-						(call $__line_set
-							(call $__iov_fill
-								(global.get $parse_iov_ptr)
-								(i32.add (global.get $parse_code_ptr) (local.get $idx_find))
-								(local.tee $len (i32.sub (local.get $idx_curr) (local.get $idx_find)))
-								(i32.const 0))
-							(call $__src_get_ln_off_ptr (local.get $s))))
-
-					;; no movement, exit below
-					(else))
-
-				;; 1=success if we have length
-				(i32.ne (local.get $len) (i32.const 0))))
+			;; failure
+			(else (i32.const 0)))
 	)
 
 	;;
