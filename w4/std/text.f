@@ -4,23 +4,13 @@ require math.f
 require memory.f
 require parse.f
 require stack.f
+require wasi.f
 
 \ https://forth-standard.org/standard/core/TYPE
 \
 \ If u is greater than zero, display the character string specified by
 \ c-addr and u. Characters are in the display range as per the runtime
 \ environment.
-
-	create (iov-tmp-out) 16 allot
-
-	: iov>fd ( c-addr-u u 1|2 -- ) \ 1=stdout, 2=stderr
-		#2 (sp@-) 			( c-addr u 1|2 -- c-addr u 1|2 a-iov )
-		1 					\ write a single iov
-		(iov-tmp-out)		( c-addr u 1|2 a-iov 1 -- c-addr u 1|2 a-iov 1 a-tmp )
-		wasi::fd_write		( c-addr u 1|2 a-iov 1 a-tmp -- c-addr u err )
-		0<> #-37 and throw	( c-addr u err -- c-addr u )
-		2drop				( c-addr u -- )
-	;
 
 	: type ( c-addr u -- ) 1 iov>fd ; \ emit to stdout
 
@@ -39,6 +29,60 @@ require stack.f
 		sp@ 1			( ch -- ch c-addr 1 )
 		1 iov>fd		( ch c-addr 1 -- ch ) \ emit to stdout
 		drop			( ch -- )
+	;
+
+\ https://forth-standard.org/standard/core/KEY
+\
+\ Receive one character char, a member of the implementation-defined character
+\ set. Keyboard events that do not correspond to such characters are discarded
+\ until a valid character is received, and those events are subsequently
+\ unavailable.
+\
+\ All standard characters can be received. Characters received by KEY are not
+\ displayed.
+
+	: key ( -- c )
+		begin
+			(key-buf) 1 0 iov<fd
+			1 =
+		until
+		(key-buf) c@
+	;
+
+\ https://forth-standard.org/standard/core/ACCEPT
+\
+\ Receive a string of at most +n1 characters. An ambiguous condition exists if
+\ +n1 is zero or greater than 32,767. Display graphic characters as they are
+\ received. A program that depends on the presence or absence of non-graphic
+\ characters in the string has an environmental dependency. The editing
+\ functions, if any, that the system performs in order to construct the string
+\ are implementation-defined.
+\
+\ Input terminates when an implementation-defined line terminator is received.
+\ When input terminates, nothing is appended to the string, and the display is
+\ maintained in an implementation-defined way.
+
+	: accept ( c-addr u -- u2 )
+		0 					( c-addr u -- c-addr u count )
+		begin
+			2dup swap <		( c-addr u count -- c-addr u count flag )
+		while
+			key 			( c-addr u count -- c-addr u count ch )
+			dup 10 =		\ lf?
+			over 13 =		\ cr?
+			or if 			\ lf or cr?
+				drop		( c-addr u count ch -- c-addr u count )
+				nip nip		( c-addr u count -- count )
+				exit
+			else
+				sp-3@ 		( c-addr u count ch -- c-addr u count ch c-addr )
+				sp-2@ 		( c-addr u count ch c-addr -- c-addr u count ch c-addr count )
+				+ 			( c-addr u count ch c-addr count -- c-addr u count ch c-addr' )
+				c! 			( c-addr u count ch c-addr' -- c-addr u count )
+				1+ 			( c-addr u count -- c-addr u count' )
+			then
+		repeat
+		nip nip				( c-addr u count' -- count )
 	;
 
 \ https://forth-standard.org/standard/core/BL
@@ -113,7 +157,7 @@ require stack.f
 \
 \ Add char to the beginning of the pictured numeric output string.
 
-	$1f constant (#max) 				\ 127 max string size
+	$ff constant (#max) 				\ 255 max string size
 	create (#-tmp-buf) (#max) 1+ allot	\ offset in first byte, #max + 1
 
 	: hold ( char -- )
@@ -138,7 +182,10 @@ require stack.f
 
 	: (#pad) ( n ud -- ud' )
 		base @ #16 = if '$' hold else base @ #2 = if '%' hold then then
-		swap (#len) - dup 0> if 0 do bl hold loop else drop then
+		2>r
+		(#len) -
+		dup 0> if 0 do bl hold loop else drop then
+		2r>
 	;
 
 	\ standard uppercase version
@@ -188,7 +235,7 @@ require stack.f
 \ of characters required to display u is greater than n, all digits are
 \ displayed with no leading spaces in a field as wide as necessary.
 
-	: (u.r) swap #s (#pad) ;
+	: (u.r) swap 0 #s (#pad) ;
 
 	: u.r ( u1 n -- )
 		<#
@@ -217,8 +264,12 @@ require stack.f
 
 	: .r ( n1 n2 -- )
 		<#
-			swap dup abs #s		( n u -- u n du )
-			swap sign (#pad)	( u n ud -- u ud )
+			swap            \ n2 n1
+			dup >r          \ n2 n1        R: n1
+			abs s>d         \ n2 lo hi
+			#s              \ n2 lo hi
+			r> sign         \ n2 lo hi     (sign consumes n1, may HOLD '-')
+			(#pad)          \ lo hi
 		#> type space
 	;
 
