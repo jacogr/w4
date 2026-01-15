@@ -122,8 +122,8 @@ require loops.f
 \ at src to the u consecutive address units at dst.
 
 	: move ( src dst u -- )
-		dup 0= if 			( src dst u -- src dst u )      \ flag consumed
-			2drop drop 		( src dst u -- )                \ drop dst, src, u
+		dup 0= if 			( src dst u -- src dst u )
+			drop 2drop 		( src dst u -- )
 			exit
 		then
 		sp-1@ 				( src dst u -- src dst u dst )
@@ -145,8 +145,8 @@ require loops.f
 		begin
 			dup 0<> 				( ch c-addr u -- ch c-addr u flag )
 		while
-			sp-2@ sp-2@ c! 			( ch c-addr u -- c-addr u ch )      \ store char at c-addr
+			sp-2@ sp-2@ c! 			( ch c-addr u -- c-addr u )
 			1- swap 1+ swap 		( ch c-addr u -- ch c-addr' u' )
 		repeat
-		2drop drop					( ch c-addr u -- )
+		drop 2drop					( ch c-addr u -- )
 	;
