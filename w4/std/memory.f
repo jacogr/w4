@@ -139,3 +139,16 @@ require loops.f
 			cmove>
 		then
 	;
+
+\ https://forth-standard.org/standard/core/FILL
+\
+\ If u is greater than zero, store char in each of u consecutive characters of
+\ memory beginning at c-addr.
+
+	: fill  ( addr u char -- )
+		>r				\ save char
+		over + swap		\ ( end start )   R: char
+		?do r@ i c! loop
+		r> drop
+	;
+
