@@ -19,7 +19,7 @@ require text.f
 	variable (test-num-errors)
 	variable (test-is-error)
 	variable (test-depth)
-	variable (test-verbose)
+	variable (test-verbose) 1 (test-verbose) !
 	create (test-results) $20 cells allot
 
 \ empty the stack
@@ -95,8 +95,8 @@ require text.f
 	: testing   \ ( -- ) TALKING COMMENT.
 		source (test-verbose) @
 		if
-			dup >r type cr r> >in !
+			cr dup >r type cr r> >in !
 		else
-			>in ! drop '*' emit
+			>in ! drop cr \ '*' emit
 		then
 	;

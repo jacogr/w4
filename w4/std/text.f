@@ -62,7 +62,7 @@ require wasi.f
 \ When input terminates, nothing is appended to the string, and the display is
 \ maintained in an implementation-defined way.
 
-	: accept ( c-addr u -- u2 )
+	: (accept) ( c-addr u -- c-addr u u2 )
 		0 					( c-addr u -- c-addr u count )
 		begin
 			2dup swap <		( c-addr u count -- c-addr u count flag )
@@ -71,9 +71,7 @@ require wasi.f
 			dup 10 =		\ lf?
 			over 13 =		\ cr?
 			or if 			\ lf or cr?
-				drop		( c-addr u count ch -- c-addr u count )
-				nip nip		( c-addr u count -- count )
-				exit
+				drop exit	( c-addr u count ch -- c-addr u count )
 			else
 				sp-3@ 		( c-addr u count ch -- c-addr u count ch c-addr )
 				sp-2@ 		( c-addr u count ch c-addr -- c-addr u count ch c-addr count )
@@ -82,7 +80,11 @@ require wasi.f
 				1+ 			( c-addr u count -- c-addr u count' )
 			then
 		repeat
-		nip nip				( c-addr u count' -- count )
+	;
+
+	: accept ( c-addr u -- u2 )
+		(accept)	( c-addr u -- c-addr u count )
+		nip nip		( c-addr u count -- count )
 	;
 
 \ https://forth-standard.org/standard/core/BL
@@ -319,3 +321,42 @@ require wasi.f
 \ immediate word.
 
 	: .( ( "ccc<paren>" -- ) ')' parse type ; immediate
+
+\ https://forth-standard.org/standard/core/toNUMBER
+\
+\ ud2 is the unsigned result of converting the characters within the string
+\ specified by c-addr1 u1 into digits, using the number in base, and adding
+\ each into ud1 after multiplying ud1 by the number in base. Conversion
+\ continues left-to-right until a character that is not convertible, including
+\ any "+" or "-", is encountered or the string is entirely converted. c-addr2
+\ is the location of the first unconverted character or the first character
+\ past the end of the string if the string was entirely converted. u2 is the
+\ number of unconverted characters in the string. An ambiguous condition exists
+\ if ud2 overflows during the conversion.
+
+	: >digit ( char -- +n true | 0 ) \ "to-digit"
+		\ convert char to a digit according to base followed by true, or false if out of range
+		dup [ '9' 1+ ] literal <
+		if '0' - \ convert '0'-'9'
+			dup 0< if drop 0 exit then \ reject < '0'
+		else
+			bl or \ convert to lowercase, exploiting ASCII
+			'a' -
+			dup 0< if drop 0 exit then \ reject non-letter < 'a'
+			#10 + \ convert 'a'-'z'
+		then
+		dup base @ < dup 0= if nip then ( +n true | false ) \ reject beyond base
+	;
+
+	: >number ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 ) \ "to-number"
+		2swap 2>r
+		begin ( c-addr u ) ( R: ud.accum )
+			dup while \ character left to inspect
+				over c@ >digit
+			while \ digit parsed within base
+				2r> base @ 1 m*/ ( c-addr u n.digit ud.accum ) \ scale accum by base
+				rot m+ 2>r \ add current digit to accum
+				1 /string ( c-addr1+1 u1-1 )
+		repeat then
+		2r> 2swap ( ud2 c-addr2 u2 )
+	;
