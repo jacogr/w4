@@ -21,8 +21,8 @@
 	;; names & flags for native functions
 	(data (i32.const 1000) ;; PTR_NATIVE_TEXT
 		(;  0 ;) "exit"					"\00\00"
-		(;  1 ;) ";"					"\00\ff"
-		(;  2 ;) "<builds"				"\00\00"
+		(;  1 ;) "build,"				"\00\00"
+		(;  2 ;) ";"					"\00\ff"
 		(;  3 ;) "does>"				"\00\ff"
 		(;  4 ;) "@"					"\00\00"
 		(;  5 ;) "!"					"\00\00"
@@ -57,18 +57,18 @@
 		(call $__internal_exit)
 	)
 
-	;; https://forth-standard.org/standard/core/Semi
-	;; ( -- )
-	(elem (i32.const  1) $__forth_fn_compile_end)
-	(func $__forth_fn_compile_end (type $TypeForthFn)
-		(call $__internal_compile_end)
+	;; https://forth-standard.org/standard/core/Colon
+	;; ( c-addr u -- )
+	(elem (i32.const 1) $__forth_fn_builds)
+	(func $__forth_fn_builds (type $TypeForthFn)
+		(call $__internal_builds (call $__stack_dat_2pop))
 	)
 
-	;; https://forth-standard.org/standard/core/Colon
+	;; https://forth-standard.org/standard/core/Semi
 	;; ( -- )
-	(elem (i32.const  2) $__forth_fn_builds)
-	(func $__forth_fn_builds (type $TypeForthFn)
-		(call $__internal_builds)
+	(elem (i32.const  2) $__forth_fn_compile_end)
+	(func $__forth_fn_compile_end (type $TypeForthFn)
+		(call $__internal_compile_end)
 	)
 
 	;; https://forth-standard.org/standard/core/DOES

@@ -39,21 +39,24 @@
 	;;
 	;; Starts the dictionary header for a new word
 	;;
-	(func $__internal_builds
-		(local $name i32)
-		(local $len i32)
+	(func $__internal_builds (param $name i32) (param $len i32)
 		(local $hash i32)
-
-		;; parse the name
-		(call $__internal_parse (i32.const 32))
-		local.set $len
-		local.set $name
-
-		;; failure on invalid name, -16 zero-length string as a name
-		(call $__assert (local.get $len) (i32.const -16))
 
 		;; -19 definition name too long
 		(call $__assert (i32.le_u (local.get $len) (i32.const 48)) (i32.const -19))
+
+		;; zero name or len?
+		(i32.or
+			(i32.eqz (local.get $name))
+			(i32.eqz (local.get $len))) (if
+
+			;; something empty, no hash
+			(then)
+
+			;; we have data, hash it, copy name to new buffer
+			(else
+				(local.set $name (call $__strdup_n (local.get $name) (local.get $len)))
+				(local.set $hash (call $__hash (local.get $name) (local.get $len)))))
 
 		;; create a hidden definition for this word (w/ non-transient string)
 		(global.set $list_toks (call $__list_new))
@@ -61,10 +64,9 @@
 			(call $__store
 				(global.get $PTR_PTR_TOK_CMP)
 				(call $__val_new
-					(call $__strdup_n (local.get $name) (local.get $len))
+					(local.get $name)
 					(local.get $len)
-					(local.tee $hash
-						(call $__hash (local.get $name) (local.get $len)))
+					(local.get $hash)
 					(global.get $list_toks)
 					(global.get $FLG_TKN))))
 
@@ -85,11 +87,18 @@
 			(global.get $list_toks)
 			(call $__val_dup (global.get $dict_exit_ptr)))
 
-		;; add to dictionary
-		(call $__lookup_append
-			(global.get $list_dict)
-			(local.get $hash)
-			(global.get $xt_comp))
+		;; hash?
+		(local.get $hash) (if
+
+			;; hash, add to dictionary
+			(then
+				(call $__lookup_append
+					(global.get $list_dict)
+					(local.get $hash)
+					(global.get $xt_comp)))
+
+			;; skip it
+			(else))
 	)
 
 	;;

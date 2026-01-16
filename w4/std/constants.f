@@ -92,7 +92,7 @@
 	: (latest>prev^) (latest>tail^) name>prev ;
 	: (latest>body^) (latest>head^) name>xt >value ;
 
-	: create <builds -1 lit, here (latest>body^) ! reveal ;
+	: create parse-name build, -1 lit, here (latest>body^) ! reveal ;
 
 \ https://forth-standard.org/standard/core/toBODY
 \

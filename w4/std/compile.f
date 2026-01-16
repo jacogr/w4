@@ -125,3 +125,18 @@ require stack.f
 \ definition.
 
 	: recurse ( -- ) latest compile, ; immediate
+
+\ https://forth-standard.org/standard/core/ColonNONAME
+\
+\ Create an execution token xt, enter compilation state and start the current
+\ definition, producing colon-sys. Append the initiation semantics given below
+\ to the current definition.
+\
+\ The execution semantics of xt will be determined by the words compiled into
+\ the body of the definition. This definition can be executed later by using xt
+\ EXECUTE.
+\
+\ At runtime: Execute the definition specified by xt. The stack effects i * x
+\ and j * x represent arguments to and results from xt, respectively.
+
+	: :noname ( -- ) 0 0 build, latest ;

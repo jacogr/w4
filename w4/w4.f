@@ -1,6 +1,6 @@
 
-	<builds ] 1 $0150 ! 1 $0150 ! ;
-	<builds : ] <builds ] ;
+	#32 parse ]	build, 1 $0150 ! 1 $0150 ! ;
+	#32 parse : build, ] #32 parse build, ] ;
 
 	: parse-name #32 parse ;
 	: require parse-name required ;
@@ -17,7 +17,7 @@ require preamble.f
 \
 \ Enter compilation state.
 \
-\	<builds ] ( -- )	\ define "]"
+\	#32 parse ] build,	\ define "]"
 \		1 $0050 ! 		\ compile, 1 state ! (state constant not defined yet)
 \		1 $0050 !		\ apply when executed
 \	;
@@ -33,9 +33,9 @@ require preamble.f
 \ into the body of the definition. The current definition shall not be findable
 \ in the dictionary until it is ended.
 \
-\	<builds : ( -- )	\ define ":"
-\		]				\ switch to compile
-\		<builds	] 		\ apply "<builds ]" to children
+\	#32 parse : build,		\ define ":"
+\		]					\ switch to compile
+\		build, #32 parse ] 	\ apply "build, parse-name ]" to children
 \	;
 
 \ https://forth-standard.org/standard/core/PARSE-NAME
