@@ -173,7 +173,7 @@ require stack.f
 \ they are unavailable. Continue execution immediately following the innermost
 \ syntactically enclosing DO...LOOP or DO...+LOOP.
 
-	: leave ( r: exit-dst u i ret -- exit-dst u i ret )
+	: leave ( r: exit-dst u i ret -- exit-dst u i exit-dst )
 		r-3@ r!		\ no branch, extra indirection breaks number of return items
 	;
 
@@ -289,13 +289,34 @@ require stack.f
 \ control parameters and continue execution immediately following the loop.
 
 	: (+loop) ( n -- done? )
-		r-1@ r-2@ 			( n i -- n i l )					\ old index, limit
+		r-1@ r-2@ 					( n i -- n i l )					\ old index, limit
+		2dup - 						( n i l -- n i l d )				\ d = i - l
+		2over + 					( n i l d -- n i l d newi )			\ newi = n + i
+		dup r-1!					( n i l d newi -- n i l d newi )	\ store new index
+		dup							( n i l d newi -- n i l d newi newi )
+		sp-3@						( n i l d newi newi -- n i l d newi newi l )
+		-							( n i l d newi newi -- n i l d newi newt )
 
-		2dup - 				( n i l -- n i l d )				\ d = i - l
-		2over + 			( n i l d -- n i l d newi )			\ newi = n + i
-		dup r-1!			( n i l d newi -- n i l d newi )	\ store new index
-		sp-2@ -				( n i l d newi -- n i l d d' )		\ d' = newi - l
-		xor 0<				( n i l d d' -- n i l done? )		\ f = (d^d' <0)
+		\ FIXME (at some point) Don't really like all the drop & nips here, they
+		\ got way out of hand. However the algoritm does the trick in checking
+		\ all the crossover points, so at this time correctness over beauty.
+
+		sp-5@ 0= if					( n i l d newi newt ) \ check n = 0
+			drop drop drop			( n i l d newi newt -- n i l )
+			false					( n i l --- n i l f )
+		else
+			sp-5@ 0< if				( n i l d newi newt ) \ check n < 0
+				dup 0<				( n i l d newi newt -- n i l d newi newt f1 ) \ newt < 0
+				sp-3@ 0< 0=			( n i l d newi newt f1 -- n i l d newi newt f1 f2 ) \ (d < 0) = 0
+				and					( n i l d newi newt f1 f2 -- n i l d newi newt f )
+			else
+				dup 0< 0=			( n i l d newi newt -- n i l d newi newt f1 ) \ (newt < 0) = 0
+				sp-3@ 0<			( n i l d newi newt f1  -- n i l d newi newt f1 f2) \ d < 0
+				and					( n i l d newi newt f1 f2 -- n i l d newi newt f )
+			then
+
+			nip	nip nip				( n i l d newi newt f -- n i l f )
+		then
 
 		nip nip nip			( n i l done? -- done? )
 	;
