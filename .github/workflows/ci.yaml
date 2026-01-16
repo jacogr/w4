@@ -1,37 +1,42 @@
-name: CI - Test
+name: CI
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+	push:
+		branches: [ "master" ]
+	pull_request:
+    	branches: [ "master" ]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+	test:
+		runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout (with submodules)
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          fetch-depth: 0
+		steps:
+			- name: Checkout (with submodules)
+				uses: actions/checkout@v4
+				with:
+					submodules: recursive
+					fetch-depth: 0
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "25"
+			- name: Setup Node
+				uses: actions/setup-node@v4
+				with:
+					node-version: "25"
 
-      - name: Install OS dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            make m4 wabt binaryen
+			- name: Install OS deps (wabt + m4)
+				run: |
+					sudo apt-get update
+					sudo apt-get install -y --no-install-recommends make m4 wabt
 
-          echo "wat2wasm: $(wat2wasm --version || true)"
-          echo "wasm-opt: $(wasm-opt --version || true)"
-          node --version
+			- name: Install Binaryen (new wasm-opt)
+				run: |
+					set -eux
+					BIN_VER=123
+					curl -L -o binaryen.tar.gz \
+					"https://github.com/WebAssembly/binaryen/releases/download/version_${BIN_VER}/binaryen-version_${BIN_VER}-x86_64-linux.tar.gz"
+					tar -xzf binaryen.tar.gz
+					echo "$PWD/binaryen-version_${BIN_VER}/bin" >> $GITHUB_PATH
+					wasm-opt --version
 
-      - name: Run tests
-        run: |
-          make check
+			- name: Run tests
+				run: |
+					make check
