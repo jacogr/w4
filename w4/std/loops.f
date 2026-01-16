@@ -174,7 +174,7 @@ require stack.f
 \ syntactically enclosing DO...LOOP or DO...+LOOP.
 
 	: leave ( r: exit-dst u i ret -- exit-dst u i ret )
-		r-3@ branch		\ get exit-dst, branch to it
+		r-3@ r!		\ no branch, extra indirection breaks number of return items
 	;
 
 \ https://forth-standard.org/standard/core/UNLOOP
@@ -185,9 +185,8 @@ require stack.f
 
 	: unloop ( r: exit-dst u i ret -- )
 		r>			( -- ret ) ( r: exit-dst u i ret -- exit-dst u i )
-		2r> 2drop	( ret -- ret ) ( r: exit-dst -- )
-		r> drop		( ret -- ret ) ( r: -- )
-		>r			( ret -- ) ( r: -- ret )
+		2r> 2drop	( ret -- ret ) ( r: exit-dst u i -- exit-dst )
+		r!			( ret -- ) ( r: exit-dst -- ret )
 	;
 
 \ https://forth-standard.org/standard/core/DO
@@ -217,8 +216,8 @@ require stack.f
 
 	: (loop-close)
 		postpone until
-		postpone unloop		\ run-time drop loop frame
 		postpone then
+		postpone unloop		\ run-time drop loop frame
 	;
 
 	: do    ( u i -- ) ( C: -- dest )
@@ -267,7 +266,7 @@ require stack.f
 \ following the loop. Otherwise continue execution at the beginning of the loop.
 
 	: (loop) ( -- done? )
-		r-1@ 1+ dup r-1!	( r: u i ret )
+		r-1@ 1+ dup r-1!	( r: exit-dst u i ret )
 		r-2@ =				\ i == u
 	;
 

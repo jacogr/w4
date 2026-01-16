@@ -154,7 +154,7 @@ require ../std/text.f
 
 	: .sc ( -- ) (cp^) #0 s" ctrl stack " (.s) ;
 
-	: (.sr) ( -- ) (rp^) #0 s" rtrn stack " (.s) ;
+	: (.sr) ( -- ) (rp^) #2 s" rtrn stack " (.s) ;
 
 	: .sr ( -- ) (.sr) ;
 
