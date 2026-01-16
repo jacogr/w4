@@ -74,24 +74,12 @@ require stack.f
 \ signed integer.
 
 	: sm/rem  ( lo hi n -- rem quot )
-		\ Save signD (from hi) on return stack
-		over 0< >r                 \ R: signD
-
-		\ Compute signQ = signN xor signD, and save it too.
-		\ This leaves DS back at lo hi n.
-		dup 0< r@ xor >r            \ R: signD signQ
-
-		\ Make operands positive and do unsigned division
-		abs >r                      \ DS: lo hi        R: signD signQ |n|
-		dabs                         \ DS: |d|
-		r>                           \ DS: |d| |n|
-		um/mod                       \ DS: rem quot
-
-		\ Apply quotient sign (signQ), then remainder sign (signD)
-		r> if negate then            \ rem quot'
-		swap
-		r> if negate then            \ quot' rem'
-		swap                         \ rem' quot'
+		1 swap m*/mod			( lo hi n -- rem qlo qhi )
+		\ range check: qhi must equal sign-extension of qlo
+		>r						( rem qlo qhi -- rem qlo ) ( r: -- qhi )
+		dup 0<                  ( rem qlo -- req qlo signq )
+		r>						( rem qlo signq -- rem qlo signq qhi )
+		<> #-11 and throw    	( rem qlo signq qhi -- rem qlo )
 	;
 
 \ https://forth-standard.org/standard/core/FMDivMOD
