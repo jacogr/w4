@@ -32,9 +32,18 @@ jobs:
           set -eux
           BIN_VER=123
           curl -L -o binaryen.tar.gz \
-          "https://github.com/WebAssembly/binaryen/releases/download/version_${BIN_VER}/binaryen-version_${BIN_VER}-x86_64-linux.tar.gz"
+            "https://github.com/WebAssembly/binaryen/releases/download/version_${BIN_VER}/binaryen-version_${BIN_VER}-x86_64-linux.tar.gz"
           tar -xzf binaryen.tar.gz
-          echo "$PWD/binaryen-version_${BIN_VER}/bin" >> $GITHUB_PATH
+
+          BIN_DIR="$PWD/binaryen-version_${BIN_VER}/bin"
+
+          # Use it immediately in this step:
+          export PATH="$BIN_DIR:$PATH"
+
+          # And persist for subsequent steps:
+          echo "$BIN_DIR" >> "$GITHUB_PATH"
+
+          command -v wasm-opt
           wasm-opt --version
 
       - name: Run tests
