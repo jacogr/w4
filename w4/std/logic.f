@@ -1,8 +1,12 @@
 \ https://forth-standard.org/standard/core/FALSE
+\
+\ Return a false flag.
 
 	: false ( -- false ) 0 ;
 
 \ https://forth-standard.org/standard/core/TRUE
+\
+\ Return a true flag, a single-cell value with all bits set.
 
 	: true ( -- true ) 0 0= ;
 
@@ -19,24 +23,34 @@
 	: 1+ ( n1 | u1 -- n2 | u2 ) 1 + ;
 
 \ https://forth-standard.org/standard/core/INVERT
+\
+\ Invert all bits of x1, giving its logical inverse x2.
 
 	: invert ( x -- !x ) -1 xor ;
 
 \ https://forth-standard.org/standard/core/NEGATE
+\
+\ Negate n1, giving its arithmetic inverse n2.
 
 	: negate ( x -- -x ) invert 1+ ;
 
 \ https://forth-standard.org/standard/core/Zerone
+\
+\ lag is true if and only if x is not equal to zero.
 
 	: 0<> ( n -- flag ) 0= invert ;
 
 \ https://forth-standard.org/standard/core/Zeroless
+\
+\ lag is true if and only if n is less than zero.
 
 	-1 1 rshift invert constant msb
 
 	: 0< ( n -- flag ) msb and 0<> ;
 
 \ https://forth-standard.org/standard/core/Zeromore
+\
+\ flag is true if and only if n is greater than zero.
 
 	: 0> ( n -- flag )
 		dup 0=
@@ -49,14 +63,20 @@
 require stack.ptr.f
 
 \ https://forth-standard.org/standard/core/Equal
+\
+\ lag is true if and only if x1 is bit-for-bit the same as x2.
 
 	: = ( x y -- flag ) - 0= ;
 
 \ https://forth-standard.org/standard/core/ne
+\
+\ lag is true if and only if x1 is not bit-for-bit the same as x2.
 
 	: <> ( x y -- flag ) = invert ;
 
 \ https://forth-standard.org/standard/core/less
+\
+\ flag is true if and only if n1 is less than n2.
 
 	: < ( n m -- flag )
 		over over		\ n m n m
@@ -76,10 +96,14 @@ require stack.ptr.f
 	;
 
 \ https://forth-standard.org/standard/core/more
+\
+\ flag is true if and only if n1 is greater than n2.
 
 	: > ( n m -- flag ) swap < ;
 
 \ https://forth-standard.org/standard/core/Uless
+\
+\ flag is true if and only if u1 is less than u2.
 
 	: u< ( u1 u2 -- f )
 		swap msb xor
@@ -88,5 +112,7 @@ require stack.ptr.f
 	;
 
 \ https://forth-standard.org/standard/core/Umore
+\
+\ flag is true if and only if u1 is greater than u2.
 
 	: u>  ( u1 u2 -- flag ) swap u< ;
