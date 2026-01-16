@@ -22,6 +22,10 @@ require text.f
 	variable (test-verbose)
 	create (test-results) $20 cells allot
 
+\ alias for tester compat, point address into constant
+
+	(test-num-errors) constant #ERRORS
+
 \ empty the stack
 
 	: (test-empty-stack) ( ... -- ) $0 (sp^) ! ;
