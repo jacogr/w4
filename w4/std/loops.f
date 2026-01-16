@@ -288,33 +288,16 @@ require stack.f
 \ control parameters and continue execution immediately following the loop.
 
 	: (+loop) ( n -- done? )
-		\ --- fetch loop parameters ---
-		r-1@ r-2@ 			( n i -- n i l )             \ old index, limit
+		r-1@ r-2@ 			( n i -- n i l )					\ old index, limit
 
-		\ --- compute d = oldi - l ---
-		sp-1@				( n i l -- n i l i )         \ pick oldi (i)
-		sp-1@ 				( n i l i -- n i l i l )     \ pick limit (l)
-		-					( n i l i l -- n i l d )     \ d = i - l
+		2dup - 				( n i l -- n i l d )				\ d = i - l
+		2over + 			( n i l d -- n i l d newi )			\ newi = n + i
+		sp-2@ -				( n i l d newi -- n i l d d' )		\ d' = newi - l
+		xor 0<				( n i l d d' -- n i l done? )		\ f = (d^d' <0)
 
-		\ --- compute newi = oldi + n ---
-		sp-3@				( n i l d -- n i l d n )     \ pick n
-		sp-3@				( n i l d n -- n i l d n i ) \ pick oldi (i)
-		+ 					( n i l d n i -- n i l d newi )
-
-		\ --- compute d' = newi - l ---
-		sp-2@ 				( n i l d newi -- n i l d newi l ) \ pick limit (l)
-		- 					( n i l d newi l -- n i l d d' )    \ d' = newi - l
-
-		\ --- boundary crossing test: done? = ((d xor d') 0<) ---
-		xor 0<				( n i l d d' -- n i l crossed )
-
-		\ --- if not done, update index to newi ---
-		dup 0= if 			( n i l done? -- n i l done? )
-			\ recompute newi = oldi + n (don’t trust prior stack values)
-			sp-3@ 			( n i l done? -- n i l done? n )     \ pick n
-			sp-3@ 			( n i l done? n -- n i l done? n i ) \ pick oldi (i)
-			+ 				( n i l done? n i -- n i l done? newi )
-			r-1!			( n i l done? newi -- n i l done? )  \ store new index
+		dup 0= if 			( n i l done? -- n i l done? ) 		\ FIXME: don't recompute?
+			2over + 		( n i l done? -- n i l done? )		\ newi = n + i
+			r-1!			( n i l done? newi -- n i l done? ) \ store new index
 		then
 
 		nip nip nip			( n i l done? -- done? )
