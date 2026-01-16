@@ -1,0 +1,37 @@
+name: CI - Test
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "25"
+
+      - name: Install OS dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            make m4 wabt binaryen
+
+          echo "wat2wasm: $(wat2wasm --version || true)"
+          echo "wasm-opt: $(wasm-opt --version || true)"
+          node --version
+
+      - name: Run tests
+        run: |
+          make check
