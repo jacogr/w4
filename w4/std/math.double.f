@@ -1,3 +1,4 @@
+require memory.f
 require stack.f
 
 \ https://forth-standard.org/standard/core/StoD
@@ -38,6 +39,32 @@ require stack.f
 \ ud is the absolute value of d.
 
 	: dabs ( lo hi -- lo' hi' ) dup 0< if dnegate then ;
+
+\ https://forth-standard.org/standard/core/UMDivMOD
+\
+\ Divide ud by u1, giving the quotient u3 and the remainder u2. All values and
+\ arithmetic are unsigned. An ambiguous condition exists if u1 is zero or if
+\ the quotient lies outside the range of a single-cell unsigned integer.
+
+	: um/mod  ( lo hi u -- rem quot )
+		1 swap 					( lo hi u -- lo hi 1 u )
+		um*/mod 				( lo hi 1 u -- rem qlo qhi )
+
+		\ enforce standard um/mod quotient range: qhi must be 0
+		dup 0<> #-11 and throw 	( rem qlo qhi -- rem qlo qhi )  \ throw if qhi != 0
+		drop 					( rem qlo qhi -- rem qlo )
+	;
+
+\ https://forth-standard.org/standard/core/UMTimes
+\
+\ Multiply u1 by u2, giving the unsigned double-cell product ud. All values and
+\ arithmetic are unsigned.
+
+	: um* ( u1 u2 -- ud )
+		0 swap 1	( u1 u2 -- lo 0 u2 1 )
+		um*/mod		( lo 0 u2 1 -- rem qlo qhi )
+		rot drop
+	;
 
 \ https://forth-standard.org/standard/core/SMDivREM
 \
@@ -99,18 +126,6 @@ require stack.f
 
 	: m+ ( d n -- d' ) s>d d+ ;
 
-\ https://forth-standard.org/standard/core/MTimes
-\
-\ d is the signed product of n1 times n2.
-
-	: m* ( n1 n2 -- lo hi )
-		2dup			( n1 n2 -- n1 n2 n1 n2 )
-		xor 0< >r   	( n1 n2 n1 n2 -- n1 n2 ) ( r: -- 0|-1 )
-		abs swap abs	( n1 n2 -- |n1| |n2| )
-		um*				( |n1| |n2| -- lo' hi' )
-		r> if dnegate then
-	;
-
 \ https://forth-standard.org/standard/double/MTimesDiv
 \
 \ Multiply d1 by n1 producing the triple-cell intermediate result t. Divide t
@@ -118,19 +133,22 @@ require stack.f
 \ +n2 is zero or negative, or the quotient lies outside of the range of a
 \ double-precision signed integer.
 
-	: ud*u ( lo hi u -- lo' hi' )
-		>r
-		r@ um*            \ lo hi -> p0lo p0hi
-		rot r@ um*        \ p0lo p0hi -> p0lo p0hi p1lo p1hi
-		drop              \ discard p1hi (overflow beyond 64)
-		+                 \ hi' = p0hi + p1lo
-		r> drop
+	: m*/  ( lo hi n1 +n2 -- lo' hi' )
+		dup 0= #-10 and throw
+		dup 0< #-11 and throw
+		m*/mod				( rem qlo qhi )
+		rot drop			( rem qlo qhi -- qlo qhi )
 	;
 
-	: m*/ ( lo hi n1 +n2 -- lo' hi' )
-		dup 1 <> #-11 and throw
-		drop 		\ drop +n2 (=1)
-		ud*u 		\ (d n1 -- d')
+\ https://forth-standard.org/standard/core/MTimes
+\
+\ d is the signed product of n1 times n2.
+
+	: m*  ( n1 n2 -- lo hi )
+		s>d 		( n1 n2 -- n1 lo hi )     \ d1 = n2 as double
+		rot			( n1 lo hi -- lo hi n1 )  \ mul = n1
+		1 m*/mod 	( lo hi n1 1 -- rem qlo qhi )
+		rot drop 	( rem qlo qhi -- qlo qhi )
 	;
 
 \ https://forth-standard.org/standard/double/DTwoTimes
@@ -172,16 +190,28 @@ require stack.f
 \ numbers, without restrictions
 
 	: u/mod  ( u d -- urem uquot )
-		0 swap	( u d -- ulo 0 d )
-		um/mod 	( ulo 0 d -- ur uq )
+		0 swap		( u d -- ulo 0 d )
+		um/mod		( ulo 0 d -- ur uq )
 	;
 
 	: ud/mod ( lo hi u -- rem qlo qhi )
-		>r                 \ R: u
-		r@ u/mod           \ lo hi u -> lo rem qhi
-		r>                 \ lo rem qhi u
-		swap               \ lo rem u qhi
-		>r                 \ lo rem u    R: qhi
-		um/mod             \ lo rem u -> rem qlo   (LEGAL: rem < u)
-		r>                 \ rem qlo qhi
+		>r 			( lo hi u -- lo hi ) ( r: -- u )
+		r@ u/mod 	( lo hi u -- lo rem qhi )
+		r> 			( lo rem qhi -- lo rem qhi u ) ( r: u -- )
+		swap 		( lo rem qhi u -- lo rem u qhi )
+		>r 			( lo rem u qhi -- lo rem u ) ( r: -- qhi )
+		um/mod 		( lo rem u -- rem qlo ) \ LEGAL: rem < u
+		r> 			( req qlo -- rem qlo qhi ) ( r: qhi -- )
+	;
+
+\ https://forth-standard.org/standard/double/TwoCONSTANT
+\
+\ Skip leading space delimiters. Parse name delimited by a space. Create a
+\ definition for name with the execution semantics defined below.
+\
+\ At runtime: Place cell pair x1 x2 on the stack.
+
+	: 2constant ( x1 x2 -- )
+		create , ,
+		does> dup 1 cells + @ swap @
 	;

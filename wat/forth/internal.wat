@@ -243,8 +243,16 @@
 			(local.get $flg)
 			(global.get $FLG_LITD)) (if
 
-			;; double, push hi=0
-			(then (call $__stack_dat_push (i32.const 0)))
+			;; double, push hi=0 on positive, hi=-1 on negative
+			(then
+				(call $__stack_dat_push
+					(select
+						;; negative
+						(i32.const -1)
+						;; positive
+						(i32.const 0)
+						;; negative?
+						(i32.lt_s (local.get $val) (i32.const 0)))))
 
 			;; single literal, do nothing additional
 			(else))

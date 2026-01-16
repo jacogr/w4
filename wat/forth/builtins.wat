@@ -31,8 +31,8 @@
 		(;  8 ;) "rshift"				"\00\00"
 		(;  9 ;) "+"					"\00\00"
 		(; 10 ;) "-"					"\00\00"
-		(; 11 ;) "um*"					"\00\00"
-		(; 12 ;) "um/mod"				"\00\00"
+		(; 11 ;) "um*/mod"				"\00\00"
+		(; 12 ;) "m*/mod"				"\00\00"
 		(; 13 ;) "and"					"\00\00"
 		(; 14 ;) "xor"					"\00\00"
 		(; 15 ;) "find-name"			"\00\00"
@@ -154,27 +154,95 @@
 			(i32.sub (call $__stack_dat_2pop)))
 	)
 
-	;; https://forth-standard.org/standard/core/UMTimes
-	;; ( x y -- lo hi )
-	(elem (i32.const 11) $__forth_fn_mul)
-	(func $__forth_fn_mul (type $TypeForthFn)
-		(call $__stack_dat_2push
-			(call $__um_mul (call $__stack_dat_2pop)))
-	)
-
-	;; https://forth-standard.org/standard/core/UMDivMOD
-	;; ( lo hi div -- r q )
-	(elem (i32.const 12) $__forth_fn_divmod)
-	(func $__forth_fn_divmod (type $TypeForthFn)
+	;; non-standard toolbox for unsigned math
+	(elem (i32.const 11) $__forth_fn_um_star_slash_mod)
+	(func $__forth_fn_um_star_slash_mod (type $TypeForthFn)
+		(local $lo i32)
+		(local $hi i32)
+		(local $mul i32)
 		(local $div i32)
+		(local $qhi i32)
+		(local $qlo i32)
+		(local $rem i32)
 
 		(local.set $div (call $__stack_dat_pop))
+		(local.set $mul (call $__stack_dat_pop))
+		(local.set $hi (call $__stack_dat_pop))
+		(local.set $lo (call $__stack_dat_pop))
 
-		(call $__stack_dat_2push
-			(call $__um_mod
-				(call $__stack_dat_2pop)
-				(local.get $div)))
+		;; perform operation
+		(call $__um_star_slash_mod
+			(local.get $lo)
+			(local.get $hi)
+			(local.get $mul)
+			(local.get $div))
+
+		;; gather results
+		(local.set $qhi)
+		(local.set $qlo)
+		(local.set $rem)
+
+		;; push to stack
+		(call $__stack_dat_push (local.get $rem))
+		(call $__stack_dat_push (local.get $qlo))
+		(call $__stack_dat_push (local.get $qhi))
 	)
+
+	;; non-standard toolbox for signed math
+	(elem (i32.const 12) $__forth_fn_m_star_slash_mod)
+	(func $__forth_fn_m_star_slash_mod (type $TypeForthFn)
+		(local $lo i32)
+		(local $hi i32)
+		(local $mul i32)
+		(local $div i32)
+		(local $qhi i32)
+		(local $qlo i32)
+		(local $rem i32)
+
+		(local.set $div (call $__stack_dat_pop))
+		(local.set $mul (call $__stack_dat_pop))
+		(local.set $hi (call $__stack_dat_pop))
+		(local.set $lo (call $__stack_dat_pop))
+
+		;; perform operation
+		(call $__m_star_slash_mod
+			(local.get $lo)
+			(local.get $hi)
+			(local.get $mul)
+			(local.get $div))
+
+		;; gather results
+		(local.set $qhi)
+		(local.set $qlo)
+		(local.set $rem)
+
+		;; push to stack
+		(call $__stack_dat_push (local.get $rem))
+		(call $__stack_dat_push (local.get $qlo))
+		(call $__stack_dat_push (local.get $qhi))
+	)
+
+	;; ;; https://forth-standard.org/standard/core/UMTimes
+	;; ;; ( x y -- lo hi )
+	;; (elem (i32.const 11) $__forth_fn_um_mul)
+	;; (func $__forth_fn_um_mul (type $TypeForthFn)
+	;; 	(call $__stack_dat_2push
+	;; 		(call $__um_mul (call $__stack_dat_2pop)))
+	;; )
+
+	;; ;; https://forth-standard.org/standard/core/UMDivMOD
+	;; ;; ( lo hi div -- r q )
+	;; (elem (i32.const 12) $__forth_fn_um_divmod)
+	;; (func $__forth_fn_um_divmod (type $TypeForthFn)
+	;; 	(local $div i32)
+
+	;; 	(local.set $div (call $__stack_dat_pop))
+
+	;; 	(call $__stack_dat_2push
+	;; 		(call $__um_mod
+	;; 			(call $__stack_dat_2pop)
+	;; 			(local.get $div)))
+	;; )
 
 	;; https://forth-standard.org/standard/core/AND
 	;; ( x1 x2 -- x3 )
