@@ -293,13 +293,9 @@ require stack.f
 
 		2dup - 				( n i l -- n i l d )				\ d = i - l
 		2over + 			( n i l d -- n i l d newi )			\ newi = n + i
+		dup r-1!			( n i l d newi -- n i l d newi )	\ store new index
 		sp-2@ -				( n i l d newi -- n i l d d' )		\ d' = newi - l
 		xor 0<				( n i l d d' -- n i l done? )		\ f = (d^d' <0)
-
-		dup 0= if 			( n i l done? -- n i l done? ) 		\ FIXME: don't recompute?
-			2over + 		( n i l done? -- n i l done? )		\ newi = n + i
-			r-1!			( n i l done? newi -- n i l done? ) \ store new index
-		then
 
 		nip nip nip			( n i l done? -- done? )
 	;
