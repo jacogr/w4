@@ -1,5 +1,12 @@
 require stack.f
 
+\ https://forth-standard.org/standard/core/UNUSED
+\
+\ u is the amount of space remaining in the region addressed by HERE,
+\ in address units.
+
+	: unused ( -- u ) (here-max) here - ;
+
 \ https://forth-standard.org/standard/core/ALIGNED
 \
 \ a-addr is the first aligned address greater than or equal to addr.
