@@ -165,7 +165,7 @@ require stack.f
 \ n | u is a copy of the next-outer loop index. An ambiguous condition exists if
 \ the loop control parameters of the next-outer loop, loop-sys1, are unavailable.
 
-	: j ( -- j ) ( r: u' j u i ret ) r-3@ ;
+	: j ( -- j ) ( r: exit-j u' j exit-i u i ret ) r-4@ ;
 
 \ https://forth-standard.org/standard/core/LEAVE
 \
@@ -173,8 +173,8 @@ require stack.f
 \ they are unavailable. Continue execution immediately following the innermost
 \ syntactically enclosing DO...LOOP or DO...+LOOP.
 
-	: leave ( r: u i ret -- u i' ret )
-		r-2@ 1- r-1!	\ i := u - 1
+	: leave ( r: exit-dst u i ret -- exit-dst u i ret )
+		r-3@ branch		\ get exit-dst, branch to it
 	;
 
 \ https://forth-standard.org/standard/core/UNLOOP
@@ -183,9 +183,10 @@ require stack.f
 \ is required for each nesting level before the definition may be EXITed. An
 \ ambiguous condition exists if the loop-control parameters are unavailable.
 
-	: unloop ( r: u i ret -- )
-		r>			( -- ret ) ( r: u i ret -- u i )
-		2r> 2drop	( ret -- ret ) ( r: u i -- )
+	: unloop ( r: exit-dst u i ret -- )
+		r>			( -- ret ) ( r: exit-dst u i ret -- exit-dst u i )
+		2r> 2drop	( ret -- ret ) ( r: exit-dst -- )
+		r> drop		( ret -- ret ) ( r: -- )
 		>r			( ret -- ) ( r: -- ret )
 	;
 
@@ -200,15 +201,16 @@ require stack.f
 \ Anything already on the return stack becomes unavailable until the loop-
 \ control parameters are discarded.
 
-	: (do) ( u i -- ) ( r: -- u i ret )
-		r>			( u i -- u i ret ) ( r: ret -- )
-		-rot		( u i ret -- ret u i ) ( r: -- )
-		2>r			( ret u i -- ret ) ( r: -- u i )
-		>r			( ret -- ) ( r: u i -- u i ret )
+	: (do) ( u i exit-dst -- ) ( r: -- exit-dst u i ret )
+		r>			( u i exit-dst -- u i exit-dst ret ) ( r: ret -- )
+		swap		( u i exit-dst ret -- u i ret exit-dst )
+		>r 			( u i ret exit-dst -- u i ret ) ( r: -- exit-dst )
+		-rot		( u i ret -- ret u i )
+		2>r			( ret u i -- ret ) ( r: exit-dst -- exit-dst u i )
+		>r			( ret -- ) ( r: exit-dst u i -- exit-dst u i ret )
 	;
 
 	: (loop-open)
-		postpone drop
 		postpone (do)		\ runtime: set up loop frame
 		postpone begin
 	;
