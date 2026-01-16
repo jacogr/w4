@@ -60,12 +60,14 @@ require std/constants.f
 require std/compile.f
 \ require w4/std/exceptions.f
 require std/logic.f
+require std/logic.number.f
 require std/loops.f
 require std/math.f
 require std/math.double.f
 require std/memory.f
 require std/parse.f
 require std/stack.f
+require std/stack.loop.f
 require std/stack.ptr.f
 require std/test.f
 require std/text.f
