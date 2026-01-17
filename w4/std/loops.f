@@ -238,16 +238,23 @@ require stack.f
 \ parameters are discarded. An ambiguous condition exists if n1 | u1 and n2 | u2 are
 \ not both of the same type.
 
-	: ?do ( u i -- ) ( C: -- orig dest )
-		postpone 2dup		( u i -- u i u i)
-		postpone =			( u i u i -- u i f )
-		(mark)				( u i f --  u i f d )
-		postpone swap		( u i f d -- u i d f )
+	: (?do) ( u i f d -- u i d )
+	;
 
+	: ?do ( u i -- ) ( C: -- orig dest )
+		postpone 2dup		( u i -- u i u i )
+		postpone =			( u i u i -- u i f )
+
+		(mark)				( u i f --  u i f d )
+
+		postpone swap		( u i f d -- u i d f )
 		postpone if			( u i d f -- u i d )
-			postpone -rot	( u i d -- d u i )
-			postpone 2drop	( d u i -- d )
-			postpone branch
+			\ setup stack as "normal" do would, we are returning
+			\ into unloop, so needs (a) valid exit-dst & (b) two
+			\ more items (unused in unloop, but we have u & i)
+			postpone >r		( u i d -- u i ) ( r: ret -- exit-dst )
+			postpone 2>r	( u i -- )	( r: exit-dst -- exit-dst u i )
+			postpone leave
 		postpone then
 
 		(loop-open)
