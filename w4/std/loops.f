@@ -238,9 +238,6 @@ require stack.f
 \ parameters are discarded. An ambiguous condition exists if n1 | u1 and n2 | u2 are
 \ not both of the same type.
 
-	: (?do) ( u i f d -- u i d )
-	;
-
 	: ?do ( u i -- ) ( C: -- orig dest )
 		postpone 2dup		( u i -- u i u i )
 		postpone =			( u i u i -- u i f )
