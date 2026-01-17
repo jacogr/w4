@@ -23,3 +23,63 @@ require memory.f
 \ new cell pair x1 x2 to be assigned to name.
 
 	: 2value ( x1 x2 "name" -- ) create 2, does> 2@ ;
+
+\ https://forth-standard.org/standard/core/TO
+\
+\ Interpretation: Skip leading spaces and parse name delimited by a space.
+\ Perform the "TO name run-time" semantics given in the definition for the
+\ defining word of name. An ambiguous condition exists if name was not defined
+\ by a word with "TO name run-time" semantics.
+
+	: (to)  ( x a-addr -- ) ! ;
+
+	: to ( x "name" -- )
+		' >body				( x a-addr )
+		state @ if
+			swap lit, lit,	\ runtime: push x first
+			postpone (to)
+		else (to) then
+	; immediate
+
+\ Non-standard, well-known. Same as to but with +! semantics
+
+	: (+to) ( x a-addr -- ) +! ;
+
+	: +to ( x "name" -- )
+		' >body 			( x a-addr )
+		state @ if
+			swap lit, lit,	\ runtime: push x first
+			postpone (+to)
+		else (+to) then
+	; immediate
+
+\ Non-standard, well-known. As per the single-cell version, same semantics.
+
+	: (2to)  ( x1 x2 a-addr -- ) 2! ;
+
+	: 2to ( x1 x2 "name" -- )
+		' >body 			( x1 x2 a-addr )
+		state @ if
+			>r swap r> 		( x2 x1 a-addr )
+			lit, lit, lit,
+			postpone (2to)
+		else (2to) then
+	; immediate
+
+\ Non-standard, well-known. As per the single-cell version, same semantics.
+
+	: (2+to) ( x1 x2 a-addr -- )
+		>r 		( x1 x2 )
+		r@ 2@ 	( x1 x2 y1 y2 )
+		d+ 		( z1 z2 )
+		r> 2!
+	;
+
+	: 2+to ( x1 x2 "name" -- )
+		' >body 			( x1 x2 a-addr )
+		state @ if
+			>r swap r> 		( x2 x1 a-addr )  \ TOS sequence: a-addr then x1 then x2? see below
+			lit, lit, lit,
+			postpone (2+to)
+		else (2+to) then
+	; immediate
