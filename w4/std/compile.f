@@ -138,4 +138,9 @@ require stack.f
 \ At runtime: Execute the definition specified by xt. The stack effects i * x
 \ and j * x represent arguments to and results from xt, respectively.
 
-	: :noname ( -- ) 0 0 build, latest ;
+	parse-name :noname build,	\ create :noname (same structure as :)
+		]						\ compile
+		0 0 build, 				\ no name
+		latest					\ put latest on the stack
+		]						\ enter compilation, rest follows
+	;
