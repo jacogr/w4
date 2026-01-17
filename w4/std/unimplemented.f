@@ -18,3 +18,6 @@ require text.f
 	;
 
 \ unimplemented names
+
+	:umimplemented restore-input
+	:umimplemented save-input
