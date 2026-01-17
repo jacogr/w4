@@ -289,41 +289,30 @@ require stack.f
 \ execution at the beginning of the loop. Otherwise, discard the current loop
 \ control parameters and continue execution immediately following the loop.
 
-	: (+loop) ( n -- done? ) ( r: u i )
-		r-1@ r-2@ 					( n -- n i l )						\ old index, limit
-		2dup - 						( n i l -- n i l d )				\ d = i - l
-		2over + 					( n i l d -- n i l d newi )			\ newi = n + i
-		dup r-1!					( n i l d newi -- n i l d newi )	\ store new index
-		dup							( n i l d newi -- n i l d newi newi )
-		sp-3@						( n i l d newi newi -- n i l d newi newi l )
-		-							( n i l d newi newi -- n i l d newi newt )
-
-		\ FIXME (at some point) Don't really like all the drop & nips here, they
-		\ got way out of hand. However the algoritm does the trick in checking
-		\ all the crossover points, so at this time correctness over beauty.
-
-		sp-5@ 0= if
-			\ n == 0
-			drop drop drop			( n i l d newi newt -- n i l )
-			false					( n i l --- n i l done? )
-		else
-			\ n <> 0
-			sp-5@ 0< if
-				\ n < 0
-				0<					( n i l d newi newt -- n i l d newi f1 ) \ newt < 0
-				sp-2@ 0< 0=			( n i l d newi f1 -- n i l d newi f1 f2 ) \ (d < 0) = 0, aka >= 0
-				and					\ done? = (newt < 0) AND (d >= 0)
-			else
-				\ n > 0
-				0< 0=				( n i l d newi newt -- n i l d newi f1 ) \ (newt < 0) = 0, aka >= 0
-				sp-2@ 0<			( n i l d newi f1  -- n i l d newi f1 f2) \ d < 0
-				and					\ done? = (newt >= 0) AND (d < 0)
-			then
-
-			nip nip					( n i l d newi done? -- n i l done? )
+	: (+loop) ( n -- done? ) ( r: u i ret )
+		dup 0= if
+			drop false				( n -- done? )
+			exit
 		then
 
-		nip nip nip					( n i l done? -- done? )
+		r-1@ r-2@ -				( n i l -- n d )			\ d = i - l
+		over r-1@ +				( n d -- n d newi )			\ newi = n + i
+		dup r-1!				( n d newi -- n d newi ) ( r: u i ret -- u newi ret )
+		r-2@ -					( n d newi -- n d newt )	\ newt = newi - l
+		rot						( n d newt -- d newt n )
+
+		\ n <> 0
+		0< if
+			\ n < 0
+			0<					( d newt -- d f1 ) 		\ newt < 0
+			swap 0< 0=			( d f1 -- f1 f2 ) 		\ (d < 0) = 0; d >= 0
+			and					\ done? = (newt < 0) AND (d >= 0)
+		else
+			\ n > 0
+			0< 0=				( d newt -- d f1 ) 		\ (newt < 0) = 0; newt >= 0
+			swap 0<				( d f1  -- f1 f2) 		\ d < 0
+			and					\ done? = (newt >= 0) AND (d < 0)
+		then
 	;
 
 	: +loop ( n -- ) ( C: dest -- )
