@@ -265,9 +265,10 @@ require stack.f
 \ loop limit, discard the loop parameters and continue execution immediately
 \ following the loop. Otherwise continue execution at the beginning of the loop.
 
-	: (loop) ( -- done? )
-		r-1@ 1+ dup r-1!	( r: exit-dst u i ret )
-		r-2@ =				\ i == u
+	: (loop) ( -- done? ) ( r: exit-dst u i ret )
+		r-1@ 1+ dup			( -- i+1 1+1 ) ( r: exit-dst u i ret )
+		r-1!				( i+1 i+1 -- ) ( r: exit-dst u i ret -- exit-dst u i+1 ret )
+		r-2@ =				( i+1 -- done? ) \ i == u
 	;
 
 	: loop  ( C: dest -- )
@@ -288,8 +289,8 @@ require stack.f
 \ execution at the beginning of the loop. Otherwise, discard the current loop
 \ control parameters and continue execution immediately following the loop.
 
-	: (+loop) ( n -- done? )
-		r-1@ r-2@ 					( n i -- n i l )					\ old index, limit
+	: (+loop) ( n -- done? ) ( r: u i )
+		r-1@ r-2@ 					( n -- n i l )						\ old index, limit
 		2dup - 						( n i l -- n i l d )				\ d = i - l
 		2over + 					( n i l d -- n i l d newi )			\ newi = n + i
 		dup r-1!					( n i l d newi -- n i l d newi )	\ store new index
@@ -301,24 +302,28 @@ require stack.f
 		\ got way out of hand. However the algoritm does the trick in checking
 		\ all the crossover points, so at this time correctness over beauty.
 
-		sp-5@ 0= if					( n i l d newi newt ) \ check n = 0
+		sp-5@ 0= if
+			\ n == 0
 			drop drop drop			( n i l d newi newt -- n i l )
-			false					( n i l --- n i l f )
+			false					( n i l --- n i l done? )
 		else
-			sp-5@ 0< if				( n i l d newi newt ) \ check n < 0
-				dup 0<				( n i l d newi newt -- n i l d newi newt f1 ) \ newt < 0
-				sp-3@ 0< 0=			( n i l d newi newt f1 -- n i l d newi newt f1 f2 ) \ (d < 0) = 0
-				and					( n i l d newi newt f1 f2 -- n i l d newi newt f )
+			\ n <> 0
+			sp-5@ 0< if
+				\ n < 0
+				0<					( n i l d newi newt -- n i l d newi f1 ) \ newt < 0
+				sp-2@ 0< 0=			( n i l d newi f1 -- n i l d newi f1 f2 ) \ (d < 0) = 0, aka >= 0
+				and					\ done? = (newt < 0) AND (d >= 0)
 			else
-				dup 0< 0=			( n i l d newi newt -- n i l d newi newt f1 ) \ (newt < 0) = 0
-				sp-3@ 0<			( n i l d newi newt f1  -- n i l d newi newt f1 f2) \ d < 0
-				and					( n i l d newi newt f1 f2 -- n i l d newi newt f )
+				\ n > 0
+				0< 0=				( n i l d newi newt -- n i l d newi f1 ) \ (newt < 0) = 0, aka >= 0
+				sp-2@ 0<			( n i l d newi f1  -- n i l d newi f1 f2) \ d < 0
+				and					\ done? = (newt >= 0) AND (d < 0)
 			then
 
-			nip	nip nip				( n i l d newi newt f -- n i l f )
+			nip nip					( n i l d newi done? -- n i l done? )
 		then
 
-		nip nip nip			( n i l done? -- done? )
+		nip nip nip					( n i l done? -- done? )
 	;
 
 	: +loop ( n -- ) ( C: dest -- )
