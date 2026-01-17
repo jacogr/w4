@@ -64,9 +64,9 @@ require stack.ptr.f
 
 \ https://forth-standard.org/standard/core/Equal
 \
-\ lag is true if and only if x1 is bit-for-bit the same as x2.
+\ flag is true if and only if x1 is bit-for-bit the same as x2.
 
-	: = ( x y -- flag ) - 0= ;
+	: = ( x y -- flag ) xor 0= ;
 
 \ https://forth-standard.org/standard/core/ne
 \
