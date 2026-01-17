@@ -2,6 +2,7 @@ require constants.f
 require logic.f
 require loops.f
 require stack.f
+require text.f
 
 \ https://forth-standard.org/standard/core/MARKER
 \
@@ -15,15 +16,24 @@ require stack.f
 \ deallocated data space is not necessarily provided. No other contextual
 \ information such as numeric base is affected.
 
-	: (marker)
-		-1 throw \ umimplemented
+	: (marker) ( nt -- )
+		begin
+			?dup
+		while
+			dup name>xt		( nt -- nt xt )
+			unreveal		( nt xt -- nt )
+			name>next		( nt -- nt' )
+			dup 0=
+		until
+
+		drop
 	;
 
 	: marker ( <spaces>name" -- )
 		parse-name				( -- c-addr u )
 		dup 0= #-16 and throw
 		build,
-		latest lit,				\ compile market pointer to body
-		['] (marker) compile,	\ execute (marker) ( latest^ -- )
+		(latest-nt^) lit,		\ compile marker pointer to body
+		['] (marker) compile,	\ execute (marker) ( nt -- )
 		reveal
 	;

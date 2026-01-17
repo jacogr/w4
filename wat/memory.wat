@@ -26,7 +26,8 @@
 	(global $PTR_PTR_LINE_OFF  i32 (i32.const 0x0114))
 	(global $PTR_LINE_IOV      i32 (i32.const 0x0118))
 	(global $PTR_PTR_TOK_CMP   i32 (i32.const 0x0120)) ;; current compiled token
-	(global $PTR_PTR_TOK_EXE   i32 (i32.const 0x0124)) ;; current executing token
+	(global $PTR_PTR_ENT_CMP   i32 (i32.const 0x0124))
+	(global $PTR_PTR_TOK_EXE   i32 (i32.const 0x0128)) ;; current executing token
 	(global $PTR_PTR_DICT      i32 (i32.const 0x0128))
 	(global $PTR_PTR_INCL      i32 (i32.const 0x012c)) ;; list of included files
 	(global $PTR_PTR_STACK_DAT i32 (i32.const 0x0140))

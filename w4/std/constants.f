@@ -168,7 +168,8 @@
 
 \ latest executing token
 
-	$0124 (mmio@) (exec^)
+	$0124 (mmio@) (latest-nt^)
+	$0128 (mmio@) (exec^)
 
 \ dictionary & include lookups
 
