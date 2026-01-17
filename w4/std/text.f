@@ -4,7 +4,20 @@ require math.f
 require memory.f
 require parse.f
 require stack.f
+require stack.loop.f
 require wasi.f
+
+\ https://forth-standard.org/standard/core/DECIMAL
+\
+\ Set the numeric conversion radix to ten (decimal).
+
+	: decimal ( -- ) #10 base ! ;
+
+\ https://forth-standard.org/standard/core/HEX
+\
+\ Set contents of BASE to sixteen.
+
+	: hex ( -- ) $10 base ! ;
 
 \ https://forth-standard.org/standard/core/TYPE
 \
