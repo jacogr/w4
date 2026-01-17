@@ -6,6 +6,7 @@ require text.f
 
 	: :umimplemented
 		parse-name							( -- c-addr u )
+		dup 0= #-16 and throw
 		2dup								( c-addr u -- c-addr u c-addr u )
 		build,								( c-addr u c-addr u -- c-addr u )
 		s" [TODO] (unimplemented): "		( c-addr u -- c-addr u c-addr u )
@@ -17,6 +18,3 @@ require text.f
 	;
 
 \ unimplemented names
-
-	:umimplemented marker
-

@@ -65,13 +65,20 @@
 \ FIXME We need to ensure we are aligning the contents
 
 	: (new-xt) here (sizeof-xt) allot swap over >flags ! swap over >value ! ;
-	: lit $c0de0140 (new-xt) ;
-	: lit, lit compile, ;
+	: lit ( n -- ) $c0de0140 (new-xt) ;
+	: lit, ( n -- ) lit compile, ;
 
 \ Swap a dictionary entry from "hidden" to "available to lookups" by
 \ flipping the visible flag on the token
 
-	: reveal latest >flags dup @ $1 or swap ! ;
+	: reveal ( -- ) latest >flags dup @ $1 or swap ! ;
+
+\ Swap a dictionary entry from "available to lookups" to "hidden" by
+\ flipping the visible flag on the token
+\
+\ This is the reverse of "reveal". $-2 == 1 invert, or -1 - 1
+
+	: unreveal ( -- ) latest >flags dup @ $-2 and swap ! ;
 
 \ https://forth-standard.org/standard/core/CREATE
 \

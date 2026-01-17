@@ -58,6 +58,7 @@ require preamble.f
 
 require std/constants.f
 require std/compile.f
+require std/dictionary.f
 \ require w4/std/exceptions.f
 require std/logic.f
 require std/logic.number.f
