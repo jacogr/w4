@@ -36,9 +36,9 @@ require memory.f
 	: to ( x "name" -- )
 		' >body				( x a-addr )
 		state @ if
-			swap lit, lit,	\ runtime: push x first
-			postpone (to)
-		else (to) then
+			lit,			\ compile addr, x to be supplied at runtime
+			postpone (to)	\ execute helper
+		else (to) then		\ execute helper on interpret
 	; immediate
 
 \ Non-standard, well-known. Same as to but with +! semantics
@@ -47,10 +47,7 @@ require memory.f
 
 	: +to ( x "name" -- )
 		' >body 			( x a-addr )
-		state @ if
-			swap lit, lit,	\ runtime: push x first
-			postpone (+to)
-		else (+to) then
+		state @ if lit,	postpone (+to) else (+to) then
 	; immediate
 
 \ Non-standard, well-known. As per the single-cell version, same semantics.
@@ -59,11 +56,7 @@ require memory.f
 
 	: 2to ( x1 x2 "name" -- )
 		' >body 			( x1 x2 a-addr )
-		state @ if
-			>r swap r> 		( x2 x1 a-addr )
-			lit, lit, lit,
-			postpone (2to)
-		else (2to) then
+		state @ if lit,	postpone (2to) else (2to) then
 	; immediate
 
 \ Non-standard, well-known. As per the single-cell version, same semantics.
@@ -77,11 +70,7 @@ require memory.f
 
 	: 2+to ( x1 x2 "name" -- )
 		' >body 			( x1 x2 a-addr )
-		state @ if
-			>r swap r> 		( x2 x1 a-addr )  \ TOS sequence: a-addr then x1 then x2? see below
-			lit, lit, lit,
-			postpone (2+to)
-		else (2+to) then
+		state @ if lit, postpone (2+to) else (2+to) then
 	; immediate
 
 \ https://forth-standard.org/standard/core/BUFFERColon
@@ -96,6 +85,4 @@ require memory.f
 \
 \ NOTE: create uses build, internally, so contents are aligned
 
-	: buffer: ( u "<name>" -- addr )
-		create allot
-	;
+	: buffer: ( u "<name>" -- addr ) create allot ;
