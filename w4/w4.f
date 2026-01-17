@@ -71,6 +71,7 @@ require std/stack.loop.f
 require std/stack.ptr.f
 require std/test.f
 require std/text.f
+require std/unimplemented.f
 require std/wasi.f
 
 require ext/debug.f
