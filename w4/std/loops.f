@@ -15,7 +15,7 @@ require stack.f
 
 \ (mark) returns the address of the last compiled literal cell (the one to patch).
 
-	: (mark) ( C: -- orig )
+	: (mark) ( c: -- orig )
 		-1 lit,						\ placeholder
 		(latest>prev^) 				\ get placeholder address
 		>cs							( c: -- orig )
@@ -29,7 +29,7 @@ require stack.f
 		(latest>tail^) swap !		\ write tail location
 	;
 
-	: (resolve) ( -- ) cs> (resolve-inner) ;
+	: (resolve) ( c: orig -- ) cs> (resolve-inner) ;
 
 \ https://forth-standard.org/standard/tools/AHEAD
 \
@@ -40,7 +40,7 @@ require stack.f
 \
 \ At runtime: Continue execution at the location specified by the resolution of orig.
 
-	: ahead  ( C: -- orig )
+	: ahead  ( c: -- orig )
 		(mark)
 		postpone branch
 	; immediate
@@ -55,7 +55,7 @@ require stack.f
 \ At runtime: If all bits of x are zero, continue execution at the location
 \ specified by the resolution of orig.
 
-	: if  ( C: -- orig )
+	: if  ( c: -- orig )
 		(mark)
 		postpone ?branch
 	; immediate
@@ -68,7 +68,7 @@ require stack.f
 \
 \ At runtime: Continue execution.
 
-	: then  ( C: orig -- )
+	: then  ( c: orig -- )
 		(resolve)
 	; immediate
 
@@ -124,7 +124,7 @@ require stack.f
 \ If all bits of x are zero, continue execution at the location specified by
 \ the resolution of orig.
 
-	: while  ( C: dest -- orig dest )
+	: while  ( c: dest -- orig dest )
 		postpone if
 		cs-swap		\ 1 cs-roll in canonical
 	; immediate
@@ -138,7 +138,7 @@ require stack.f
 \ other control flow words are used, any program code after AGAIN will not
 \ be executed.
 
-	: again  ( -- ) ( C: r-top -- )
+	: again  ( -- ) ( c: r-top -- )
 		cs> lit,
 		postpone branch	\ unconditional jump to r-top
 	; immediate
@@ -151,7 +151,7 @@ require stack.f
 \
 \ At runtime: Continue execution at the location given by dest.
 
-	: repeat  ( C: orig dest -- )
+	: repeat  ( c: orig dest -- )
 		postpone again
 		postpone then
 	; immediate
@@ -223,7 +223,7 @@ require stack.f
 		postpone unloop		\ run-time drop loop frame
 	;
 
-	: do    ( u i -- ) ( C: -- dest )
+	: do    ( u i -- ) ( c: -- dest )
 		(mark)				\ emits dest literal; pushes orig on CS
 		(loop-open)
 	; immediate
@@ -241,7 +241,7 @@ require stack.f
 \ parameters are discarded. An ambiguous condition exists if n1 | u1 and n2 | u2 are
 \ not both of the same type.
 
-	: ?do ( u i -- ) ( C: -- orig dest )
+	: ?do ( u i -- ) ( c: -- orig dest )
 		postpone 2dup		( u i -- u i u i )
 		postpone =			( u i u i -- u i f )
 
@@ -278,7 +278,7 @@ require stack.f
 		r-2@ =				( i+1 -- done? ) \ i == u
 	;
 
-	: loop  ( C: dest -- )
+	: loop  ( c: dest -- )
 		postpone (loop)		\ produces done?
   		(loop-close)
 	; immediate
@@ -323,7 +323,7 @@ require stack.f
 		then
 	;
 
-	: +loop ( n -- ) ( C: dest -- )
+	: +loop ( n -- ) ( c: dest -- )
 		postpone (+loop)            \ produces done?
   		(loop-close)
 	; immediate
