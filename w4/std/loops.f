@@ -250,7 +250,7 @@ require stack.f
 			\ into unloop, so needs (a) valid exit-dst & (b) two
 			\ more items (unused in unloop, but we have u & i)
 			postpone >r		( u i d -- u i ) ( r: ret -- exit-dst )
-			postpone 2>r	( u i -- )	( r: exit-dst -- exit-dst u i )
+			postpone 2>r	( u i -- ) ( r: exit-dst -- exit-dst u i )
 			postpone leave
 		postpone then
 
@@ -295,15 +295,16 @@ require stack.f
 
 	: (+loop) ( n -- done? ) ( r: u i ret )
 		dup 0= if
-			drop false				( n -- done? )
+			drop false			( n -- done? )
 			exit
 		then
 
-		r-1@ r-2@ -				( n i l -- n d )			\ d = i - l
-		over r-1@ +				( n d -- n d newi )			\ newi = n + i
-		dup r-1!				( n d newi -- n d newi ) ( r: u i ret -- u newi ret )
-		r-2@ -					( n d newi -- n d newt )	\ newt = newi - l
-		rot						( n d newt -- d newt n )
+		r-1@ r-2@ -				( n i u -- n d )			\ d = i - u
+		swap dup				( n d -- d n n )
+		r-1@ +					( d n n -- d n newi )		\ newi = n + i
+		dup r-1!				( d n newi -- d n newi ) ( r: u i ret -- u newi ret )
+		r-2@ -					( d n newi -- d n newt )	\ newt = newi - u
+		swap					( d n newt -- d newt n )
 
 		\ n <> 0
 		0< if
