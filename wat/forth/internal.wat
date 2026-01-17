@@ -604,18 +604,23 @@
 		(local $str i32)
 		(local $len i32)
 		(local $ch i32)
-		(local $is_eow i32)
-		(local $is_len i32)
+
+		(local $raw_eow i32)     ;; raw __ch_is_eow(ch)
+		(local $term_eow i32)    ;; (delim==32) && raw_eow
+		(local $term_eol i32)    ;; (delim==0)  && __ch_is_eol(ch)
+		(local $exhausted i32)   ;; idx_curr == len after increment
+		(local $direct i32)      ;; ch == delim
+		(local $sub1 i32)        ;; should subtract 1 from length?
 
 		(block $exit
 
 			;; check for iov, needs to be non-zero and in-range
 			(br_if $exit
-				(i32.or
-					(i32.eqz (call $__line_get_iov))
-					(i32.ge_u
-						(call $__line_get_iov)
-						(i32.load (global.get $PTR_ALLOC)))))
+			(i32.or
+				(i32.eqz (call $__line_get_iov))
+				(i32.ge_u
+					(call $__line_get_iov)
+					(i32.load (global.get $PTR_ALLOC)))))
 
 			;; load the current index from >in, set invalid find idx
 			(local.set $idx_curr (call $__line_get_off))
@@ -626,103 +631,108 @@
 			local.set $len
 			local.set $str
 
-			;; parse the line until delim (or eol)
+			;; parse the line until delim (or eol/eob per rules)
 			(loop $loop
 
-				;; exit if we have exhausted the string
-				(br_if $exit
-					(i32.ge_u (local.get $idx_curr) (local.get $len)))
+			;; exit if we have exhausted the string BEFORE reading a char
+			(br_if $exit
+				(i32.ge_u (local.get $idx_curr) (local.get $len)))
 
-				;; get the character and check for eow
-				(i32.and
-					(i32.eqz (local.tee $is_eow
-						(call $__ch_is_eow (local.tee $ch
-							(i32.load8_u (i32.add (local.get $str) (local.get $idx_curr)))))))
-					(i32.eq
-						(local.get $idx_find)
-						(i32.const -1))) (if
+			;; get current char + raw eow classification
+			(local.set $ch
+				(i32.load8_u (i32.add (local.get $str) (local.get $idx_curr))))
+			(local.set $raw_eow
+				(call $__ch_is_eow (local.get $ch)))
 
-					;; set index now
-					(then (local.set $idx_find (local.get $idx_curr)))
+			;; --- decide start index ---
+			;; if idx_find == -1 AND (delim != 32 OR char is NOT eow) then start here
+			(i32.and
+				(i32.eq (local.get $idx_find) (i32.const -1))
+				(i32.or
+					(i32.ne (local.get $delim) (i32.const 32))
+					(i32.eqz (local.get $raw_eow)))) (if
 
-					;; continue
-					(else))
-
-				;; increment index & >in (done after leading whitespace check)
-				(call $__line_set_off
-					(local.tee $idx_curr (i32.add (local.get $idx_curr) (i32.const 1))))
-
-				;; expand eow checks for 32 and 0 lookups
-				(local.set $is_eow
-					(i32.or
-						;; space, all eow characters
-						(i32.and
-							(i32.eq (local.get $delim) (i32.const 32))
-							(i32.ne (local.get $is_eow) (i32.const 0)))
-						;; 0, all eol characters
-						(i32.and
-							(i32.eqz (local.get $delim))
-							(i32.ne (call $__ch_is_eol (local.get $ch)) (i32.const 0)))))
-
-				;; do we have a starting index?
-				(i32.ne
-					(local.get $idx_find)
-					(i32.const -1)) (if
-
-					;; starting index, check for matches, direct, eow or eol
-					(then
-						(i32.or
-							;; direct match
-							(i32.eq (local.get $ch) (local.get $delim))
-							;; end of data stream
-							(i32.or
-								;; eow and eol checks
-								(local.get $is_eow)
-								;; exhausted checks
-								(local.tee $is_len
-									(i32.and
-										;; line was exhausted
-										(i32.eq (local.get $idx_curr) (local.get $len))
-										;; no eow flag and needs either eow or eol
-										(i32.and
-											(i32.eqz (local.get $is_eow))
-											(i32.or
-												(i32.eq (local.get $delim) (i32.const 32))
-												(i32.eqz (local.get $delim)))))))) (if
-
-							;; match found, return (ptr, len)
-							(then
-								;; set length now (too messy to inline below, possible as-is into
-								;; the alloc, which works, but it has no readability at all)
-								(local.set $len
-									(i32.sub
-										(i32.sub (local.get $idx_curr) (local.get $idx_find))
-										(select
-											;; we broke on length, keep everything
-											(i32.const 0)
-											;; eow found, one less, skip it
-											(i32.const 1)
-											;; no match and length exhausted?
-											(local.get $is_len))))
-
-								;; NOTE The string here is transient - callers should ensure that they
-								;; have their own copy (and it should be copied for forth inside builtins)
-								;; (ptr, len)
-								(return
-									(i32.add (local.get $str) (local.get $idx_find))
-									(local.get $len)))
-
-							;; nothing matches, we will continue
-							(else)))
-
-					;; still on leading whitespace, continue
-					(else))
+				;; store index
+				(then (local.set $idx_find (local.get $idx_curr)))
 
 				;; continue
-				br $loop))
+				(else))
+
+			;; increment index & >in
+			(call $__line_set_off
+				(local.tee $idx_curr (i32.add (local.get $idx_curr) (i32.const 1))))
+
+			;; exhausted (end-of-buffer) is always a terminator condition
+			(local.set $exhausted
+				(i32.eq (local.get $idx_curr) (local.get $len)))
+
+			;; terminator-by-eow: only when delim == 32
+			(local.set $term_eow
+				(i32.and
+				(i32.eq (local.get $delim) (i32.const 32))
+				(i32.ne (local.get $raw_eow) (i32.const 0))))
+
+			;; terminator-by-eol: only when delim == 0
+			(local.set $term_eol
+				(i32.and
+				(i32.eqz (local.get $delim))
+				(i32.ne (call $__ch_is_eol (local.get $ch)) (i32.const 0))))
+
+			;; direct delimiter match
+			(local.set $direct
+				(i32.eq (local.get $ch) (local.get $delim)))
+
+			;; subtract-1 rule: exclude the terminator char only if we terminated
+			;; by an actual terminator character (direct, eow, eol). NOT just by exhaustion.
+			(local.set $sub1
+				(i32.or
+					(local.get $direct)
+					(i32.or
+						(local.get $term_eow)
+						(local.get $term_eol))))
+
+			;; do we have a starting index?
+			(i32.ne (local.get $idx_find) (i32.const -1)) (if
+
+				;; starting index
+				(then
+					;; terminate if:
+					;;  - direct match: ch == delim
+					;;  - delim==32 and eow
+					;;  - delim==0  and eol
+					;;  - end-of-buffer
+					(i32.or
+						(local.get $direct)
+						(i32.or
+							(local.get $term_eow)
+							(i32.or
+								(local.get $term_eol)
+								(local.get $exhausted)))) (if
+
+						;; match found, return (ptr, len)
+						(then
+							(local.set $len
+								(i32.sub
+								(i32.sub (local.get $idx_curr) (local.get $idx_find))
+								(select
+									(i32.const 1)   ;; subtract 1 when terminated by a char
+									(i32.const 0)   ;; subtract 0 when only exhausted
+									(local.get $sub1))))
+
+							(return
+								(i32.add (local.get $str) (local.get $idx_find))
+								(local.get $len)))
+
+						;; no match
+						(else)))
+
+					;; no starting index
+					(else))
+
+			;; continue
+			br $loop))
 
 		;; (ptr, len)
 		i32.const 0
 		i32.const 0
 	)
-
