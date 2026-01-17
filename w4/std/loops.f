@@ -14,7 +14,6 @@ require stack.f
 	;
 
 \ (mark) returns the address of the last compiled literal cell (the one to patch).
-\ (resolve) patches that literal cell to the current fallthrough address (r@).
 
 	: (mark) ( C: -- orig )
 		-1 lit,						\ placeholder
@@ -22,11 +21,15 @@ require stack.f
 		>cs							( c: -- orig )
 	;
 
-	: (resolve) ( a-addr -- )
-		cs>						( c: orig -- )
-		name>xt >value			\ load placeholder body
-		(latest>tail^) swap !	\ write tail location
+\ (resolve) patches the literal cell created via (mark) to the current fallthrough address
+\ on the control stack via (resolve-inner).
+
+	: (resolve-inner) ( orig -- )
+		name>xt >value				( orig -- a-addr )
+		(latest>tail^) swap !		\ write tail location
 	;
+
+	: (resolve) ( -- ) cs> (resolve-inner) ;
 
 \ https://forth-standard.org/standard/tools/AHEAD
 \
@@ -326,8 +329,69 @@ require stack.f
 	; immediate
 
 \ https://forth-standard.org/standard/core/CASE
-\ https://forth-standard.org/standard/core/ENDCASE
-\ https://forth-standard.org/standard/core/OF
-\ https://forth-standard.org/standard/core/ENDOF
+\
+\ No interpretation semantics.
+\
+\  Mark the start of the CASE...OF...ENDOF...ENDCASE structure. Append the
+\ run-time semantics given below to the current definition.
+\
+\ At runtime: Continue execution.
 
-	\ : ?exit postpone if postpone exit postpone then ; immediate
+	: case ( c: -- 0 )
+		0 >cs
+	; immediate
+
+\ https://forth-standard.org/standard/core/OF
+\
+\ No interpretation semantics.
+\
+\ Put of-sys onto the control flow stack. Append the run-time semantics given
+\ below to the current definition. The semantics are incomplete until resolved
+\ by a consumer of of-sys such as ENDOF.
+\
+\ At runtime: If the two values on the stack are not equal, discard the top
+\ value and continue execution at the location specified by the consumer of
+\ of-sys, e.g., following the next ENDOF. Otherwise, discard both values and
+\ continue execution in line.
+
+	: of       ( c: -- orig )
+		postpone over         \ ( sel x -- sel x sel )
+		postpone =            \ ( sel x sel -- sel flag )
+		postpone if           \ IF consumes flag, leaves sel
+		postpone drop         \ matched: drop sel
+	; immediate
+
+\ https://forth-standard.org/standard/core/ENDOF
+\
+\ No interpretation semantics.
+\
+\ Mark the end of the OF...ENDOF part of the CASE structure. The next location
+\ for a transfer of control resolves the reference given by of-sys. Append the
+\ run-time semantics given below to the current definition. Replace case-sys1
+\ with case-sys2 on the control-flow stack, to be resolved by ENDCASE.
+\
+\ At runtime: Continue execution at the location specified by the consumer of case-sys2.
+
+	: endof    ( c: orig -- orig' )
+		postpone else         \ resolves the IF, leaves a new orig for the forward branch
+	; immediate
+
+\ https://forth-standard.org/standard/core/ENDCASE
+\
+\ No interpretation semantics.
+\
+\ Mark the end of the CASE...OF...ENDOF...ENDCASE structure. Use case-sys to
+\ resolve the entire structure. Append the run-time semantics given below to
+\ the current definition.
+\
+\ At runtime: Discard the case selector x and continue execution.
+
+	: endcase  ( c: 0 | orig... -- )
+		postpone drop         \ no match path: drop sel
+		begin
+			cs> dup
+		while
+			(resolve-inner)       \ resolve each pending ELSE
+		repeat
+		drop
+	; immediate
