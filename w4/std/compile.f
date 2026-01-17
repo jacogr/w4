@@ -97,7 +97,6 @@ require stack.f
 
 	: name>string ( nt -- c-addr u ) name>xt >string ;
 
-
 \ https://forth-standard.org/standard/core/POSTPONE
 \
 \ Skip leading space delimiters. Parse name delimited by a space. Find name.
