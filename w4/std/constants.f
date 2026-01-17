@@ -115,7 +115,14 @@
 	: (latest>prev^) (latest>tail^) name>prev ;
 	: (latest>body^) (latest>head^) name>xt >value ;
 
-	: create parse-name build, -1 lit, here (latest>body^) ! reveal ;
+	: create
+		parse-name
+		dup 0= #-16 and throw
+		build,
+		-1 lit,					\ store body address (does>)
+		here (latest>body^) !
+		reveal
+	;
 
 \ https://forth-standard.org/standard/core/toBODY
 \
