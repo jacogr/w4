@@ -2,23 +2,53 @@ require logic.f
 require loops.f
 require stack.f
 
-\ https://forth-standard.org/standard/core/DECIMAL
-\
-\ Set the numeric conversion radix to ten (decimal).
-
-	: decimal ( -- ) #10 base ! ;
-
-\ https://forth-standard.org/standard/core/HEX
-\
-\ Set contents of BASE to sixteen.
-
-	: hex ( -- ) $10 base ! ;
-
 \ https://forth-standard.org/standard/core/ABS
 \
 \ u is the absolute value of n.
 
 	: abs ( n -- u ) dup 0< if negate then ;
+
+\ https://forth-standard.org/standard/core/TwoTimes
+\
+\ x' is the result of shifting x one bit toward the most-significant
+\ bit, filling the vacated least-significant bit with zero.
+
+	: 2* ( x -- x' ) dup + ;
+
+\ https://forth-standard.org/standard/core/TwoDiv
+\
+\ x' is the result of shifting x1 one bit toward the least-significant
+\ bit, leaving the most-significant bit unchanged.
+
+	: 2/ ( x -- x' )
+		dup 0< msb and	\ n signbitmask (0 or msb)
+		swap 1 rshift	\ signbitmask (n>>1 logical)   (if your rshift is logical)
+		or				\ arithmetic result
+	;
+
+\ https://forth-standard.org/standard/core/PlusStore
+\
+\ Add n | u to the single-cell number at a-addr.
+
+	: +! ( n|u a-addr -- )
+		tuck		( n a-addr -- a-addr n a-addr )
+		@ + 		( a-addr n a-addr -- a-addr n' )
+		swap ! 		( a-addr n' -- )
+	;
+
+\ https://forth-standard.org/standard/core/MAX
+\
+\ n3 is the greater of n1 and n2.
+
+	: max ( n1 n2 -- n3 ) over 2dup > >r - r> and + ;
+
+\ https://forth-standard.org/standard/core/MIN
+\
+\ n3 is the lesser of n1 and n2.
+
+	: min ( n1 n2 -- n3 ) over 2dup < >r - r> and + ;
+
+\ mid-point require: *, /, & /mod is built on top of double operations
 
 require math.double.f
 
@@ -86,43 +116,3 @@ require math.double.f
 \ >R S>D R> FM/MOD DROP or the phrase >R S>D R> SM/REM DROP.
 
 	: mod ( q r - q ) /mod drop ;
-
-\ https://forth-standard.org/standard/core/TwoTimes
-\
-\ x' is the result of shifting x one bit toward the most-significant
-\ bit, filling the vacated least-significant bit with zero.
-
-	: 2* ( x -- x' ) dup + ;
-
-\ https://forth-standard.org/standard/core/TwoDiv
-\
-\ x' is the result of shifting x1 one bit toward the least-significant
-\ bit, leaving the most-significant bit unchanged.
-
-	: 2/ ( x -- x' )
-		dup 0< msb and	\ n signbitmask (0 or msb)
-		swap 1 rshift	\ signbitmask (n>>1 logical)   (if your rshift is logical)
-		or				\ arithmetic result
-	;
-
-\ https://forth-standard.org/standard/core/PlusStore
-\
-\ Add n | u to the single-cell number at a-addr.
-
-	: +! ( n|u a-addr -- )
-		tuck		( n a-addr -- a-addr n a-addr )
-		@ + 		( a-addr n a-addr -- a-addr n' )
-		swap ! 		( a-addr n' -- )
-	;
-
-\ https://forth-standard.org/standard/core/MAX
-\
-\ n3 is the greater of n1 and n2.
-
-	: max ( n1 n2 -- n3 ) over 2dup > >r - r> and + ;
-
-\ https://forth-standard.org/standard/core/MIN
-\
-\ n3 is the lesser of n1 and n2.
-
-	: min ( n1 n2 -- n3 ) over 2dup < >r - r> and + ;
