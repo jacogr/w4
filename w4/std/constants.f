@@ -55,16 +55,30 @@
 		(here!)			\ write updated location
 	;
 
+\ https://forth-standard.org/standard/core/ALIGNED
+\
+\ a-addr is the first aligned address greater than or equal to addr.
+\ We have 4-byte cells, so mask the lower bits and advance
+
+	: aligned ( a-addr -- a-addr' ) $3 + $-4 and ;
+
+\ https://forth-standard.org/standard/core/ALIGN
+\
+\ If the data-space pointer is not aligned, reserve enough space to align it.
+
+	: align ( -- )
+		here aligned		\ align current address
+		(here!) 			\ write updated value
+	;
+
 \ Non-standard but widely known words to create literals and compile it
 \ into the body of the latest definition
 \
 \ `$c0de0140` defined below as literal
-\
-\ FIXME We need to ensure we are aligning the contents
 
 	: (new-xt) ( flags -- )
-		here 				( flags -- flags here^ )
-		(sizeof-xt) allot	\ allocate (FIXME: aligned...)
+		align here			( flags -- flags here^ )
+		(sizeof-xt) allot	\ allocate
 		swap over >flags ! 	\ write flags
 		swap over >value ! 	\ write address
 	;

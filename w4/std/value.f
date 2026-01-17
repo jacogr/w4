@@ -93,6 +93,8 @@ require memory.f
 \
 \ At runtime: a-addr is the address of the space reserved by BUFFER: when it
 \ defined name. The program is responsible for initializing the contents.
+\
+\ NOTE: create uses build, internally, so contents are aligned
 
 	: buffer: ( u "<name>" -- addr )
 		create allot
