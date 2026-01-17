@@ -159,14 +159,15 @@ require wasi.f
 \
 \ Add char to the beginning of the pictured numeric output string.
 
-	$ff constant (#max) 				\ 255 max string size
-	create (#-tmp-buf) (#max) 1+ allot	\ offset in first byte, #max + 1
+	$ff constant (#max-len) 			\ 255 max string size
+	variable (#tmp-off)					\ offset for pictured buffer
+	create (#tmp-buf) (#max-len) allot	\ pictured buffer
 
 	: hold ( char -- )
-		(#-tmp-buf) @		\ get offset
-		(#-tmp-buf) + c! 	\ store char at offset
-		(#-tmp-buf) @ 1-	\ decrement offset
-		(#-tmp-buf) !		\ store offset
+		(#tmp-off) @		\ get offset
+		(#tmp-buf) + c! 	\ store char at offset
+		(#tmp-off) @ 1-		\ decrement offset
+		(#tmp-off) !		\ store offset
 	;
 
 \ https://forth-standard.org/standard/core/SIGN
@@ -180,7 +181,7 @@ require wasi.f
 \
 \ Initialize the pictured numeric output conversion process.
 
-	: (#len) ( -- n ) (#max) (#-tmp-buf) @ - ;
+	: (#len) ( -- n ) (#max-len) (#tmp-off) @ - ;
 
 	: (#pad) ( n ud -- ud' )
 		base @ #16 = if '$' hold else base @ #2 = if '%' hold then then
@@ -196,7 +197,7 @@ require wasi.f
 	\ lowercase version, not standard, doesn't pass test suite
 	\ : (#chr) ( n -- char ) dup #9 > #39 and + '0' + ; \ exploit that 'a' - '9' = 40
 
-	: <# ( -- ) (#max) (#-tmp-buf) ! ;
+	: <# ( -- ) (#max-len) 1- (#tmp-off) ! ; \ 0...254 (255 max-len)
 
 \ https://forth-standard.org/standard/core/num
 \
@@ -226,9 +227,10 @@ require wasi.f
 \ replace characters within the string.
 
 	: #> ( xd -- c-addr u )
-		2drop					( xd -- )
-		(#-tmp-buf) (#-tmp-buf) @ + 1+	( -- c-addr )
-		(#len)					( c-addr -- c-addr u )
+		2drop				( xd -- )
+		(#tmp-off) @		( -- off )
+		(#tmp-buf) + 1+	( off -- c-addr )
+		(#len)				( c-addr -- c-addr u )
 	;
 
 \ https://forth-standard.org/standard/core/UDotR
