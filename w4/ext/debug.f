@@ -179,24 +179,31 @@ require ../std/text.f
 		(dict^) list>head
 
 		begin
-			\ increment count
-			(words-count) @ 1+ (words-count) !
+			\ get flags
+			dup name>xt >flags @		( nt -- nt flags )
 
-			\ output xt info twice (name & immediate?)
-			dup name>xt dup
+			\ ensure entry is visible
+			(flg-set-vis) is-flag? if
 
-			>string type
-			>flags @ (flg-set-imm) is-flag? if
-				(see-text-imm.)
+				\ increment count
+				(words-count) @ 1+ (words-count) !
+
+				\ output xt info twice (name & immediate?)
+				dup name>xt dup			( nt -- nt xt xt )
+
+				>string type
+				>flags @ (flg-set-imm) is-flag? if
+					(see-text-imm.)
+				then
+
+				#3 spaces
 			then
 
-			#3 spaces
-
 			\ check next for zero
-			name>next dup 0=
+			name>next dup 0=			( nt -- nt' )
 		until
 
-		drop
+		drop							( nt -- )
 
 		decimal
 		cr cr ." words: "
