@@ -199,7 +199,22 @@ require stack.f
 \
 \ At runtime: Place cell pair x1 x2 on the stack.
 
-	: 2constant ( x1 x2 -- )
-		create , ,
-		does> dup 1 cells + @ swap @
+	: 2constant ( x1 x2 "name" -- )
+		create 2,
+		does> 2@
+	;
+
+\ https://forth-standard.org/standard/double/TwoVARIABLE
+\
+\ Skip leading space delimiters. Parse name delimited by a space. Create a
+\ definition for name with the execution semantics defined below. Reserve
+\ two consecutive cells of data space.
+\
+\ At runtime: a-addr is the address of the first (lowest address) cell of
+\ two consecutive cells in data space reserved by 2VARIABLE when it defined
+\ name. A program is responsible for initializing the contents.
+
+	: 2variable ( "name" -- )
+		create  0 ,  0 ,          \ reserve 2 cells, init to 0. (lo=0 hi=0)
+  		does>
 	;

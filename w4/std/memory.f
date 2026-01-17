@@ -82,6 +82,10 @@ require stack.f
 
 	: 2! ( x1 x2 a-addr -- ) swap over ! cell+ ! ;
 
+\ store x2 at HERE, then x1 at HERE+cell
+
+	: 2, ( x1 x2 -- ) swap , , ;
+
 \ mid-point require since the remainder rely on looping being available
 
 require loops.f
