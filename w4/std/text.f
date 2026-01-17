@@ -340,10 +340,10 @@ require wasi.f
 
 	: cstring, ( c-addr u -- )
 		here >r 			( c-addr u ) ( r: dst )
-		over 1+ allot		( c-addr u ) 	\ reserve count+chars
-		dup r@ c!			( c-addr u ) 	\ store count byte = u at dst
-		r@ 1+ swap cmove 	( -- )       	\ copy chars to dst+1
-		r> lit, 			( -- )
+		dup 1+ allot 		( c-addr u )        \ reserve u+1 bytes
+		dup r@ c!			( c-addr u )        \ store count byte = u at dst
+		r@ 1+ swap cmove 	( -- )              \ copy chars to dst+1
+		r> lit,				( -- )
 	;
 
 	: (c") ( "input<quote>" -- c-addr ) '"' parse state @ if cstring, then ;
