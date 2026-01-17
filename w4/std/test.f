@@ -20,7 +20,8 @@ require text.f
 	variable (test-is-error)
 	variable (test-depth)
 	variable (test-verbose)
-	create (test-results) $20 cells allot
+
+	$20 cells buffer: (test-results)
 
 \ alias for tester compat, point address into constant
 

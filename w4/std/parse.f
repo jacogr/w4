@@ -28,7 +28,7 @@ require memory.f
 \ than the delimiter, the resulting string has a zero length. A program may
 \ replace characters within the string.
 
-	create (word-tmp-buf) 256 allot
+	$ff buffer: (word-tmp-buf)
 
 	: word ( char "<chars>ccc<char>" -- c-addr )
 		parse					( c-addr u )

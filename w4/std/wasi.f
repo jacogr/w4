@@ -2,7 +2,7 @@ require stack.f
 
 \ Helper to wrap the wasi:fd_write for use in type & emit
 
-	create (iov-tmp-nwrite) $1 cells allot
+	$1 cells buffer: (iov-tmp-nwrite)
 
 	: iov>fd ( c-addr-u u 1|2 -- ) \ 1=stdout, 2=stderr
 		#2 (sp@-) 			( c-addr u 1|2 -- c-addr u 1|2 a-iov )
@@ -15,9 +15,9 @@ require stack.f
 
 \ Helper to wrap the wasi:fd_read interface for the keyboard
 
-	create (iov-tmp-in)     $2 cells allot   \ wasi iovec: buf_ptr, buf_len
-	create (iov-tmp-nread)  $1 cells allot   \ size_t
-	create (key-buf)        $1 allot
+	$2 cells buffer: (iov-tmp-in)   	\ wasi iovec: buf_ptr, buf_len
+	$1 cells buffer: (iov-tmp-nread)	\ size_t
+	$1 cells buffer: (key-buf)
 
 	: iov! ( c-addr u a-iov -- )
 		>r 				( c-addr u a-iov -- c-addr u ) ( r: -- a-iov )
@@ -40,6 +40,3 @@ require stack.f
 		iov<fd?					( errno nread )
 		swap 0<> #-37 and throw	( nread )
 	;
-
-
-

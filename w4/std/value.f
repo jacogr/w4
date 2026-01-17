@@ -72,17 +72,3 @@ require memory.f
 		' >body 			( x1 x2 a-addr )
 		state @ if lit, postpone (2+to) else (2+to) then
 	; immediate
-
-\ https://forth-standard.org/standard/core/BUFFERColon
-\
-\ Skip leading space delimiters. Parse name delimited by a space. Create a
-\ definition for name, with the execution semantics defined below. Reserve u
-\ address units at an aligned address. Contiguity of this region with any
-\ other region is undefined.
-\
-\ At runtime: a-addr is the address of the space reserved by BUFFER: when it
-\ defined name. The program is responsible for initializing the contents.
-\
-\ NOTE: create uses build, internally, so contents are aligned
-
-	: buffer: ( u "<name>" -- addr ) create allot ;

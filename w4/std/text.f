@@ -174,7 +174,8 @@ require wasi.f
 
 	$ff constant (#max-len) 			\ 255 max string size
 	variable (#tmp-off)					\ offset for pictured buffer
-	create (#tmp-buf) (#max-len) allot	\ pictured buffer
+
+	(#max-len) 1+ buffer: (#tmp-buf)	\ pictured buffer
 
 	: hold ( char -- )
 		(#tmp-off) @		\ get offset
@@ -210,7 +211,7 @@ require wasi.f
 	\ lowercase version, not standard, doesn't pass test suite
 	\ : (#chr) ( n -- char ) dup #9 > #39 and + '0' + ; \ exploit that 'a' - '9' = 40
 
-	: <# ( -- ) (#max-len) 1- (#tmp-off) ! ; \ 0...254 (255 max-len)
+	: <# ( -- ) (#max-len) (#tmp-off) ! ; \ 0...255 (256 max-len)
 
 \ https://forth-standard.org/standard/core/num
 \
@@ -241,8 +242,8 @@ require wasi.f
 
 	: #> ( xd -- c-addr u )
 		2drop				( xd -- )
-		(#tmp-off) @		( -- off )
-		(#tmp-buf) + 1+	( off -- c-addr )
+		(#tmp-off) @ 1+		( -- off+1 )
+		(#tmp-buf) +		( off+1 -- c-addr )
 		(#len)				( c-addr -- c-addr u )
 	;
 

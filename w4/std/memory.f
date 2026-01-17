@@ -71,6 +71,33 @@ require stack.f
 
 	: 2, ( x1 x2 -- ) swap , , ;
 
+\ https://forth-standard.org/standard/core/BUFFERColon
+\
+\ Skip leading space delimiters. Parse name delimited by a space. Create a
+\ definition for name, with the execution semantics defined below. Reserve u
+\ address units at an aligned address. Contiguity of this region with any
+\ other region is undefined.
+\
+\ At runtime: a-addr is the address of the space reserved by BUFFER: when it
+\ defined name. The program is responsible for initializing the contents.
+\
+\ NOTE: create uses build, internally, so contents are aligned
+
+	: buffer: ( u "<name>" -- addr ) create allot ;
+
+\ https://forth-standard.org/standard/core/PAD
+\
+\ c-addr is the address of a transient region that can be used to hold data
+\ for intermediate processing.
+\
+\ The size of the scratch area whose address is returned by PAD shall be
+\ at least 84 characters. The contents of the region addressed by PAD are
+\ intended to be under the complete control of the user: no words defined in
+\ this standard place anything in the region. Non-standard words provided by
+\ an implementation may use PAD, but such use shall be documented.
+
+	#84 buffer: pad
+
 \ mid-point require since the remainder rely on looping being available
 
 require loops.f
