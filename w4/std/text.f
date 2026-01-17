@@ -328,6 +328,28 @@ require wasi.f
 
 	: s" ( "input<quote>" -- c-addr u ) (s") ; immediate
 
+\ https://forth-standard.org/standard/core/Cq
+\
+\ Interpretation semantics for this word are undefined.
+\
+\ Parse ccc delimited by " (double-quote) and append the run-time semantics
+\ given below to the current definition.
+\
+\ At runtime: Return c-addr, a counted string consisting of the characters ccc.
+\ A program shall not alter the returned string.;
+
+	: cstring, ( c-addr u -- )
+		here >r 			( c-addr u ) ( r: dst )
+		over 1+ allot		( c-addr u ) 	\ reserve count+chars
+		dup r@ c!			( c-addr u ) 	\ store count byte = u at dst
+		r@ 1+ swap cmove 	( -- )       	\ copy chars to dst+1
+		r> lit, 			( -- )
+	;
+
+	: (c") ( "input<quote>" -- c-addr ) '"' parse state @ if cstring, then ;
+
+	: c" ( "input<quote>" -- c-addr ) (c") ; immediate
+
 \ https://forth-standard.org/standard/core/Dotq
 \
 \ Parse ccc delimited by " (double-quote). Append the run-time semantics
