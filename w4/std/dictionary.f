@@ -16,12 +16,20 @@ require text.f
 \ deallocated data space is not necessarily provided. No other contextual
 \ information such as numeric base is affected.
 
+	: (latest-nt) (dict^) list>tail ;
+
 	: (marker) ( nt -- )
 		begin
 			?dup
 		while
 			dup name>xt		( nt -- nt xt )
-			unreveal		( nt xt -- nt )
+
+			\ reverse of reveal in constants.f
+			>flags			( nt xt -- nt flags-addr )
+			dup @			( nt flags-addr -- nt flags-addr flags )
+			$-2 and			( nt flags-addr flags -- nt flags-addr flags' )
+			swap !			( nt flags-addr flags' -- nt )
+
 			name>next		( nt -- nt' )
 			dup 0=
 		until
@@ -32,8 +40,8 @@ require text.f
 	: marker ( <spaces>name" -- )
 		parse-name				( -- c-addr u )
 		dup 0= #-16 and throw
-		build,
-		(latest-nt^) lit,		\ compile marker pointer to body
+		build,					\ definition for "name"
+		(latest-nt) lit,		\ compile marker nt to body
 		['] (marker) compile,	\ execute (marker) ( nt -- )
-		reveal
+		reveal					\ set visible
 	;

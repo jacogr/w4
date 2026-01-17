@@ -134,7 +134,7 @@
 	;; Append an entry to a lookup list. This adds it both to the linked list
 	;; and to the appropriate bucket
 	;;
-	(func $__lookup_append (param $ptr_list i32) (param $hash i32) (param $ptr_xt i32) (result i32)
+	(func $__lookup_append (param $ptr_list i32) (param $hash i32) (param $ptr_xt i32)
 		(local $ent i32)
 		(local $hi i32)
 		(local $bptr i32)
@@ -163,9 +163,6 @@
 
 		;; bucket head = ent
 		(i32.store (local.get $bptr) (local.get $ent))
-
-		;; return entry
-		local.get $ent
 	)
 
 	;;

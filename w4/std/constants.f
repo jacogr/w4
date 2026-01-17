@@ -60,25 +60,27 @@
 \
 \ `$c0de0140` defined below as literal
 \
-\ FIXME Move this out of constants once we have >body used correctly
-\ inside the create definition
 \ FIXME We need to ensure we are aligning the contents
 
-	: (new-xt) here (sizeof-xt) allot swap over >flags ! swap over >value ! ;
-	: lit ( n -- ) $c0de0140 (new-xt) ;
+	: (new-xt) ( flags -- )
+		here 				( flags -- flags here^ )
+		(sizeof-xt) allot	\ allocate (FIXME: aligned...)
+		swap over >flags ! 	\ write flags
+		swap over >value ! 	\ write address
+	;
+
+	: lit ( n -- ) $c0de0140 (new-xt) ; \ aligned with (flg-xt-lit) below
 	: lit, ( n -- ) lit compile, ;
 
 \ Swap a dictionary entry from "hidden" to "available to lookups" by
 \ flipping the visible flag on the token
 
-	: reveal ( -- ) latest >flags dup @ $1 or swap ! ;
-
-\ Swap a dictionary entry from "available to lookups" to "hidden" by
-\ flipping the visible flag on the token
-\
-\ This is the reverse of "reveal". $-2 == 1 invert, or -1 - 1
-
-	: unreveal ( -- ) latest >flags dup @ $-2 and swap ! ;
+	: reveal ( -- )
+		latest >flags	( -- flags-addr )
+		dup @			( flags-addr -- flags-addr flags )
+		$1 or			( flags-addr flags -- flags-addr flags' )
+		swap !			( flags-addr flags' -- )
+	;
 
 \ https://forth-standard.org/standard/core/CREATE
 \
@@ -168,8 +170,7 @@
 
 \ latest executing token
 
-	$0124 (mmio@) (latest-nt^)
-	$0128 (mmio@) (exec^)
+	$0124 (mmio@) (exec^)
 
 \ dictionary & include lookups
 

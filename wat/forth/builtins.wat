@@ -415,7 +415,7 @@
 				(i32.const -8))
 
 			;; add to dictionary
-			(drop (call $__lookup_append
+			(call $__lookup_append
 				(local.get $ptr)
 				(local.tee $hash
 					(call $__hash (local.get $str) (local.get $len)))
@@ -433,7 +433,7 @@
 							(i32.load8_u
 								(i32.add
 									(local.get $str)
-									(i32.add (local.get $len) (i32.const 1)))))))))
+									(i32.add (local.get $len) (i32.const 1))))))))
 
 			;; point to the next function & string (ensuring \0 terminator & flag)
 			(local.set $idx (i32.add (local.get $idx) (i32.const 1)))

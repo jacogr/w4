@@ -92,12 +92,10 @@
 
 			;; hash, add to dictionary
 			(then
-				(i32.store
-					(global.get $PTR_PTR_ENT_CMP)
-					(call $__lookup_append
-						(global.get $list_dict)
-						(local.get $hash)
-						(global.get $xt_comp))))
+				(call $__lookup_append
+					(global.get $list_dict)
+					(local.get $hash)
+					(global.get $xt_comp)))
 
 			;; skip it
 			(else))

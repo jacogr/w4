@@ -53,7 +53,10 @@
 		(call $__ent_set_link (local.get $ptr_ent) (local.get $ptr_list))
 		(call $__val_set_value (local.get $ptr_ent) (local.get $ptr_xt))
 
-		;; check if there is a list tail
+		;; update the tail to entry
+		(call $__list_set_tail (local.get $ptr_list) (local.get $ptr_ent))
+
+		;; existing tail?
 		(local.get $ptr_tail) (if
 
 			;; existing tail, set this as next
@@ -62,19 +65,14 @@
 			;; no list tail to update
 			(else))
 
-		;; update the list
-		(call $__list_set_tail
-			(local.get $ptr_list)
-			(local.get $ptr_ent))
-		(call $__list_set_head
-			(local.get $ptr_list)
-			(select
-				;; keep current
-				(local.get $ptr_head)
-				;; set ptr if head is 0
-				(local.get $ptr_ent)
-				;; check for zero head pointer
-				(local.get $ptr_head)))
+		;; existing head?
+		(local.get $ptr_head) (if
+
+			;; current head, keep
+			(then)
+
+			;; nothing, use entry
+			(else (call $__list_set_head (local.get $ptr_list) (local.get $ptr_ent))))
 	)
 
 	;;

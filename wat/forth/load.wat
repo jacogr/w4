@@ -147,7 +147,7 @@
 			(else))
 
 		;; add to the known includes (w/ non-transient string)
-		(drop (call $__lookup_append
+		(call $__lookup_append
 			(global.get $list_incl)
 			(local.get $hash)
 			(local.tee $f
@@ -156,7 +156,7 @@
 					(local.get $len)
 					(local.get $hash)
 					(local.tee $s (call $__alloc (global.get $SIZEOF_SRC)))
-					(global.get $FLG_VISIBLE)))))
+					(global.get $FLG_VISIBLE))))
 
 		;; store base info
 		(call $__src_set_kind (local.get $s) (global.get $SRC_KIND_FIL))
