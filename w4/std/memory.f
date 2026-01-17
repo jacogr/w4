@@ -171,5 +171,12 @@ require loops.f
 			sp-2@ sp-2@ c! 			( ch c-addr u -- c-addr u )
 			1- swap 1+ swap 		( ch c-addr u -- ch c-addr' u' )
 		repeat
-		drop 2drop					( ch c-addr u -- )
+		2drop drop					( ch c-addr u -- )
 	;
+
+\ https://forth-standard.org/standard/core/ERASE
+\
+\ If u is greater than zero, clear all bits in each of u consecutive address units
+\ of memory beginning at addr.
+
+	: erase ( a-addr u -- ) 0 fill ;
