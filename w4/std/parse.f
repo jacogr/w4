@@ -62,6 +62,46 @@ require memory.f
 		r> drop					( r: in0 -- )
 	;
 
+\ https://forth-standard.org/standard/core/p
+\
+\ Parse ccc delimited by ) (right parenthesis). ( is an immediate word.
+\
+\ The number of characters in ccc may be zero to the number of characters in
+\ the parse area.
+\
+\ NOTE: This is the later, multi-line version of our ( ... ) implementation
+
+	\ parse-found? ( char -- found? )
+	\
+	\ true  => delimiter was found (and consumed) on this line
+	\ false => delimiter not found (we consumed the rest of the line)
+	: (parse-found?) ( char -- f )
+		source nip >in @ - >r      \ r: rem   (remaining chars before PARSE)
+		parse nip                  \ u        (length parsed, delimiter excluded)
+		r> <                       \ u < rem  => found delimiter
+	;
+
+	\ skip-through ( char -- )
+	\
+	\ keep parsing/discarding until char is found; if line ends, REFILL and continue
+	: (parse-until) ( char -- )
+		begin
+			dup (parse-found?) 0=	( ch -- ch more? )
+		while
+			refill					( ch -- ch flag )
+			0= #-14 and throw 		\ input cannot be refilled
+		repeat
+		drop						( ch -- )
+	;
+
+	: ( ( -- ) ')' (parse-until) ; immediate
+
+(
+	At this point in time we should have multi-line comments available
+	to us. If things break at this point in-time, guess what, the above
+	functions are not doing what they are supposed to do.
+)
+
 \ https://forth-standard.org/standard/core/WORD
 \
 \ Skip leading delimiters. Parse characters ccc delimited by char. An

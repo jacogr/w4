@@ -134,8 +134,14 @@
 
 \ https://forth-standard.org/standard/core/p
 \
-\ TODO it should use refill internally for multi-line (as per std),
-\ this can only happen much later with more base words available to us
+\ Parse ccc delimited by ) (right parenthesis). ( is an immediate word.
+\
+\ The number of characters in ccc may be zero to the number of characters in
+\ the parse area.
+\
+\ NOTE: For the multi-line version, it is defined later inside parse when
+\ we have more functions available to us, including loops and proper stack
+\ operations.
 
 	: ( \ ( -- )
 		')' parse-token		\ ( -- c-addr u )
