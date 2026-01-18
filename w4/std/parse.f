@@ -71,30 +71,23 @@ require memory.f
 \
 \ NOTE: This is the later, multi-line version of our ( ... ) implementation
 
-	\ parse-found? ( char -- found? )
-	\
-	\ true  => delimiter was found (and consumed) on this line
-	\ false => delimiter not found (we consumed the rest of the line)
-	: (parse-found?) ( char -- f )
-		source nip >in @ - >r      \ r: rem   (remaining chars before PARSE)
-		parse nip                  \ u        (length parsed, delimiter excluded)
-		r> <                       \ u < rem  => found delimiter
-	;
-
-	\ skip-through ( char -- )
-	\
-	\ keep parsing/discarding until char is found; if line ends, REFILL and continue
-	: (parse-until) ( char -- )
+	\ (parse-multi) ( delim xt -- )
+	\ Calls xt as ( c-addr u -- ) for each chunk.
+	\ Stops when delim is found. If REFILL fails before delim, throws -14 (yours).
+	: (parse-multi) ( ch xt -- )
 		begin
-			dup (parse-found?) 0=	( ch -- ch more? )
+			source nip >in @ - >r		( ch xt ) ( r: -- rem )
+			sp-1@ parse					( ch xt -- ch xt c-addr u )
+			dup r> < 0=	>r				( ch xt c-addr u ) ( r: rem -- more? ) \ more? = (u < rem) == 0
+			sp-2@ execute				( ch xt c-addr u -- ch xt )
+			r> 							( ch xt -- ch xt more? )
 		while
-			refill					( ch -- ch flag )
-			0= #-14 and throw 		\ input cannot be refilled
+			refill 0= #-14 and throw
 		repeat
-		drop						( ch -- )
+		2drop							( ch xt -- )
 	;
 
-	: ( ( -- ) ')' (parse-until) ; immediate
+	: ( ( -- ) ')' ['] 2drop (parse-multi) ; immediate
 
 (
 	At this point in time we should have multi-line comments available
