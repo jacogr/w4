@@ -379,7 +379,9 @@ require wasi.f
 \ Parse and display ccc delimited by ) (right parenthesis). .( is an
 \ immediate word.
 
-	: .( ( "ccc<paren>" -- ) ')' parse type ; immediate
+	: (type-cr) type cr ;
+
+	: .( ( "ccc<paren>" -- ) ')' ['] (type-cr) (parse-multi) ; immediate
 
 \ https://forth-standard.org/standard/core/toNUMBER
 \
