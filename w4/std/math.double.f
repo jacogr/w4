@@ -12,16 +12,16 @@ require stack.f
 \ Add d2 | ud2 to d1 | ud1, giving the sum d3 | ud3.
 
 	: um+ ( u1 u2 -- sum carry-flag )
-		over >r +          \ sum          R: u1
-		dup r> u<       \ sum carry    (sum u< u1)
+		over >r + 	\ sum (r: -- u1 )
+		dup r> u<	\ sum carry ( r: u1 -- ) \ sum u< u1
 	;
 
 	: d+ ( lo1 hi1 lo2 hi2 -- lo3 hi3 )
-		>r swap >r          \ lo1 lo2        R: hi2 hi1
-		um+                 \ lo3 carry-flag
-		1 and               \ lo3 carry(0|1)
-		r> r> +             \ lo3 carry hiSum
-		swap +              \ lo3 hi3
+		>r swap >r	\ lo1 lo2 ( r: -- hi2 hi1 )
+		um+ 		\ lo3 carry-flag
+		1 and 		\ lo3 carry(0|1)
+		r> r> + 	\ lo3 carry hiSum ( r: hi2 hi1 -- )
+		swap + 		\ lo3 hi3
 	;
 
 \ https://forth-standard.org/standard/double/DNEGATE
@@ -32,6 +32,25 @@ require stack.f
 		invert swap
 		invert swap		\ ~lo ~hi
 		1. d+			\ +1 as double
+	;
+
+\ https://forth-standard.org/standard/double/DMinus
+\
+\ subtract d2 from d1
+
+	: um- ( u1 u2 -- diff borrow-flag )
+		2dup u< >r 	\ borrow? = (u1 < u2)
+		- 			\ diff = u1 - u2 (mod cell)
+		r>
+	;
+
+	: d- ( lo1 hi1 lo2 hi2 -- lo3 hi3 )
+		>r swap >r 	\ lo1 lo2 ( r: -- hi2 hi1 )
+		um- 		\ lo3 borrow-flag
+		0<> 1 and 	\ lo3 borrow(0|1)
+		r> r> 		\ lo3 borrow hi1 hi2 ( r: hi2 hi1 -- )
+		- 			\ lo3 borrow hiDiff (hiDiff = hi1 - hi2)
+		swap - 		\ lo3 hi3 (hi3 = hiDiff - borrow)
 	;
 
 \ https://forth-standard.org/standard/double/DABS
