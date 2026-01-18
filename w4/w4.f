@@ -1,8 +1,8 @@
 
-	#32 parse ]	build, 1 $0150 ! 1 $0150 ! ;
-	#32 parse : build, ] #32 parse build, ] ;
+	#32 parse-token ] build, 1 $0150 ! 1 $0150 ! ;
+	#32 parse-token : build, ] #32 parse-token build, ] ;
 
-	: parse-name #32 parse ;
+	: parse-name #32 parse-token ;
 	: require parse-name required ;
 
 require preamble.f
@@ -17,7 +17,7 @@ require preamble.f
 \
 \ Enter compilation state.
 \
-\	#32 parse ] build,	\ define "]"
+\	#32 parse-token ] build,	\ define "]"
 \		1 $0050 ! 		\ compile, 1 state ! (state constant not defined yet)
 \		1 $0050 !		\ apply when executed
 \	;
@@ -33,9 +33,9 @@ require preamble.f
 \ into the body of the definition. The current definition shall not be findable
 \ in the dictionary until it is ended.
 \
-\	#32 parse : build,		\ define ":"
-\		]					\ switch to compile
-\		build, #32 parse ] 	\ apply "build, parse-name ]" to children
+\	#32 parse-token : build,		\ define ":"
+\		]							\ switch to compile
+\		build, #32 parse-token ] 	\ apply "build, parse-name ]" to children
 \	;
 
 \ https://forth-standard.org/standard/core/PARSE-NAME
@@ -46,7 +46,7 @@ require preamble.f
 \ u is its length in characters. If the parse area is empty or contains only
 \ white space, the resulting string has length zero.
 \
-\	: parse-name ( -- c-addr u ) #32 parse ;
+\	: parse-name ( -- c-addr u ) #32 parse-token ;
 
 \ https://forth-standard.org/standard/file/REQUIRE
 \

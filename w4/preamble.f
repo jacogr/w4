@@ -138,7 +138,7 @@
 \ this can only happen much later with more base words available to us
 
 	: ( \ ( -- )
-		')' parse			\ ( -- c-addr u )
+		')' parse-token		\ ( -- c-addr u )
 		0= #-14 and throw	\ ( c-addr u -- c-addr )
 		drop 				\ ( c-addr -- )
 	; immediate

@@ -17,6 +17,19 @@ require memory.f
 
 	: include ( i * x "name" -- j * x ) parse-name included	;
 
+\ https://forth-standard.org/standard/core/PARSE
+\
+\ c-addr is the address (within the input buffer) and u is the length of the
+\ parsed string. If the parse area was empty, the resulting string has a zero
+\ length.
+\
+\ FIXME Internally this used the non-standard parse-token and relies on that
+\ behaviour. It is fine as an initial step until we have a robust Forth parse,
+\ just to ensure "stuff still works". Next up would be replacing this with a
+\ Forth-only version with no reliance on parse-token.
+
+	: parse ( ch "ccc<ch>" -- c-addr u ) parse-token ;
+
 \ https://forth-standard.org/standard/core/WORD
 \
 \ Skip leading delimiters. Parse characters ccc delimited by char. An
@@ -31,7 +44,7 @@ require memory.f
 	$ff buffer: (word-tmp-buf)
 
 	: word ( char "<chars>ccc<char>" -- c-addr )
-		parse					( c-addr u )
+		parse-token				( c-addr u )
 		$ff and					( c-addr u' )
 
 		(word-tmp-buf) >r 		( c-addr u' ) ( r: dst )
