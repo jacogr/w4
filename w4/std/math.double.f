@@ -53,6 +53,22 @@ require stack.f
 		swap - 		\ lo3 hi3 (hi3 = hiDiff - borrow)
 	;
 
+\ https://forth-standard.org/standard/double/DZeroLess
+\
+\ true if d is negative (sign bit set)
+
+	: d0< ( lo hi -- flag )
+		nip 0<
+	;
+
+\ https://forth-standard.org/standard/double/DZeroEqual
+\
+\ true if d is zero
+
+	: d0= ( lo hi -- flag )
+		or 0=
+	;
+
 \ https://forth-standard.org/standard/double/DABS
 \
 \ ud is the absolute value of d.
