@@ -1,6 +1,7 @@
 require compile.f
 require loops.f
 require memory.f
+require stack.f
 
 \ https://forth-standard.org/standard/core/SOURCE
 \
@@ -157,5 +158,39 @@ require memory.f
 			name>xt                    \ xt
 			dup not-immediate?		\ -1 if not immediate, 0 if immediate
 			-1 1 select                \ -1 normal, 1 immediate
+		then
+	;
+
+\ https://forth-standard.org/standard/core/SAVE-INPUT
+\
+\ ( -- xn ... x1 n ) x1 through xn describe the current state of the input
+\ source specification for later use by RESTORE-INPUT.
+\
+\ Minimal (evaluate-friendly) save/restore: only snapshots >in, ignores source
+\ identity, i.e. cannot restore accross input sources (or lines)
+
+	: save-input ( -- x1 n )
+		>in @ source-id $2
+	;
+
+\ https://forth-standard.org/standard/core/RESTORE-INPUT
+\
+\ Attempt to restore the input source specification to the state described by
+\ x1 through xn. flag is true if the input source specification cannot be so
+\ restored.
+\
+\ An ambiguous condition exists if the input source represented by the arguments
+\ is not the same as the current input source.
+
+	: restore-input ( x1 .. xn n -- flag )
+		dup $2 = if
+			drop                 \ x1 x2
+			source-id <> if      \ source-id changed => cannot restore
+				drop true
+			else
+				>in ! false 	\ restore >in
+			then
+		else
+			0 ?do drop loop true
 		then
 	;
