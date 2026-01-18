@@ -109,13 +109,23 @@ require memory.f
 	$ff buffer: (word-tmp-buf)
 
 	: word ( char "<chars>ccc<char>" -- c-addr )
-		parse-token				( c-addr u )
-		$ff and					( c-addr u' )
+		\ skip leading whitespace (<= 32)
+		begin
+			source nip >in @ <
+		while
+			source drop >in @ + c@
+			#33 u<
+		while
+			$1 >in +!
+		repeat then
 
-		(word-tmp-buf) >r 		( c-addr u' ) ( r: dst )
-		dup r@ c! 				( c-addr u' )        \ store count
-		r@ 1+ swap cmove		( -- )                \ copy chars
-		r>
+		parse					( ch -- c-addr u )
+		$ff and					( c-addr u -- c-addr u' )
+
+		(word-tmp-buf) >r 		( c-addr u ) ( r: dst )
+		dup r@ c! 				( c-addr u -- c-addr u' )	\ store count
+		r@ 1+ swap cmove		( c-addr u -- )             \ copy chars
+		r>						( -- dst ) ( r: dst -- )
 	;
 
 \ https://forth-standard.org/standard/core/COUNT
