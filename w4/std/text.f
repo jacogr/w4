@@ -174,10 +174,10 @@ require wasi.f
 \
 \ Add char to the beginning of the pictured numeric output string.
 
-	$ff constant (#max-len) 			\ 255 max string size
+	$ff constant (#max-off) 			\ 255 max string size
 	variable (#tmp-off)					\ offset for pictured buffer
 
-	(#max-len) 1+ buffer: (#tmp-buf)	\ pictured buffer
+	(#max-off) 1+ buffer: (#tmp-buf)	\ pictured buffer
 
 	: hold ( char -- )
 		(#tmp-off) @		\ get offset
@@ -210,7 +210,7 @@ require wasi.f
 \
 \ Initialize the pictured numeric output conversion process.
 
-	: (#len) ( -- n ) (#max-len) (#tmp-off) @ - ;
+	: (#len) ( -- n ) (#max-off) (#tmp-off) @ - ;
 
 	: (#pad) ( n ud -- ud' )
 		base @ #16 = if '$' hold else base @ #2 = if '%' hold then then
@@ -226,7 +226,7 @@ require wasi.f
 	\ lowercase version, not standard, doesn't pass test suite
 	\ : (#chr) ( n -- char ) dup #9 > #39 and + '0' + ; \ exploit that 'a' - '9' = 40
 
-	: <# ( -- ) (#max-len) (#tmp-off) ! ; \ 0...255 (256 max-len)
+	: <# ( -- ) (#max-off) (#tmp-off) ! ; \ 0...255 (256 max-len)
 
 \ https://forth-standard.org/standard/core/num
 \
