@@ -43,11 +43,11 @@
 	;; Restores overall state from a source buffer
 	;;
 	(func $__src_restore (param $s i32)
-		;; PTR_SRC_ID = frame ptr (or 0)
-		(i32.store (global.get $PTR_SRC_ID) (local.get $s))
-
 		;; clear global state (to be set in refill)
 		(call $__line_clear)
+
+		;; set current frame
+		(global.set $parse_frame (local.get $s))
 
 		;; s == 0 => clear parse state
 		(local.get $s) (if
@@ -63,18 +63,24 @@
 
 					;; file
 					(then
+						;; PTR_SRC_ID = frame ptr (or 0)
+						(i32.store (global.get $PTR_SRC_ID) (local.get $s))
 						(global.set $parse_code_idx (call $__src_get_ln_off (local.get $s)))
 						(global.set $parse_code_ptr (i32.const 0))
 						(global.set $parse_code_len (i32.const 0)))
 
 					;; memory
 					(else
+						;; PTR_SRC_ID = -1
+						(i32.store (global.get $PTR_SRC_ID) (i32.const -1))
 						(global.set $parse_code_idx (call $__src_get_in_off (local.get $s)))
 						(global.set $parse_code_ptr (call $__src_get_ptr (local.get $s)))
     					(global.set $parse_code_len (call $__src_get_len (local.get $s))))))
 
 			;; zero source, clear all
 			(else
+				;; PTR_SRC_ID = 0
+				(i32.store (global.get $PTR_SRC_ID) (i32.const 0))
 				(global.set $parse_iov_ptr  (i32.const 0))
 				(global.set $parse_code_ptr (i32.const 0))
 				(global.set $parse_code_len (i32.const 0))

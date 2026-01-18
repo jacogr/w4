@@ -14,6 +14,7 @@
 	(global $parse_code_len (mut i32) (i32.const 0))
 	(global $parse_code_idx (mut i32) (i32.const 0))
 	(global $parse_code_row (mut i32) (i32.const 0))
+	(global $parse_frame	(mut i32) (i32.const 0))
 	(global $parse_iov_ptr  (mut i32) (i32.const 0))
 
 	;; execution & compilation variables
@@ -73,7 +74,7 @@
 		;; set the row/col value
 		(call $__list_set_file
 			(global.get $list_toks)
-			(i32.load (global.get $PTR_SRC_ID))
+			(global.get $parse_frame)
 			(global.get $parse_code_row)
 			(i32.sub (call $__line_get_off) (local.get $len)))
 
@@ -554,7 +555,7 @@
 		(local $caller_s i32)
 
 		;; save caller frame pointer (0 if none)
-		(local.set $caller_s (i32.load (global.get $PTR_SRC_ID)))
+		(local.set $caller_s (global.get $parse_frame))
 
 		;; enter frame
 		(call $__src_push_frame (local.get $s))

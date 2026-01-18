@@ -22,7 +22,7 @@
 		(call $__line_clear)
 
 		;; current frame?
-		(local.tee $s (i32.load (global.get $PTR_SRC_ID))) (if
+		(local.tee $s (global.get $parse_frame)) (if
 
 			;; have a frame, continue below
 			(then)
