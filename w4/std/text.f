@@ -186,6 +186,19 @@ require wasi.f
 		(#tmp-off) !		\ store offset
 	;
 
+\ https://forth-standard.org/standard/core/HOLDS
+\
+\ Adds the string represented by c-addr u to the pictured numeric output
+\ string. An ambiguous condition exists if HOLDS executes outside of a
+\ <# #> delimited number conversion.
+
+	: holds ( addr u -- )
+		begin dup while
+			1- 2dup + c@ hold
+		repeat
+		2drop
+	;
+
 \ https://forth-standard.org/standard/core/SIGN
 \
 \ If n is negative, add a minus sign to the beginning of the pictured
