@@ -1,5 +1,6 @@
 require compile.f
 require constants.f
+require logic.number.f
 require math.f
 require memory.f
 require parse.f
@@ -144,9 +145,9 @@ require wasi.f
 \ value of its first character onto the stack.
 
 	: char ( "<spaces>name" -- char )
-		parse-name			( -- c-addr u )    	   \ parse the name/next
+		parse-name			( -- c-addr u )   	   \ parse the name/next
 		0= #-12 and throw	( c-addr u -- c-addr )
-		c@					( c-addr -- char )   \ retrieve the first char
+		c@					( c-addr -- char )  \ retrieve the first char
 	;
 
 \ https://forth-standard.org/standard/core/BracketCHAR
@@ -298,16 +299,16 @@ require wasi.f
 	: .r ( n1 n2 -- )
 		<#
 			swap			( n1 n2 -- n2 n1 )
-			dup >r 			( n2 n1 -- n2 n1 )           ( r: -- n1 )
+			dup >r 			( n2 n1 -- n2 n1 )          ( r: -- n1 )
 
 			\ make unsigned magnitude as a DOUBLE, safely (works for MIN-INT)
 			s>d  			( n2 n1 -- n2 lo hi )
-			r@ 0< if 		( n2 lo hi -- n2 lo hi )     \ was original n1 negative?
-				dnegate 	( n2 lo hi -- n2 lo' hi' )   \ magnitude
+			r@ 0< if 		( n2 lo hi -- n2 lo hi )    \ was original n1 negative?
+				dnegate 	( n2 lo hi -- n2 lo' hi' )  \ magnitude
 			then
 
 			#s 				( n2 lo hi -- n2 0 0 )
-			r> sign			( n2 0 0 -- n2 0 0 )         \ may HOLD '-'
+			r> sign			( n2 0 0 -- n2 0 0 )        \ may HOLD '-'
 			(#pad)			( n2 0 0 -- 0 0 )
 		#> type space
 	;
@@ -355,9 +356,9 @@ require wasi.f
 
 	: cstring, ( c-addr u -- )
 		here >r 			( c-addr u ) ( r: dst )
-		dup 1+ allot 		( c-addr u )        \ reserve u+1 bytes
-		dup r@ c!			( c-addr u )        \ store count byte = u at dst
-		r@ 1+ swap cmove 	( -- )              \ copy chars to dst+1
+		dup 1+ allot 		( c-addr u )       \ reserve u+1 bytes
+		dup r@ c!			( c-addr u )       \ store count byte = u at dst
+		r@ 1+ swap cmove 	( -- )             \ copy chars to dst+1
 		r> lit,				( -- )
 	;
 
@@ -421,3 +422,137 @@ require wasi.f
 		repeat then
 		2r> 2swap ( ud2 c-addr2 u2 )
 	;
+
+\ https://forth-standard.org/standard/core/Seq
+\
+\ Parse ccc delimited by " (double-quote), using the translation rules below.
+\ Append the run-time semantics given below to the current definition.
+\
+\ implementation from original proposal:
+\ http://www.forth200x.org/escaped-strings.html
+
+	create (s"\-result)
+		#256 #1 chars + allot                   \ 256 + count byte
+
+	create (s"\-escapetable)
+		 #7 c,    \ \a bel
+		 #8 c,    \ \b bs
+		'c' c,    \ \c
+		'd' c,    \ \d
+		#27 c,    \ \e esc
+		#12 c,    \ \f ff
+		'g' c,    \ \g
+		'h' c,    \ \h
+		'i' c,    \ \i
+		'j' c,    \ \j
+		'k' c,    \ \k
+		#10 c,    \ \l lf
+		'm' c,    \ \m  (note: handled specially below)
+		#10 c,    \ \n  (unix lf; \n handled specially below)
+		'o' c,    \ \o
+		'p' c,    \ \p
+		'"' c,    \ \q  => "
+		#13 c,    \ \r cr
+		's' c,    \ \s
+		 #9 c,    \ \t ht
+		'u' c,    \ \u
+		#11 c,    \ \v vt
+		'w' c,    \ \w
+		'x' c,    \ \x  (note: handled specially below)
+		'y' c,    \ \y
+		 #0 c,    \ \z nul
+
+	create (s"\-crlf)
+		#2 c,  #13 c,  #10 c,
+
+	: (s"\-addchar) ( char $dest -- )
+		tuck count + c!
+		#1 swap c+!
+	;
+
+	: (s"\-append) ( c-addr u $dest -- )
+		>r
+		tuck r@ count + swap cmove
+		r> c+!
+	;
+
+	: (s"\-extractnum)
+		base @ >r  base !
+		0 0 2swap >number 2swap drop
+		r> base !
+	;
+
+	: (s"\-addescape) ( c-addr len dest -- c-addr' len' )
+		over 0<> if
+			>r		( r: -- dest )
+
+			\ octal?
+			over c@ '0' '8' within if \ '0' .. '7' + 1
+				8 (s"\-extractnum)
+				r> (s"\-addchar)
+			else
+				\ hex?
+				over c@ 'x' = if
+					1 /string
+					>r 2 #16 (s"\-extractnum) nip
+					r> 2 - swap
+					r> (s"\-addchar)
+				else
+					\ crlf?
+					over c@ 'm' = if
+						1 /string #13 r@ (s"\-addchar) #10
+						r> (s"\-addchar)
+					else
+						\ crlf?
+						over c@ 'n' = if
+							1 /string (s"\-crlf) count
+							r> (s"\-append)
+						else
+							\ a..z?
+							over c@ 'a' '{' within if \ 'a' .. 'z' + 1
+								over c@ [char] a - (s"\-escapetable) +
+							else
+								over
+							then
+
+							c@
+							r> (s"\-addchar)
+							1 /string
+						then
+					then
+				then
+			then
+		else drop then
+	;
+
+	: (s"\-parse) ( c-addr len dest -- c-addr' len' )
+		dup >r 0 swap c!
+
+		begin
+			dup
+		while
+			over c@ '"' <>
+		while
+			over c@ '\' = if
+				#1 /string r@ (s"\-addescape)
+			else
+				over c@ r@ (s"\-addchar) #1 /string
+			then
+		repeat then
+
+		dup if #1 /string then
+		r> drop
+	;
+
+	: (s"\-readescaped) ( "ccc" -- c-addr )
+		source >in @ /string tuck
+  		(s"\-result) dup >r (s"\-parse)
+  		nip - >in +! r>
+	;
+
+	: s\"
+		(s"\-readescaped) count
+		state @ if
+			string,
+		then
+	; immediate

@@ -42,6 +42,11 @@ require stack.f
 		or swap !       \ overwrite low byte of existing contents
 	;
 
+\ Non-standard extension to c!, as used inside s\" (and part of that proposal,
+\ so pretty well-known)
+
+	: c+! ( c c-addr -- ) tuck c@ + swap c! ;
+
 \ https://forth-standard.org/standard/core/CComma
 \
 \ Reserve space for one character in the data space and store char in the
