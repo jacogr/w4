@@ -58,10 +58,6 @@
 		or invert
 	;
 
-\ mid-point require, we need the sp-n@ versions for <
-
-require stack.ptr.f
-
 \ https://forth-standard.org/standard/core/Equal
 \
 \ flag is true if and only if x1 is bit-for-bit the same as x2.
@@ -73,6 +69,10 @@ require stack.ptr.f
 \ lag is true if and only if x1 is not bit-for-bit the same as x2.
 
 	: <> ( x y -- flag ) = invert ;
+
+\ mid-point require, we need the sp-n@ versions for <
+
+require stack.ptr.f
 
 \ https://forth-standard.org/standard/core/less
 \

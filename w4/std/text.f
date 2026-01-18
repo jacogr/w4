@@ -54,6 +54,8 @@ require wasi.f
 \ All standard characters can be received. Characters received by KEY are not
 \ displayed.
 
+	$1 cells buffer: (key-buf)
+
 	: key ( -- c )
 		begin
 			(key-buf) 1 0 iov<fd

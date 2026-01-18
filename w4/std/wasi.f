@@ -17,7 +17,6 @@ require stack.f
 
 	$2 cells buffer: (iov-tmp-in)   	\ wasi iovec: buf_ptr, buf_len
 	$1 cells buffer: (iov-tmp-nread)	\ size_t
-	$1 cells buffer: (key-buf)
 
 	: iov! ( c-addr u a-iov -- )
 		>r 				( c-addr u a-iov -- c-addr u ) ( r: -- a-iov )

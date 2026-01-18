@@ -7,6 +7,17 @@ require stack.f
 
 	: unused ( -- u ) (here-max) here - ;
 
+\ https://forth-standard.org/standard/core/Comma
+\
+\ Reserve one cell of data space and store x in the cell. If the data-space
+\ pointer is aligned when , begins execution, it will remain aligned when ,
+\ finishes execution.
+
+	: , ( x -- )
+		here !
+		1 cells allot
+	;
+
 \ https://forth-standard.org/standard/core/CFetch
 \
 \ Fetch the character stored at c-addr. Since the cell size
@@ -40,17 +51,6 @@ require stack.f
 	: c, ( c -- )
 		here c!
 		1 allot
-	;
-
-\ https://forth-standard.org/standard/core/Comma
-\
-\ Reserve one cell of data space and store x in the cell. If the data-space
-\ pointer is aligned when , begins execution, it will remain aligned when ,
-\ finishes execution.
-
-	: , ( x -- )
-		here !
-		1 cells allot
 	;
 
 \ https://forth-standard.org/standard/core/TwoFetch

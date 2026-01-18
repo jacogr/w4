@@ -42,6 +42,6 @@ require text.f
 		dup 0= #-16 and throw
 		build,					\ definition for "name"
 		(latest-nt) lit,		\ compile marker nt to body
-		['] (marker) compile,	\ execute (marker) ( nt -- )
+		postpone (marker)		\ execute (marker) ( nt -- )
 		reveal					\ set visible
 	;
