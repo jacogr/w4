@@ -72,9 +72,9 @@ require stack.f
 
 	: 2! ( x1 x2 a-addr -- ) swap over ! cell+ ! ;
 
-\ store x2 at HERE, then x1 at HERE+cell
+\ Helper to store 2 values (no swap here, as per std tests)
 
-	: 2, ( x1 x2 -- ) swap , , ;
+	: 2, ( x1 x2 -- ) , , ;
 
 \ https://forth-standard.org/standard/core/BUFFERColon
 \

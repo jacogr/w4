@@ -201,7 +201,7 @@ require stack.f
 
 	: 2constant ( x1 x2 "name" -- )
 		create 2,
-		does> 2@
+ 		does> 2@
 	;
 
 \ https://forth-standard.org/standard/double/TwoVARIABLE
@@ -218,3 +218,14 @@ require stack.f
 		create  0 ,  0 ,          \ reserve 2 cells, init to 0. (lo=0 hi=0)
   		does>
 	;
+
+\ https://forth-standard.org/standard/double/TwoLITERAL
+\
+\ Append the run-time semantics below to the current definition.
+\
+\ At run time, place cell pair x1 x2 on the stack.
+
+	: 2literal ( x1 x2 -- )
+		swap
+		lit, lit,
+	; immediate
