@@ -22,13 +22,45 @@ require memory.f
 \ c-addr is the address (within the input buffer) and u is the length of the
 \ parsed string. If the parse area was empty, the resulting string has a zero
 \ length.
-\
-\ FIXME Internally this used the non-standard parse-token and relies on that
-\ behaviour. It is fine as an initial step until we have a robust Forth parse,
-\ just to ensure "stuff still works". Next up would be replacing this with a
-\ Forth-only version with no reliance on parse-token.
 
-	: parse ( ch "ccc<ch>" -- c-addr u ) parse-token ;
+	: parse ( ch -- c-addr u )
+		$-1 source				( ch -- ch -1 base len )
+		>in @ >r				( r: -- in0 )
+
+		swap r@ +				( ch -1 base len -- ch -1 len start ) \ start = base + in0
+		swap r@ -				( ch -1 len start -- ch -1 start rem ) \ rem = len - in0
+
+		over swap				( ch -1 start rem -- ch -1 start cur rem ) \ cur = start
+
+		begin
+			sp-3@ over and		( ch -1|0 start cur rem -- ch -1|0 start cur rem f ) \ f = (-1|0 == -1) & (rem != 0)
+		while
+			over c@				( ch -1 start cur rem -- ch -1 start cur rem ch-at )
+			sp-5@ =				( ch -1 start cur rem ch-at -- ch -1 start cur rem f ) \ f = ch-at == ch
+
+			if
+				0 sp-4!			( ch -1 start cur rem -- ch 0 start cur rem )
+			else
+				1- swap			( ch -1 start cur rem -- ch -1 start rem' cur ) \ rem' = rem - 1
+				1+ swap 		( ch -1 start cur rem -- ch -1 start cur' rem' ) \ cur' = cur + 1
+			then
+		repeat
+
+		swap					( ch -1|0 start cur rem -- ch -1|0 start rem cur )
+		sp-2@ -					( ch -1|0 start rem curr -- ch -1|0 start rem u ) ( r: in0 ) \ u = cur - start
+
+		over 0<> negate			( ch -1|0 start rem u -- ch -1|0 start rem u 1|0 ) \ found = (rem != 0) ? 1 : 0
+		over +					( ch -1|0 start rem u 1|0 -- ch -1|0 start rem u u' ) \ u' = 1|0 + u
+		r@ +					( ch -1|0 start rem u u' -- ch -1|0 start cur rem u newin ) ( r: in0 ) \ newin = u' + in0
+
+		>in !					( ch -1|0 start rem u newin -- ch -1|0 start cur rem u )
+
+		swap drop				( ch -1|0 start rem u -- ch -1|0 start u )
+		sp-2!					( ch -1|0 start u -- ch u start )
+		sp-2!					( ch u start -- start u )
+
+		r> drop					( r: in0 -- )
+	;
 
 \ https://forth-standard.org/standard/core/WORD
 \
