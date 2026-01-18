@@ -55,7 +55,7 @@ require text.f
 \ Empty the data stack and perform the function of QUIT, which includes
 \ emptying the return stack, without displaying a message.
 
-	: abort -1 throw ;
+	: abort #-1 throw ;
 
 \ https://forth-standard.org/standard/exception/ABORTq
 \
@@ -70,7 +70,7 @@ require text.f
 		postpone if
 			postpone s"
 			postpone type
-			-2 lit,
+			$-2 lit,
 			postpone throw
 		postpone then
 	; immediate

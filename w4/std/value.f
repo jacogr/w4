@@ -72,3 +72,56 @@ require memory.f
 		' >body 			( x1 x2 a-addr )
 		state @ if lit, postpone (2+to) else (2+to) then
 	; immediate
+
+\ https://forth-standard.org/standard/core/DEFER
+\
+\ Skip leading space delimiters. Parse name delimited by a space. Create
+\ a definition for name with the execution semantics defined below.
+\
+\ At runtime: Execute the xt that name is set to execute. An ambiguous
+\ condition exists if name has not been set to execute an xt.
+
+	: defer ( "name" -- )
+		create ['] abort , 			\ initial action
+		does>  ( xt -- ) @ execute
+	;
+
+\ https://forth-standard.org/standard/core/DEFERFetch
+\
+\ xt2 is the execution token xt1 is set to execute. An ambiguous condition
+\ exists if xt1 is not the execution token of a word defined by DEFER, or
+\ if xt1 has not been set to execute an xt.
+
+	: defer@ ( xt1 -- xt2 ) >body @ ;
+
+\ https://forth-standard.org/standard/core/DEFERStore
+\
+\ Set the word xt1 to execute xt2. An ambiguous condition exists if xt1 is
+\ not for a word defined by DEFER.
+
+	: defer! ( xt2 xt1 -- ) >body ! ;
+
+\ https://forth-standard.org/standard/core/IS
+\
+\ Skip leading spaces and parse name delimited by a space. Set name to execute xt.
+\ An ambiguous condition exists if name was not defined by DEFER.
+
+	: is ( "name" -- )
+		state @ if
+			postpone [']
+			postpone defer!
+		else ' defer! then
+	; immediate
+
+\ https://forth-standard.org/standard/core/ACTION-OF
+\
+\ Skip leading spaces and parse name delimited by a space. xt is the execution
+\ token that name is set to execute. An ambiguous condition exists if name was
+\ not defined by DEFER, or if the name has not been set to execute an xt.
+
+	: action-of ( "name" -- xt2 )
+		state @ if
+			postpone [']
+			postpone defer@
+		else ' defer@ then
+	; immediate

@@ -23,7 +23,7 @@ require stack.f
 \
 \ At runtime place x on the stack.
 
-	: literal ( -- x ) lit, ; immediate
+	: literal ( x -- ) lit, ; immediate
 
 \ https://forth-standard.org/standard/core/Tick
 \
@@ -109,14 +109,6 @@ require stack.f
 		swap lit,					( xt action-xt -- xt )
 		compile,					( xt -- )
 	; immediate
-
-\ https://forth-standard.org/standard/core/DEFER
-
-	\ : defer ( "name" -- )
-	\ 	create ['] abort ,
-	\ 	does> ( ... -- ... )
-   	\ 	@ execute
-	\ ;
 
 \ https://forth-standard.org/standard/core/RECURSE
 \
