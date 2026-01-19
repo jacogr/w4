@@ -5,12 +5,12 @@ require stack.f
 \ Conditional branch when top of stack is 0
 \ (Standard in older versions of ANS Forth, not in 2012)
 
-	: ?branch ( f dst -- )
+	: ?branch ( f dst -- ) ( r: ret -- ret|dst )
 		swap 0<>		( f dst -- dst t|f )
-		r@				( dst t|f -- dst t|f ret )
+		r@				( dst t|f -- dst t|f ret ) ( r: ret )
 		rot				( dst t|f ret -- t|f ret dst )
 		select			( t|f ret dst -- ret|dst )
-		r!				\ overwrite return with correct value
+		r!				( ret|dst -- ) ( r: ret -- ret|dst )
 	;
 
 \ (mark) returns the address of the last compiled literal cell (the one to patch).
