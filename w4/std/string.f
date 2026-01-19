@@ -1,3 +1,6 @@
+require loops.f
+require stack.f
+
 \ https://forth-standard.org/standard/core/BL
 \
 \ char is the character value for a space.
@@ -78,4 +81,44 @@
 		then
 		2drop
 		r>
+	;
+
+\ https://forth-standard.org/standard/string/SEARCH
+\
+\ Search the string specified by c-addr1 u1 for the string specified by
+\ c-addr2 u2. If flag is true, a match was found at c-addr3 with u3
+\ characters remaining. If flag is false there was no match and c-addr3
+\ is c-addr1 and u3 is u1.
+
+	2variable (search-pat)   \ c-addr2 u2
+	2variable (search-orig)  \ c-addr1 u1
+
+	: search ( c1 u1 c2 u2 -- c3 u3 flag )
+		2dup  (search-pat) 2!        \ save pattern
+		2over (search-orig) 2!       \ save original haystack
+
+		dup 0= if                    \ empty pattern => match immediately
+			2drop                      \ drop c2 u2
+			true exit                    \ return c1 u1 -1
+		then
+
+		2drop                        \ drop c2 u2, keep c1 u1 as working haystack
+
+		begin
+			dup (search-pat) 2@ nip u< 0=    \ u1 >= u2 ?
+		while
+			\ compare (c1, u2) with (c2, u2)
+			over (search-pat) 2@ nip         \ c1 u1 c1 u2
+			(search-pat) 2@                  \ c1 u1 c1 u2 c2 u2
+			compare 0= if
+				true exit                        \ found: return current c1 u1 -1
+			then
+
+			1 /string                        \ advance 1 char in haystack
+		repeat
+
+		\ not found: return original haystack
+		2drop
+		(search-orig) 2@
+		false
 	;
