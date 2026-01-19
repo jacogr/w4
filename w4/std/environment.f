@@ -1,38 +1,3 @@
-\ https://forth-standard.org/standard/string/COMPARE
-\
-\ Compare the string specified by c-addr1 u1 to the string specified by
-\ c-addr2 u2. The strings are compared, beginning at the given addresses,
-\ character by character, up to the length of the shorter string or until
-\ a difference is found. If the two strings are identical, n is zero.
-\
-\ If the two strings are identical up to the length of the shorter string,
-\ n is minus-one (-1) if u1 is less than u2 and one (1) otherwise. If the
-\ two strings are not identical up to the length of the shorter string, n is
-\ minus-one (-1) if the first non-matching character in the string specified
-\ by c-addr1 u1 has a lesser numeric value than the corresponding character in
-\ the string specified by c-addr2 u2 and one (1) otherwise.
-
-	: (compare) ( x1 x2 -- -1|0|1 ) - dup if 0< 1 or then ;
-
-	: compare ( addr1 u1 addr2 u2 -- -1|0|1 )
-		rot 2dup swap (compare) >r
-		min ?dup if
-			0 do
-				count >r swap
-				count r>
-				(compare) ?dup if
-					2nip
-					unloop
-					r> drop
-					exit
-				then
-				swap
-			loop
-		then
-		2drop
-		r>
-	;
-
 \ https://forth-standard.org/standard/core/ENVIRONMENTq
 \
 \ c-addr is the address of a character string and u is the string's character

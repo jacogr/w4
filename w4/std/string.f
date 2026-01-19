@@ -43,3 +43,39 @@
 			1-
 		repeat
 	;
+
+\ https://forth-standard.org/standard/string/COMPARE
+\
+\ Compare the string specified by c-addr1 u1 to the string specified by
+\ c-addr2 u2. The strings are compared, beginning at the given addresses,
+\ character by character, up to the length of the shorter string or until
+\ a difference is found. If the two strings are identical, n is zero.
+\
+\ If the two strings are identical up to the length of the shorter string,
+\ n is minus-one (-1) if u1 is less than u2 and one (1) otherwise. If the
+\ two strings are not identical up to the length of the shorter string, n is
+\ minus-one (-1) if the first non-matching character in the string specified
+\ by c-addr1 u1 has a lesser numeric value than the corresponding character in
+\ the string specified by c-addr2 u2 and one (1) otherwise.
+
+	: (compare-value) ( x1 x2 -- -1|0|1 ) - dup if 0< 1 or then ;
+
+	: compare ( a1 u1 a2 u2 -- -1|0|1 )
+		rot 2dup swap				( a1 u1 a2 u2 -- a1 a2 u2 u1 u1 u2 )
+		(compare-value) >r			\ precompute length compare result
+		min ?dup if
+			0 do
+				over c@
+				over c@
+				(compare-value) ?dup if
+					2nip unloop
+					r-drop
+					exit
+				then
+				1+ swap
+				1+ swap
+			loop
+		then
+		2drop
+		r>
+	;
