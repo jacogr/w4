@@ -319,6 +319,27 @@ require wasi.f
 
 	: . ( n -- ) 0 .r ;
 
+\ https://forth-standard.org/standard/double/DDotR
+\
+\ display d right aligned in a field n characters wide
+
+	: d.r ( lo hi n -- )
+		<#
+			>r 					\ r: n
+			2dup d0< >r 		\ r: n neg?
+			r@ if dnegate then	\ magnitude as ud (safe for min-2int)
+			#s					\ -> 0 0
+			r> if '-' hold then	\ apply sign
+			r> rot rot (#pad)	\ reorder: 0 0 n -> n 0 0
+		#> type space
+	;
+
+\ https://forth-standard.org/standard/double/DDot
+\
+\ display d in free field format
+
+	: d. ( lo hi -- ) 0 d.r ;
+
 \ https://forth-standard.org/standard/core/Sq
 \
 \ Parse ccc delimited by " (double-quote). Append the run-time semantics
