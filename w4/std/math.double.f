@@ -228,6 +228,22 @@ require stack.f
 		swap                      \ lo' hi'
 	;
 
+\ https://forth-standard.org/standard/double/DMax
+\
+\ d3 is the greater of d1 and d2.
+
+	: dmax ( d1 d2 -- d3 )
+		2over 2over d< if 2swap then 2drop
+	;
+
+\ https://forth-standard.org/standard/double/DMin
+\
+\ d3 is the lesser of d1 and d2.
+
+	: dmin ( d1 d2 -- d3 )
+		2over 2over d< 0= if 2swap then 2drop
+	;
+
 \ Non-standard extension to um/mod to work with unsigned
 \ numbers, without restrictions
 
