@@ -7,6 +7,7 @@ require parse.f
 require stack.f
 require stack.loop.f
 require stdio.f
+require string.f
 
 \ https://forth-standard.org/standard/core/DECIMAL
 \
@@ -19,18 +20,6 @@ require stdio.f
 \ Set contents of BASE to sixteen.
 
 	: hex ( -- ) $10 base ! ;
-
-\ https://forth-standard.org/standard/core/CHARS
-\
-\ n2 is the size in address units of n1 characters.
-
-	: chars ( n1 -- n2 ) ; \ noop, char = 1 byte in size
-
-\ https://forth-standard.org/standard/core/CHARPlus
-\
-\ Add the size in address units of a character to c-addr1, giving c-addr2.
-
-	: char+ ( a-addr2 -- a-addr2 ) 1+ ;
 
 \ https://forth-standard.org/standard/core/CHAR
 \
@@ -51,18 +40,6 @@ require stdio.f
 \ At runtime: Place char, the value of the first character name, on the stack.
 
 	: [char] ( -- ) char postpone literal ; immediate
-
-\ https://forth-standard.org/standard/string/DivSTRING
-\
-\ Adjust the character string at c-addr1 by n characters. The resulting
-\ character string, specified by c-addr2 u2, begins at c-addr1 plus n
-\ characters and is u1 minus n characters long.
-
-	: /string ( c-addr u n -- c-addr' u' )
-		tuck - 		( c-addr u n -- c-addr n u' )
-		>r chars + 	( c-addr n u' -- c-addr' ) ( r: -- u' )
-		r> 			( c-addr' -- c-addr' u' ) ( r: u' -- )
-	;
 
 \ https://forth-standard.org/standard/core/HOLD
 \

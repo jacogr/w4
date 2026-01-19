@@ -1,3 +1,4 @@
+require string.f
 require wasi.f
 
 \ https://forth-standard.org/standard/core/TYPE
@@ -24,12 +25,6 @@ require wasi.f
 		1 iov>fd		( ch c-addr 1 -- ch ) \ emit to stdout
 		drop			( ch -- )
 	;
-
-\ https://forth-standard.org/standard/core/BL
-\
-\ char is the character value for a space.
-
-	#32 constant bl
 
 \ https://forth-standard.org/standard/core/SPACE
 \
