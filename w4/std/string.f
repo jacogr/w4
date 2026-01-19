@@ -1,4 +1,5 @@
 require loops.f
+require parse.f
 require stack.f
 
 \ https://forth-standard.org/standard/core/BL

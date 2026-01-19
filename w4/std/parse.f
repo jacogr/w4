@@ -100,10 +100,10 @@ require stack.f
 \ a counted string in the destination, truncate length to 255
 
 	: (place-result) ( c-addr u dst -- dst )
-		>r				( c-addr u dst -- c-addr u ) ( r: -- dst )
-		$ff and			( c-addr u -- c-addr u' )
-		dup r@ c!		( c-addr u' -- c-addr u' ) ( r: dst -- dst' )
-		r@ 1+ swap cmove 		\ copy u bytes
+		>r					( c-addr u dst -- c-addr u ) ( r: -- dst )
+		$ff and				( c-addr u -- c-addr u' )
+		dup r@ c!			( c-addr u' -- c-addr u' ) ( r: dst -- dst' )
+		r@ 1+ swap cmove 	\ copy u bytes
 		r>
 	;
 
