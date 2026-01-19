@@ -19,8 +19,8 @@ require stack.f
 \ Add d2 | ud2 to d1 | ud1, giving the sum d3 | ud3.
 
 	: um+ ( u1 u2 -- sum carry-flag )
-		over >r + 	\ sum (r: -- u1 )
-		dup r> u<	\ sum carry ( r: u1 -- ) \ sum u< u1
+		over >r + 	( u1 u2 -- sum ) ( r: -- u1 )
+		dup r> u<	( sum -- sum carry ) ( r: u1 -- ) \ carry = sum u< u1
 	;
 
 	: d+ ( lo1 hi1 lo2 hi2 -- lo3 hi3 )
@@ -36,9 +36,9 @@ require stack.f
 \ d2 is the negation of d1.
 
 	: dnegate ( lo hi -- lo' hi' )
-		invert swap
-		invert swap		\ ~lo ~hi
-		1. d+			\ +1 as double
+		invert swap		( lo hi -- ~hi lo )
+		invert swap		( ~hi lo -- ~lo ~hi )
+		1. d+			( ~lo ~hi -- lo' hi' ) \ +1 as double
 	;
 
 \ https://forth-standard.org/standard/double/DMinus
@@ -46,18 +46,18 @@ require stack.f
 \ subtract d2 from d1
 
 	: um- ( u1 u2 -- diff borrow-flag )
-		2dup u< >r 	\ borrow? = (u1 < u2)
-		- 			\ diff = u1 - u2 (mod cell)
-		r>
+		2dup u< >r 	( u1 u2 -- u1 u2 ) ( r: -- borrow ) \ borrow? = (u1 < u2)
+		- 			( u1 u2 -- diff ) \ diff = u1 - u2 (mod cell)
+		r>			( diff -- diff borrow ) ( r: borrow -- )
 	;
 
 	: d- ( lo1 hi1 lo2 hi2 -- lo3 hi3 )
-		>r swap >r 	\ lo1 lo2 ( r: -- hi2 hi1 )
-		um- 		\ lo3 borrow-flag
-		0<> 1 and 	\ lo3 borrow(0|1)
-		r> r> 		\ lo3 borrow hi1 hi2 ( r: hi2 hi1 -- )
-		- 			\ lo3 borrow hiDiff (hiDiff = hi1 - hi2)
-		swap - 		\ lo3 hi3 (hi3 = hiDiff - borrow)
+		>r swap >r 	( lo1 hi1 lo2 hi2 -- lo1 lo2 ) ( r: -- hi2 hi1 )
+		um- 		( lo1 lo2 -- lo3 borrow )
+		0<> 1 and 	( lo3 borrow -- lo3 borrow' )
+		r> r> 		( lo3 borrow -- lo3 0|1 hi1 hi2 ) ( r: hi2 hi1 -- )
+		- 			( lo3 borrow -- lo3 borrow hiDiff ) \ hiDiff = hi1 - hi2
+		swap - 		( lo3 borrow hiDiff -- lo3 hi3 ) \ hi3 = hiDiff - borrow
 	;
 
 \ https://forth-standard.org/standard/double/DZeroEqual
@@ -89,15 +89,25 @@ require stack.f
 \ true if d1 < d2 (signed comparison)
 
 	: d< ( lo1 hi1 lo2 hi2 -- flag )
-		>r >r				\ lo1 hi1            r: hi2 lo2
-		r> r@				\ lo1 hi1 lo2 hi2    r: hi2      (hi2 copied, not popped)
-		rot swap			\ lo1 lo2 hi1 hi2
+		rot swap			( lo1 hi1 lo2 hi2 -- lo1 lo2 hi1 hi2 )
 		2dup = if
-			2drop u<		\ lo1 lo2 -> f
+			2drop u<		( lo1 lo2 hi1 hi2 -- f ) \ f = lo1 u< lo2
 		else
-			< >r 2drop r>	\ (hi1<hi2) -> f, drop lo1 lo2
+			< nip nip		( lo1 lo2 hi2 hi2 -- f ) \ f = hi1 < hi2, drop lo1 lo2
 		then
-		r> drop				\ drop saved hi2
+	;
+
+\ https://forth-standard.org/standard/double/DUless
+\
+\ flag is true if and only if ud1 is less than ud2.
+
+	: du< ( lo1 hi1 lo2 hi2 -- flag )
+		rot swap			( lo1 hi1 lo2 hi2 -- lo1 lo2 hi1 hi2 )
+		2dup = if
+			2drop u<        ( lo1 lo2 hi1 hi2 -- f ) \ f = lo1 u< lo2
+		else
+			u< nip nip		( lo1 lo2 hi1 hi2 -- f ) \ f = hi1 u< hi2
+		then
 	;
 
 \ https://forth-standard.org/standard/double/DABS
@@ -115,7 +125,6 @@ require stack.f
 	: um/mod  ( lo hi u -- rem quot )
 		1 swap 					( lo hi u -- lo hi 1 u )
 		um*/mod 				( lo hi 1 u -- rem qlo qhi )
-
 		\ enforce standard um/mod quotient range: qhi must be 0
 		dup 0<> #-11 and throw 	( rem qlo qhi -- rem qlo qhi )  \ throw if qhi != 0
 		drop 					( rem qlo qhi -- rem qlo )
@@ -129,7 +138,7 @@ require stack.f
 	: um* ( u1 u2 -- ud )
 		0 swap 1	( u1 u2 -- lo 0 u2 1 )
 		um*/mod		( lo 0 u2 1 -- rem qlo qhi )
-		rot drop
+		rot drop	( rem qlo qhi -- qlo qhi )
 	;
 
 \ https://forth-standard.org/standard/core/SMDivREM
@@ -156,21 +165,20 @@ require stack.f
 \ integer.
 
 	: fm/mod ( lo hi n -- r q )
-		dup >r             \ save n                     R: n
-		over 0< >r         \ save sign(d) from hi       R: n signD
+		dup >r             ( lo hi n -- lo hi n ) ( r: -- n )
+		over 0< >r         ( lo hi n -- lo hi n ) ( r: n -- n signD ) \ signD = hi sign
+		sm/rem             ( lo hi n --  r q )
 
-		sm/rem             \ r q                        R: n signD
-
-		over 0<>           \ r q nz                     R: n signD
-		r>                 \ r q nz signD               R: n
-		r@ 0< xor          \ r q nz mismatch?           R: n
-		and                \ r q adjust?                R: n
+		over 0<>           ( r q -- r q nz ) \ nz = r <> 0
+		r>                 ( r q nz -- r q nz signD ) ( r: n signD -- n )
+		r@ 0< xor          ( r q nz signD -- r q nz mismatch? ) ( r: n -- n )
+		and                ( r q nz mismatch? -- r q adjust? ) \ adjust? = nz & mismatch?
 
 		if
-			swap r> +       \ q r+n                     R: (empty)
-			swap 1-         \ r+n q-1
+			swap r> +       ( r q -- q r+n ) ( r: n -- )
+			swap 1-         ( q r+ n -- r+n q-1 )
 		else
-			r> drop         \ drop n                    R: (empty)
+			r-drop         ( r q -- r q ) ( r: n -- )
 		then
 	;
 
@@ -190,7 +198,7 @@ require stack.f
 	: m*/  ( lo hi n1 +n2 -- lo' hi' )
 		dup 0= #-10 and throw
 		dup 0< #-11 and throw
-		m*/mod				( rem qlo qhi )
+		m*/mod				( lo hi n1 +n2 -- rem qlo qhi )
 		rot drop			( rem qlo qhi -- qlo qhi )
 	;
 
