@@ -7,6 +7,13 @@ require stack.f
 
 	#32 constant bl
 
+\ https://forth-standard.org/standard/string/BLANK
+\
+\ If u is greater than zero, store the character value for space in u
+\ consecutive character positions beginning at c-addr.
+
+	: blank ( c-addr u -- ) bl fill ;
+
 \ https://forth-standard.org/standard/core/CHARS
 \
 \ n2 is the size in address units of n1 characters.
