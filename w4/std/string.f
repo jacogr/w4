@@ -26,6 +26,28 @@ require stack.f
 
 	: char+ ( a-addr2 -- a-addr2 ) 1+ ;
 
+\ https://forth-standard.org/standard/string/SLITERAL
+\
+\ Append the run-time semantics given below to the current definition.
+\
+\ At runtime: Return c-addr2 u describing a string consisting of the characters
+\ specified by c-addr1 u during compilation. A program shall not alter the returned string.
+
+	: string, ( c-addr u -- )
+		\ Compiles the c-addr u on tos, into a stable buffer and then
+		\ compile the resulting address & length into the target body
+		\ for use at runtime
+		dup >r 			( c-addr u -- c-addr u ) ( r: -- u )
+		here >r 		( c-addr u -- c-addr u ) ( r: u -- u dst )
+		dup allot 		( c-addr u -- c-addr u ) ( r: u dst )		\ reserve u bytes, keep u for copy
+		r@ swap 		( c-addr u -- c-addr dst u ) ( r: u dst )
+		cmove			( c-addr dst u -- ) ( r: u dst ) \ copy u bytes: (src dst u)
+		r> lit,			( -- ) ( r: u dst -- u )
+		r> lit,			( -- ) ( r: u -- )
+	;
+
+	: sliteral ( c-addr u -- ) string, ; immediate
+
 \ https://forth-standard.org/standard/string/DivSTRING
 \
 \ Adjust the character string at c-addr1 by n characters. The resulting
