@@ -28,24 +28,15 @@ S" forth2012-test-suite/src/coreplustest.fth" INCLUDED
 S" forth2012-test-suite/src/utilities.fth" INCLUDED
 S" forth2012-test-suite/src/errorreport.fth" INCLUDED
 S" forth2012-test-suite/src/coreexttest.fth" INCLUDED
-
-\ skipped, not planned
-\ S" forth2012-test-suite/src/blocktest.fth" INCLUDED
-
+\ UNPLANNED S" forth2012-test-suite/src/blocktest.fth" INCLUDED
 S" forth2012-test-suite/src/doubletest.fth" INCLUDED
-S" forth2012-test-suite/src/exceptiontest.fth" INCLUDED
-
-\ skipped, not planned
-\ S" forth2012-test-suite/src/facilitytest.fth" INCLUDED
-
-S" forth2012-test-suite/src/filetest.fth" INCLUDED
-S" forth2012-test-suite/src/localstest.fth" INCLUDED
-
-\ skipped, not planned (no system allocate in wasm)
-\ S" forth2012-test-suite/src/memorytest.fth" INCLUDED
-
-S" forth2012-test-suite/src/toolstest.fth" INCLUDED
-S" forth2012-test-suite/src/searchordertest.fth" INCLUDED
+\ TODO S" forth2012-test-suite/src/exceptiontest.fth" INCLUDED
+\ UNPLANNED S" forth2012-test-suite/src/facilitytest.fth" INCLUDED
+\ TODO S" forth2012-test-suite/src/filetest.fth" INCLUDED
+\ TODO S" forth2012-test-suite/src/localstest.fth" INCLUDED
+\ UNPLANNED S" forth2012-test-suite/src/memorytest.fth" INCLUDED
+\ TODO S" forth2012-test-suite/src/toolstest.fth" INCLUDED
+\ TODO S" forth2012-test-suite/src/searchordertest.fth" INCLUDED
 S" forth2012-test-suite/src/stringtest.fth" INCLUDED
 REPORT-ERRORS
 
