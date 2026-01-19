@@ -10,7 +10,12 @@ require memory.f
 \ was created, until the phrase x TO name is executed, causing a new value
 \ of x to be assigned to name.
 
-	: value ( x "name" -- ) create , does> @ ;
+	: (to-value)  ( x a-addr -- ) ! ;
+
+	: value ( x "name" -- )
+		create ['] (to-value) ,  ,	\ store executor & value
+		does> cell+ @
+	;
 
 \ https://forth-standard.org/standard/double/TwoVALUE
 \
@@ -22,7 +27,12 @@ require memory.f
 \ name was created, until the phrase "x1 x2 TO name" is executed, causing a
 \ new cell pair x1 x2 to be assigned to name.
 
-	: 2value ( x1 x2 "name" -- ) create 2, does> 2@ ;
+	: (to-2value) ( x1 x2 a-addr -- )  2! ;
+
+	: 2value ( x1 x2 "name" -- )
+		create ['] (to-2value) , 2,	\ store executor & values
+		does> cell+ 2@
+	;
 
 \ https://forth-standard.org/standard/core/TO
 \
@@ -31,46 +41,14 @@ require memory.f
 \ defining word of name. An ambiguous condition exists if name was not defined
 \ by a word with "TO name run-time" semantics.
 
-	: (to)  ( x a-addr -- ) ! ;
-
 	: to ( x "name" -- )
-		' >body				( x a-addr )
+		' >body				( x "name" -- x... a-addr )
+		dup @				( x... a-addr -- x... a-addr xt )
+		swap cell+			( x... a-addr xt -- x... xt a-addr' )
 		state @ if
-			lit,			\ compile addr, x to be supplied at runtime
-			postpone (to)	\ execute helper
-		else (to) then		\ execute helper on interpret
-	; immediate
-
-\ Non-standard, well-known. Same as to but with +! semantics
-
-	: (+to) ( x a-addr -- ) +! ;
-
-	: +to ( x "name" -- )
-		' >body 			( x a-addr )
-		state @ if lit,	postpone (+to) else (+to) then
-	; immediate
-
-\ Non-standard, well-known. As per the single-cell version, same semantics.
-
-	: (2to)  ( x1 x2 a-addr -- ) 2! ;
-
-	: 2to ( x1 x2 "name" -- )
-		' >body 			( x1 x2 a-addr )
-		state @ if lit,	postpone (2to) else (2to) then
-	; immediate
-
-\ Non-standard, well-known. As per the single-cell version, same semantics.
-
-	: (2+to) ( x1 x2 a-addr -- )
-		>r 		( x1 x2 )
-		r@ 2@ 	( x1 x2 y1 y2 )
-		d+ 		( z1 z2 )
-		r> 2!
-	;
-
-	: 2+to ( x1 x2 "name" -- )
-		' >body 			( x1 x2 a-addr )
-		state @ if lit, postpone (2+to) else (2+to) then
+			lit, lit,		\ compile a-addr, xt (runtime: xt, a-addr )
+			postpone execute
+		else swap execute then
 	; immediate
 
 \ https://forth-standard.org/standard/core/DEFER
