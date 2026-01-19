@@ -151,3 +151,21 @@ require stack.f
 		(search-orig) 2@
 		false
 	;
+
+\ https://forth-standard.org/standard/string/UNESCAPE
+\
+\ Replace each `%' character in the input string c-addr1 u1 by two `%'
+\ characters. The output is represented by c-addr2 u2. The buffer at
+\ c-addr2 shall be big enough to hold the unescaped string. An ambiguous
+\ condition occurs if the resulting string will not fit into the destination
+\ buffer (c-addr2).
+
+	: unescape ( c-addr1 u1 c-addr2 -- c-addr2 u2 )
+		dup 2swap over + swap ?do
+			i c@ '%' = if
+				'%' over c! 1+
+			then
+			i c@ over c! 1+
+		loop
+		over -
+	;
