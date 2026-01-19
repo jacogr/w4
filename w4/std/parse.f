@@ -107,10 +107,9 @@ require stack.f
 \ than the delimiter, the resulting string has a zero length. A program may
 \ replace characters within the string.
 
-	$ff buffer: (word-tmp-buf)
+	$ff 1+ buffer: (word-tmp-buf) \ 255 + 1 (length byte at 0)
 
-	: word ( char "<chars>ccc<char>" -- c-addr )
-		\ skip leading whitespace (<= 32)
+	: (parse-whitespace-skip) ( -- )
 		begin
 			source nip >in @ <
 		while
@@ -119,10 +118,11 @@ require stack.f
 		while
 			$1 >in +!
 		repeat then
+	;
 
-		parse					( ch -- c-addr u )
-		$ff and					( c-addr u -- c-addr u' )
-
+	: word ( char "<chars>ccc<char>" -- c-addr )
+		(parse-whitespace-skip)	\ skip leading whitespace
+		parse $ff and			( ch -- c-addr u' ) \ limit length to 255 chars
 		(word-tmp-buf) >r 		( c-addr u ) ( r: dst )
 		dup r@ c! 				( c-addr u -- c-addr u' )	\ store count
 		r@ 1+ swap cmove		( c-addr u -- )             \ copy chars
