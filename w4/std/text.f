@@ -78,7 +78,7 @@ require wasi.f
 \ When input terminates, nothing is appended to the string, and the display is
 \ maintained in an implementation-defined way.
 
-	: (accept) ( c-addr u -- c-addr u u2 )
+	: accept ( c-addr u -- u2 )
 		0 					( c-addr u -- c-addr u count )
 		begin
 			2dup swap <		( c-addr u count -- c-addr u count flag )
@@ -96,11 +96,7 @@ require wasi.f
 				1+ 			( c-addr u count -- c-addr u count' )
 			then
 		repeat
-	;
-
-	: accept ( c-addr u -- u2 )
-		(accept)	( c-addr u -- c-addr u count )
-		nip nip		( c-addr u count -- count )
+		nip nip				( c-addr u count -- count )
 	;
 
 \ https://forth-standard.org/standard/core/BL
