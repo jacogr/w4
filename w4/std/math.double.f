@@ -53,6 +53,14 @@ require stack.f
 		swap - 		\ lo3 hi3 (hi3 = hiDiff - borrow)
 	;
 
+\ https://forth-standard.org/standard/double/DZeroEqual
+\
+\ true if d is zero
+
+	: d0= ( lo hi -- flag )
+		or 0=
+	;
+
 \ https://forth-standard.org/standard/double/DZeroLess
 \
 \ true if d is negative (sign bit set)
@@ -61,12 +69,28 @@ require stack.f
 		nip 0<
 	;
 
-\ https://forth-standard.org/standard/double/DZeroEqual
+\ https://forth-standard.org/standard/double/DEqual
 \
-\ true if d is zero
+\ flag is true if and only if xd1 is bit-for-bit the same as xd2.
 
-	: d0= ( lo hi -- flag )
-		or 0=
+	: d= ( lo1 hi1 lo2 hi2 -- flag )
+		d- d0=
+	;
+
+\ https://forth-standard.org/standard/double/DLess
+\
+\ true if d1 < d2 (signed comparison)
+
+	: d< ( lo1 hi1 lo2 hi2 -- flag )
+		>r >r				\ lo1 hi1            r: hi2 lo2
+		r> r@				\ lo1 hi1 lo2 hi2    r: hi2      (hi2 copied, not popped)
+		rot swap			\ lo1 lo2 hi1 hi2
+		2dup = if
+			2drop u<		\ lo1 lo2 -> f
+		else
+			< >r 2drop r>	\ (hi1<hi2) -> f, drop lo1 lo2
+		then
+		r> drop				\ drop saved hi2
 	;
 
 \ https://forth-standard.org/standard/double/DABS
