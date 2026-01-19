@@ -92,8 +92,8 @@ require stack.f
 
 (
 	At this point in time we should have multi-line comments available
-	to us. If things break at this point in-time, guess what, the above
-	functions are not doing what they are supposed to do.
+	to us. If things break at this point in the code, then... guess what,
+	the above functions are not doing what they are supposed to do.
 )
 
 \ https://forth-standard.org/standard/core/WORD
