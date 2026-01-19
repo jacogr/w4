@@ -235,6 +235,15 @@ require string.f
 
 	: s" ( "input<quote>" -- c-addr u ) (s") ; immediate
 
+\ https://forth-standard.org/standard/string/SLITERAL
+\
+\ Append the run-time semantics given below to the current definition.
+\
+\ At runtime: Return c-addr2 u describing a string consisting of the characters
+\ specified by c-addr1 u during compilation. A program shall not alter the returned string.
+
+	: sliteral ( c-addr u -- ) string, ; immediate
+
 \ https://forth-standard.org/standard/core/Cq
 \
 \ Interpretation semantics for this word are undefined.
