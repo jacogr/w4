@@ -204,12 +204,7 @@ require stack.f
 \ filling the vacated least-significant bit with zero.
 
 	: d2* ( lo hi -- lo' hi' )
-		over #31 rshift           \ lo hi carry
-		>r
-		swap 1 lshift             \ lo hi<<1
-		r> or                     \ lo hi'
-		swap 1 lshift             \ hi' lo<<1
-		swap                      \ lo' hi'
+		2dup d+
 	;
 
 \ https://forth-standard.org/standard/double/DTwoDiv
