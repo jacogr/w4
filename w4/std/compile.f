@@ -1,4 +1,3 @@
-require constants.f
 require stack.f
 
 \ Non-standard, but well-known
@@ -64,15 +63,12 @@ require stack.f
 \ has the stack effect ( i * x x -- j * x ). Executing xt consumes x and
 \ performs the compilation semantics of the word represented by nt.
 
-	' execute  constant (xt-execute)
-	' compile, constant (xt-compile,)
-
 	: not-immediate? ( xt -- f ) >flags @ $02 and 0= ;
 
 	: name>compile ( nt -- xt action-xt )
 		name>xt						( nt -- xt )
   		dup not-immediate?			( xt -- xt flag )
-  		(xt-compile,) (xt-execute)	( xt flag -- xt flag xtc xte )
+  		['] compile, ['] execute	( xt flag -- xt flag xtc xte )
 		select						( xt flag xtc xte -- xt action-xt )
 	;
 
