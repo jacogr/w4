@@ -233,11 +233,10 @@ require string.f
 \ A program shall not alter the returned string.;
 
 	: cstring, ( c-addr u -- )
-		here >r 			( c-addr u ) ( r: dst )
-		dup 1+ allot 		( c-addr u )       \ reserve u+1 bytes
-		dup r@ c!			( c-addr u )       \ store count byte = u at dst
-		r@ 1+ swap cmove 	( -- )             \ copy chars to dst+1
-		r> lit,				( -- )
+		here 					( c-addr u -- c-addr u dst )
+		swap dup 1+ allot 		( c-addr u dst -- c-addr dst u )
+		swap (place-result)		( c-addr dst u -- dst )
+		lit,					\ compile address
 	;
 
 	: (c") ( "input<quote>" -- c-addr ) '"' parse state @ if cstring, then ;

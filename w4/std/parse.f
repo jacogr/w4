@@ -96,6 +96,19 @@ require stack.f
 	the above functions are not doing what they are supposed to do.
 )
 
+\ Non-standard, widely known, used in replaces. Store c-addr u as
+\ a counted string in the destination, truncate length to 255
+
+	: (place-result) ( c-addr u dst -- dst )
+		>r				( c-addr u dst -- c-addr u ) ( r: -- dst )
+		$ff and			( c-addr u -- c-addr u' )
+		dup r@ c!		( c-addr u' -- c-addr u' ) ( r: dst -- dst' )
+		r@ 1+ swap cmove 		\ copy u bytes
+		r>
+	;
+
+	: place ( c-addr u dst -- ) (place-result) drop ;
+
 \ https://forth-standard.org/standard/core/WORD
 \
 \ Skip leading delimiters. Parse characters ccc delimited by char. An
@@ -122,11 +135,9 @@ require stack.f
 
 	: word ( char "<chars>ccc<char>" -- c-addr )
 		(parse-whitespace-skip)	\ skip leading whitespace
-		parse $ff and			( ch -- c-addr u' ) \ limit length to 255 chars
-		(word-tmp-buf) >r 		( c-addr u ) ( r: dst )
-		dup r@ c! 				( c-addr u -- c-addr u' )	\ store count
-		r@ 1+ swap cmove		( c-addr u -- )             \ copy chars
-		r>						( -- dst ) ( r: dst -- )
+		parse					( ch -- c-addr u )
+		(word-tmp-buf)			( c-addr u -- c-addr u dst )
+		(place-result)			( c-addr u dst -- dst )
 	;
 
 \ https://forth-standard.org/standard/core/COUNT
