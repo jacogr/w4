@@ -70,6 +70,7 @@ require std/parse.f
 require std/stack.f
 require std/stack.loop.f
 require std/stack.ptr.f
+require std/stdio.f
 require std/test.f
 require std/text.f
 require std/unimplemented.f
