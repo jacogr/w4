@@ -7,6 +7,13 @@ require stack.f
 
 	: s>d  ( n -- d ) dup 0< ;
 
+\ https://forth-standard.org/standard/double/DToS
+\
+\ n is the equivalent of d. An ambiguous condition exists if d lies outside the range
+\ of a signed single-cell number.
+
+	: d>s ( lo hi -- n ) drop ;
+
 \ https://forth-standard.org/standard/double/DPlus
 \
 \ Add d2 | ud2 to d1 | ud1, giving the sum d3 | ud3.
