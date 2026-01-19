@@ -93,7 +93,7 @@ require stack.f
 		2dup = if
 			2drop u<		( lo1 lo2 hi1 hi2 -- f ) \ f = lo1 u< lo2
 		else
-			< nip nip		( lo1 lo2 hi2 hi2 -- f ) \ f = hi1 < hi2, drop lo1 lo2
+			< 2nip			( lo1 lo2 hi2 hi2 -- f ) \ f = hi1 < hi2, drop lo1 lo2
 		then
 	;
 
@@ -106,7 +106,7 @@ require stack.f
 		2dup = if
 			2drop u<        ( lo1 lo2 hi1 hi2 -- f ) \ f = lo1 u< lo2
 		else
-			u< nip nip		( lo1 lo2 hi1 hi2 -- f ) \ f = hi1 u< hi2
+			u< 2nip			( lo1 lo2 hi1 hi2 -- f ) \ f = hi1 u< hi2
 		then
 	;
 

@@ -21,7 +21,7 @@
 				count >r swap
 				count r>
 				(compare) ?dup if
-					nip nip
+					2nip
 					unloop
 					r> drop
 					exit

@@ -14,6 +14,7 @@ require stack.ptr.f
 \ Drop the first item below the top of stack.
 
 	: nip ( x y -- y ) sp-1! ;
+	: 2nip ( x y z -- z ) nip nip ;
 
 \ https://forth-standard.org/standard/core/PICK
 \
