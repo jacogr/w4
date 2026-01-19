@@ -170,3 +170,73 @@ require stack.f
 		loop
 		over -
 	;
+
+\ https://forth-standard.org/standard/string/REPLACES
+\
+\ Set the string c-addr1 u1 as the text to substitute for the substitution
+\ named by c-addr2 u2. If the substitution does not exist it is created.
+\ The program may then reuse the buffer c-addr1 u1 without affecting the
+\ definition of the substitution.
+
+	#256 constant string-max
+
+	variable (subst-head)
+	0 (subst-head) !
+
+	: (subst-entry-bytes) ( -- u ) 1 cells string-max chars + string-max chars + ;
+	: (subst>name) ( entry -- addr ) cell+ ;
+	: (subst>text) ( entry -- addr ) cell+ string-max chars + ;
+	: (subst-next@) ( entry -- entry' ) @ ;
+	: (subst-next!) ( entry' entry -- ) ! ;
+
+	: (make-subst) ( c-addr u -- entry )
+		here								( c-addr u -- c-addr u entry )
+		(subst-entry-bytes) allot			( c-addr u entry -- c-addr u entry )
+
+		(subst-head) @ over !				( c-addr u entry -- c-addr u entry ) \ entry.link = oldhead
+		dup (subst-head) !					( c-addr u entry -- c-addr u entry ) \ head = entry
+
+		dup (subst>name) 0 over c! drop		( c-addr u entry -- c-addr u entry ) \ name count = 0
+		dup (subst>text) 0 over c! drop		( c-addr u entry -- c-addr u entry ) \ text count = 0
+
+		dup >r 								( c-addr u entry -- c-addr u ) ( r: -- entry )
+		(subst>name)						( c-addr u -- c-addr u name$ ) ( r: entry )
+		place 								( c-addr u name$ -- ) ( r: entry )
+		r> 									( -- entry ) ( r: entry -- )
+	;
+
+	: (find-subst) ( c-addr u -- entry|0 )
+		(subst-head) @ 				( c-addr u -- c-addr u entry )
+
+		begin
+			dup 0<> 				( c-addr u entry -- c-addr u entry f )
+		while
+			>r 						( c-addr u entry -- c-addr u ) ( r: -- entry )
+
+			2dup 					( c-addr u -- c-addr u c-addr u )
+			r@ (subst>name) count 	( c-addr u c-addr u -- c-addr u c-addr u n-addr n-u )
+			compare 0= if 			( c-addr u -- c-addr u )
+				2drop 				( c-addr u -- )
+				r> 					( -- entry ) ( r: entry -- )
+				exit
+			then
+
+			r> (subst-next@) 		( c-addr u -- c-addr u entry' ) ( r: -- )
+		repeat
+
+		drop 2drop 					( c-addr u entry -- )
+		0 							( -- 0 )
+	;
+
+	: replaces ( c-addr1 u1 c-addr2 u2 -- )
+		2dup 2>r				( c-addr1 u1 ) ( r: -- c-addr2 u2 )
+		(find-subst)			( c-addr1 u1 entry|0 )
+
+		?dup 0= if				( c-addr1 u1 entry )
+			2r@ (make-subst)	( c-addr1 u1 entry )
+		else nip then			( c-addr1 u1 entry )
+
+		2r> 2drop				( c-addr1 u1 entry ) ( r: c-addr2 u2 -- )
+		(subst>text)			( c-addr1 u1 entry -- c-addr1 u1 dst )
+		place 					( c-addr1 u1 dst -- )
+	;
