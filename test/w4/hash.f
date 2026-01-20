@@ -1,6 +1,6 @@
 \ -------------------------------------------------------------
 testing Running djb2a tests
-\ T{ s" " djb2a -> #5381 }T
+T{ s" " djb2a -> #5381 }T
 T{ s" h" djb2a -> #177613 }T
 T{ s" he" djb2a -> #5861128 }T
 T{ s" hel" djb2a -> #193417316 }T
@@ -15,7 +15,7 @@ T{ s" hello world" djb2a -> #4173747013 }T
 
 \ -------------------------------------------------------------
 testing Running fnv1a tests
-\ T{ s"" fnv1a -> #2166136261 }
+T{ s" " fnv1a -> #2166136261 }T
 T{ s" h" fnv1a -> #3977000791 }T
 T{ s" he" fnv1a -> #1547363254 }T
 T{ s" hel" fnv1a -> #179613742 }T
@@ -30,12 +30,11 @@ T{ s" hello world" fnv1a -> #3582672807 }T
 
 \ -------------------------------------------------------------
 testing Running fnv1a + fmix32 via host::hash tests
-\ T{ s"" host::hash -> $2166136261 }
+T{ s" " host::hash -> $-54C183F5 }T
 T{ s" h" host::hash -> $50FE4703 }T
 T{ s" he" host::hash -> $108DDF7D }T
 T{ s" hel" host::hash -> $737871E2 }T
 T{ s" hell" host::hash -> $72AF205E }T
-
 T{ s" hello" host::hash -> $-77728992 }T
 T{ s" hello " host::hash -> $60FCEB66 }T
 T{ s" hello w" host::hash -> $216C6C08 }T

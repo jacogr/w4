@@ -6,8 +6,8 @@ require ../std/loops.f
 \ https://en.wikipedia.org/wiki/Daniel_J._Bernstein
 
 	: djb2a ( c-addr u -- u )
-		$1505 swap 0		( c-addr u -- c-addr hash u 0 -- )
-		do					( c-addr hash u 0 -- c-addr hash )
+		$1505 swap			( c-addr u -- c-addr hash u -- )
+		0 ?do				( c-addr hash u 0 -- c-addr hash )
 			over i + c@		( c-addr hash --  c-addr hash ch )
 			swap dup		( c-addr hash ch -- c-addr ch hash hash )
 			5 lshift		( c-addr ch hash hash -- c-addr ch hash hash<<5 )
@@ -22,8 +22,8 @@ require ../std/loops.f
 \ https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
 
 	: fnv1a ( c-addr u -- u )
-		$811c9dc5 swap 0	( c-addr u -- c-addr hash u 0 -- )
-		do					( c-addr hash u 0 -- c-addr hash )
+		$811c9dc5 swap		( c-addr u -- c-addr hash u -- )
+		0 ?do				( c-addr hash u 0 -- c-addr hash )
 			over i + c@		( c-addr hash --  c-addr hash ch )
 			xor	$01000193 *	( c-addr hash ch -- c-addr hash' )
 		loop
