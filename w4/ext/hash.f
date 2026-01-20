@@ -9,8 +9,9 @@ require ../std/loops.f
 		$1505 swap 0		( c-addr u -- c-addr hash u 0 -- )
 		do					( c-addr hash u 0 -- c-addr hash )
 			over i + c@		( c-addr hash --  c-addr hash ch )
-			swap			( c-addr hash ch -- c-addr ch hash )
-			5 lshift xor	\ equivalent to (hash << 5) ^ ch
+			swap dup		( c-addr hash ch -- c-addr ch hash hash )
+			5 lshift		( c-addr ch hash hash -- c-addr ch hash hash<<5 )
+			+ xor			( c-addr ch hash hash<<5 -- c-addr hash )	\ ((hash << 5) + hash) ^ ch
 		loop
 		nip					( c-addr hash -- hash )
 	;
