@@ -74,7 +74,6 @@ require std/stdio.f
 require std/string.f
 require std/test.f
 require std/text.f
-require std/unimplemented.f
 require std/value.f
 require std/wasi.f
 
