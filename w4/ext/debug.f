@@ -45,7 +45,7 @@ require ../std/text.f
 	: (.r-tab) ( u -- ) #12 .r ;
 
 	\ hack blank with actual offsets inside the buffer (one past .)
-	: (see-text-skip) space s" .            " 1 /string type ;
+	: (see-text-skip) space s"             " type ;
 	: (see-text-imm.) space ." [imm.] " ;
 
 	: (see-xt) ( a-addr -- )
@@ -195,7 +195,7 @@ require ../std/text.f
 
 		begin
 			\ show nt?
-			dup (words-nt-shown?) if				( nt -- nt )
+			dup (words-nt-shown?) if			( nt -- nt )
 
 				\ increment count
 				(words-count) @ 1+ (words-count) !
@@ -216,10 +216,10 @@ require ../std/text.f
 			then
 
 			\ check next for zero
-			name>next dup 0=			( nt -- nt' f )
+			name>next dup 0=					( nt -- nt' f )
 		until
 
-		drop							( nt -- )
+		drop									( nt -- )
 
 		decimal
 		cr cr ." words: "
