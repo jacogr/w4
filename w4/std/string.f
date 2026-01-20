@@ -212,9 +212,9 @@ require stack.f
 			dup 0<> 				( c-addr u entry -- c-addr u entry f )
 		while
 			>r 						( c-addr u entry -- c-addr u ) ( r: -- entry )
-
 			2dup 					( c-addr u -- c-addr u c-addr u )
 			r@ (subst>name) count 	( c-addr u c-addr u -- c-addr u c-addr u n-addr n-u )
+
 			compare 0= if 			( c-addr u -- c-addr u )
 				2drop 				( c-addr u -- )
 				r> 					( -- entry ) ( r: entry -- )
@@ -229,14 +229,16 @@ require stack.f
 	;
 
 	: replaces ( c-addr1 u1 c-addr2 u2 -- )
-		2dup 2>r				( c-addr1 u1 ) ( r: -- c-addr2 u2 )
-		(find-subst)			( c-addr1 u1 entry|0 )
+		2>r 						( c-addr1 u1 ) ( r: c-addr2 u2 )
+		2r@ (find-subst) 		 	( c-addr1 u1 entry|0 )
 
-		?dup 0= if				( c-addr1 u1 entry )
-			2r@ (make-subst)	( c-addr1 u1 entry )
-		else nip then			( c-addr1 u1 entry )
+		?dup 0= if
+			2r@ (make-subst) 		( c-addr1 u1 entry )
+		then
 
-		2r> 2drop				( c-addr1 u1 entry ) ( r: c-addr2 u2 -- )
-		(subst>text)			( c-addr1 u1 entry -- c-addr1 u1 dst )
-		place 					( c-addr1 u1 dst -- )
+		>r 							( c-addr1 u1 ) ( r: c-addr2 u2 entry )
+		r@ (subst>text) 			( c-addr1 u1 dst )
+		place 						( -- )  ( r: c-addr2 u2 entry )
+		r> drop 					( r: c-addr2 u2 )
+		2r> 2drop  					( -- )
 	;
