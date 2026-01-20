@@ -10,20 +10,42 @@
 \ layouts for names, aligned with wasm
 
 	: name>prev @ ;
+	: (name>prev!) ( prev -- ) ! ;
+
 	: name>next $1 cells + @ ;
+	: (name>next!) ( next -- ) $1 cells + ! ;
+
 	: name>list $2 cells + @ ;
+	: (name>list!) ( list -- ) $2 cells + ! ;
+
 	: name>flags >flags @ ;
+	: (name>flags!) ( flags -- ) >flags ! ;
+
 	: name>xt >value @ ;
+	: (name>xt!) ( flags -- ) >value ! ;
+
 	: (sizeof-nt) $5 cells ;
 
 \ layouts for lists, aligned with wasm
 
 	: list>head @ ;
+	: (list>head!) ( head -- ) ! ;
+
 	: list>tail $1 cells + @ ;
+	: (list>tail!) ( tail -- ) $1 cells + ! ;
+
 	: list>owner $2 cells + @ ;
+	: (list>owner!) ( owner -- ) $2 cells + ! ;
+
 	: list>flags >flags @ ;
+	: (list>flags!) ( flags -- ) >flags ! ;
+
 	: list>file $4 cells + @ ;
+	: (list>file!) ( file -- ) $4 cells + ! ;
+
 	: list>rowcol $5 cells + @ ;
+	: (list>rowcol!) ( rowcol -- ) $5 cells + ! ;
+
 	: (sizeof-list) $6 cells ;
 
 \ https://forth-standard.org/standard/core/HERE
