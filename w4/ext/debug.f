@@ -170,6 +170,21 @@ require ../std/text.f
 
 	variable (words-count)
 
+	: (words-nt-shown?) ( nt -- f )
+		name>xt						( nt -- xt )
+		dup >flags @				( xt -- xt flags )
+		(flg-set-vis) is-flag? if 	( xt flags -- xt )
+			>string					( xt -- c-addr u )
+			swap 					( c-addr u -- u c-addr )
+			dup c@ '('  =			( u c-addr -- u c-addr f1 )		\ f1 = startsWith (
+			-rot					( u c-addr f1 -- f1 u c-addr )
+			+ 1- c@ ')' =			( f1 c-addr u -- f1 f2 )		\ f2 = endsWith )
+			and	0=					( f2 f1 -- f )					\ f = (f1 & f2) == 0
+		else
+			drop false				( xt -- false )
+		then
+	;
+
 	: words ( -- )
 		base @ hex
 		cr
@@ -179,20 +194,21 @@ require ../std/text.f
 		(dict^) list>head
 
 		begin
-			\ get flags
-			dup name>xt >flags @		( nt -- nt flags )
-
-			\ ensure entry is visible
-			(flg-set-vis) is-flag? if
+			\ show nt?
+			dup (words-nt-shown?) if				( nt -- nt )
 
 				\ increment count
 				(words-count) @ 1+ (words-count) !
 
-				\ output xt info twice (name & immediate?)
-				dup name>xt dup			( nt -- nt xt xt )
+				\ get xt
+				dup name>xt						( nt -- nt xt )
 
-				>string type
-				>flags @ (flg-set-imm) is-flag? if
+				\ display name
+				dup >string type				( nt xt -- nt xt )
+
+				\ show immediate?
+				>flags @						( nt xt -- nt flags )
+				(flg-set-imm) is-flag? if		( nt flags -- nt )
 					(see-text-imm.)
 				then
 
@@ -200,7 +216,7 @@ require ../std/text.f
 			then
 
 			\ check next for zero
-			name>next dup 0=			( nt -- nt' )
+			name>next dup 0=			( nt -- nt' f )
 		until
 
 		drop							( nt -- )
