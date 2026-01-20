@@ -86,7 +86,8 @@ require wasi.f
 			dup 10 =		\ lf?
 			over 13 =		\ cr?
 			or if 			\ lf or cr?
-				drop exit	( c-addr u count ch -- c-addr u count )
+				drop 2nip	( c-addr u count -- count )
+				exit
 			else
 				sp-3@ 		( c-addr u count ch -- c-addr u count ch c-addr )
 				sp-2@ 		( c-addr u count ch c-addr -- c-addr u count ch c-addr count )
