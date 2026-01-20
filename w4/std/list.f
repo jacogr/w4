@@ -26,26 +26,19 @@
 		over list>tail		( a-addr nt -- a-addr nt tail )
 		2dup				( a-addr nt tail -- a-addr nt tail nt tail )
 
-		\ tail exist?
-		?dup if
-			\ write nt to curr tail>next
+		\ tail exist? (tail>next = nt, nt>prev = tail)
+		?dup if				( a-addr nt tail nt tail -- a-addr nt tail nt tail )
 			(name>next!)	( a-addr nt tail nt tail -- a-addr nt tail )
-
-			\ write tail to nt>prev
 			over			( a-addr nt tail -- a-addr nt tail nt )
 			(name>prev!)	( a-addr nt tail nt -- a-addr nt )
-		else
-			2drop			( a-addr nt tail nt -- a-addr nt )
-		then
+		else 2drop then 	( a-addr nt tail nt -- a-addr nt )
 
 		\ get head
 		dup rot	dup			( a-addr nt -- nt nt a-addr a-addr )
 		list>head			( nt nt a-addr a-addr -- nt nt a-addr head )
 
-		\ head exists?
-		if
+		\ head exists? (list>head = nt )
+		if					( nt nt a-addr head -- nt nt a-addr )
 			(list>head!)	( nt nt a-addr -- nt )
-		else
-			2drop			( nt nt a-addr -- nt )
-		then
+		else 2drop then		( nt nt a-addr -- nt )
 	;
