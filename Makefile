@@ -19,6 +19,7 @@ WASM      = $(BUILD)/w4.wasm
 WASMOPTED = $(BUILD)/w4-opt.wasm
 
 TESTS_STD = test/forth2012-test-suite.f
+TESTS_W4  = test/w4.f
 
 
 # flags
@@ -63,3 +64,4 @@ clean:
 # run tests
 check: $(WASMOPTED) $(TESTS_STD)
 	$(NODE) $(NODE_FLAGS) w4.js $(TESTS_STD) <test/forth2012-test-input.txt
+	$(NODE) $(NODE_FLAGS) w4.js $(TESTS_W4)
