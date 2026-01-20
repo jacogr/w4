@@ -14,7 +14,7 @@
 	: name>list $2 cells + @ ;
 	: name>flags >flags @ ;
 	: name>xt >value @ ;
-	: (sizeof-nt) $5 cells;
+	: (sizeof-nt) $5 cells ;
 
 \ layouts for lists, aligned with wasm
 
@@ -24,7 +24,7 @@
 	: list>flags >flags @ ;
 	: list>file $4 cells + @ ;
 	: list>rowcol $5 cells + @ ;
-	: (sizeof-list) $6 cells;
+	: (sizeof-list) $6 cells ;
 
 \ https://forth-standard.org/standard/core/HERE
 \
@@ -168,8 +168,8 @@
 	$c0de0020 constant (flg-xt-tkn)
 	$c0de0040 constant (flg-xt-lit)
 	$c0de0080 constant (flg-xt-does)
-	$deadfeed constant (flg-list)
-	$feedc0de constant (flg-name)
+	$feedca11 constant (flg-list)
+	$babeca11 constant (flg-name)
 
 \ Internal constant helpers for the exposed/host memory pointers
 
