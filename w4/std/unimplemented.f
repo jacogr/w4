@@ -15,7 +15,10 @@ require text.f
 		s" [TODO: not implemented]: "		( c-addr u -- c-addr u c-addr u )
 		string,	postpone type
 		string, postpone type
+		0 lit, 0 lit, 0 lit,
 		reveal
 	;
 
 \ unimplemented names
+
+	:unimplemented substitute
