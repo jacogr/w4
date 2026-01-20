@@ -175,10 +175,9 @@ require ../std/text.f
 		dup >flags @				( xt -- xt flags )
 		(flg-set-vis) is-flag? if 	( xt flags -- xt )
 			>string					( xt -- c-addr u )
-			swap 					( c-addr u -- u c-addr )
-			dup c@ '('  =			( u c-addr -- u c-addr f1 )		\ f1 = startsWith (
-			-rot					( u c-addr f1 -- f1 u c-addr )
-			+ 1- c@ ')' =			( f1 c-addr u -- f1 f2 )		\ f2 = endsWith )
+			sp-1@ c@ '('  =			( c-addr u -- c-addr u f1 )		\ f1 = startsWith (
+			-rot					( c-addr u f1 -- f1 c-addr u )
+			1- + c@ ')' =			( f1 c-addr u -- f1 f2 )		\ f2 = endsWith )
 			and	0=					( f2 f1 -- f )					\ f = (f1 & f2) == 0
 		else
 			drop false				( xt -- false )
@@ -198,7 +197,7 @@ require ../std/text.f
 			dup (words-nt-shown?) if			( nt -- nt )
 
 				\ increment count
-				(words-count) @ 1+ (words-count) !
+				1 (words-count) +!
 
 				\ get xt
 				dup name>xt						( nt -- nt xt )

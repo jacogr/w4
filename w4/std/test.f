@@ -51,7 +51,7 @@ require text.f
 
 		base !
 		1 (test-is-error) !
-		(test-num-errors) @ 1 + (test-num-errors) !
+		1 (test-num-errors) +!
 		(test-empty-stack)
 	;
 
