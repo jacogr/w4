@@ -37,7 +37,7 @@ S" forth2012-test-suite/src/doubletest.fth" INCLUDED
 \ UNPLANNED S" forth2012-test-suite/src/memorytest.fth" INCLUDED
 \ TODO S" forth2012-test-suite/src/toolstest.fth" INCLUDED
 \ TODO S" forth2012-test-suite/src/searchordertest.fth" INCLUDED
-\ TODO S" forth2012-test-suite/src/stringtest.fth" INCLUDED
+S" forth2012-test-suite/src/stringtest.fth" INCLUDED
 REPORT-ERRORS
 
 CR .( Forth tests completed ) CR CR
