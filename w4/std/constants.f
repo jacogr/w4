@@ -14,6 +14,7 @@
 	: name>list $2 cells + @ ;
 	: name>flags >flags @ ;
 	: name>xt >value @ ;
+	: (sizeof-nt) $5 cells;
 
 \ layouts for lists, aligned with wasm
 
@@ -23,6 +24,7 @@
 	: list>flags >flags @ ;
 	: list>file $4 cells + @ ;
 	: list>rowcol $5 cells + @ ;
+	: (sizeof-list) $6 cells;
 
 \ https://forth-standard.org/standard/core/HERE
 \
