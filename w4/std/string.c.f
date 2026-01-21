@@ -50,3 +50,36 @@ require stack.f
 		\ cleanup
 		drop 2nip 						( c-addr1 c-addr2 f u -- f )
 	;
+
+\ Non-standard, widely knowm used in substitute.
+
+	: bounds ( addr len -- addr+len addr ) over + swap ;
+
+\ non-standard, widely known
+
+: scan ( c-addr u c -- c-addr' u' )
+  >r
+  2dup bounds ?do                 ( c-addr u )
+    i c@ r@ = if
+      r-drop
+      i over -                    ( c-addr i-c-addr )
+      /string                     ( c-addr' u' )
+      unloop exit
+    then
+  loop
+  r-drop
+  + 0 ;                           ( c-addr+u 0 )
+
+\ non-standard, widely known
+
+	: skip ( c-addr u c -- c-addr' u' )
+	>r
+	2dup bounds ?do
+		i c@ r@ <> if
+		r-drop
+		i over - /string
+		unloop exit
+		then
+	loop
+	r-drop
+	+ 0 ;
