@@ -115,15 +115,16 @@ require loops.f
 
 	: cmove ( src dst u -- )
 		begin
-			dup	0<>				( src dst u -- src dst u flag )
-		while
+			dup	0<>				( src dst u -- src dst u f )
+		while					( src dst u f -- src dst u )
 			>r 					( src dst u -- src dst ) ( r: -- u )
 			over c@ 			( src dst -- src dst ch )
 			over c! 			( src dst ch -- src dst )
 			1+ swap 1+ swap 	( src dst -- src' dst' )
 			r> 1- 				( src' dst' -- src' dst' u' ) ( r: u -- )
 		repeat
-		drop 2drop
+
+		drop 2drop				( src dst u -- )
 	;
 
 \ https://forth-standard.org/standard/string/CMOVEtop
@@ -134,14 +135,15 @@ require loops.f
 
 	: cmove> ( src dst u -- )
 		begin
-			dup 0<> 			( src dst u -- src dst u flag )
-		while
+			dup 0<> 			( src dst u -- src dst u f )
+		while					( src dst u f -- src dst u )
 			1- >r 				( src dst u -- src dst ) ( r: -- u )
 			over r@ + c@ 		( src dst -- src dst ch )
 			over r@ + c! 		( src dst ch -- src dst )
 			r> 					( src dst -- src dst u ) ( r: u -- )
 		repeat
-		drop 2drop
+
+		drop 2drop				( src dst u -- )
 	;
 
 \ https://forth-standard.org/standard/core/MOVE
@@ -154,9 +156,12 @@ require loops.f
 			drop 2drop 		( src dst u -- )
 			exit
 		then
+
 		sp-1@ 				( src dst u -- src dst u dst )
 		sp-3@ 				( src dst u dst -- src dst u dst src )
-		u< if               ( src dst u dst src -- src dst u )  \ dst < src ?
+
+		\ dst < src ?
+		u< if               ( src dst u dst src -- src dst u )
 			cmove 			( src dst u -- )
 		else
 			cmove> 			( src dst u -- )
@@ -170,12 +175,14 @@ require loops.f
 
 	: fill ( c-addr u ch -- )
 		-rot						( c-addr u ch -- ch c-addr u )
+
 		begin
-			dup 0<> 				( ch c-addr u -- ch c-addr u flag )
-		while
+			dup 0<> 				( ch c-addr u -- ch c-addr u f )
+		while						( ch c-addr u f -- ch c-addr u )
 			sp-2@ sp-2@ c! 			( ch c-addr u -- c-addr u )
 			1- swap 1+ swap 		( ch c-addr u -- ch c-addr' u' )
 		repeat
+
 		2drop drop					( ch c-addr u -- )
 	;
 
