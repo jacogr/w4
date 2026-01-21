@@ -47,8 +47,8 @@ require ../std/loops.f
 
 	: host::hash ( c-addr u -- hash )
 		\ len <> 0
-		dup 0<> if
+		?dup 0<> if
 			fnv1a fmix32
-		else 2drop 0 then
+		else 0 and then
 	;
 
