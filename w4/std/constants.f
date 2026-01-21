@@ -12,6 +12,11 @@
 
 	: (xt>str!) ( c-addr xt -- ) ! ;
 	: (xt>len!) ( c-addr xt -- ) $1 cells + ! ;
+	: (xt>str+len!) ( c-addr len xt -- )
+		swap over	( c-addr len xt -- c-addr xt len xt )
+		(xt>len!)	( c-addr xt len xt -- c-addr xt )
+		(xt>str!)	( c-addr xt -- )
+	;
 
 	: (xt>hash@) $2 cells + @ ;
 	: (xt>hash!) $2 cells + ! ;

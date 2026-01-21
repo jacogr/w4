@@ -1,7 +1,7 @@
 require constants.f
 require loops.f
 require stack.f
-require string.c.f
+require string.utils.f
 require text.f
 
 require ../ext/hash.f
@@ -30,8 +30,8 @@ require ../ext/hash.f
 \ Creates a lookup list (list + hashed headers)
 
 	: (new-lookup) ( count -- a-addr )
-		\ size > 63 (tiny) & power of 2
-		dup $3f >					( count -- count f1 ) \ f1 = count > 31
+		\ size > 255 (tiny) & power of 2
+		dup $ff >					( count -- count f1 ) 						\ f1 = count > 255
 		over dup					( count f1 -- count f1 count count )
 		1- and 0=					( count f1 count count -- count f1 f2 )		\ f2 = (count - 1) & count
 		and							( count f1 f2 -- count f ) 					\ f = f1 & f2
@@ -53,7 +53,6 @@ require ../ext/hash.f
 		over (list>owner!)			( list index -- )
 	;
 
-	: (new-lookup-tiny) ( -- a-addr ) $40 (new-lookup) ; \ 64
 	: (new-lookup-small) ( -- a-addr ) $100 (new-lookup) ; \ 256
 	: (new-lookup-large) ( -- a-addr ) $800 (new-lookup) ; \ 2048
 
