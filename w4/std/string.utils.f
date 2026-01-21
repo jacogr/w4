@@ -55,31 +55,33 @@ require stack.f
 
 	: bounds ( addr len -- addr+len addr ) over + swap ;
 
-\ non-standard, widely known
+\ non-standard, widely known. Returns the tail starting at the first occurrence of c
+\ if not found: returns c-addr+u 0
 
-: scan ( c-addr u c -- c-addr' u' )
-  >r
-  2dup bounds ?do                 ( c-addr u )
-    i c@ r@ = if
-      r-drop
-      i over -                    ( c-addr i-c-addr )
-      /string                     ( c-addr' u' )
-      unloop exit
-    then
-  loop
-  r-drop
-  + 0 ;                           ( c-addr+u 0 )
+	: scan ( c-addr u c -- c-addr' u' )
+		dup 2over					( c-addr u c -- c-addr u c c c-addr u )
+		bounds ?do					( c-addr u c c c-addr u -- c-addr u c )
+			i c@ over = if			( c-addr u c )
+				over over + 		( c-addr u c end )
+				i tuck - 			( c-addr u c i u' )  \ u' = end - i
+				2drop drop 			( c-addr' u' )
+				unloop exit
+			then
+		loop
+		drop + 0 					( end 0 )
+	;
 
-\ non-standard, widely known
+\ non-standard, widely known. \Skips leading c's; returns tail starting at first non-c
+\ if all are c: returns c-addr+u 0
 
 	: skip ( c-addr u c -- c-addr' u' )
-	>r
-	2dup bounds ?do
-		i c@ r@ <> if
-		r-drop
-		i over - /string
-		unloop exit
-		then
-	loop
-	r-drop
-	+ 0 ;
+		dup 2over bounds ?do
+			i c@ over <> if
+				over over +
+				i tuck -
+				2drop drop
+				unloop exit
+			then
+		loop
+		drop + 0
+	;
