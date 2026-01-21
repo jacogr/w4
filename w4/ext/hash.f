@@ -42,7 +42,13 @@ require ../std/loops.f
 		dup 16 rshift xor	\ h ^= h >> 16
 	;
 
-\ host-compatible hash values for lookups, applies fmix32(fnv1a(value))
+\ host-compatible hash values for lookups, applies fmix32(fnv1a(value)), if
+\ it is a non-zero string, else return 0 as the hash value
 
-	: host::hash ( c-addr u -- u ) fnv1a fmix32	;
+	: host::hash ( c-addr u -- hash )
+		\ len <> 0
+		dup 0<> if
+			fnv1a fmix32
+		else 2drop 0 then
+	;
 
