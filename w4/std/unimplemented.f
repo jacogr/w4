@@ -20,5 +20,3 @@ require text.f
 	;
 
 \ unimplemented names
-
-	:unimplemented substitute

@@ -33,10 +33,12 @@ require stack.f
 
 		begin
 			\ length != 0 & f == true
-			dup 0<>						( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u f1 )
-			sp-2@ true =				( c-addr1 c-addr2 f u f1 -- c-addr1 c-addr2 f u f1 f2 )
-			and							( c-addr1 c-addr2 f u f1 f2 -- c-addr1 c-addr2 f u f' )
-		while							( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u )
+			?dup 0<> if					( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u )
+				over					( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u f )
+			else
+				drop 0 0				( c-addr1 c-addr2 f -- c-addr1 c-addr2 0 0 0 )
+			then
+		while							( c-addr1 c-addr2 f u f -- c-addr1 c-addr2 f u )
 			1-							( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u' )
 			2dup						( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u u u )
 			sp-5@ + c@ swap				( c-addr1 c-addr2 f u u u -- c-addr1 c-addr2 f u c1 u )
@@ -55,33 +57,38 @@ require stack.f
 
 	: bounds ( addr len -- addr+len addr ) over + swap ;
 
-\ non-standard, widely known. Returns the tail starting at the first occurrence of c
+\ Non-standard, widely known. Returns the tail starting at the first occurrence of c
 \ if not found: returns c-addr+u 0
 
 	: scan ( c-addr u c -- c-addr' u' )
-		dup 2over					( c-addr u c -- c-addr u c c c-addr u )
-		bounds ?do					( c-addr u c c c-addr u -- c-addr u c )
-			i c@ over = if			( c-addr u c )
-				over over + 		( c-addr u c end )
-				i tuck - 			( c-addr u c i u' )  \ u' = end - i
-				2drop drop 			( c-addr' u' )
-				unloop exit
-			then
-		loop
-		drop + 0 					( end 0 )
+		-rot						( c-addr u c -- c a-addr u )
+
+		begin
+			\ length != 0 & c_at <> c
+			dup 0<> if				( c c-addr u -- c c-addr u )
+				over c@ sp-3@ <>	( c c-addr u -- c c-addr u f )
+			else false then			( c c-addr u -- c c-addr u 0 )
+		while						( c c-addr u f -- c c-addr u )
+			swap 1+ swap 1-			( c c-addr u -- c c-addr' u' )
+		repeat
+
+		rot	drop					( c c-addr u -- c-addr u )
 	;
 
-\ non-standard, widely known. \Skips leading c's; returns tail starting at first non-c
+\ Non-standard, widely known. \Skips leading c's; returns tail starting at first non-c
 \ if all are c: returns c-addr+u 0
 
 	: skip ( c-addr u c -- c-addr' u' )
-		dup 2over bounds ?do
-			i c@ over <> if
-				over over +
-				i tuck -
-				2drop drop
-				unloop exit
-			then
-		loop
-		drop + 0
+		-rot						( c-addr u c -- c a-addr u )
+
+		begin
+			\ length != 0 & c_at == c
+			dup 0<> if				( c c-addr u -- c c-addr u )
+				over c@ sp-3@ =		( c c-addr u -- c c-addr u f )
+			else false then			( c c-addr u -- c c-addr u 0 )
+		while						( c c-addr u f -- c c-addr u )
+			swap 1+ swap 1-			( c c-addr u -- c c-addr' u' )
+		repeat
+
+		rot	drop					( c c-addr u -- c-addr u )
 	;
