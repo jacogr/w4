@@ -10,8 +10,11 @@
 	: swap over over sp@ $3 cells - ! sp@ $1 cells - ! ;
 	: or over over xor sp@ $2 cells - @ sp@ $2 cells - @ and + sp@ $2 cells - ! drop ;
 
-	: latest $0120 @ ;
+	: >string dup @ swap $1 cells + @ ;
 	: >flags $3 cells + ;
+	: >value $4 cells + ;
+
+	: latest $0120 @ ;
 	: immediate latest >flags dup @ $02 or swap ! ;
 
 	: >in $0114 @ ;
@@ -99,11 +102,6 @@
 \		drop				( a|b b -- a|b )
 \	;
 
-\ https://forth-standard.org/standard/core/toBODY
-\
-\ a-addr is the data-field address corresponding to xt. An ambiguous condition
-\ exists if xt is not for a word defined via CREATE.
-
 \ https://forth-standard.org/standard/core/IMMEDIATE
 \
 \ Adjusts the flags of the latest definition to be immediate
@@ -122,7 +120,7 @@
 \ a-addr is the address of a cell containing the offset in characters from
 \ the start of the input buffer to the start of the parse area.
 \
-\		$0114 (mmio@) >in
+\		: >in $0114 @ ;
 
 \ https://forth-standard.org/standard/core/bs
 \

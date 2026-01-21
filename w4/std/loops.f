@@ -25,7 +25,7 @@ require stack.f
 \ on the control stack via (resolve-inner).
 
 	: (resolve-inner) ( orig -- )
-		name>xt >value				( orig -- a-addr )
+		(name>value@) >value		( orig -- a-addr )
 		(latest>tail^) swap !		\ write tail location
 	;
 

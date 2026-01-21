@@ -12,10 +12,10 @@ require ../std/text.f
 	: is-flag? ( n flag -- f ) dup >r and r> = ;
 
 	: is-flagged? ( a-addr flag -- f )
-		swap 				( a-addr flag -- flag a-addr )
+		swap 					( a-addr flag -- flag a-addr )
 		dup is-alloc-range? if
-			>flags @ 		( flag a-addr -- flag flags )
-			swap is-flag?	( flags flag -- f )
+			>flags @ 			( flag a-addr -- flag flags )
+			swap is-flag?		( flags flag -- f )
 		else drop 0 and then
 	;
 
@@ -25,7 +25,7 @@ require ../std/text.f
 
 	: is-nt? ( addr -- f )
 		dup (flg-name) is-flagged? if
-			name>xt is-xt?
+			(name>value@) is-xt?
 		else 0 and then
 	;
 
@@ -50,22 +50,22 @@ require ../std/text.f
 
 	: (see-xt) ( a-addr -- )
 		dup (u.r-tab)						( a-addr -- a-addr )
-		dup >flags @						( a-addr -- a-addr flags )
+		dup (xt>flags@)						( a-addr -- a-addr flags )
 
 		\ display flags
 		\ dup (u.r-tab)						( a-addr flags -- a-addr flags )
 
 		dup (flg-xt-lit) is-flag? if		( a-addr flags -- a-addr flags )
 			(flg-set-var) is-flag? if		( a-addr flags -- a-addr ) \ variation?
-				dup >value @ (u.r-tabd)		( a-addr -- a-addr )
+				dup (xt>value@) (u.r-tabd)	( a-addr -- a-addr )
 			else
-				dup >value @ (u.r-tab)		( a-addr -- a-addr )
+				dup (xt>value@) (u.r-tab)	( a-addr -- a-addr )
 			then
 		else								( a-addr flags -- a-addr flags )
 			(flg-xt-does) is-flag? if		( a-addr flags -- a-addr )
-				dup >value @ (u.r-tab)		( a-addr -- a-addr )
+				dup (xt>value@) (u.r-tab)	( a-addr -- a-addr )
 			else
-				(see-text-skip)					( a-addr -- a-addr )
+				(see-text-skip)				( a-addr -- a-addr )
 			then
 		then
 
@@ -74,7 +74,7 @@ require ../std/text.f
 
 	: (see-list) ( a-addr -- )
 		dup is-list? if
-			list>owner						( list -- owner )
+			(list>owner@)					( list -- owner )
 			dup is-xt? if
 				space '~' emit space
 				>string type
@@ -82,28 +82,29 @@ require ../std/text.f
 		else drop then
 	;
 
-	: (see-nt) ( a-addr -- ) name>xt (see-xt) ;
+	: (see-nt) ( a-addr -- ) (name>value@) (see-xt) ;
 
 	: see ( "name" -- )
 		base @ hex						( -- base )
-		parse-name find-name name>xt	( base -- xt )
+		parse-name find-name 			( base -- base nt )
+		(name>value@)					( base nt -- base xt )
 
 		cr (see-text-skip)
 		dup (see-xt)					( base xt -- base xt )
 
-		dup >flags @ (flg-set-imm) is-flag? if
+		dup (xt>flags@) (flg-set-imm) is-flag? if
 			(see-text-skip)
 			(see-text-imm.)
 		then
 
 		cr
 
-		dup >flags @ (flg-xt-tkn) is-flag? if
-			>value @ list>head			( base xt -- base head-nt )
+		dup (xt>flags@) (flg-xt-tkn) is-flag? if
+			(xt>value@) (list>head@)	( base xt -- base head-nt )
 			begin
 			 	dup (u.r-tab)			( base nt -- base nt )
 				dup (see-nt) cr			( base nt -- base nt )
-				name>next dup 0=		( base nt -- base next-nt )
+				(name>next@) dup 0=		( base nt -- base next-nt )
 			until
 			drop						( base 0 -- base )
 		else drop then					( base xt -- base )
@@ -118,36 +119,38 @@ require ../std/text.f
 \ the display is implementation-dependent.
 
 	: (.s-cell) ( addr -- )
-		dup (u.r-tab)					( addr -- addr )
-		@ dup (.r-tab)					( addr -- cont )
+		dup (u.r-tab)						( addr -- addr )
+		@ dup (.r-tab)						( addr -- val )
 
-		dup is-xt? if					( cont -- cont )
-			(see-xt)					( cont -- )
+		dup is-xt? if						( val -- val )
+			(see-xt)						( val -- )
 		else
-			dup is-nt? if				( cont -- cont )
-				dup (see-nt)			( cont -- cont )
-				name>list (see-list)	( cont -- )
-			else drop then				( cont -- )
+			dup is-nt? if					( val -- val )
+				dup (see-nt)				( val -- val )
+				(name>link@) (see-list)		( val -- )
+			else drop then					( val -- )
 		then
 	;
 
 	: (.s) ( a-addr off c-addr u -- )
-		cr type				( a-addr off c-addr u -- a-addr off )
-		swap base @ swap	( a-addr off -- off base a-addr )
-		dup @ sp-3@ -		( off base a-addr -- off base a-addr count )
-		decimal space dup u. cr	hex
+		cr type					( a-addr off c-addr u -- a-addr off )
+		swap base @ swap		( a-addr off -- off base a-addr )
+		dup @ sp-3@ -			( off base a-addr -- off base a-addr count )
 
-		dup 0> if			( off base a-addr count -- off base a-addr count )
-			0 do			( off base a-addr count -- off base a-addr )
+		decimal
+		space dup u. cr	hex
+
+		dup 0> if				( off base a-addr count -- off base a-addr count )
+			0 do				( off base a-addr count -- off base a-addr )
 				decimal i (u.r-tab) hex			\ cell index
 				i 1+ cells sp-1@ + (.s-cell)	\ cell address
 				cr
 			loop
-		else drop then		( off base a-addr count -- off base a-addr )
+		else drop then			( off base a-addr count -- off base a-addr )
 
-		drop				( off base a-addr -- off base )
-		base !				( off base -- off )
-		drop				( off -- )
+		drop					( off base a-addr -- off base )
+		base !					( off base -- off )
+		drop					( off -- )
 	;
 
 	: .s ( -- ) (sp^) #3 s" data stack " (.s) ;
@@ -171,16 +174,18 @@ require ../std/text.f
 	variable (words-count)
 
 	: (words-nt-shown?) ( nt -- f )
-		name>xt						( nt -- xt )
-		dup >flags @				( xt -- xt flags )
-		(flg-set-vis) is-flag? if 	( xt flags -- xt )
-			>string					( xt -- c-addr u )
-			sp-1@ c@ '('  =			( c-addr u -- c-addr u f1 )		\ f1 = startsWith (
-			-rot					( c-addr u f1 -- f1 c-addr u )
-			1- + c@ ')' =			( f1 c-addr u -- f1 f2 )		\ f2 = endsWith )
-			and	0=					( f2 f1 -- f )					\ f = (f1 & f2) == 0
+		(name>value@)					( nt -- xt )
+		dup (name>flags@)				( xt -- xt flags )
+
+		\ visible?
+		(flg-set-vis) is-flag? if 		( xt flags -- xt )
+			>string						( xt -- c-addr u )
+			sp-1@ c@ '('  =				( c-addr u -- c-addr u f1 )		\ f1 = startsWith (
+			-rot						( c-addr u f1 -- f1 c-addr u )
+			1- + c@ ')' =				( f1 c-addr u -- f1 f2 )		\ f2 = endsWith )
+			and	0=						( f2 f1 -- f )					\ f = (f1 & f2) == 0
 		else
-			drop false				( xt -- false )
+			drop false					( xt -- false )
 		then
 	;
 
@@ -190,7 +195,7 @@ require ../std/text.f
 
 		\ init counter, set list start
 		0 (words-count) !
-		(dict^) list>head
+		(dict^) (list>head@)
 
 		begin
 			\ show nt?
@@ -200,13 +205,13 @@ require ../std/text.f
 				1 (words-count) +!
 
 				\ get xt
-				dup name>xt						( nt -- nt xt )
+				dup (name>value@)				( nt -- nt xt )
 
 				\ display name
 				dup >string type				( nt xt -- nt xt )
 
 				\ show immediate?
-				>flags @						( nt xt -- nt flags )
+				(xt>flags@)						( nt xt -- nt flags )
 				(flg-set-imm) is-flag? if		( nt flags -- nt )
 					(see-text-imm.)
 				then
@@ -215,7 +220,7 @@ require ../std/text.f
 			then
 
 			\ check next for zero
-			name>next dup 0=					( nt -- nt' f )
+			(name>next@) dup 0=					( nt -- nt' f )
 		until
 
 		drop									( nt -- )

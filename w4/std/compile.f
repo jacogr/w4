@@ -33,7 +33,7 @@ require stack.f
 
 	: ?find-name ( c-addr u -- nt ) find-name dup 0= #-13 and throw ;
 
-	: ' ( "name" -- xt ) ?parse-name ?find-name name>xt ;
+	: ' ( "name" -- xt ) ?parse-name ?find-name (name>value@) ;
 
 \ https://forth-standard.org/standard/core/BracketTick
 \
@@ -66,7 +66,7 @@ require stack.f
 	: not-immediate? ( xt -- f ) >flags @ $02 and 0= ;
 
 	: name>compile ( nt -- xt action-xt )
-		name>xt						( nt -- xt )
+		(name>value@)				( nt -- xt )
   		dup not-immediate?			( xt -- xt flag )
   		['] compile, ['] execute	( xt flag -- xt flag xtc xte )
 		select						( xt flag xtc xte -- xt action-xt )
@@ -81,7 +81,7 @@ require stack.f
 \ immediate words as well. This assumption _may_ not be true in the future and
 \ the _may_ need adjustment
 
-	: name>interpret ( nt -- xt ) name>xt ;
+	: name>interpret ( nt -- xt ) (name>value@) ;
 
 \ https://forth-standard.org/standard/tools/NAMEtoSTRING
 \
@@ -91,7 +91,7 @@ require stack.f
 \ In this implementation we will output as defined, but can consume in a case-
 \ insenstive manner
 
-	: name>string ( nt -- c-addr u ) name>xt >string ;
+	: name>string ( nt -- c-addr u ) (name>value@) (xt>string@) ;
 
 \ https://forth-standard.org/standard/core/POSTPONE
 \

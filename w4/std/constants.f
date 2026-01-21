@@ -1,52 +1,88 @@
 
 \ layouts for xt, aligned with wasm
 
-	: >string ( -- c-addr u ) dup @ swap $1 cells + @ ;
-	: >hash ( -- a-addr ) $2 cells + ;
-	\ : >flags ( -- a-addr ) $3 cells + ; \ defined in preamble
-	: >value ( -- a-addr ) $4 cells + ;
+	\ 	str  : name pointer
+	\	len  : name length
+	\	hash :  hash for name
+	\	flags: always at index 3
+	\ 	value: flags-specific value
 	: (sizeof-xt) $5 cells ;
+
+	: (xt>string@) ( xt -- c-addr u ) >string ;
+
+	: (xt>hash@) $2 cells + @ ;
+	: (xt>hash!) $2 cells + ! ;
+
+	: (xt>flags@) >flags @ ;
+	: (xt>flags!) >flags ! ;
+
+	: (xt>value@) >value @ ;
+	: (xt>value!) >value ! ;
 
 \ layouts for names, aligned with wasm
 
-	: name>prev @ ;
+	\	prev : prev in list
+	\	next : next in list
+	\ 	link : link (for lookups)
+	\	flags: always at index 3
+	\	value: xt (or specific to list type)
+	: (sizeof-nt) $5 cells ;
+
+	: (name>prev@) @ ;
 	: (name>prev!) ( prev -- ) ! ;
 
-	: name>next $1 cells + @ ;
+	: (name>next@) $1 cells + @ ;
 	: (name>next!) ( next -- ) $1 cells + ! ;
 
-	: name>list $2 cells + @ ;
-	: (name>list!) ( list -- ) $2 cells + ! ;
+	: (name>link@) $2 cells + @ ;
+	: (name>link!) ( link -- ) $2 cells + ! ;
 
-	: name>flags >flags @ ;
+	: (name>flags@) >flags @ ;
 	: (name>flags!) ( flags -- ) >flags ! ;
 
-	: name>xt >value @ ;
-	: (name>xt!) ( flags -- ) >value ! ;
-
-	: (sizeof-nt) $5 cells ;
+	: (name>value@) >value @ ;
+	: (name>value!) ( flags -- ) >value ! ;
 
 \ layouts for lists, aligned with wasm
 
-	: list>head @ ;
+	\ 	head  : head pointer
+	\ 	tail  : tail pointer
+	\ 	owner : parent
+	\ 	flags : always at index 3
+	\ 	file  : if present
+	\ 	rowcol: if present
+	: (sizeof-list) $6 cells ;
+
+	: (list>head@) @ ;
 	: (list>head!) ( head -- ) ! ;
 
-	: list>tail $1 cells + @ ;
+	: (list>tail@) $1 cells + @ ;
 	: (list>tail!) ( tail -- ) $1 cells + ! ;
 
-	: list>owner $2 cells + @ ;
+	: (list>owner@) $2 cells + @ ;
 	: (list>owner!) ( owner -- ) $2 cells + ! ;
 
-	: list>flags >flags @ ;
+	: (list>flags@) >flags @ ;
 	: (list>flags!) ( flags -- ) >flags ! ;
 
-	: list>file $4 cells + @ ;
+	: (list>file@) $4 cells + @ ;
 	: (list>file!) ( file -- ) $4 cells + ! ;
 
-	: list>rowcol $5 cells + @ ;
+	: (list>rowcol@) $5 cells + @ ;
 	: (list>rowcol!) ( rowcol -- ) $5 cells + ! ;
 
-	: (sizeof-list) $6 cells ;
+\ layouts for lookup indexes
+
+	\ 	buckets: array of bucket pointers, 2^n
+	\ 	mask   : 2^n - 1, mask for bucket lookup
+	: (sizeof-lookup) $2 cells ;
+
+	: (lookup>buckets@) ( a-addr -- v ) @ ;
+	: (lookup>buckets!) ( v a-addr -- ) ! ;
+
+	: (lookup>mask@) ( a-addr -- v ) $1 cells + @ ;
+	: (lookup>mask!) ( v a-addr -- ) $1 cells + ! ;
+
 
 \ https://forth-standard.org/standard/core/HERE
 \
@@ -101,10 +137,10 @@
 \ `$c0de0140` defined below as literal
 
 	: (new-xt) ( flags -- )
-		align here			( flags -- flags here^ )
-		(sizeof-xt) allot	\ allocate
-		swap over >flags ! 	\ write flags
-		swap over >value ! 	\ write address
+		align here				( flags -- flags here^ )
+		(sizeof-xt) allot		\ allocate
+		swap over (xt>flags!) 	\ write flags
+		swap over (xt>value!) 	\ write address
 	;
 
 	: lit ( n -- ) $c0de0140 (new-xt) ; \ aligned with (flg-xt-lit) below
@@ -134,10 +170,10 @@
 \ NOTE <builds is aligned, so the dfa is aligned as per the specification
 
 	: (latest>value) latest >value @ ;
-	: (latest>head^) (latest>value) list>head ;
-	: (latest>tail^) (latest>value) list>tail ;
-	: (latest>prev^) (latest>tail^) name>prev ;
-	: (latest>body^) (latest>head^) name>xt >value ;
+	: (latest>head^) (latest>value) (list>head@) ;
+	: (latest>tail^) (latest>value) (list>tail@) ;
+	: (latest>prev^) (latest>tail^) (name>prev@) ;
+	: (latest>body^) (latest>head^) (name>value@) >value ;
 
 	: create
 		parse-name
@@ -154,10 +190,10 @@
 \ exists if xt is not for a word defined via CREATE.
 
 	: >body ( xt -- a-addr )
-		>value @	\ read address of token list
-		list>head	\ first entry inside the list
-		name>xt		\ get the first token, address literal
-		>value @	\ read the value
+		(xt>value@)		\ read address of token list
+		(list>head@)	\ first entry inside the list
+		(name>value@)	\ get the first token, address literal
+		(xt>value@)		\ read the value
 	;
 
 \ https://forth-standard.org/standard/core/VARIABLE
