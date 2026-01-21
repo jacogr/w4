@@ -75,7 +75,7 @@ require std/stack.loop.f
 require std/stack.ptr.f
 require std/stdio.f
 require std/string.f
-require std/string.c.f
+require std/string.utils.f
 require std/test.f
 require std/text.f
 require std/unimplemented.f
