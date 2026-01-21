@@ -45,10 +45,12 @@ require string.f
 \
 \ Add char to the beginning of the pictured numeric output string.
 
-	$ff constant (#max-off) 			\ 255 max string size
+	$ff constant (#max-off) 			\ 255 max offset size
 	variable (#tmp-off)					\ offset for pictured buffer
 
-	(#max-off) 1+ buffer: (#tmp-buf)	\ pictured buffer
+	(#max-off) 1+ constant string-max
+
+	string-max buffer: (#tmp-buf)		\ pictured buffer
 
 	: hold ( char -- )
 		(#tmp-off) @		\ get offset
@@ -309,7 +311,7 @@ require string.f
 \ http://www.forth200x.org/escaped-strings.html
 
 	create (s"\-result)
-		#256 #1 chars + allot                   \ 256 + count byte
+		string-max #1 chars + allot                   \ 256 + count byte
 
 	create (s"\-escapetable)
 		 #7 c,    \ \a bel

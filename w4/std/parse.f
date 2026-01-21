@@ -99,6 +99,8 @@ require stack.f
 \ Non-standard, widely known, used in replaces. Store c-addr u as
 \ a counted string in the destination, truncate length to 255
 
+	$ff 1+ constant string-max
+
 	: (place-result) ( c-addr u dst -- dst )
 		>r					( c-addr u dst -- c-addr u ) ( r: -- dst )
 		$ff and				( c-addr u -- c-addr u' )
@@ -120,7 +122,7 @@ require stack.f
 \ than the delimiter, the resulting string has a zero length. A program may
 \ replace characters within the string.
 
-	$ff 1+ buffer: (word-tmp-buf) \ 255 + 1 (length byte at 0)
+	string-max buffer: (word-tmp-buf) \ 255 + 1 (length byte at 0)
 
 	: (parse-whitespace-skip) ( -- )
 		begin

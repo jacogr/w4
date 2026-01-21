@@ -69,11 +69,13 @@ require std/math.double.f
 require std/memory.f
 require std/parse.f
 require std/search.f
+require std/search.string.f
 require std/stack.f
 require std/stack.loop.f
 require std/stack.ptr.f
 require std/stdio.f
 require std/string.f
+require std/string.c.f
 require std/test.f
 require std/text.f
 require std/unimplemented.f

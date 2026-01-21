@@ -9,6 +9,8 @@
 	: (sizeof-xt) $5 cells ;
 
 	: (xt>string@) ( xt -- c-addr u ) >string ;
+	: (xt>str!) ( c-addr xt -- ) ! ;
+	: (xt>len!) ( c-addr xt -- ) $1 cells + ! ;
 
 	: (xt>hash@) $2 cells + @ ;
 	: (xt>hash!) $2 cells + ! ;

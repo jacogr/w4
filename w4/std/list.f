@@ -1,6 +1,10 @@
 require constants.f
 require loops.f
 require stack.f
+require string.c.f
+require text.f
+
+require ../ext/hash.f
 
 \ Non-standard, but needed for this environment. Create a new list.
 
@@ -26,17 +30,17 @@ require stack.f
 \ Creates a lookup list (list + hashed headers)
 
 	: (new-lookup) ( count -- a-addr )
-		\ size > 31 (tiny) & power of 2
-		dup $1f >					( count -- count f1 ) \ f1 = count > 31
-		over dup					( count f1 -- count f1 count v )
-		-1 and 0=					( count f1 count count -- count f1 f2 )		\ f2 = (count - 1) & count
+		\ size > 63 (tiny) & power of 2
+		dup $3f >					( count -- count f1 ) \ f1 = count > 31
+		over dup					( count f1 -- count f1 count count )
+		1- and 0=					( count f1 count count -- count f1 f2 )		\ f2 = (count - 1) & count
 		and							( count f1 f2 -- count f ) 					\ f = f1 & f2
 		0= #-49 and throw			( count f -- count ) 						\ throw if not power of 2 & big enough
 
 		\ allocate list (aligned) & buckets
-		(flg-set-var) (new-list) 	( count flags -- count list )
+		(flg-set-var) ((new-list)) 	( count flags -- count list )
 		swap dup 1- >r 				( count list -- list count ) ( r: -- mask )	\ mask = count - 1
-		here swap					( list count -- list buckets count )		\ buckets ptr
+		here swap					( list count -- list buckets count )
 		cells allot					( list buckets count -- list buckets )		\ allocate count cells
 		here swap					( list buckets -- list index buckets )		\ index ptr
 		(sizeof-lookup) allot		\ allocate index
@@ -49,7 +53,7 @@ require stack.f
 		over (list>owner!)			( list index -- )
 	;
 
-	: (new-lookup-tiny) ( -- a-addr ) $10 (new-lookup) ; \ 16
+	: (new-lookup-tiny) ( -- a-addr ) $40 (new-lookup) ; \ 64
 	: (new-lookup-small) ( -- a-addr ) $100 (new-lookup) ; \ 256
 	: (new-lookup-large) ( -- a-addr ) $800 (new-lookup) ; \ 2048
 
@@ -111,32 +115,7 @@ require stack.f
 		over swap !					( nt bucket -- nt )					\ write nt as head
 	;
 
-\ Compare two strings byte for byte until the specified length
-
-	: strcmpn ( c-addr1 c-addr2 u -- f )
-		true swap						( c-addr1 c-addr2 u -- c-addr1 c-addr2 f u )
-
-		begin
-			\ length != 0 & f == true
-			dup 0<>						( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u f1 )
-			sp-2@ true =				( c-addr1 c-addr2 f u f1 -- c-addr1 c-addr2 f u f1 f2 )
-			and							( c-addr1 c-addr2 f u f1 f2 -- c-addr1 c-addr2 f u f' )
-		while							( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u )
-			1-							( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u' )
-			2dup						( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u u u )
-			sp-5@ + c@ swap				( c-addr1 c-addr2 f u u u -- c-addr1 c-addr2 f u c1 u )
-			sp-4@ + c@					( c-addr1 c-addr2 f u c1 u -- c-addr1 c-addr2 f u c1 c2 )
-
-			\ f = c1 == c2
-			=							( c-addr1 c-addr2 f u c1 c2 -- c-addr1 c-addr2 f u f' )
-			sp-2!						( c-addr1 c-addr2 f u f' -- c-addr1 c-addr2 f' u )
-		repeat
-
-		\ cleanup
-		drop 2nip 						( c-addr1 c-addr2 f u -- f )
-	;
-
-\ Find an item in a lookup list based on hash, lentgh & string value
+\ Find an item in a lookup list based on hash, length & string value
 
 	: (lookup-find) ( list c-addr u hash -- nt|0 )
 		\ move lookup values
@@ -185,4 +164,13 @@ require stack.f
 		\ cleanup
 		-rot 2drop						( hash c-addr u nt -- hash nt )
 		nip								( hash nt -- nt )
+	;
+
+\ Like lookup-find, however this version only takes the wid and
+\ the string + length, calculating a lowercase hash
+
+	: (lookup-search) ( wid c-addr u -- nt|0 )
+		strdup-n-lower				( wid c-addr u -- wid c-addr' u' )
+		2dup host::hash				( wid c-addr u -- wid c-addr u hash )
+		(lookup-find)				( wid c-addr u hash -- nt|0 )
 	;
