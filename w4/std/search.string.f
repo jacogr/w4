@@ -14,16 +14,19 @@ include string.c.f
 
 	: (xt>str+len!) ( c-addr len xt -- )
 		swap over						( c-addr len xt -- c-addr xt len xt )
-		sp-3@ sp-2@						( c-addr xt len xt -- c-addr xt len xt c-addr len )
-		host::hash over					( c-addr xt len xt c-addr len -- c-addr x len xt hash xt )
-		(xt>hash!)						( c-addr x len xt hash xt -- c-addr x len xt )
 		(xt>len!)						( c-addr xt len xt -- c-addr xt )
 		(xt>str!)						( c-addr xt -- )
 	;
 
+	: (xt>str+len+hash!) ( c-addr len xt -- )
+		3dup (xt>str+len!)				( c-addr len xt -- c-addr len xt )
+		-rot host::hash swap			( c-addr len xt -- hash xt )
+		(xt>hash!)						( hash xt -- )
+	;
+
 	: (makeSubst)	( c-addr len -- c-addr )
 		(new-xt) -rot					( c-addr len -- xt c-addr len )
-		sp-2@ (xt>str+len!)				( xt c-addr len -- xt )
+		sp-2@ (xt>str+len+hash!)		( xt c-addr len -- xt )
 		here swap						( xt -- here^ xt )
 		2dup (xt>value!)				( here^ xt -- here^ xt )
 		(widSubst) swap					( here^ xt -- here^ wid xt )
