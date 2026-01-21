@@ -8,7 +8,8 @@
 	\ 	value: flags-specific value
 	: (sizeof-xt) $5 cells ;
 
-	: (xt>string@) ( xt -- c-addr u ) >string ;
+	: (xt>str+len@) ( xt -- c-addr u ) >str+len ;
+
 	: (xt>str!) ( c-addr xt -- ) ! ;
 	: (xt>len!) ( c-addr xt -- ) $1 cells + ! ;
 
@@ -247,7 +248,7 @@
 
 \ https://forth-standard.org/standard/core/SOURCE
 \
-\ iov that wraps the source, >string for source c-addr u
+\ iov that wraps the source, >str+len for source c-addr u
 
 	$0118 (mmio@) (lniov^)
 

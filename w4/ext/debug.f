@@ -69,7 +69,7 @@ require ../std/text.f
 			then
 		then
 
-		>string	type 						( a-addr -- )
+		>str+len	type 						( a-addr -- )
 	;
 
 	: (see-list) ( a-addr -- )
@@ -77,7 +77,7 @@ require ../std/text.f
 			(list>owner@)					( list -- owner )
 			dup is-xt? if
 				space '~' emit space
-				>string type
+				>str+len type
 			else drop then
 		else drop then
 	;
@@ -179,7 +179,7 @@ require ../std/text.f
 
 		\ visible?
 		(flg-set-vis) is-flag? if 		( xt flags -- xt )
-			>string						( xt -- c-addr u )
+			>str+len						( xt -- c-addr u )
 			sp-1@ c@ '('  =				( c-addr u -- c-addr u f1 )		\ f1 = startsWith (
 			-rot						( c-addr u f1 -- f1 c-addr u )
 			1- + c@ ')' =				( f1 c-addr u -- f1 f2 )		\ f2 = endsWith )
@@ -208,7 +208,7 @@ require ../std/text.f
 				dup (name>value@)				( nt -- nt xt )
 
 				\ display name
-				dup >string type				( nt xt -- nt xt )
+				dup >str+len type				( nt xt -- nt xt )
 
 				\ show immediate?
 				(xt>flags@)						( nt xt -- nt flags )

@@ -12,19 +12,18 @@ include string.c.f
 
 	(new-lookup-tiny) constant (widSubst)
 
-	: (xt>string!) ( c-addr len xt -- )
-		swap over		( c-addr len xt -- c-addr xt len xt )
-		sp-3@ sp-2@		( c-addr xt len xt -- c-addr xt len xt c-addr len )
-		host::hash over	( c-addr xt len xt c-addr len -- c-addr x len xt hash xt )
-		(xt>hash!)		( c-addr x len xt hash xt -- c-addr x len xt )
-		(xt>len!)		( c-addr xt len xt -- c-addr xt )
-		(xt>str!)		( c-addr xt -- )
+	: (xt>str+len!) ( c-addr len xt -- )
+		swap over						( c-addr len xt -- c-addr xt len xt )
+		sp-3@ sp-2@						( c-addr xt len xt -- c-addr xt len xt c-addr len )
+		host::hash over					( c-addr xt len xt c-addr len -- c-addr x len xt hash xt )
+		(xt>hash!)						( c-addr x len xt hash xt -- c-addr x len xt )
+		(xt>len!)						( c-addr xt len xt -- c-addr xt )
+		(xt>str!)						( c-addr xt -- )
 	;
 
 	: (makeSubst)	( c-addr len -- c-addr )
-		strdup-n-lower					( c-addr len -- c-addr' len' )
 		(new-xt) -rot					( c-addr len -- xt c-addr len )
-		sp-2@ (xt>string!)				( xt c-addr len -- xt )
+		sp-2@ (xt>str+len!)				( xt c-addr len -- xt )
 		here swap						( xt -- here^ xt )
 		2dup (xt>value!)				( here^ xt -- here^ xt )
 		(widSubst) swap					( here^ xt -- here^ wid xt )

@@ -10,7 +10,7 @@
 	: swap over over sp@ $3 cells - ! sp@ $1 cells - ! ;
 	: or over over xor sp@ $2 cells - @ sp@ $2 cells - @ and + sp@ $2 cells - ! drop ;
 
-	: >string dup @ swap $1 cells + @ ;
+	: >str+len dup @ swap $1 cells + @ ;
 	: >flags $3 cells + ;
 	: >value $4 cells + ;
 

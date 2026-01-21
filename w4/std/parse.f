@@ -8,7 +8,7 @@ require stack.f
 \ c-addr is the address of, and u is the number of characters in
 \ the input buffer.
 
-	: source (lniov^) >string ;
+	: source (lniov^) >str+len ;
 
 \ https://forth-standard.org/standard/file/INCLUDE
 \

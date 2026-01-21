@@ -91,7 +91,7 @@ require stack.f
 \ In this implementation we will output as defined, but can consume in a case-
 \ insenstive manner
 
-	: name>string ( nt -- c-addr u ) (name>value@) (xt>string@) ;
+	: name>str+len ( nt -- c-addr u ) (name>value@) (xt>str+len@) ;
 
 \ https://forth-standard.org/standard/core/POSTPONE
 \

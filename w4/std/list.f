@@ -144,7 +144,7 @@ require ../ext/hash.f
 			\ hash1 == hash?
 			sp-5@ = if					( hash c-addr u nt xt hash1 -- hash c-addr u nt xt )
 				\ get string
-				>string					( hash c-addr u nt xt -- hash c-addr u nt c-addr1 u1 )
+				>str+len					( hash c-addr u nt xt -- hash c-addr u nt c-addr1 u1 )
 
 				\ u1 == u?
 				sp-3@ = if				( hash c-addr u nt c-addr1 u1 -- hash c-addr u nt c-addr1 )
