@@ -123,7 +123,7 @@ require stack.f
 			and							( c-addr1 c-addr2 f u f1 f2 -- c-addr1 c-addr2 f u f' )
 		while							( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u )
 			1-							( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u' )
-			dup dup						( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u u u )
+			2dup						( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u u u )
 			sp-5@ + c@ swap				( c-addr1 c-addr2 f u u u -- c-addr1 c-addr2 f u c1 u )
 			sp-4@ + c@					( c-addr1 c-addr2 f u c1 u -- c-addr1 c-addr2 f u c1 c2 )
 
@@ -138,7 +138,7 @@ require stack.f
 
 \ Find an item in a lookup list based on hash, lentgh & string value
 
-	: (lookup-find) ( list c-addr u hash -- a-addr|0 )
+	: (lookup-find) ( list c-addr u hash -- nt|0 )
 		\ move lookup values
 		-rot 2>r 						( list c-addr u hash -- list hash ) ( r: -- c-addr u )
 
@@ -151,38 +151,38 @@ require stack.f
 		sp-2@ and +						( hash buckets mask -- hash bucket )
 
 		\ bring back string, get head
-		2r> rot	@ 0						( hash bucket -- hash c-addr u a-addr 0 ) ( r: c-addr u -- )
+		2r> rot	@ 0						( hash bucket -- hash c-addr u nt 0 ) ( r: c-addr u -- )
 
 		\ find in bucket
 		begin
 			\ not found & a-addr <> 0
-			0= over 0<> and				( hash c-addr u a-addr f -- hash c-addr u a-addr f' )
-		while							( hash c-addr u a-addr f -- hash c-addr u a-addr )
+			0= over 0<> and				( hash c-addr u nt f -- hash c-addr u nt f' )
+		while							( hash c-addr u nt f -- hash c-addr u nt )
 			\ get hashes
-			dup (name>value@)			( hash c-addr u a-addr -- hash c-addr u a-addr xt )
-			dup (xt>hash@)				( hash c-addr u a-addr xt -- hash c-addr u a-addr xt hash1 )
+			dup (name>value@)			( hash c-addr u nt -- hash c-addr u nt xt )
+			dup (xt>hash@)				( hash c-addr u nt xt -- hash c-addr u nt xt hash1 )
 
 			\ hash1 == hash?
-			sp-5@ = if					( hash c-addr u a-addr xt hash1 -- hash c-addr u a-addr xt )
+			sp-5@ = if					( hash c-addr u nt xt hash1 -- hash c-addr u nt xt )
 				\ get string
-				>string					( hash c-addr u a-addr xt -- hash c-addr u a-addr c-addr1 u1 )
+				>string					( hash c-addr u nt xt -- hash c-addr u nt c-addr1 u1 )
 
 				\ u1 == u?
-				sp-3@ = if				( hash c-addr u a-addr c-addr1 u1 -- hash c-addr u a-addr c-addr1 )
+				sp-3@ = if				( hash c-addr u nt c-addr1 u1 -- hash c-addr u nt c-addr1 )
 					\ compare strings
-					sp-3@				( hash c-addr u a-addr c-addr1 -- hash c-addr u a-addr c-addr1 c-addr2 )
-					sp-3@ 				( hash c-addr u a-addr c-addr1 c-addr2 -- hash c-addr u a-addr c-addr1 c-addr2 u )
-					strcmpn				( hash c-addr u a-addr c-addr1 c-addr2 u -- hash c-addr u a-addr f )
-				else 0 and then			( hash c-addr u a-addr c-addr1 -- hash c-addr u a-addr 0 )
-			else 0 and then 			( hash c-addr u a-addr xt -- hash c-addr u a-addr 0 )
+					sp-3@				( hash c-addr u nt c-addr1 -- hash c-addr u nt c-addr1 c-addr2 )
+					sp-3@ 				( hash c-addr u nt c-addr1 c-addr2 -- hash c-addr u nt c-addr1 c-addr2 u )
+					strcmpn				( hash c-addr u nt c-addr1 c-addr2 u -- hash c-addr u nt f )
+				else 0 and then			( hash c-addr u nt c-addr1 -- hash c-addr u nt 0 )
+			else 0 and then 			( hash c-addr u nt xt -- hash c-addr u nt 0 )
 
 			\ not found, move to next
-			?dup 0= if					( hash c-addr u a-addr f -- hash c-addr u a-addr )
-				(name>link@) 0			( hash c-addr u a-addr -- c-addr u a-addr' 0 )
+			?dup 0= if					( hash c-addr u nt f -- hash c-addr u nt )
+				(name>link@) 0			( hash c-addr u nt -- c-addr u nt' 0 )
 			then
 		until
 
 		\ cleanup
-		-rot 2drop						( hash c-addr u a-addr -- hash a-addr )
-		nip								( hash a-addr -- a-addr )
+		-rot 2drop						( hash c-addr u nt -- hash nt )
+		nip								( hash nt -- nt )
 	;

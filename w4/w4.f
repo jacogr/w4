@@ -68,6 +68,7 @@ require std/math.f
 require std/math.double.f
 require std/memory.f
 require std/parse.f
+require std/search.f
 require std/stack.f
 require std/stack.loop.f
 require std/stack.ptr.f
