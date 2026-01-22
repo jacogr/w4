@@ -63,5 +63,5 @@ clean:
 
 # run tests
 check: $(WASMOPTED) $(TESTS_STD)
-	$(NODE) $(NODE_FLAGS) w4.js $(TESTS_STD) <test/forth2012-test-input.txt
 	$(NODE) $(NODE_FLAGS) w4.js $(TESTS_W4)
+	$(NODE) $(NODE_FLAGS) w4.js $(TESTS_STD) <test/forth2012-test-input.txt

@@ -1,5 +1,5 @@
 \ -------------------------------------------------------------
-testing Running djb2a tests
+testing djb2a
 T{ s" " djb2a -> #5381 }T	\ default 0 length
 T{ s" h" djb2a -> #177613 }T
 T{ s" he" djb2a -> #5861128 }T
@@ -14,7 +14,7 @@ T{ s" hello worl" djb2a -> #4291293953 }T
 T{ s" hello world" djb2a -> #4173747013 }T
 
 \ -------------------------------------------------------------
-testing Running fnv1a tests
+testing fnv1a
 T{ s" " fnv1a -> #2166136261 }T	\ default 0 length
 T{ s" h" fnv1a -> #3977000791 }T
 T{ s" he" fnv1a -> #1547363254 }T
@@ -29,7 +29,7 @@ T{ s" hello worl" fnv1a -> #2767971961 }T
 T{ s" hello world" fnv1a -> #3582672807 }T
 
 \ -------------------------------------------------------------
-testing Running fnv1a + fmix32 via host::hash tests
+testing host::hash
 T{ $12345 0 host::hash -> $0 }T	\ zero length
 T{ s" " host::hash -> $0 }T		\ zero length
 T{ s" h" host::hash -> $50FE4703 }T
