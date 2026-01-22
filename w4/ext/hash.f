@@ -22,7 +22,7 @@ require ../std/loops.f
 \ https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
 
 	: fnv1a ( c-addr u -- u )
-		$811c9dc5 swap		( c-addr u -- c-addr hash u -- )
+		$811c9dc5 swap		( c-addr u -- c-addr hash u )
 		0 ?do				( c-addr hash u 0 -- c-addr hash )
 			over i + c@		( c-addr hash --  c-addr hash ch )
 			xor	$01000193 *	( c-addr hash ch -- c-addr hash' )
@@ -49,6 +49,6 @@ require ../std/loops.f
 		\ len <> 0
 		?dup 0<> if
 			fnv1a fmix32
-		else 0 and then
+		else drop 0 then
 	;
 
