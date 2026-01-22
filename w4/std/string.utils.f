@@ -13,7 +13,7 @@ require stack.f
 		begin
 			dup 0<>				( len src dst u -- len src dst u f )
 		while					( len src dst u f -- len src dst u )
-			1- 2dup				( len src dst u -- len src dst u' u' u' )
+			1- dup dup			( len src dst u -- len src dst u' u' u' )
 			sp-4@ + c@			( len src dst u u u -- len src dst u u c )
 			>lower-ascii		( len src dst u u c -- len src dst u u c' )
 			swap sp-3@ + c!		( len src dst u u c -- len src dst u )
