@@ -25,8 +25,7 @@ include string.utils.f
 		strdup-n-lower					( c-addr len -- c-addr' len' )
 		0 (flg-set-vis) (new-xt)		( c-addr len -- c-addr len xt )
 		-rot							( c-addr len xt -- xt c-addr len )
-		2dup host::hash					( xt c-addr len -- xt c-addr len hash )
-		sp-3@ (xt>str+len+hash!)		( xt c-addr len hash -- xt )
+		sp-2@ (xt>str+len+hash!)		( xt c-addr len -- xt )
 		here swap						( xt -- here^ xt )
 		string-max 1+ allot				\ allocate string buffer at here
 		2dup (xt>value!)				( here^ xt -- here^ xt )
@@ -89,78 +88,70 @@ include string.utils.f
 	;
 
 	: (processNameSubst) ( -- flag )
-		(substName) count		( -- c-addr u )
-		(findSubst)
-
-		dup >r if
-			\ TODO, not via execute
-			-2 throw
-			EXECUTE count >dest
+		(substName) count
+		(findSubst)          \ xt|0
+		?dup if
+			\ found
+			count >dest
+			true
 		else
+			\ not found
 			'%' (addDestSubst)
 			(substName) count >dest
 			'%' (addDestSubst)
+			false
 		then
-
-		r>
 	;
 
-: substitute ( src slen dest dlen -- dest dlen' n )
-	(substDestLen) !
-	(substDestAddr) !
-	0 (substDestCur) !
-	0 (substErr) !
+	: substitute ( src slen dest dlen -- dest dlen' n )
+		(substDestLen) !
+		(substDestAddr) !
+		0 (substDestCur) !
+		0 (substErr) !
 
-	\ error if src == dest
-	2over drop 2over drop = if
-		2drop 2drop 0 0 -1 exit
-	then
+		\ error if src == dest
+		2over drop 2over drop = if
+			2drop 2drop 0 0 -1 exit
+		then
 
-	0 -rot \ -- 0 src slen   (n src slen)
+		0 -rot							( src slen dest dlen -- n src u )
 
-	begin
-		dup 0 >
-	while
-		over c@ '%' <> if
-			\ normal character
-			over c@ (addDestSubst)
-			1 /string
-		else
-			\ saw '%'
-			dup 1 > if
-				\ safe to look at next char
-				over 1 chars + c@ '%' = if
-					\ %% -> literal %
-					'%' (addDestSubst)
-					2 /string
-				else
-					\ check for closing %
-					over 1 /string 2dup '%' scan nip 0= if
-						2drop
+		begin
+			dup 0 >
+		while
+			over c@ '%' <> if
+				\ normal character
+				over c@ (addDestSubst)
+				1 /string
+			else
+				\ saw '%'
+				dup 1 > if
+					\ safe to look at next char
+					over 1 chars + c@ '%' = if
+						\ %% -> literal %
 						'%' (addDestSubst)
-						1 /string
+						2 /string
 					else
-						2drop
-						(formNameSubst)
-						(processNameSubst) if
+						\ %name% (or %name with no closing %, handled by formNameSubst)
+						(formNameSubst)				\ ( n src u -- n src' u' )
+						(processNameSubst) if		\ increments only if found
 							rot 1+ -rot
 						then
 					then
+				else
+					\ single trailing '%'
+					'%' (addDestSubst)
+					1 /string
 				then
-			else
-				\ single trailing '%'
-				'%' (addDestSubst)
-				1 /string
 			then
+		repeat
+
+		2drop
+		(substDestAddr) @
+		(substDestCur) @
+		rot
+
+		(substErr) @ if
+			drop (substErr) @
 		then
-	repeat
-
-	2drop
-	(substDestAddr) @
-	(substDestCur) @
-	rot
-
-	(substErr) @ if
-		drop (substErr) @
-	then
-;
+	;
