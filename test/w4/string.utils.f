@@ -4,6 +4,7 @@ testing streq-n
 T{ s" abcdef" s" abcdef" streq-n -> TRUE }T
 T{ s" abc" s" abcdef" streq-n -> FALSE }T
 T{ s" abcdef" s" abc" streq-n -> FALSE }T
+T{ s" abc" s" def" streq-n -> FALSE }T
 T{ s" abcDEF" s" abcdef" streq-n -> FALSE }T
 
 \ -------------------------------------------------------------
