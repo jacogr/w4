@@ -161,12 +161,12 @@ require ../ext/hash.f
 					sp-3@				( hash c-addr u nt c-addr1 -- hash c-addr u nt c-addr1 c-addr2 )
 					sp-3@ 				( hash c-addr u nt c-addr1 c-addr2 -- hash c-addr u nt c-addr1 c-addr2 u )
 					strcmpn				( hash c-addr u nt c-addr1 c-addr2 u -- hash c-addr u nt f )
-				else 0 and then			( hash c-addr u nt c-addr1 -- hash c-addr u nt 0 )
-			else 0 and then 			( hash c-addr u nt xt -- hash c-addr u nt 0 )
+				else drop 0 then		( hash c-addr u nt c-addr1 -- hash c-addr u nt 0 )
+			else drop 0 then 			( hash c-addr u nt xt -- hash c-addr u nt 0 )
 
 			\ not found, move to next
 			?dup 0= if					( hash c-addr u nt f -- hash c-addr u nt )
-				(name>link@) 0			( hash c-addr u nt -- c-addr u nt' 0 )
+				(name>link@) 0			( hash c-addr u nt -- hash c-addr u nt' 0 )
 			then
 		repeat
 
