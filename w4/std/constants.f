@@ -6,7 +6,7 @@
 	\	hash :  hash for name
 	\	flags: always at index 3
 	\ 	value: flags-specific value
-	: (sizeof-xt) $5 cells ;
+	: (sizeof-xt) ( -- u ) $5 cells ;
 
 	: (xt>str+len@) ( xt -- c-addr u ) >str+len ;
 
@@ -18,14 +18,14 @@
 		(xt>str!)	( c-addr xt -- )
 	;
 
-	: (xt>hash@) $2 cells + @ ;
-	: (xt>hash!) $2 cells + ! ;
+	: (xt>hash@) ( a-addr -- u ) $2 cells + @ ;
+	: (xt>hash!) ( u a-addr -- ) $2 cells + ! ;
 
-	: (xt>flags@) >flags @ ;
-	: (xt>flags!) >flags ! ;
+	: (xt>flags@) ( a-addr -- u ) >flags @ ; \ $3 cells
+	: (xt>flags!) ( u a-addr -- ) >flags ! ;
 
-	: (xt>value@) >value @ ;
-	: (xt>value!) >value ! ;
+	: (xt>value@) ( a-addr -- u ) >value @ ; \ $4 cells
+	: (xt>value!) ( u a-addr -- ) >value ! ;
 
 \ layouts for names, aligned with wasm
 
@@ -34,22 +34,22 @@
 	\ 	link : link (for lookups)
 	\	flags: always at index 3
 	\	value: xt (or specific to list type)
-	: (sizeof-nt) $5 cells ;
+	: (sizeof-nt) ( -- u ) $5 cells ;
 
-	: (name>prev@) @ ;
-	: (name>prev!) ( prev -- ) ! ;
+	: (name>prev@) ( a-addr -- u ) @ ;
+	: (name>prev!) ( u a-addr -- ) ! ;
 
-	: (name>next@) $1 cells + @ ;
-	: (name>next!) ( next -- ) $1 cells + ! ;
+	: (name>next@) ( a-addr -- u ) $1 cells + @ ;
+	: (name>next!) ( u a-addr -- ) $1 cells + ! ;
 
-	: (name>link@) $2 cells + @ ;
-	: (name>link!) ( link -- ) $2 cells + ! ;
+	: (name>link@) ( a-addr -- u ) $2 cells + @ ;
+	: (name>link!) ( u a-addr -- ) $2 cells + ! ;
 
-	: (name>flags@) >flags @ ;
-	: (name>flags!) ( flags -- ) >flags ! ;
+	: (name>flags@) ( a-addr -- u ) >flags @ ;
+	: (name>flags!) ( u a-addr -- ) >flags ! ;
 
-	: (name>value@) >value @ ;
-	: (name>value!) ( flags -- ) >value ! ;
+	: (name>value@) ( a-addr -- u ) >value @ ;
+	: (name>value!) ( u a-addr -- ) >value ! ;
 
 \ layouts for lists, aligned with wasm
 
@@ -59,38 +59,37 @@
 	\ 	flags : always at index 3
 	\ 	file  : if present
 	\ 	rowcol: if present
-	: (sizeof-list) $6 cells ;
+	: (sizeof-list) ( -- u ) $6 cells ;
 
-	: (list>head@) @ ;
-	: (list>head!) ( head -- ) ! ;
+	: (list>head@) ( a-addr -- u ) @ ;
+	: (list>head!) ( u a-addr -- ) ! ;
 
-	: (list>tail@) $1 cells + @ ;
-	: (list>tail!) ( tail -- ) $1 cells + ! ;
+	: (list>tail@) ( a-addr -- u ) $1 cells + @ ;
+	: (list>tail!) ( u a-addr -- ) $1 cells + ! ;
 
-	: (list>owner@) $2 cells + @ ;
-	: (list>owner!) ( owner -- ) $2 cells + ! ;
+	: (list>owner@) ( a-addr -- u ) $2 cells + @ ;
+	: (list>owner!) ( u a-addr -- ) $2 cells + ! ;
 
-	: (list>flags@) >flags @ ;
-	: (list>flags!) ( flags -- ) >flags ! ;
+	: (list>flags@) ( a-addr -- u ) >flags @ ;
+	: (list>flags!) ( u a-addr -- ) >flags ! ;
 
-	: (list>file@) $4 cells + @ ;
-	: (list>file!) ( file -- ) $4 cells + ! ;
+	: (list>file@) ( a-addr -- u ) $4 cells + @ ;
+	: (list>file!) ( u a-addr -- ) $4 cells + ! ;
 
-	: (list>rowcol@) $5 cells + @ ;
-	: (list>rowcol!) ( rowcol -- ) $5 cells + ! ;
+	: (list>rowcol@) ( a-addr -- u ) $5 cells + @ ;
+	: (list>rowcol!) ( u a-addr -- ) $5 cells + ! ;
 
 \ layouts for lookup indexes
 
 	\ 	buckets: array of bucket pointers, 2^n
 	\ 	mask   : 2^n - 1, mask for bucket lookup
-	: (sizeof-lookup) $2 cells ;
+	: (sizeof-lookup) ( -- u ) $2 cells ;
 
-	: (lookup>buckets@) ( a-addr -- v ) @ ;
-	: (lookup>buckets!) ( v a-addr -- ) ! ;
+	: (lookup>buckets@) ( a-addr -- u ) @ ;
+	: (lookup>buckets!) ( u a-addr -- ) ! ;
 
-	: (lookup>mask@) ( a-addr -- v ) $1 cells + @ ;
-	: (lookup>mask!) ( v a-addr -- ) $1 cells + ! ;
-
+	: (lookup>mask@) ( a-addr -- u ) $1 cells + @ ;
+	: (lookup>mask!) ( u a-addr -- ) $1 cells + ! ;
 
 \ https://forth-standard.org/standard/core/HERE
 \
