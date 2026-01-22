@@ -50,7 +50,7 @@ require ../ext/hash.f
 		r> over (lookup>mask!)		( list index -- list index ) ( r: mask -- )	\ set mask
 
 		\ set index on list
-		over (list>owner!)			( list index -- )
+		over (list>owner!)			( list index -- list )
 	;
 
 	: (new-lookup-small) ( -- a-addr ) $100 (new-lookup) ; \ 256
@@ -59,35 +59,45 @@ require ../ext/hash.f
 \ Appends an "xt" to a list
 
 	: (list-append) ( a-addr xt -- nt )
-		\ ensure it is actually a list
-		over (list>flags@)		( a-addr xt -- a-addr xt flags )
-		(flg-list)				( a-addr xt flags -- a-addr xt flags a-addr xt flags exp )
-		= 0= #-50 and throw		\ ensure flags == expected
+		\ flags can have variants in the lower 8 bits, e.g.
+		\ (flg-list) & (flg-set-var) for lookups, so compare with
+		\ and then =
+		over (list>flags@)		( list xt -- list xt flags )
+		(flg-list) and			( list xt flags -- list xt f1 )	\ f1 = flg-list & flags
+		(flg-list) = 			( list xt f1 -- list xt f2 )	\ f2 = f1 == flg-list
+		0= #-50 and throw		\ ensure list
 
 		\ new nt, set xt as nt value
-		(new-nt)				( a-addr xt -- a-addr nt )
+		(new-nt)				( list xt -- list nt )
 
 		\ get tail
-		over (list>tail@)		( a-addr nt -- a-addr nt tail )
-		2dup					( a-addr nt tail -- a-addr nt tail nt tail )
+		over (list>tail@)		( list nt -- list nt tail )
+		2dup					( list nt tail -- list nt tail nt tail )
 
 		\ tail exist?
-		?dup if					( a-addr nt tail nt tail -- a-addr nt tail nt tail )
+		?dup if					( list nt tail nt tail -- list nt tail nt tail )
 			\ tail>next = nt, nt>prev = tail
-			(name>next!)		( a-addr nt tail nt tail -- a-addr nt tail )
-			over				( a-addr nt tail -- a-addr nt tail nt )
-			(name>prev!)		( a-addr nt tail nt -- a-addr nt )
-		else 2drop then 		( a-addr nt tail nt -- a-addr nt )
+			(name>next!)		( list nt tail nt tail -- list nt tail )
+			over				( list nt tail -- list nt tail nt )
+			(name>prev!)		( list nt tail nt -- list nt )
+		else 2drop then 		( list nt tail nt -- list nt )
+
+		\ set tail
+		2dup swap				( list nt -- list nt nt list )
+		(list>tail!)			( list nt nt list -- list nt )
 
 		\ get head
-		dup rot	dup				( a-addr nt -- nt nt a-addr a-addr )
-		(list>head@)			( nt nt a-addr a-addr -- nt nt a-addr head )
+		dup rot	dup				( list nt -- nt nt list list )
+		(list>head@)			( nt nt list list -- nt nt list head )
 
-		\ head exists?
-		if						( nt nt a-addr head -- nt nt a-addr )
-			\ (list>head@) = nt
-			(list>head!)		( nt nt a-addr -- nt )
-		else 2drop then			( nt nt a-addr -- nt )
+		\ head?
+		if						( nt nt list head -- nt nt list )
+			\ existing head, cleanup
+			2drop				( nt nt list -- nt )
+		else
+			\ set as head
+			(list>head!)		( nt nt list -- nt )
+		then
 	;
 
 \ TODO: list "insert", aka place item before tail (useful for token lists where
@@ -97,15 +107,17 @@ require ../ext/hash.f
 
 	: (lookup-append) 				( a-addr xt -- nt )
 		\ add the entry to the linked list
-		over swap					( a-addr xt -- a-addr a-addr xt )
-		(list-append)				( a-addr a-addr xt -- a-addr nt )
+		over swap					( list xt -- list list xt )
+		(list-append)				( list list xt -- list nt )
 
 		\ get index from list
-		swap (list>owner@)			( a-addr nt -- nt index )
+		swap (list>owner@)			( list nt -- nt index )
 
 		\ get mask offset & bucket pointer
 		dup (lookup>mask@) 			( nt index -- nt index mask )
-		sp-2@ and cells				( nt index mask -- nt index off )
+		sp-2@ 						( nt index mask -- nt index mask nt )
+		(nt>value@) (xt>hash@)		( nt index mask nt -- nt index mask hash )
+		and cells					( nt index mask hash -- nt index off )
 		swap (lookup>buckets@) +	( nt index off -- nt bucket )
 
 		\ current bucket head, store as link, update
@@ -126,7 +138,8 @@ require ../ext/hash.f
 		\ mask & buckets to bucket
 		dup (lookup>buckets@)			( hash index -- hash index buckets )
 		swap (lookup>mask@)				( hash index buckets -- hash buckets mask )
-		sp-2@ and +						( hash buckets mask -- hash bucket )
+		sp-2@							( hash index buckets -- hash buckets mask hash )
+		and +							( hash buckets mask hash -- hash bucket )
 
 		\ bring back string, get head
 		@ 2r> 							( hash bucket -- hash nt c-addr u ) ( r: c-addr u -- )
