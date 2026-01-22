@@ -122,7 +122,7 @@ require stack.f
 \ than the delimiter, the resulting string has a zero length. A program may
 \ replace characters within the string.
 
-	string-max buffer: (word-tmp-buf) \ 255 + 1 (length byte at 0)
+	string-max 1+ buffer: (word-tmp-buf) \ 256 + 1 (length byte at 0)
 
 	: (parse-whitespace-skip) ( -- )
 		begin

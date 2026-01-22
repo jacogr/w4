@@ -177,7 +177,7 @@ require ../ext/hash.f
 \ Like lookup-find, however this version only takes the wid and
 \ the string + length, calculating a lowercase hash
 
-	string-max buffer: (lookup-tmp)
+	string-max 1+ buffer: (lookup-tmp)
 
 	: (lookup-search) ( c-addr u wid -- nt|0 )
 		over string-max > #-18 and throw

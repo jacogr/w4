@@ -22,9 +22,13 @@ include string.utils.f
 	(new-lookup-small) constant (widSubst)
 
 	: (makeSubst)	( c-addr len -- c-addr )
-		(new-xt) -rot					( c-addr len -- xt c-addr len )
-		sp-2@ (xt>str+len+hash!)		( xt c-addr len -- xt )
+		strdup-n-lower					( c-addr len -- c-addr' len' )
+		0 (flg-set-vis) (new-xt)		( c-addr len -- c-addr len xt )
+		-rot							( c-addr len xt -- xt c-addr len )
+		2dup host::hash					( xt c-addr len -- xt c-addr len hash )
+		sp-3@ (xt>str+len+hash!)		( xt c-addr len hash -- xt )
 		here swap						( xt -- here^ xt )
+		string-max 1+ allot				\ allocate string buffer at here
 		2dup (xt>value!)				( here^ xt -- here^ xt )
 		(widSubst) swap					( here^ xt -- here^ wid xt )
 		(lookup-append)					( here^ wid xt -- here^ nt )
@@ -55,15 +59,18 @@ include string.utils.f
 \ 0 on success and indicates the number of substitutions made. A negative
 \ value for n indicates that an error occurred, leaving c-addr2 u3 undefined
 
-	string-max buffer: (substName)	\ Holds substitution name as a counted string.
+	string-max 1+ buffer: (substName)	\ Holds substitution name as a counted string.
 
 	variable (substDestLen)			\ Maximum length of the destination buffer.
-	2variable (substDest)			\ Holds destination string current length and address.
+	variable (substDestAddr)   		\ destination base address
+	variable (substDestCur)    		\ current length
 	variable (substErr)				\ Holds zero or an error code.
 
 	: (addDestSubst) ( char -- )
-		(substDest) @ (substDestLen) @ < if
-			(substDest) 2@ + c! 1 chars (substDest) +!
+		(substDestCur) @ (substDestLen) @ < if
+			(substDestAddr) @
+			(substDestCur) @ + c!          \ store char
+			1 (substDestCur) +!            \ advance length
 		else
 			drop -1 (substErr) !
 		then
@@ -98,29 +105,62 @@ include string.utils.f
 		r>
 	;
 
-	: substitute ( src slen dest dlen -- dest dlen' n )
-		(substDestLen) ! 0 (substDest) 2! 0 -rot \ -- 0 src slen
-		0 (substErr) !
+: substitute ( src slen dest dlen -- dest dlen' n )
+	(substDestLen) !
+	(substDestAddr) !
+	0 (substDestCur) !
+	0 (substErr) !
 
-		begin
-			dup 0 >
-		while
-			over c@ '%' <> if 				\ character not %
-				over c@ (addDestSubst) 1 /string
-			else
-				over 1 chars + c@ '%' = if	\ %% for one output %
+	\ error if src == dest
+	2over drop 2over drop = if
+		2drop 2drop 0 0 -1 exit
+	then
+
+	0 -rot \ -- 0 src slen   (n src slen)
+
+	begin
+		dup 0 >
+	while
+		over c@ '%' <> if
+			\ normal character
+			over c@ (addDestSubst)
+			1 /string
+		else
+			\ saw '%'
+			dup 1 > if
+				\ safe to look at next char
+				over 1 chars + c@ '%' = if
+					\ %% -> literal %
 					'%' (addDestSubst)
-					2 /string 				\ add one % to output
+					2 /string
 				else
-					(formNameSubst)
-					(processNameSubst) if
-						rot 1+ -rot 			\ count substitutions
+					\ check for closing %
+					over 1 /string 2dup '%' scan nip 0= if
+						2drop
+						'%' (addDestSubst)
+						1 /string
+					else
+						2drop
+						(formNameSubst)
+						(processNameSubst) if
+							rot 1+ -rot
+						then
 					then
 				then
+			else
+				\ single trailing '%'
+				'%' (addDestSubst)
+				1 /string
 			then
-		repeat
-
-		2drop (substDest) 2@ rot (substErr) @ if
-			drop (substErr) @
 		then
-	;
+	repeat
+
+	2drop
+	(substDestAddr) @
+	(substDestCur) @
+	rot
+
+	(substErr) @ if
+		drop (substErr) @
+	then
+;
