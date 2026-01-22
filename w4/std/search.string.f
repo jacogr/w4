@@ -32,8 +32,8 @@ include string.utils.f
    ;
 
 	: (findSubst) ( c-addr len -- xt|0 )
-   		(widSubst) (lookup-search)		( c-addr len -- nt|0 )
-		(name>value@) (xt>value@)		( nt|0 -- xt|0 )
+   		(widSubst) (search-xt)		( c-addr len -- xt|0 )
+		(xt>value@)					( xt|0 -- xt|0 )
 	;
 
 	: replaces ( text tlen name nlen -- )
@@ -63,7 +63,7 @@ include string.utils.f
 
 	: (addDestSubst) ( char -- )
 		(substDest) @ (substDestLen) @ < if
-			(substDest) 2@ + C! 1 chars (substDest) +!
+			(substDest) 2@ + c! 1 chars (substDest) +!
 		else
 			drop -1 (substErr) !
 		then
@@ -82,9 +82,13 @@ include string.utils.f
 	;
 
 	: (processNameSubst) ( -- flag )
-		(substName) count (findSubst)
+		(substName)
+		count
+		(findSubst)
 
 		dup >r if
+			\ TODO, not via execute
+			-2 throw
 			EXECUTE count >dest
 		else
 			'%' (addDestSubst)
@@ -109,8 +113,9 @@ include string.utils.f
 					'%' (addDestSubst)
 					2 /string 				\ add one % to output
 				else
-					(formNameSubst) (processNameSubst) if
-					rot 1+ -rot 			\ count substitutions
+					(formNameSubst)
+					(processNameSubst) if
+						rot 1+ -rot 			\ count substitutions
 					then
 				then
 			then

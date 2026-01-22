@@ -129,11 +129,12 @@ require ../ext/hash.f
 		sp-2@ and +						( hash buckets mask -- hash bucket )
 
 		\ bring back string, get head
-		2r> rot	@ 0						( hash bucket -- hash c-addr u nt 0 ) ( r: c-addr u -- )
+		@ 2r> 							( hash bucket -- hash nt c-addr u ) ( r: c-addr u -- )
+		rot	0							( hash nt c-addr u -- hash c-addr u nt 0 )
 
 		\ find in bucket
 		begin
-			\ not found & a-addr <> 0
+			\ found == 0 & nt <> 0
 			0= over 0<> and				( hash c-addr u nt f -- hash c-addr u nt f' )
 		while							( hash c-addr u nt f -- hash c-addr u nt )
 			\ get hashes
@@ -143,7 +144,7 @@ require ../ext/hash.f
 			\ hash1 == hash?
 			sp-5@ = if					( hash c-addr u nt xt hash1 -- hash c-addr u nt xt )
 				\ get string
-				>str+len					( hash c-addr u nt xt -- hash c-addr u nt c-addr1 u1 )
+				>str+len				( hash c-addr u nt xt -- hash c-addr u nt c-addr1 u1 )
 
 				\ u1 == u?
 				sp-3@ = if				( hash c-addr u nt c-addr1 u1 -- hash c-addr u nt c-addr1 )
@@ -158,17 +159,17 @@ require ../ext/hash.f
 			?dup 0= if					( hash c-addr u nt f -- hash c-addr u nt )
 				(name>link@) 0			( hash c-addr u nt -- c-addr u nt' 0 )
 			then
-		until
+		repeat
 
 		\ cleanup
-		-rot 2drop						( hash c-addr u nt -- hash nt )
-		nip								( hash nt -- nt )
+		2nip nip						( hash c-addr u nt -- nt )
 	;
 
 \ Like lookup-find, however this version only takes the wid and
 \ the string + length, calculating a lowercase hash
 
-	: (lookup-search) ( wid c-addr u -- nt|0 )
+	: (lookup-search) ( c-addr u wid -- nt|0 )
+		-rot						( c-addr u wid -- wid c-addr u )
 		strdup-n-lower				( wid c-addr u -- wid c-addr' u' )
 		2dup host::hash				( wid c-addr u -- wid c-addr u hash )
 		(lookup-find)				( wid c-addr u hash -- nt|0 )

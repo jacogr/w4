@@ -5,13 +5,15 @@ require stack.f
 
 	: >lower-ascii ( c -- c' ) dup 'A' 'Z' 1+ within if $20 or then ;
 
-\ dupliacet a string in lowercase
+\ duplicate a string in lowercase
 
 	: strdup-n-lower ( c-addr u -- c-addr2 u )
-		swap over				( c-addr u -- len src u )
-		here swap				( len src u -- len src dst u )
-		allot					( len src dst u -- len src dst )
-		sp-2@					( len src dst u -- len src dst u )
+		\ len == 0?
+		?dup 0= if drop 0 0 exit then
+
+		swap over			( src len -- len src u )
+		here swap			( len src u -- len src dst u )
+		dup allot			( len src dst u -- len src dst u )
 
 		begin
 			dup 0<>				( len src dst u -- len src dst u f )

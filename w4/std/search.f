@@ -34,13 +34,11 @@ require stack.f
 \ definition is found, return its execution token xt and one (1) if the
 \ definition is immediate, minus-one (-1) otherwise.
 
-	: search-wordlist ( c-addr u wid -- 0 | xt 1 | xt -1 )
-		-rot (lookup-search)		( c-addr u wid -- nt|0 )
+	: (search-xt) ( c-addr u wid -- xt|0 ) (lookup-search) (name>value@) ;
 
-		\ found the nt?
-		?dup if
-			(name>value@) dup		( nt -- xt xt )
-			(xt>flags@)				( xt xt -- xt flags )
+	: search-wordlist ( c-addr u wid -- 0 | xt 1 | xt -1 )
+		(search-xt) ?dup if		( c-addr u wid -- xt )
+			dup (xt>flags@)		( xt -- xt flags )
 
 			\ immediate?
 			(flg-set-imm) and if
