@@ -116,7 +116,7 @@ require ../ext/hash.f
 		\ get mask offset & bucket pointer
 		dup (lookup>mask@) 			( nt index -- nt index mask )
 		sp-2@ 						( nt index mask -- nt index mask nt )
-		(nt>value@) (xt>hash@)		( nt index mask nt -- nt index mask hash )
+		(name>value@) (xt>hash@)	( nt index mask nt -- nt index mask hash )
 		and cells					( nt index mask hash -- nt index off )
 		swap (lookup>buckets@) +	( nt index off -- nt bucket )
 
