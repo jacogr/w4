@@ -76,9 +76,10 @@ include string.utils.f
 	;
 
 	: (formNameSubst) ( c-addr len -- c-addr' len' )
-		1 /string 2dup '%' scan >r drop			\ find length of residue
-		2dup r> - dup >r (substName) place 		\ save name in buffer
-		r> 1 chars + /string 					\ step over name and trailing %
+		1 /string
+		2dup '%' scan >r drop
+		2dup r> - dup >r (substName) place
+		r> 1 chars + /string
 	;
 
 	: >dest ( c-addr len -- )
@@ -89,13 +90,11 @@ include string.utils.f
 
 	: (processNameSubst) ( -- flag )
 		(substName) count
-		(findSubst)          \ xt|0
+		(findSubst)
 		?dup if
-			\ found
 			count >dest
 			true
 		else
-			\ not found
 			'%' (addDestSubst)
 			(substName) count >dest
 			'%' (addDestSubst)
@@ -114,28 +113,22 @@ include string.utils.f
 			2drop 2drop 0 0 -1 exit
 		then
 
-		0 -rot							( src slen dest dlen -- n src u )
+		0 -rot					\ -- 0 src slen
 
 		begin
 			dup 0 >
 		while
-			over c@ '%' <> if
-				\ normal character
-				over c@ (addDestSubst)
-				1 /string
+			over c@ '%' <> if				\ character not %
+				over c@ (addDestSubst) 1 /string
 			else
-				\ saw '%'
-				dup 1 > if
-					\ safe to look at next char
-					over 1 chars + c@ '%' = if
-						\ %% -> literal %
+				dup 1 > if					\ safe to look at next char
+					over 1 chars + c@ '%' = if		\ %% for one output %
 						'%' (addDestSubst)
 						2 /string
 					else
-						\ %name% (or %name with no closing %, handled by formNameSubst)
-						(formNameSubst)				\ ( n src u -- n src' u' )
-						(processNameSubst) if		\ increments only if found
-							rot 1+ -rot
+						(formNameSubst)
+						(processNameSubst) if
+							rot 1+ -rot		\ count substitutions
 						then
 					then
 				else
