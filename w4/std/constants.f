@@ -143,11 +143,11 @@
 \
 \ `$c0de0140` defined below as literal
 
-	: (new-xt) ( flags -- )
-		align here				( flags -- flags here^ )
+	: (new-xt) ( n flags -- a-addr )
+		align here				( n flags -- n flags a-addr )
 		(sizeof-xt) allot		\ allocate
-		swap over (xt>flags!) 	\ write flags
-		swap over (xt>value!) 	\ write address
+		swap over (xt>flags!) 	( n flags a-addr -- n a-addr )
+		swap over (xt>value!) 	( n a-addr -- a-addr )
 	;
 
 	: lit ( n -- ) $c0de0140 (new-xt) ; \ aligned with (flg-xt-lit) below
