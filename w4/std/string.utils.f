@@ -5,15 +5,10 @@ require stack.f
 
 	: >lower-ascii ( c -- c' ) dup 'A' 'Z' 1+ within if $20 or then ;
 
-\ duplicate a string in lowercase
+\ copy a string in lowercase
 
-	: strdup-n-lower ( c-addr u -- c-addr2 u )
-		\ len == 0?
-		?dup 0= if drop 0 0 exit then
-
-		swap over			( src len -- len src u )
-		here swap			( len src u -- len src dst u )
-		dup allot			( len src dst u -- len src dst u )
+	: strcpy-n-lower ( src dst u -- dst u )
+		-rot sp-2@				( src dst u -- len src dst u )
 
 		begin
 			dup 0<>				( len src dst u -- len src dst u f )
@@ -26,6 +21,17 @@ require stack.f
 
 		drop nip				( len src dst u -- len dst )
 		swap					( len dst -- dst len )
+	;
+
+\ duplicate a string in lowercase
+
+	: strdup-n-lower ( c-addr u -- c-addr2 u )
+		\ len == 0?
+		?dup 0= if drop 0 0 exit then
+
+		here swap			( src len -- src dst len )
+		dup allot			( src dst len -- src dst len )
+		strcpy-n-lower
 	;
 
 \ Compare two strings byte for byte until the specified length

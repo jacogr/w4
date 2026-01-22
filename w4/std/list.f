@@ -177,11 +177,14 @@ require ../ext/hash.f
 \ Like lookup-find, however this version only takes the wid and
 \ the string + length, calculating a lowercase hash
 
+	string-max buffer: (lookup-tmp)
+
 	: (lookup-search) ( c-addr u wid -- nt|0 )
-		-rot						( c-addr u wid -- wid c-addr u )
-		strdup-n-lower				( wid c-addr u -- wid c-addr' u' )
-		2dup host::hash				( wid c-addr u -- wid c-addr u hash )
-		(lookup-find)				( wid c-addr u hash -- nt|0 )
+		-rot						( src u wid -- wid src u )
+		(lookup-tmp) swap			( wid src u -- wid src dst u )
+		strcpy-n-lower				( wid src dst u -- wid dst u )
+		2dup host::hash				( wid dst u -- wid dst u hash )
+		(lookup-find)				( wid dst u hash -- nt|0 )
 	;
 
 	: (lookup-search-xt) ( c-addr u wid -- xt|0 ) (lookup-search) (name>value@) ;
