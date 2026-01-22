@@ -36,20 +36,20 @@
 	\	value: xt (or specific to list type)
 	: (sizeof-nt) ( -- u ) $5 cells ;
 
-	: (name>prev@) ( a-addr -- u ) @ ;
-	: (name>prev!) ( u a-addr -- ) ! ;
+	: (nt>prev@) ( a-addr -- u ) @ ;
+	: (nt>prev!) ( u a-addr -- ) ! ;
 
-	: (name>next@) ( a-addr -- u ) $1 cells + @ ;
-	: (name>next!) ( u a-addr -- ) $1 cells + ! ;
+	: (nt>next@) ( a-addr -- u ) $1 cells + @ ;
+	: (nt>next!) ( u a-addr -- ) $1 cells + ! ;
 
-	: (name>link@) ( a-addr -- u ) $2 cells + @ ;
-	: (name>link!) ( u a-addr -- ) $2 cells + ! ;
+	: (nt>link@) ( a-addr -- u ) $2 cells + @ ;
+	: (nt>link!) ( u a-addr -- ) $2 cells + ! ;
 
-	: (name>flags@) ( a-addr -- u ) >flags @ ;
-	: (name>flags!) ( u a-addr -- ) >flags ! ;
+	: (nt>flags@) ( a-addr -- u ) >flags @ ;
+	: (nt>flags!) ( u a-addr -- ) >flags ! ;
 
-	: (name>value@) ( a-addr -- u ) >value @ ;
-	: (name>value!) ( u a-addr -- ) >value ! ;
+	: (nt>value@) ( a-addr -- u ) >value @ ;
+	: (nt>value!) ( u a-addr -- ) >value ! ;
 
 \ layouts for lists, aligned with wasm
 
@@ -59,37 +59,37 @@
 	\ 	flags : always at index 3
 	\ 	file  : if present
 	\ 	rowcol: if present
-	: (sizeof-list) ( -- u ) $6 cells ;
+	: (sizeof-lst) ( -- u ) $6 cells ;
 
-	: (list>head@) ( a-addr -- u ) @ ;
-	: (list>head!) ( u a-addr -- ) ! ;
+	: (lst>head@) ( a-addr -- u ) @ ;
+	: (lst>head!) ( u a-addr -- ) ! ;
 
-	: (list>tail@) ( a-addr -- u ) $1 cells + @ ;
-	: (list>tail!) ( u a-addr -- ) $1 cells + ! ;
+	: (lst>tail@) ( a-addr -- u ) $1 cells + @ ;
+	: (lst>tail!) ( u a-addr -- ) $1 cells + ! ;
 
-	: (list>owner@) ( a-addr -- u ) $2 cells + @ ;
-	: (list>owner!) ( u a-addr -- ) $2 cells + ! ;
+	: (lst>owner@) ( a-addr -- u ) $2 cells + @ ;
+	: (lst>owner!) ( u a-addr -- ) $2 cells + ! ;
 
-	: (list>flags@) ( a-addr -- u ) >flags @ ;
-	: (list>flags!) ( u a-addr -- ) >flags ! ;
+	: (lst>flags@) ( a-addr -- u ) >flags @ ;
+	: (lst>flags!) ( u a-addr -- ) >flags ! ;
 
-	: (list>file@) ( a-addr -- u ) $4 cells + @ ;
-	: (list>file!) ( u a-addr -- ) $4 cells + ! ;
+	: (lst>file@) ( a-addr -- u ) $4 cells + @ ;
+	: (lst>file!) ( u a-addr -- ) $4 cells + ! ;
 
-	: (list>rowcol@) ( a-addr -- u ) $5 cells + @ ;
-	: (list>rowcol!) ( u a-addr -- ) $5 cells + ! ;
+	: (lst>rowcol@) ( a-addr -- u ) $5 cells + @ ;
+	: (lst>rowcol!) ( u a-addr -- ) $5 cells + ! ;
 
 \ layouts for lookup indexes
 
 	\ 	buckets: array of bucket pointers, 2^n
 	\ 	mask   : 2^n - 1, mask for bucket lookup
-	: (sizeof-lookup) ( -- u ) $2 cells ;
+	: (sizeof-idx) ( -- u ) $2 cells ;
 
-	: (lookup>buckets@) ( a-addr -- u ) @ ;
-	: (lookup>buckets!) ( u a-addr -- ) ! ;
+	: (idx>buckets@) ( a-addr -- u ) @ ;
+	: (idx>buckets!) ( u a-addr -- ) ! ;
 
-	: (lookup>mask@) ( a-addr -- u ) $1 cells + @ ;
-	: (lookup>mask!) ( u a-addr -- ) $1 cells + ! ;
+	: (idx>mask@) ( a-addr -- u ) $1 cells + @ ;
+	: (idx>mask!) ( u a-addr -- ) $1 cells + ! ;
 
 \ https://forth-standard.org/standard/core/HERE
 \
@@ -177,10 +177,10 @@
 \ NOTE <builds is aligned, so the dfa is aligned as per the specification
 
 	: (latest>value) latest >value @ ;
-	: (latest>head^) (latest>value) (list>head@) ;
-	: (latest>tail^) (latest>value) (list>tail@) ;
-	: (latest>prev^) (latest>tail^) (name>prev@) ;
-	: (latest>body^) (latest>head^) (name>value@) >value ;
+	: (latest>head^) (latest>value) (lst>head@) ;
+	: (latest>tail^) (latest>value) (lst>tail@) ;
+	: (latest>prev^) (latest>tail^) (nt>prev@) ;
+	: (latest>body^) (latest>head^) (nt>value@) >value ;
 
 	: create
 		parse-name
@@ -198,8 +198,8 @@
 
 	: >body ( xt -- a-addr )
 		(xt>value@)		\ read address of token list
-		(list>head@)	\ first entry inside the list
-		(name>value@)	\ get the first token, address literal
+		(lst>head@)	\ first entry inside the list
+		(nt>value@)	\ get the first token, address literal
 		(xt>value@)		\ read the value
 	;
 

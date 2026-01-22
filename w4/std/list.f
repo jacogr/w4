@@ -10,9 +10,9 @@ require ../ext/hash.f
 
 	: ((new-list)) ( flags -- a-addr )
 		align here swap			( flags -- here^ flags )
-		(sizeof-list) allot		\ allocate
+		(sizeof-lst) allot		\ allocate
 		(flg-list) or			( here^ flags -- here^ flags' )
-		over (list>flags!)		( here^ flags' -- here^ )	\ write flags
+		over (lst>flags!)		( here^ flags' -- here^ )	\ write flags
 	;
 
 	: (new-list) ( -- a-addr ) 0 ((new-list)) ;
@@ -23,8 +23,8 @@ require ../ext/hash.f
 		align here swap			( val -- here^ val )
 		(sizeof-nt) allot		\ allocate
 		over (flg-name)			( here^ val -- here^ val here^ flags )
-		swap (name>flags!) 		( here^ val here^ flags -- here^ val )
-		over (name>value!)		( here^ val -- here^ )
+		swap (nt>flags!) 		( here^ val here^ flags -- here^ val )
+		over (nt>value!)		( here^ val -- here^ )
 	;
 
 \ Creates a lookup list (list + hashed headers)
@@ -43,14 +43,14 @@ require ../ext/hash.f
 		here swap					( list count -- list buckets count )
 		cells allot					( list buckets count -- list buckets )		\ allocate count cells
 		here swap					( list buckets -- list index buckets )		\ index ptr
-		(sizeof-lookup) allot		\ allocate index
+		(sizeof-idx) allot		\ allocate index
 
 		\ setup index buckets & mask
-		over (lookup>buckets!)		( list index buckets -- list index )		\ set buckets
-		r> over (lookup>mask!)		( list index -- list index ) ( r: mask -- )	\ set mask
+		over (idx>buckets!)		( list index buckets -- list index )		\ set buckets
+		r> over (idx>mask!)		( list index -- list index ) ( r: mask -- )	\ set mask
 
 		\ set index on list
-		over (list>owner!)			( list index -- list )
+		over (lst>owner!)			( list index -- list )
 	;
 
 	: (new-lookup-small) ( -- a-addr ) $100 (new-lookup) ; \ 256
@@ -62,7 +62,7 @@ require ../ext/hash.f
 		\ flags can have variants in the lower 8 bits, e.g.
 		\ (flg-list) & (flg-set-var) for lookups, so compare with
 		\ and then =
-		over (list>flags@)		( list xt -- list xt flags )
+		over (lst>flags@)		( list xt -- list xt flags )
 		(flg-list) and			( list xt flags -- list xt f1 )	\ f1 = flg-list & flags
 		(flg-list) = 			( list xt f1 -- list xt f2 )	\ f2 = f1 == flg-list
 		0= #-50 and throw		\ ensure list
@@ -71,28 +71,28 @@ require ../ext/hash.f
 		(new-nt)				( list xt -- list nt )
 
 		\ get tail
-		over (list>tail@)		( list nt -- list nt tail )
+		over (lst>tail@)		( list nt -- list nt tail )
 		2dup					( list nt tail -- list nt tail nt tail )
 
 		\ tail exist?
 		?dup if					( list nt tail nt tail -- list nt tail nt tail )
 			\ tail>next = nt, nt>prev = tail
-			(name>next!)		( list nt tail nt tail -- list nt tail )
+			(nt>next!)		( list nt tail nt tail -- list nt tail )
 			over				( list nt tail -- list nt tail nt )
-			(name>prev!)		( list nt tail nt -- list nt )
+			(nt>prev!)		( list nt tail nt -- list nt )
 		else 2drop then 		( list nt tail nt -- list nt )
 
 		\ set tail
 		2dup swap				( list nt -- list nt nt list )
-		(list>tail!)			( list nt nt list -- list nt )
+		(lst>tail!)			( list nt nt list -- list nt )
 
 		\ get head
 		dup rot	dup				( list nt -- nt nt list list )
-		(list>head@)			( nt nt list list -- nt nt list head )
+		(lst>head@)			( nt nt list list -- nt nt list head )
 
 		\ unset head?
 		0= if					( nt nt list head -- nt nt list )
-			(list>head!)		( nt nt list -- nt )
+			(lst>head!)		( nt nt list -- nt )
 		else 2drop then			( nt nt list -- nt )
 	;
 
@@ -107,18 +107,18 @@ require ../ext/hash.f
 		(list-append)				( list list xt -- list nt )
 
 		\ get index from list
-		swap (list>owner@)			( list nt -- nt index )
+		swap (lst>owner@)			( list nt -- nt index )
 
 		\ get mask offset & bucket pointer
-		dup (lookup>mask@) 			( nt index -- nt index mask )
+		dup (idx>mask@) 			( nt index -- nt index mask )
 		sp-2@ 						( nt index mask -- nt index mask nt )
-		(name>value@) (xt>hash@)	( nt index mask nt -- nt index mask hash )
+		(nt>value@) (xt>hash@)	( nt index mask nt -- nt index mask hash )
 		and cells					( nt index mask hash -- nt index off )
-		swap (lookup>buckets@) +	( nt index off -- nt bucket )
+		swap (idx>buckets@) +	( nt index off -- nt bucket )
 
 		\ current bucket head, store as link, update
 		2dup @ swap					( nt bucket -- nt bucket head nt )
-		(name>link!)				( nt bucket head nt -- nt bucket )	\ write link
+		(nt>link!)				( nt bucket head nt -- nt bucket )	\ write link
 		over swap !					( nt bucket -- nt )					\ write nt as head
 	;
 
@@ -129,11 +129,11 @@ require ../ext/hash.f
 		-rot 2>r 						( list c-addr u hash -- list hash ) ( r: -- c-addr u )
 
 		\ get list index
-		swap (list>owner@)				( list hash -- hash index )
+		swap (lst>owner@)				( list hash -- hash index )
 
 		\ mask & buckets to bucket
-		dup (lookup>buckets@)			( hash index -- hash index buckets )
-		swap (lookup>mask@)				( hash index buckets -- hash buckets mask )
+		dup (idx>buckets@)			( hash index -- hash index buckets )
+		swap (idx>mask@)				( hash index buckets -- hash buckets mask )
 		sp-2@							( hash index buckets -- hash buckets mask hash )
 		and cells +						( hash buckets mask hash -- hash bucket )
 
@@ -147,7 +147,7 @@ require ../ext/hash.f
 			0= over 0<> and				( hash c-addr u nt f -- hash c-addr u nt f' )
 		while							( hash c-addr u nt f -- hash c-addr u nt )
 			\ get hashes
-			dup (name>value@)			( hash c-addr u nt -- hash c-addr u nt xt )
+			dup (nt>value@)			( hash c-addr u nt -- hash c-addr u nt xt )
 			dup (xt>hash@)				( hash c-addr u nt xt -- hash c-addr u nt xt hash1 )
 
 			\ hash1 == hash?
@@ -166,7 +166,7 @@ require ../ext/hash.f
 
 			\ not found, move to next
 			?dup 0= if					( hash c-addr u nt f -- hash c-addr u nt )
-				(name>link@) 0			( hash c-addr u nt -- hash c-addr u nt' 0 )
+				(nt>link@) 0			( hash c-addr u nt -- hash c-addr u nt' 0 )
 			then
 		repeat
 
@@ -189,4 +189,4 @@ require ../ext/hash.f
 		(lookup-find)				( wid dst u hash -- nt|0 )
 	;
 
-	: (lookup-search-xt) ( c-addr u wid -- xt|0 ) (lookup-search) (name>value@) ;
+	: (lookup-search-xt) ( c-addr u wid -- xt|0 ) (lookup-search) (nt>value@) ;

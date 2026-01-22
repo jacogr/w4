@@ -16,13 +16,13 @@ require text.f
 \ deallocated data space is not necessarily provided. No other contextual
 \ information such as numeric base is affected.
 
-	: (latest-nt) (dict^) (list>tail@) ;
+	: (latest-nt) (dict^) (lst>tail@) ;
 
 	: (marker) ( nt -- )
 		begin
 			?dup
 		while
-			dup (name>value@)		( nt -- nt xt )
+			dup (nt>value@)		( nt -- nt xt )
 
 			\ reverse of reveal in constants.f
 			>flags			( nt xt -- nt flags-addr )
@@ -30,7 +30,7 @@ require text.f
 			$-2 and			( nt flags-addr flags -- nt flags-addr flags' )
 			swap !			( nt flags-addr flags' -- nt )
 
-			(name>next@)		( nt -- nt' )
+			(nt>next@)		( nt -- nt' )
 			dup 0=
 		until
 

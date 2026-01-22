@@ -25,7 +25,7 @@ require ../std/text.f
 
 	: is-nt? ( addr -- f )
 		dup (flg-name) is-flagged? if
-			(name>value@) is-xt?
+			(nt>value@) is-xt?
 		else 0 and then
 	;
 
@@ -74,7 +74,7 @@ require ../std/text.f
 
 	: (see-list) ( a-addr -- )
 		dup is-list? if
-			(list>owner@)					( list -- owner )
+			(lst>owner@)					( list -- owner )
 			dup is-xt? if
 				space '~' emit space
 				>str+len type
@@ -82,12 +82,12 @@ require ../std/text.f
 		else drop then
 	;
 
-	: (see-nt) ( a-addr -- ) (name>value@) (see-xt) ;
+	: (see-nt) ( a-addr -- ) (nt>value@) (see-xt) ;
 
 	: see ( "name" -- )
 		base @ hex						( -- base )
 		parse-name find-name 			( base -- base nt )
-		(name>value@)					( base nt -- base xt )
+		(nt>value@)					( base nt -- base xt )
 
 		cr (see-text-skip)
 		dup (see-xt)					( base xt -- base xt )
@@ -100,11 +100,11 @@ require ../std/text.f
 		cr
 
 		dup (xt>flags@) (flg-xt-tkn) is-flag? if
-			(xt>value@) (list>head@)	( base xt -- base head-nt )
+			(xt>value@) (lst>head@)	( base xt -- base head-nt )
 			begin
 			 	dup (u.r-tab)			( base nt -- base nt )
 				dup (see-nt) cr			( base nt -- base nt )
-				(name>next@) dup 0=		( base nt -- base next-nt )
+				(nt>next@) dup 0=		( base nt -- base next-nt )
 			until
 			drop						( base 0 -- base )
 		else drop then					( base xt -- base )
@@ -127,7 +127,7 @@ require ../std/text.f
 		else
 			dup is-nt? if					( val -- val )
 				dup (see-nt)				( val -- val )
-				(name>link@) (see-list)		( val -- )
+				(nt>link@) (see-list)		( val -- )
 			else drop then					( val -- )
 		then
 	;
@@ -174,8 +174,8 @@ require ../std/text.f
 	variable (words-count)
 
 	: (words-nt-shown?) ( nt -- f )
-		(name>value@)					( nt -- xt )
-		dup (name>flags@)				( xt -- xt flags )
+		(nt>value@)					( nt -- xt )
+		dup (nt>flags@)				( xt -- xt flags )
 
 		\ visible?
 		(flg-set-vis) is-flag? if 		( xt flags -- xt )
@@ -195,7 +195,7 @@ require ../std/text.f
 
 		\ init counter, set list start
 		0 (words-count) !
-		(dict^) (list>head@)
+		(dict^) (lst>head@)
 
 		begin
 			\ show nt?
@@ -205,7 +205,7 @@ require ../std/text.f
 				1 (words-count) +!
 
 				\ get xt
-				dup (name>value@)				( nt -- nt xt )
+				dup (nt>value@)				( nt -- nt xt )
 
 				\ display name
 				dup >str+len type				( nt xt -- nt xt )
@@ -220,7 +220,7 @@ require ../std/text.f
 			then
 
 			\ check next for zero
-			(name>next@) dup 0=					( nt -- nt' f )
+			(nt>next@) dup 0=					( nt -- nt' f )
 		until
 
 		drop									( nt -- )
