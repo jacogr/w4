@@ -90,14 +90,10 @@ require ../ext/hash.f
 		dup rot	dup				( list nt -- nt nt list list )
 		(list>head@)			( nt nt list list -- nt nt list head )
 
-		\ head?
-		if						( nt nt list head -- nt nt list )
-			\ existing head, cleanup
-			2drop				( nt nt list -- nt )
-		else
-			\ set as head
+		\ unset head?
+		0= if					( nt nt list head -- nt nt list )
 			(list>head!)		( nt nt list -- nt )
-		then
+		else 2drop then			( nt nt list -- nt )
 	;
 
 \ TODO: list "insert", aka place item before tail (useful for token lists where
@@ -139,7 +135,7 @@ require ../ext/hash.f
 		dup (lookup>buckets@)			( hash index -- hash index buckets )
 		swap (lookup>mask@)				( hash index buckets -- hash buckets mask )
 		sp-2@							( hash index buckets -- hash buckets mask hash )
-		and +							( hash buckets mask hash -- hash bucket )
+		and cells +						( hash buckets mask hash -- hash bucket )
 
 		\ bring back string, get head
 		@ 2r> 							( hash bucket -- hash nt c-addr u ) ( r: c-addr u -- )
