@@ -180,6 +180,8 @@ require ../ext/hash.f
 	string-max buffer: (lookup-tmp)
 
 	: (lookup-search) ( c-addr u wid -- nt|0 )
+		over string-max > #-18 and throw
+
 		-rot						( src u wid -- wid src u )
 		(lookup-tmp) swap			( wid src u -- wid src dst u )
 		strcpy-n-lower				( wid src dst u -- wid dst u )
