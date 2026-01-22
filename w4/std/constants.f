@@ -8,10 +8,10 @@
 	\ 	value: flags-specific value
 	: (sizeof-xt) ( -- u ) $5 cells ;
 
-	: (xt>str+len@) ( xt -- c-addr u ) >str+len ;
-
 	: (xt>str!) ( c-addr xt -- ) ! ;
 	: (xt>len!) ( c-addr xt -- ) $1 cells + ! ;
+
+	: (xt>str+len@) ( xt -- c-addr u ) >str+len ;
 	: (xt>str+len!) ( c-addr len xt -- )
 		swap over	( c-addr len xt -- c-addr xt len xt )
 		(xt>len!)	( c-addr xt len xt -- c-addr xt )
