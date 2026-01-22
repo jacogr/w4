@@ -25,10 +25,20 @@ T{ tbuf 6 s" abcdef" streq-n -> TRUE }T
 T{ tbuf 6 + c@ -> $cc }T
 T{ tbuf 7 + c@ -> $dd }T
 
-
 \ -------------------------------------------------------------
 testing strdup-n-lower
 
 T{ s" AbCDeF" strdup-n-lower nip -> 6 }T
 T{ s" AbCDeF" strdup-n-lower s" abcdef" streq-n -> TRUE }T
 T{ 0 0 strdup-n-lower -> 0 0 }T
+
+\ -------------------------------------------------------------
+testing scan
+
+\ found case: "%def" length = 4
+T{ s" abc%def" '%' scan nip -> 4 }T
+\ found case: first char of returned tail is '%'
+T{ s" abc%def" '%' scan drop c@ -> '%' }T
+\ not found: length 0
+T{ s" abcdef" '%' scan nip -> 0 }T
+
