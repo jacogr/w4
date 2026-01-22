@@ -101,20 +101,23 @@ require ../ext/hash.f
 
 \ Appends an "xt" to a lookup. Here a-addr is the pointer to the list
 
+	: (lookup-bucket-calc) ( index hash -- bucket )
+		over (idx>buckets@)		( index hash -- index hash buckets )
+		rot (idx>mask@)			( index hash buckets -- hash buckets mask )
+		rot and					( hash buckets mask -- buckets off )	\ off = mask & hash
+		cells +				 	( buckets off -- bucket )
+	;
+
 	: (lookup-append) 				( a-addr xt -- nt )
 		\ add the entry to the linked list
 		over swap					( list xt -- list list xt )
 		(list-append)				( list list xt -- list nt )
 
-		\ get index from list
+		\ get index bucket
 		swap (lst>owner@)			( list nt -- nt index )
-
-		\ get mask offset & bucket pointer
-		dup (idx>mask@) 			( nt index -- nt index mask )
-		sp-2@ 						( nt index mask -- nt index mask nt )
-		(nt>value@) (xt>hash@)		( nt index mask nt -- nt index mask hash )
-		and cells					( nt index mask hash -- nt index off )
-		swap (idx>buckets@) +		( nt index off -- nt bucket )
+		over						( nt index -- nt index nt )
+		(nt>value@) (xt>hash@)		( nt index nt -- nt index hash )
+		(lookup-bucket-calc)		( nt index hash -- nt bucket )
 
 		\ current bucket head, store as link, update
 		2dup @ swap					( nt bucket -- nt bucket head nt )
@@ -128,14 +131,9 @@ require ../ext/hash.f
 		\ move lookup values
 		-rot 2>r 					( list c-addr u hash -- list hash ) ( r: -- c-addr u )
 
-		\ get list index
+		\ get bucket
 		swap (lst>owner@)			( list hash -- hash index )
-
-		\ mask & buckets to bucket
-		dup (idx>buckets@)			( hash index -- hash index buckets )
-		swap (idx>mask@)			( hash index buckets -- hash buckets mask )
-		sp-2@						( hash index buckets -- hash buckets mask hash )
-		and cells +					( hash buckets mask hash -- hash bucket )
+		over (lookup-bucket-calc)	( hash index -- hash bucket )
 
 		\ bring back string, get head
 		@ 2r> 						( hash bucket -- hash nt c-addr u ) ( r: c-addr u -- )
