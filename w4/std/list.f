@@ -112,13 +112,13 @@ require ../ext/hash.f
 		\ get mask offset & bucket pointer
 		dup (idx>mask@) 			( nt index -- nt index mask )
 		sp-2@ 						( nt index mask -- nt index mask nt )
-		(nt>value@) (xt>hash@)	( nt index mask nt -- nt index mask hash )
+		(nt>value@) (xt>hash@)		( nt index mask nt -- nt index mask hash )
 		and cells					( nt index mask hash -- nt index off )
-		swap (idx>buckets@) +	( nt index off -- nt bucket )
+		swap (idx>buckets@) +		( nt index off -- nt bucket )
 
 		\ current bucket head, store as link, update
 		2dup @ swap					( nt bucket -- nt bucket head nt )
-		(nt>link!)				( nt bucket head nt -- nt bucket )	\ write link
+		(nt>link!)					( nt bucket head nt -- nt bucket )	\ write link
 		over swap !					( nt bucket -- nt )					\ write nt as head
 	;
 
@@ -126,52 +126,49 @@ require ../ext/hash.f
 
 	: (lookup-find) ( list c-addr u hash -- nt|0 )
 		\ move lookup values
-		-rot 2>r 						( list c-addr u hash -- list hash ) ( r: -- c-addr u )
+		-rot 2>r 					( list c-addr u hash -- list hash ) ( r: -- c-addr u )
 
 		\ get list index
-		swap (lst>owner@)				( list hash -- hash index )
+		swap (lst>owner@)			( list hash -- hash index )
 
 		\ mask & buckets to bucket
 		dup (idx>buckets@)			( hash index -- hash index buckets )
-		swap (idx>mask@)				( hash index buckets -- hash buckets mask )
-		sp-2@							( hash index buckets -- hash buckets mask hash )
-		and cells +						( hash buckets mask hash -- hash bucket )
+		swap (idx>mask@)			( hash index buckets -- hash buckets mask )
+		sp-2@						( hash index buckets -- hash buckets mask hash )
+		and cells +					( hash buckets mask hash -- hash bucket )
 
 		\ bring back string, get head
-		@ 2r> 							( hash bucket -- hash nt c-addr u ) ( r: c-addr u -- )
-		rot	0							( hash nt c-addr u -- hash c-addr u nt 0 )
+		@ 2r> 						( hash bucket -- hash nt c-addr u ) ( r: c-addr u -- )
+		rot	0						( hash nt c-addr u -- hash c-addr u nt 0 )
 
 		\ find in bucket
 		begin
 			\ found == 0 & nt <> 0
-			0= over 0<> and				( hash c-addr u nt f -- hash c-addr u nt f' )
-		while							( hash c-addr u nt f -- hash c-addr u nt )
+			0= over 0<> and			( hash c-addr u nt f -- hash c-addr u nt f' )
+		while						( hash c-addr u nt f -- hash c-addr u nt )
 			\ get hashes
 			dup (nt>value@)			( hash c-addr u nt -- hash c-addr u nt xt )
-			dup (xt>hash@)				( hash c-addr u nt xt -- hash c-addr u nt xt hash1 )
+			dup (xt>hash@)			( hash c-addr u nt xt -- hash c-addr u nt xt hash1 )
 
 			\ hash1 == hash?
-			sp-5@ = if					( hash c-addr u nt xt hash1 -- hash c-addr u nt xt )
+			sp-5@ = if				( hash c-addr u nt xt hash1 -- hash c-addr u nt xt )
 				\ get string
-				>str+len				( hash c-addr u nt xt -- hash c-addr u nt c-addr1 u1 )
+				>str+len			( hash c-addr u nt xt -- hash c-addr u nt c-addr1 u1 )
 
-				\ u1 == u?
-				sp-3@ = if				( hash c-addr u nt c-addr1 u1 -- hash c-addr u nt c-addr1 )
-					\ compare strings
-					sp-3@				( hash c-addr u nt c-addr1 -- hash c-addr u nt c-addr1 c-addr2 )
-					sp-3@ 				( hash c-addr u nt c-addr1 c-addr2 -- hash c-addr u nt c-addr1 c-addr2 u )
-					strcmpn				( hash c-addr u nt c-addr1 c-addr2 u -- hash c-addr u nt f )
-				else drop 0 then		( hash c-addr u nt c-addr1 -- hash c-addr u nt 0 )
-			else drop 0 then 			( hash c-addr u nt xt -- hash c-addr u nt 0 )
+				\ move check c-addr u to front
+				sp-4@ 				( hash c-addr u nt c-addr1 u1 -- hash c-addr u nt c-addr1 u1 c-addr )
+				sp-4@ 				( hash c-addr u nt c-addr1 u1 c-addr -- hash c-addr u nt c-addr1 u1 c-addr u )
+				streq-n				( hash c-addr u nt c-addr1 u1 c-addr u --  hash c-addr u nt f )
+			else drop 0 then 		( hash c-addr u nt xt -- hash c-addr u nt 0 )
 
 			\ not found, move to next
-			?dup 0= if					( hash c-addr u nt f -- hash c-addr u nt )
-				(nt>link@) 0			( hash c-addr u nt -- hash c-addr u nt' 0 )
+			?dup 0= if				( hash c-addr u nt f -- hash c-addr u nt )
+				(nt>link@) 0		( hash c-addr u nt -- hash c-addr u nt' 0 )
 			then
 		repeat
 
 		\ cleanup
-		2nip nip						( hash c-addr u nt -- nt )
+		2nip nip					( hash c-addr u nt -- nt )
 	;
 
 \ Like lookup-find, however this version only takes the wid and

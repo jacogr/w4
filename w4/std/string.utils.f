@@ -36,15 +36,16 @@ require stack.f
 
 \ Compare two strings byte for byte until the specified length
 
-	: strcmpn ( c-addr1 c-addr2 u -- f )
-		true swap				( c-addr1 c-addr2 u -- c-addr1 c-addr2 f u )
+	: streq-n ( c-addr1 u c-addr2 u -- f )
+		sp-2@ =					( c-addr1 u c-addr2 u -- c-addr1 u c-addr2 f )				\ f = u1 == u2
+		rot						( c-addr1 u c-addr2 f -- c-addr1 c-addr2 f u )
 
 		begin
-			\ length != 0 & f == true
+			\ f <> 0 & u <> 0
 			over 0<>			( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u f1 ) 			\ f1 = f <> 0
-			over 0<>			(  c-addr1 c-addr2 f u f1 --  c-addr1 c-addr2 f u f1 f2 ) 	\ f2 = u <> 0
-			and
-		while					( c-addr1 c-addr2 f u f -- c-addr1 c-addr2 f u )
+			over 0<>			( c-addr1 c-addr2 f u f1 --  c-addr1 c-addr2 f u f1 f2 ) 	\ f2 = u <> 0
+			and					( c-addr1 c-addr2 f u f1 f2 -- c-addr1 c-addr2 f u f' )
+		while					( c-addr1 c-addr2 f u f' -- c-addr1 c-addr2 f u )
 			1-					( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u' )
 			dup dup				( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u u u )
 			sp-5@ + c@ swap		( c-addr1 c-addr2 f u u u -- c-addr1 c-addr2 f u c1 u )
