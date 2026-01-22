@@ -174,3 +174,5 @@ require ../ext/hash.f
 		2dup host::hash				( wid c-addr u -- wid c-addr u hash )
 		(lookup-find)				( wid c-addr u hash -- nt|0 )
 	;
+
+	: (lookup-search-xt) ( c-addr u wid -- xt|0 ) (lookup-search) (name>value@) ;

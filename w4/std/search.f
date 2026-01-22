@@ -21,11 +21,58 @@ require stack.f
 
 	: get-current ( -- wid ) (wordlist-current) @ ;
 
+\ https://forth-standard.org/standard/search/GET-ORDER
+\
+\ Returns the number of word lists n in the search order and the word list
+\ identifiers widn ... wid1 identifying these word lists. wid1 identifies
+\ the word list that is searched first, and widn the word list that is
+\ searched last. The search order is unaffected.
+
+	variable (#wordlist-order)
+	create (wordlist-context) $16 cells allot
+
+	: get-order ( -- wid1 ... widn n )
+		(#wordlist-order) @ 0 ?do
+			(#wordlist-order) @ i -
+			1- cells
+			(wordlist-context) + @
+		loop
+		(#wordlist-order) @
+	;
+
+\ https://forth-standard.org/standard/search/SET-ORDER
+\
+\ Set the search order to the word lists identified by widn ... wid1.
+\ Subsequently, word list wid1 will be searched first, and word list widn
+\ searched last. If n is zero, empty the search order. If n is minus one,
+\ set the search order to the implementation-defined minimum search order.
+\ The minimum search order shall include the words FORTH-WORDLIST and
+\ SET-ORDER. A system shall allow n to be at least eight.
+
+	: set-order ( wid1 ... widn n -0 )
+		dup -1 = if
+			drop 		\ TODO: push system default word lists and n
+		then
+		dup (#wordlist-order) !
+
+		0 ?do
+			i cells
+			(wordlist-context) + !
+		loop
+	;
+
 \ https://forth-standard.org/standard/search/SET-CURRENT
 \
 \ Set the compilation word list to the word list identified by wid.
 
 	: set-current ( wid -- ) (wordlist-current) @ ! ;
+
+\ https://forth-standard.org/standard/search/ONLY
+\
+\ Set the search order to the implementation-defined minimum search order. The
+\ minimum search order shall include the words FORTH-WORDLIST and SET-ORDER.
+
+	: only ( -- ) -1 set-order ;
 
 \ https://forth-standard.org/standard/search/SEARCH-WORDLIST
 \
@@ -34,17 +81,11 @@ require stack.f
 \ definition is found, return its execution token xt and one (1) if the
 \ definition is immediate, minus-one (-1) otherwise.
 
-	: (search-xt) ( c-addr u wid -- xt|0 ) (lookup-search) (name>value@) ;
-
 	: search-wordlist ( c-addr u wid -- 0 | xt 1 | xt -1 )
-		(search-xt) ?dup if		( c-addr u wid -- xt )
-			dup (xt>flags@)		( xt -- xt flags )
+		(lookup-search-xt) ?dup if	( c-addr u wid -- xt )
+			dup (xt>flags@)			( xt -- xt flags )
 
-			\ immediate?
-			(flg-set-imm) and if
-				1					( xt -- xt 1 )
-			else
-				-1					( xt -- xt -1 )
-			then
+			\ immediate? flag = 1
+			(flg-set-imm) and if 1 else -1 then
 		then
 	;

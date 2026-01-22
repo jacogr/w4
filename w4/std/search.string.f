@@ -31,9 +31,9 @@ include string.utils.f
     	drop							( here^ nt -- here^ )
    ;
 
-	: (findSubst) ( c-addr len -- xt|0 )
-   		(widSubst) (search-xt)		( c-addr len -- xt|0 )
-		(xt>value@)					( xt|0 -- xt|0 )
+	: (findSubst) ( c-addr len -- a-addr|0 )
+   		(widSubst) (lookup-search-xt)	( c-addr len -- xt|0 )
+		(xt>value@)						( xt|0 -- a-addr|0 )
 	;
 
 	: replaces ( text tlen name nlen -- )
@@ -82,8 +82,7 @@ include string.utils.f
 	;
 
 	: (processNameSubst) ( -- flag )
-		(substName)
-		count
+		(substName) count		( -- c-addr u )
 		(findSubst)
 
 		dup >r if
