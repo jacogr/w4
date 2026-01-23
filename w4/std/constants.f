@@ -262,8 +262,8 @@
 
 \ dictionary & include lookups
 
-	$0128 (mmio@) (dict^)
-	$012c (mmio@) (incl^)
+	$0128 (mmio@) (dict^@) : (dict^!) $0128 ! ;
+	$012c (mmio@) (incl^@)
 
 \ pointers for the return & control stacks
 

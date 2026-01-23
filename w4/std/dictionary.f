@@ -16,7 +16,7 @@ require text.f
 \ deallocated data space is not necessarily provided. No other contextual
 \ information such as numeric base is affected.
 
-	: (latest-nt) (dict^) (lst>tail@) ;
+	: (latest-nt) (dict^@) (lst>tail@) ;
 
 	: (marker) ( nt -- )
 		begin

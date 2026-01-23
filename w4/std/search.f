@@ -21,7 +21,7 @@ require ../ext/list.f
 \ provided by the implementation. This word list is initially the compilation
 \ word list and is part of the initial search order.
 
-	variable (wordlist-forth) (dict^) (wordlist-forth) !	\ setup (dict^) as default wordlist
+	variable (wordlist-forth) (dict^@) (wordlist-forth) !	\ setup (dict^@) as default wordlist
 
 	: FORTH-WORDLIST ( -- wid ) (wordlist-forth) @ ;
 

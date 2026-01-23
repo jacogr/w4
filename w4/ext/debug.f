@@ -170,7 +170,7 @@ require is.f
 
 		\ init counter, set list start
 		0 (words-count) !
-		(dict^) (lst>head@)
+		(dict^@) (lst>head@)
 
 		begin
 			\ show nt?
