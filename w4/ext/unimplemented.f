@@ -1,5 +1,5 @@
-require stack.f
-require text.f
+require ../std/stack.f
+require ../std/text.f
 
 \ creates a stub for a function, when executed shows a message
 \ that shows that this is a TODO item
@@ -7,7 +7,7 @@ require text.f
 \ NOTE We use the low-level build, here instead of create since we
 \ want access to the actual string name as parsed
 
-	: :unimplemented
+	: :UNIMPLEMENTED
 		parse-name							( -- c-addr u )
 		dup 0= #-16 and throw
 		2dup								( c-addr u -- c-addr u c-addr u )
