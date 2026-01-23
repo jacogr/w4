@@ -1,6 +1,6 @@
 
 \ -------------------------------------------------------------
-testing streq-ni
+testing STREQ-ni
 
 T{ s" abcdef" s" abcdef" streq-ni -> TRUE }T
 T{ s" abcDEF" s" abcdef" streq-ni -> TRUE }T
@@ -9,7 +9,7 @@ T{ s" abcdef" s" abc" streq-ni -> FALSE }T
 T{ s" abc" s" def" streq-ni -> FALSE }T
 
 \ -------------------------------------------------------------
-testing strcpy-ni
+testing STRCPY-ni
 
 64 buffer: tbuf
 
@@ -26,14 +26,14 @@ T{ tbuf 6 + c@ -> $cc }T
 T{ tbuf 7 + c@ -> $dd }T
 
 \ -------------------------------------------------------------
-testing strdup-ni
+testing STRDUP-ni
 
 T{ s" AbCDeF" strdup-ni nip -> 6 }T
 T{ s" AbCDeF" strdup-ni s" abcdef" streq-ni -> TRUE }T
 T{ 0 0 strdup-ni -> 0 0 }T
 
 \ -------------------------------------------------------------
-testing scan
+testing SCAN
 
 \ found case: "%def" length = 4
 T{ s" abc%def" '%' scan nip -> 4 }T

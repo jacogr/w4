@@ -1,9 +1,9 @@
-include constants.f
-include loops.f
-include search.f
-include string.utils.f
+require constants.f
+require loops.f
+require search.f
+require string.utils.f
 
-include ../ext/is.f
+require ../ext/is.f
 
 \ Helpers first encoutered here... move these elsewhere
 \ (NOTE: host::hash dependency)
@@ -53,7 +53,7 @@ include ../ext/is.f
 		(subst-wid) (lookup-search-xt) (xt>value@)
 	;
 
-	: replaces ( text tlen name nlen -- )
+	: REPLACES ( text tlen name nlen -- )
 		\ found?
 		2dup (find-subst) ?dup if
 			2nip
@@ -115,7 +115,7 @@ include ../ext/is.f
 		then
 	;
 
-	: substitute ( src slen dst dlen -- dst len' n )
+	: SUBSTITUTE ( src slen dst dlen -- dst len' n )
 		\ as per spec, overlap error
 		2over 2over							( src slen dst dlen --  src slen dst dlen src slen dst dlen )
 		is-overlapped? if					( src slen dst dlen src slen dst dlen -- src slen dst dlen )

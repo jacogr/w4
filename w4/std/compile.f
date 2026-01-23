@@ -2,13 +2,13 @@ require stack.f
 
 \ Non-standard, but well-known
 
-	: noop ( -- ) ;
+	: NOOP ( -- ) ;
 
 \ https://forth-standard.org/standard/tools/BYE
 \
 \ Return control to the host operating system, if any.
 
-	: bye ( -- ) 0 >r ;
+	: BYE ( -- ) 0 >r ;
 
 \ https://forth-standard.org/standard/core/Bracket
 \
@@ -22,16 +22,16 @@ require stack.f
 \
 \ At runtime place x on the stack.
 
-	: literal ( x -- ) lit, ; immediate
+	: LITERAL ( x -- ) lit, ; immediate
 
 \ https://forth-standard.org/standard/core/Tick
 \
 \ Skip leading space delimiters. Parse name delimited by a space. Find name
 \ and return xt, the execution token for name.
 
-	: ?parse-name ( "name" -- c-addr u ) parse-name dup 0= #-16 and throw ;
+	: ?PARSE-NAME ( "name" -- c-addr u ) parse-name dup 0= #-16 and throw ;
 
-	: ?find-name ( c-addr u -- nt ) find-name dup 0= #-13 and throw ;
+	: ?FIND-NAME ( c-addr u -- nt ) find-name dup 0= #-13 and throw ;
 
 	: ' ( "name" -- xt ) ?parse-name ?find-name (nt>value@) ;
 
@@ -50,7 +50,7 @@ require stack.f
 \ matches C (cond ? true : false)
 \ uses: false ^ ((false ^ true) & flag)
 
-	: select ( flag true false -- result )
+	: SELECT ( flag true false -- result )
 		swap		( f true false -- flag false true )
 		over xor	( f false true -- flag false r1 )	\ r1 = (false^true)
 		rot and		( f false r1 -- false r2 ) 			\ r2 = f1 & f
@@ -63,11 +63,11 @@ require stack.f
 \ has the stack effect ( i * x x -- j * x ). Executing xt consumes x and
 \ performs the compilation semantics of the word represented by nt.
 
-	: is-xt-immediate? ( xt -- f ) >flags @ $02 and 0<> ;
+	: IS-XT-IMMEDIATE? ( xt -- f ) >flags @ $02 and 0<> ;
 
-	: name>compile ( nt -- xt action-xt )
+	: NAME>COMPILE ( nt -- xt action-xt )
 		(nt>value@)					( nt -- xt )
-  		dup is-xt-immediate?			( xt -- xt flag )
+  		dup is-xt-immediate?		( xt -- xt flag )
   		['] execute ['] compile,	( xt flag -- xt flag xte xtc )
 		select						( xt flag xte xtc -- xt action-xt )
 	;
@@ -81,7 +81,7 @@ require stack.f
 \ immediate words as well. This assumption _may_ not be true in the future and
 \ the _may_ need adjustment
 
-	: name>interpret ( nt -- xt ) (nt>value@) ;
+	: NAME>INTERPRET ( nt -- xt ) (nt>value@) ;
 
 \ https://forth-standard.org/standard/tools/NAMEtoSTRING
 \
@@ -91,14 +91,14 @@ require stack.f
 \ In this implementation we will output as defined, but can consume in a case-
 \ insenstive manner
 
-	: name>str+len ( nt -- c-addr u ) (nt>value@) (xt>str+len@) ;
+	: NAME>STRING ( nt -- c-addr u ) (nt>value@) (xt>str+len@) ;
 
 \ https://forth-standard.org/standard/core/POSTPONE
 \
 \ Skip leading space delimiters. Parse name delimited by a space. Find name.
 \ Append the compilation semantics of name to the current definition.
 
-	: postpone  ( "name" -- )
+	: POSTPONE  ( "name" -- )
 		?parse-name ?find-name		( "name" -- nt )
 		state @ 0= #-48 and throw	\ only allowed in compilation state
 		name>compile				( nt -- xt action-xt )
@@ -111,7 +111,7 @@ require stack.f
 \ Append the execution semantics of the current definition to the current
 \ definition.
 
-	: recurse ( -- ) latest compile, ; immediate
+	: RECURSE ( -- ) latest compile, ; immediate
 
 \ https://forth-standard.org/standard/core/ColonNONAME
 \
@@ -126,7 +126,7 @@ require stack.f
 \ At runtime: Execute the definition specified by xt. The stack effects i * x
 \ and j * x represent arguments to and results from xt, respectively.
 
-	parse-name :noname build,	\ create :noname (same structure as :)
+	parse-name :NONAME build,	\ create :noname (same structure as :)
 		]						\ compile
 		0 0 build, 				\ no name
 		latest					\ put latest on the stack

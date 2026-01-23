@@ -59,7 +59,7 @@ require is.f
 
 	: (see-nt) ( a-addr -- ) (nt>value@) (see-xt) ;
 
-	: see ( "name" -- )
+	: SEE ( "name" -- )
 		base @ hex						( -- base )
 		parse-name find-name 			( base -- base nt )
 		(nt>value@)					( base nt -- base xt )
@@ -128,15 +128,15 @@ require is.f
 		drop					( off -- )
 	;
 
-	: .s ( -- ) (sp^) #3 s" data stack " (.s) ;
+	: .S ( -- ) (sp^) #3 s" data stack " (.s) ;
 
-	: .sc ( -- ) (cp^) #0 s" ctrl stack " (.s) ;
+	: .SC ( -- ) (cp^) #0 s" ctrl stack " (.s) ;
 
 	: (.sr) ( -- ) (rp^) #2 s" rtrn stack " (.s) ;
 
-	: .sr ( -- ) (.sr) ;
+	: .SR ( -- ) (.sr) ;
 
-	: .sa ( -- ) .s .sc (.sr) ;
+	: .SA ( -- ) .s .sc (.sr) ;
 
 \ https://forth-standard.org/standard/tools/WORDS
 \
@@ -164,7 +164,7 @@ require is.f
 		then
 	;
 
-	: words ( -- )
+	: WORDS ( -- )
 		base @ hex
 		cr
 

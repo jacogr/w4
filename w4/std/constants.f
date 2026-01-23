@@ -99,7 +99,7 @@
 	: (here-min) ( -- u ) $0104 @ ;
 	: (here-max) ( -- u ) $0108 @ ;
 
-	: here ( -- a-addr ) (here^) @ ;
+	: HERE ( -- a-addr ) (here^) @ ;
 
 \ Helper for allot & aligned that checks and writes to the
 \ underlying here pointer location to adavance here
@@ -117,7 +117,7 @@
 \ `$0100` is the pointer to pointer that would later (once we have constants)
 \ be known as here
 
-	: allot ( n -- )
+	: ALLOT ( n -- )
 		here + 			\ advance address ny n units
 		(here!)			\ write updated location
 	;
@@ -127,13 +127,13 @@
 \ a-addr is the first aligned address greater than or equal to addr.
 \ We have 4-byte cells, so mask the lower bits and advance
 
-	: aligned ( a-addr -- a-addr' ) $3 + $-4 and ;
+	: ALIGNED ( a-addr -- a-addr' ) $3 + $-4 and ;
 
 \ https://forth-standard.org/standard/core/ALIGN
 \
 \ If the data-space pointer is not aligned, reserve enough space to align it.
 
-	: align ( -- )
+	: ALIGN ( -- )
 		here aligned		\ align current address
 		(here!) 			\ write updated value
 	;
@@ -150,13 +150,13 @@
 		swap over (xt>value!) 	( n a-addr -- a-addr )
 	;
 
-	: lit ( n -- ) $c0de0140 (new-xt) ; \ aligned with (flg-xt-lit) below
-	: lit, ( n -- ) lit compile, ;
+	: LIT ( n -- ) $c0de0140 (new-xt) ; \ aligned with (flg-xt-lit) below
+	: LIT, ( n -- ) lit compile, ;
 
 \ Swap a dictionary entry from "hidden" to "available to lookups" by
 \ flipping the visible flag on the token
 
-	: reveal ( -- )
+	: REVEAL ( -- )
 		latest >flags	( -- flags-addr )
 		dup @			( flags-addr -- flags-addr flags )
 		$1 or			( flags-addr flags -- flags-addr flags' )
@@ -182,7 +182,7 @@
 	: (latest>prev^) (latest>tail^) (nt>prev@) ;
 	: (latest>body^) (latest>head^) (nt>value@) >value ;
 
-	: create
+	: CREATE
 		parse-name
 		dup 0= #-16 and throw
 		build,
@@ -196,7 +196,7 @@
 \ a-addr is the data-field address corresponding to xt. An ambiguous condition
 \ exists if xt is not for a word defined via CREATE.
 
-	: >body ( xt -- a-addr )
+	: >BODY ( xt -- a-addr )
 		(xt>value@)		\ read address of token list
 		(lst>head@)	\ first entry inside the list
 		(nt>value@)	\ get the first token, address literal
@@ -212,7 +212,7 @@
 \ At runtime: a-addr is the address of the reserved cell. A program is
 \ responsible for initializing the contents of the reserved cell.
 
-	: variable create $1 cells allot ;
+	: VARIABLE create $1 cells allot ;
 
 \ https://forth-standard.org/standard/core/CONSTANT
 \
@@ -221,7 +221,7 @@
 \
 \ At runtime: Place x on the stack.
 
-	: constant create (latest>body^) ! ;
+	: CONSTANT create (latest>body^) ! ;
 
 \ builtin flags for the environment
 
@@ -248,7 +248,7 @@
 \
 \ Identifies the input source as follows: -1 (string), 0 (io), fileid
 
-	$0110 (mmio@) source-id
+	$0110 (mmio@) SOURCE-ID
 
 \ https://forth-standard.org/standard/core/SOURCE
 \
@@ -279,11 +279,11 @@
 \ Only the following standard words alter the value in STATE: : (colon),
 \ ; (semicolon), ABORT, QUIT, :NONAME, [ (left-bracket), ] (right-bracket).
 
-	$0150 (mmio:) state
+	$0150 (mmio:) STATE
 
 \ https://forth-standard.org/standard/core/BASE
 \
 \ a-addr is the address of a cell containing the current number-conversion
 \ radix {{2...36}}.
 
-	$0154 (mmio:) base
+	$0154 (mmio:) BASE

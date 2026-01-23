@@ -5,7 +5,7 @@ require stack.f
 \ Conditional branch when top of stack is 0
 \ (Standard in older versions of ANS Forth, not in 2012)
 
-	: ?branch ( f dst -- ) ( r: ret -- ret|dst )
+	: ?BRANCH ( f dst -- ) ( r: ret -- ret|dst )
 		swap 0<>		( f dst -- dst t|f )
 		r@				( dst t|f -- dst t|f ret ) ( r: ret )
 		rot				( dst t|f ret -- t|f ret dst )
@@ -40,7 +40,7 @@ require stack.f
 \
 \ At runtime: Continue execution at the location specified by the resolution of orig.
 
-	: ahead  ( c: -- orig )
+	: AHEAD  ( c: -- orig )
 		(mark)
 		postpone branch
 	; immediate
@@ -55,7 +55,7 @@ require stack.f
 \ At runtime: If all bits of x are zero, continue execution at the location
 \ specified by the resolution of orig.
 
-	: if  ( c: -- orig )
+	: IF ( c: -- orig )
 		(mark)
 		postpone ?branch
 	; immediate
@@ -68,7 +68,7 @@ require stack.f
 \
 \ At runtime: Continue execution.
 
-	: then  ( c: orig -- )
+	: THEN ( c: orig -- )
 		(resolve)
 	; immediate
 
@@ -83,7 +83,7 @@ require stack.f
 \ At runtime: Continue execution at the location given by the resolution
 \ of orig2.
 
-	: else ( c: orig1 -- orig2 )
+	: ELSE ( c: orig1 -- orig2 )
 		postpone ahead	( c: orig1 -- orig1 orig2 )
 		cs-swap			( c: orig1 -- orig2 orig1 )
 		postpone then	( c: orig2 orig1 -- orig2 )
@@ -97,7 +97,7 @@ require stack.f
 \
 \ At runtime: Continue execution.
 
-	: begin ( -- ) ( c: -- r-top )
+	: BEGIN ( -- ) ( c: -- r-top )
 		(latest>tail^) >cs		( c:  -- r-top )
 	; immediate
 
@@ -109,7 +109,7 @@ require stack.f
 \ At runtime: If all bits of x are zero, continue execution at the location
 \ specified by dest.
 
-	: until ( c: r-top -- ) ( test -- )
+	: UNTIL ( c: r-top -- ) ( test -- )
 		cs> lit,
 		postpone ?branch	( test -- )
 	; immediate
@@ -124,7 +124,7 @@ require stack.f
 \ If all bits of x are zero, continue execution at the location specified by
 \ the resolution of orig.
 
-	: while  ( c: dest -- orig dest )
+	: WHILE ( c: dest -- orig dest )
 		postpone if
 		cs-swap		\ 1 cs-roll in canonical
 	; immediate
@@ -138,7 +138,7 @@ require stack.f
 \ other control flow words are used, any program code after AGAIN will not
 \ be executed.
 
-	: again  ( -- ) ( c: r-top -- )
+	: AGAIN ( -- ) ( c: r-top -- )
 		cs> lit,
 		postpone branch	\ unconditional jump to r-top
 	; immediate
@@ -151,7 +151,7 @@ require stack.f
 \
 \ At runtime: Continue execution at the location given by dest.
 
-	: repeat  ( c: orig dest -- )
+	: REPEAT  ( c: orig dest -- )
 		postpone again
 		postpone then
 	; immediate
@@ -161,14 +161,14 @@ require stack.f
 \ n | u is a copy of the current (innermost) loop index. An ambiguous condition
 \ exists if the loop control parameters are unavailable.
 
-	: i ( -- i ) ( r: u i ret ) r-1@ ;
+	: I ( -- i ) ( r: u i ret ) r-1@ ;
 
 \ https://forth-standard.org/standard/core/J
 \
 \ n | u is a copy of the next-outer loop index. An ambiguous condition exists if
 \ the loop control parameters of the next-outer loop, loop-sys1, are unavailable.
 
-	: j ( -- j ) ( r: exit-j u' j exit-i u i ret ) r-4@ ;
+	: J ( -- j ) ( r: exit-j u' j exit-i u i ret ) r-4@ ;
 
 \ https://forth-standard.org/standard/core/LEAVE
 \
@@ -176,7 +176,7 @@ require stack.f
 \ they are unavailable. Continue execution immediately following the innermost
 \ syntactically enclosing DO...LOOP or DO...+LOOP.
 
-	: leave ( r: exit-dst u i ret -- exit-dst u i exit-dst )
+	: LEAVE ( r: exit-dst u i ret -- exit-dst u i exit-dst )
 		r-3@ r!		\ no branch, extra indirection breaks number of return items
 	;
 
@@ -186,7 +186,7 @@ require stack.f
 \ is required for each nesting level before the definition may be EXITed. An
 \ ambiguous condition exists if the loop-control parameters are unavailable.
 
-	: unloop ( r: exit-dst u i ret -- )
+	: UNLOOP ( r: exit-dst u i ret -- )
 		r>			( -- ret ) ( r: exit-dst u i ret -- exit-dst u i )
 		2r> 2drop	( ret -- ret ) ( r: exit-dst u i -- exit-dst )
 		r!			( ret -- ) ( r: exit-dst -- ret )
@@ -223,7 +223,7 @@ require stack.f
 		postpone unloop		\ run-time drop loop frame
 	;
 
-	: do    ( u i -- ) ( c: -- dest )
+	: DO ( u i -- ) ( c: -- dest )
 		(mark)				\ emits dest literal; pushes orig on CS
 		(loop-open)
 	; immediate
@@ -241,7 +241,7 @@ require stack.f
 \ parameters are discarded. An ambiguous condition exists if n1 | u1 and n2 | u2 are
 \ not both of the same type.
 
-	: ?do ( u i -- ) ( c: -- orig dest )
+	: ?DO ( u i -- ) ( c: -- orig dest )
 		postpone 2dup		( u i -- u i u i )
 		postpone =			( u i u i -- u i f )
 
@@ -278,7 +278,7 @@ require stack.f
 		r-2@ =				( i+1 -- done? ) \ i == u
 	;
 
-	: loop  ( c: dest -- )
+	: LOOP ( c: dest -- )
 		postpone (loop)		\ produces done?
   		(loop-close)
 	; immediate
@@ -323,7 +323,7 @@ require stack.f
 		then
 	;
 
-	: +loop ( n -- ) ( c: dest -- )
+	: +LOOP ( n -- ) ( c: dest -- )
 		postpone (+loop)		\ produces done?
   		(loop-close)
 	; immediate
@@ -337,7 +337,7 @@ require stack.f
 \
 \ At runtime: Continue execution.
 
-	: case ( c: -- 0 )
+	: CASE ( c: -- 0 )
 		0 >cs
 	; immediate
 
@@ -354,7 +354,7 @@ require stack.f
 \ of-sys, e.g., following the next ENDOF. Otherwise, discard both values and
 \ continue execution in line.
 
-	: of       ( c: -- orig )
+	: OF ( c: -- orig )
 		postpone over	( sel x -- sel x sel )
 		postpone =		( sel x sel -- sel flag )
 		postpone if		\ IF consumes flag, leaves sel
@@ -372,7 +372,7 @@ require stack.f
 \
 \ At runtime: Continue execution at the location specified by the consumer of case-sys2.
 
-	: endof    ( c: orig -- orig' )
+	: ENDOF    ( c: orig -- orig' )
 		postpone else	\ resolves the IF, leaves a new orig for the forward branch
 	; immediate
 
@@ -386,7 +386,7 @@ require stack.f
 \
 \ At runtime: Discard the case selector x and continue execution.
 
-	: endcase  ( c: 0 | orig... -- )
+	: ENDCASE ( c: 0 | orig... -- )
 		postpone drop			\ no match path: drop sel
 		begin
 			cs> dup

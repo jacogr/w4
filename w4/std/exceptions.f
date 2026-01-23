@@ -55,7 +55,7 @@ require text.f
 \ Empty the data stack and perform the function of QUIT, which includes
 \ emptying the return stack, without displaying a message.
 
-	: abort #-1 throw ;
+	: ABORT #-1 throw ;
 
 \ https://forth-standard.org/standard/exception/ABORTq
 \
@@ -66,7 +66,7 @@ require text.f
 \ the function of -2 THROW, displaying ccc if there is no exception frame on
 \ the exception stack.
 
-	: abort"  ( "ccc<quote>" -- )
+	: ABORT" ( "ccc<quote>" -- )
 		postpone if
 			postpone s"
 			postpone type

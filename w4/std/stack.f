@@ -5,54 +5,54 @@ require stack.ptr.f
 \
 \ Add the size in address units of a cell to a-addr1, giving a-addr2.
 
-	1 cells constant cell
+	1 cells constant CELL
 
-	: cell+ ( a-addr -- a-addr' ) cell + ;
+	: CELL+ ( a-addr -- a-addr' ) cell + ;
 
 \ https://forth-standard.org/standard/core/NIP
 \
 \ Drop the first item below the top of stack.
 
-	: nip ( x y -- y ) sp-1! ;
+	: NIP ( x y -- y ) sp-1! ;
 
-	: 2nip ( x y z -- z ) nip nip ;
+	: 2NIP ( x y z -- z ) nip nip ;
 
-	: 3nip ( a x y z -- z ) nip nip nip ;
+	: 3NIP ( a x y z -- z ) nip nip nip ;
 
 \ https://forth-standard.org/standard/core/PICK
 \
 \ Copy the xu to the top of the stack. An ambiguous condition exists if there
 \ are less than u+2 items on the stack before PICK is executed.
 
-	: pick ( xu...x1 x0 u -- xu...x1 x0 xu ) 1+ cells sp@ swap - @ ;
+	: PICK ( xu...x1 x0 u -- xu...x1 x0 xu ) 1+ cells sp@ swap - @ ;
 
 \ https://forth-standard.org/standard/core/TUCK
 \
 \ Copy the first (top) stack item below the second stack item.
 
-	: tuck ( x y -- y x y ) swap over ;
+	: TUCK ( x y -- y x y ) swap over ;
 
 \ https://forth-standard.org/standard/core/TwoDUP
 \
 \ Duplicate cell pair
 
-	: 2dup ( x y -- x y x y ) sp-1@ sp-1@ ;
+	: 2DUP ( x y -- x y x y ) sp-1@ sp-1@ ;
 
-	: 3dup ( x y z -- x y z x y z ) sp-2@ sp-2@ sp-2@ ;
+	: 3DUP ( x y z -- x y z x y z ) sp-2@ sp-2@ sp-2@ ;
 
-	: 4dup ( a b c d -- a b c d a b c d ) sp-3@ sp-3@ sp-3@ sp-3@ ;
+	: 4DUP ( a b c d -- a b c d a b c d ) sp-3@ sp-3@ sp-3@ sp-3@ ;
 
 \ https://forth-standard.org/standard/core/TwoOVER
 \
 \ Copy cell pair x1 y2 to the top of the stack.
 
-	: 2over ( x1 y1 x2 y2 -- x1 y1 x2 y2 x1 y1 ) sp-3@ sp-3@ ;
+	: 2OVER ( x1 y1 x2 y2 -- x1 y1 x2 y2 x1 y1 ) sp-3@ sp-3@ ;
 
 \ https://forth-standard.org/standard/core/TwoSWAP
 \
 \ Exchange the top two cell pairs.
 
-	: 2swap ( a b c d -- c d a b )
+	: 2SWAP ( a b c d -- c d a b )
 		sp-1@ sp-1@		( a b c d -- a b c d c d )
 		sp-5@ sp-5@ 	( a b c d c d -- a b c d c d a b )
 		sp-4! sp-4! 	( a b c d c d a b -- a b a b c d )
@@ -63,24 +63,24 @@ require stack.ptr.f
 \
 \ Drop cell pair x y from the stack.
 
-	: 2drop ( x y -- ) drop drop ;
+	: 2DROP ( x y -- ) drop drop ;
 
-	: 3drop ( x y -- ) drop drop drop ;
+	: 3DROP ( x y -- ) drop drop drop ;
 
-	: 4drop ( x y -- ) drop drop drop drop ;
+	: 4DROP ( x y -- ) drop drop drop drop ;
 
 \ https://forth-standard.org/standard/core/ROT
 \
 \ Rotate the top three stack entries. (-rot is the reverse, or rot rot)
 
-	: rot ( x y z -- y z x )
+	: ROT ( x y z -- y z x )
 		3dup
 		sp-4!	( x y z x y z -- x z z x y )
 		sp-4!	( x z z x y -- y z z x )
 		sp-1!	( y z z x -- y z x )
 	;
 
-	: -rot ( x y z -- z x y )
+	: -ROT ( x y z -- z x y )
 		3dup
 		sp-5!	( x y z x y z -- x z z x y )
 		sp-2!	( x z z x y -- y z z x )
@@ -89,11 +89,11 @@ require stack.ptr.f
 
 \ Drop a values from the control stack
 
-	: cs-drop ( c: x -- ) cs-depth dup 0= #-7 and throw 1- (cp^) ! ;
+	: CS-DROP ( c: x -- ) cs-depth dup 0= #-7 and throw 1- (cp^) ! ;
 
 \ Move value to control stack
 
-	: >cs ( x -- ) ( c: -- x )
+	: >CS ( x -- ) ( c: -- x )
 		cs-depth 1+
 		dup $2f = #-52 and throw
 		(cp^) !			\ count++
@@ -103,15 +103,15 @@ require stack.ptr.f
 
 \ Move value from control stack
 
-	: cs> ( -- x ) ( c: x -- ) cs@ @ cs-drop ;
+	: CS> ( -- x ) ( c: x -- ) cs@ @ cs-drop ;
 
 \ Duplicates a value on the control stack
 
-	: cs-dup cs@ @ >cs ;
+	: CS-DUP cs@ @ >cs ;
 
 \ as per the sp version
 
-	: cs-swap ( c: x y -- y x )
+	: CS-SWAP ( c: x y -- y x )
 		cs-1@ cs-0@	( -- x y )
 		cs-1! cs-0!	( x y -- )
 	;
@@ -122,18 +122,18 @@ require stack.ptr.f
 \ condition exists if there are less than u+1 items, each of which shall be
 \ an orig or dest, on the control-flow stack before CS-PICK is executed.
 
-	: cs-pick ( n -- x ) (cs@-) @ ;
+	: CS-PICK ( n -- x ) (cs@-) @ ;
 
 \ unconditional branch to value on cs
 \ (Standard in older versions of ANS Forth, not in 2012)
 
-	: branch ( dest -- ) r! ;
+	: BRANCH ( dest -- ) r! ;
 
 \ https://forth-standard.org/standard/core/toR
 \
 \ Move x to the return stack.
 
-	: >r ( x -- r:x )
+	: >R ( x -- r:x )
 		r@ swap		\ Swap the input & address
 		r!			\ Write input to location
 		branch
@@ -149,7 +149,7 @@ require stack.ptr.f
 		branch
 	;
 
-	: 2>r ( x1 x2 -- ) ( R: -- x1 x2 )
+	: 2>R ( x1 x2 -- ) ( R: -- x1 x2 )
 		r@ -rot swap	( x1 x2 -- ret x2 x1 )
 		r!				( ret x2 x1 -- ret x2 ) ( r: -- x1 )
 		(2>radd)
@@ -165,13 +165,13 @@ require stack.ptr.f
 		r-depth 2 - (rp^) !			\ drop one slot under it
 	;
 
-	: r-drop ( -- ) (r-drop) ;
+	: R-DROP ( -- ) (r-drop) ;
 
 \ https://forth-standard.org/standard/core/Rfrom
 \
 \ Move x from the return stack to the data stack.
 
-	: r> ( R:x -- x )
+	: R> ( R:x -- x )
 		r-1@		\ fetch value under caller’s return-to
 		(r-drop)
 	;
@@ -187,7 +187,7 @@ require stack.ptr.f
 		r-depth 3 - (rp^) !			\ drop two slots under it
 	;
 
-	: 2r> ( -- x1 x2 ) ( R: x1 x2 -- )
+	: 2R> ( -- x1 x2 ) ( R: x1 x2 -- )
 		r-2@ r-1@
 		(r-2drop)
 	;
@@ -197,7 +197,7 @@ require stack.ptr.f
 \ Copy cell pair x1 x2 from the return stack. Semantically
 \ equivalent to R> R> 2DUP >R >R SWAP.
 
-	: 2r@ ( r: x y ) ( -- x y )
+	: 2R@ ( r: x y ) ( -- x y )
 		r-2@ r-1@
 	;
 
@@ -206,7 +206,7 @@ require stack.ptr.f
 \ Rotate the top three cell pairs on the stack bringing cell pair
 \ x1 x2 to the top of the stack.
 
-	: 2rot ( x1 x2 x3 x4 x5 x6 -- x3 x4 x5 x6 x1 x2 )
+	: 2ROT ( x1 x2 x3 x4 x5 x6 -- x3 x4 x5 x6 x1 x2 )
 		>r >r	\ x1 x2 x3 x4       ( r: -- x6 x5 )
 		2swap	\ x3 x4 x1 x2
 		r> r>	\ x3 x4 x1 x2 x5 x6 ( r: x6 x5 -- )

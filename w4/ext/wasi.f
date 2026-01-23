@@ -4,7 +4,7 @@ require ../std/stack.f
 
 	$1 cells buffer: (iov-tmp-nwrite)
 
-	: iov>fd ( c-addr-u u 1|2 -- ) \ 1=stdout, 2=stderr
+	: IOV>FD ( c-addr-u u 1|2 -- ) \ 1=stdout, 2=stderr
 		#2 (sp@-) 			( c-addr u 1|2 -- c-addr u 1|2 a-iov )
 		1 					\ write a single iov
 		(iov-tmp-nwrite)	( c-addr u 1|2 a-iov 1 -- c-addr u 1|2 a-iov 1 a-tmp )
@@ -18,13 +18,13 @@ require ../std/stack.f
 	$2 cells buffer: (iov-tmp-in)   	\ wasi iovec: buf_ptr, buf_len
 	$1 cells buffer: (iov-tmp-nread)	\ size_t
 
-	: iov! ( c-addr u a-iov -- )
+	: IOV! ( c-addr u a-iov -- )
 		>r 				( c-addr u a-iov -- c-addr u ) ( r: -- a-iov )
 		r@ 1 cells + !	( c-addr u -- c-addr ) ( r: a-iov ) \ store u at [a-iov + 1 cell]
 		r> ! 			( c-addr -- )                       \ store c-addr at [a-iov + 0]
 	;
 
-	: iov<fd? ( c-addr u fd -- errno nread )
+	: IOV<FD? ( c-addr u fd -- errno nread )
 		>r 					( c-addr u fd -- c-addr u ) ( r: -- fd )
 		(iov-tmp-in) iov! 	( c-addr u -- ) ( r: fd )
 		r> 					( -- fd )                             \ restore fd
@@ -35,7 +35,7 @@ require ../std/stack.f
 		(iov-tmp-nread) @	( errno -- errno nread )              \ fetch nread
 	;
 
-	: iov<fd ( c-addr u fd -- nread )
+	: IOV<FD ( c-addr u fd -- nread )
 		iov<fd?					( errno nread )
 		swap 0<> #-37 and throw	( nread )
 	;

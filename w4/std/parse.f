@@ -8,7 +8,7 @@ require stack.f
 \ c-addr is the address of, and u is the number of characters in
 \ the input buffer.
 
-	: source (lniov^) >str+len ;
+	: SOURCE (lniov^) >str+len ;
 
 \ https://forth-standard.org/standard/file/INCLUDE
 \
@@ -16,7 +16,7 @@ require stack.f
 \ character. Push the address and length of the name on the stack and
 \ perform the function of INCLUDED.
 
-	: include ( i * x "name" -- j * x ) parse-name included	;
+	: INCLUDE ( i * x "name" -- j * x ) parse-name included	;
 
 \ https://forth-standard.org/standard/core/PARSE
 \
@@ -24,7 +24,7 @@ require stack.f
 \ parsed string. If the parse area was empty, the resulting string has a zero
 \ length.
 
-	: parse ( ch -- c-addr u )
+	: PARSE ( ch -- c-addr u )
 		$-1 source				( ch -- ch -1 base len )
 		>in @ >r				( r: -- in0 )
 
@@ -99,7 +99,7 @@ require stack.f
 \ Non-standard, widely known, used in replaces. Store c-addr u as
 \ a counted string in the destination, truncate length to 255
 
-	$ff 1+ constant string-max
+	$ff 1+ constant STRING-MAX
 
 	: (place-result) ( c-addr u dst -- dst )
 		>r					( c-addr u dst -- c-addr u ) ( r: -- dst )
@@ -109,7 +109,7 @@ require stack.f
 		r>
 	;
 
-	: place ( c-addr u dst -- ) (place-result) drop ;
+	: PLACE ( c-addr u dst -- ) (place-result) drop ;
 
 \ https://forth-standard.org/standard/core/WORD
 \
@@ -135,7 +135,7 @@ require stack.f
 		repeat then
 	;
 
-	: word ( char "<chars>ccc<char>" -- c-addr )
+	: WORD ( char "<chars>ccc<char>" -- c-addr )
 		(parse-whitespace-skip)	\ skip leading whitespace
 		parse					( ch -- c-addr u )
 		(word-tmp-buf)			( c-addr u -- c-addr u dst )
@@ -147,7 +147,7 @@ require stack.f
 \ Return the character string specification for the counted string
 \ stored at c-addr1
 
-	: count ( c-addr1 -- c-addr2 u )
+	: COUNT ( c-addr1 -- c-addr2 u )
 		dup c@ 		\ fetch count
 		swap 1+ 	\ point to first char
 		swap
@@ -160,7 +160,7 @@ require stack.f
 \ execution token xt. If the definition is immediate, also return one (1),
 \ otherwise also return minus-one (-1).
 
-	: find ( c-addr -- c-addr 0 | xt 1 | xt -1 )
+	: FIND ( c-addr -- c-addr 0 | xt 1 | xt -1 )
 		dup >r
 		count find-name				\ nt | 0
 
@@ -183,7 +183,7 @@ require stack.f
 \ Minimal (evaluate-friendly) save/restore: only snapshots >in, ignores source
 \ identity, i.e. cannot restore accross input sources (or lines)
 
-	: save-input ( -- x1 n )
+	: SAVE-INPUT ( -- x1 n )
 		>in @ source-id $2
 	;
 
@@ -196,7 +196,7 @@ require stack.f
 \ An ambiguous condition exists if the input source represented by the arguments
 \ is not the same as the current input source.
 
-	: restore-input ( x1 .. xn n -- flag )
+	: RESTORE-INPUT ( x1 .. xn n -- flag )
 		dup $2 = if
 			drop                 \ x1 x2
 			source-id <> if      \ source-id changed => cannot restore

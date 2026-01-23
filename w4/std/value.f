@@ -12,7 +12,7 @@ require memory.f
 
 	: (to-value)  ( x a-addr -- ) ! ;
 
-	: value ( x "name" -- )
+	: VALUE ( x "name" -- )
 		create ['] (to-value) ,  ,	\ store executor & value
 		does> cell+ @
 	;
@@ -29,7 +29,7 @@ require memory.f
 
 	: (to-2value) ( x1 x2 a-addr -- )  2! ;
 
-	: 2value ( x1 x2 "name" -- )
+	: 2VALUE ( x1 x2 "name" -- )
 		create ['] (to-2value) , 2,	\ store executor & values
 		does> cell+ 2@
 	;
@@ -41,7 +41,7 @@ require memory.f
 \ defining word of name. An ambiguous condition exists if name was not defined
 \ by a word with "TO name run-time" semantics.
 
-	: to ( x "name" -- )
+	: TO ( x "name" -- )
 		' >body				( x "name" -- x... a-addr )
 		dup @				( x... a-addr -- x... a-addr xt )
 		swap cell+			( x... a-addr xt -- x... xt a-addr' )
@@ -59,7 +59,7 @@ require memory.f
 \ At runtime: Execute the xt that name is set to execute. An ambiguous
 \ condition exists if name has not been set to execute an xt.
 
-	: defer ( "name" -- )
+	: DEFER ( "name" -- )
 		create ['] abort , 			\ initial action
 		does>  ( xt -- ) @ execute
 	;
@@ -70,21 +70,21 @@ require memory.f
 \ exists if xt1 is not the execution token of a word defined by DEFER, or
 \ if xt1 has not been set to execute an xt.
 
-	: defer@ ( xt1 -- xt2 ) >body @ ;
+	: DEFER@ ( xt1 -- xt2 ) >body @ ;
 
 \ https://forth-standard.org/standard/core/DEFERStore
 \
 \ Set the word xt1 to execute xt2. An ambiguous condition exists if xt1 is
 \ not for a word defined by DEFER.
 
-	: defer! ( xt2 xt1 -- ) >body ! ;
+	: DEFER! ( xt2 xt1 -- ) >body ! ;
 
 \ https://forth-standard.org/standard/core/IS
 \
 \ Skip leading spaces and parse name delimited by a space. Set name to execute xt.
 \ An ambiguous condition exists if name was not defined by DEFER.
 
-	: is ( "name" -- )
+	: IS ( "name" -- )
 		state @ if
 			postpone [']
 			postpone defer!
@@ -97,7 +97,7 @@ require memory.f
 \ token that name is set to execute. An ambiguous condition exists if name was
 \ not defined by DEFER, or if the name has not been set to execute an xt.
 
-	: action-of ( "name" -- xt2 )
+	: ACTION-OF ( "name" -- xt2 )
 		state @ if
 			postpone [']
 			postpone defer@

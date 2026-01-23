@@ -1,23 +1,23 @@
 
-	: cells $2 lshift ;
+	: CELLS $2 lshift ;
 
 	: (sp^) $0140 @ ;
-	: depth (sp^) @ ;
-	: sp@ depth cells (sp^) + ;
-	: dup sp@ @ ;
-	: drop depth dup 0= #-4 and throw $1 - (sp^) ! ;
-	: over sp@ $1 cells - @ ;
-	: swap over over sp@ $3 cells - ! sp@ $1 cells - ! ;
-	: or over over xor sp@ $2 cells - @ sp@ $2 cells - @ and + sp@ $2 cells - ! drop ;
+	: DEPTH (sp^) @ ;
+	: SP@ depth cells (sp^) + ;
+	: DUP sp@ @ ;
+	: DROP depth dup 0= #-4 and throw $1 - (sp^) ! ;
+	: OVER sp@ $1 cells - @ ;
+	: SWAP over over sp@ $3 cells - ! sp@ $1 cells - ! ;
+	: OR over over xor sp@ $2 cells - @ sp@ $2 cells - @ and + sp@ $2 cells - ! drop ;
 
-	: >str+len dup @ swap $1 cells + @ ;
-	: >flags $3 cells + ;
-	: >value $4 cells + ;
+	: >STR+LEN dup @ swap $1 cells + @ ;
+	: >FLAGS $3 cells + ;
+	: >VALUE $4 cells + ;
 
-	: latest $0120 @ ;
-	: immediate latest >flags dup @ $02 or swap ! ;
+	: LATEST $0120 @ ;
+	: IMMEDIATE latest >flags dup @ $02 or swap ! ;
 
-	: >in $0114 @ ;
+	: >IN $0114 @ ;
 	: \ -1 >in ! ; immediate
 
 \ The lines above implements the ability to handle line
@@ -29,7 +29,7 @@
 \ NOTE: * is only defined at a later point, so the 4 *
 \ multiplication is in terms of shifts (possibly even optimal)
 \
-\		: cells ( n -- n * 4 )
+\		: CELLS ( n -- n * 4 )
 \			$2 lshift 	\ cells are 32-bit, 4 bytes each
 \		;
 
@@ -39,7 +39,7 @@
 \ $0140 (at this point we don't have constants yet, so the
 \ value is hard-coded as an address)
 \
-\		: depth ( ... -- ... n )
+\		: DEPTH ( ... -- ... n )
 \			(sp^) @	\ first cell on stack is count
 \		;
 
@@ -48,7 +48,7 @@
 \ We define this quite early since it makes the base stack words
 \ eay to define (without resorting to yet more "magic constants")
 \
-\		: sp@ ( -- addr )
+\		: SP@ ( -- addr )
 \			depth cells \ depth in terms of cells
 \			(sp^) + 	\ add to stack pointer for offet addr
 \		;
@@ -57,14 +57,14 @@
 \
 \ Duplicates the top stack value via sp@
 \
-\		: dup ( n -- n n ) sp@ @ ;
+\		: DUP ( n -- n n ) sp@ @ ;
 
 \ https://forth-standard.org/standard/core/DROP
 \
 \ Drops the top value from the stack by decrementing the
 \ stack pointer (count - 1) and storing it
 \
-\	: drop ( n -- )
+\	: DROP ( n -- )
 \		depth dup 0= #-4 and throw	\ assert non-0 count
 \		$1 - (sp^) ! 				\ write count -1
 \	;
@@ -73,7 +73,7 @@
 \
 \ Duplicates the second-from-tos item to the top
 \
-\	: over ( x y -- x y x )
+\	: OVER ( x y -- x y x )
 \		sp@ $1 cells - @ 	\ calculate offset and read
 \	;
 
@@ -81,7 +81,7 @@
 \
 \ Swap the two topmost items on the stack
 \
-\	: swap ( x y -- y x )
+\	: SWAP ( x y -- y x )
 \		over over 			( x y -- x y x y )
 \		sp@ $3 cells - !	( x y x y -- y y x )
 \		sp@ $1 cells - ! 	( y y x -- y x )
@@ -92,7 +92,7 @@
 \ Implements bitwise or in terms of xor & and so
 \ that or(a, b) = a^b + a&b
 \
-\ 	: or ( a b -- a|b )
+\ 	: OR ( a b -- a|b )
 \		over over 			( a b -- a b a b )
 \		xor 				( a b a b -- a b a^b )
 \		sp@ $2 cells - @	( a b a^b -- a b a^b a )
@@ -109,7 +109,7 @@
 \
 \ see constants.f for all the known flags
 \
-\		: immediate ( -- )
+\		: IMMEDIATE ( -- )
 \			latest >flags 	\ get flags pointer
 \			dup @ $02 or 	\ toggle $02 via or
 \			swap ! 			\ write updated flags
@@ -120,7 +120,7 @@
 \ a-addr is the address of a cell containing the offset in characters from
 \ the start of the input buffer to the start of the parse area.
 \
-\		: >in $0114 @ ;
+\		: >IN $0114 @ ;
 
 \ https://forth-standard.org/standard/core/bs
 \

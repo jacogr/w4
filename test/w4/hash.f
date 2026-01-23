@@ -1,6 +1,7 @@
 
 \ -------------------------------------------------------------
-testing djb2a-i
+testing DJB2A-i
+
 T{ s" " djb2a-i -> #5381 }T	\ default 0 length
 T{ s" h" djb2a-i -> #177613 }T
 T{ s" he" djb2a-i -> #5861128 }T
@@ -15,8 +16,10 @@ T{ s" hello worl" djb2a-i -> #4291293953 }T
 T{ s" hello world" djb2a-i -> #4173747013 }T
 T{ s" hELlO wOrLD" djb2a-i -> #4173747013 }T
 
+
 \ -------------------------------------------------------------
-testing fnv1a-i
+testing FNV1A-i
+
 T{ s" " fnv1a-i -> #2166136261 }T	\ default 0 length
 T{ s" h" fnv1a-i -> #3977000791 }T
 T{ s" he" fnv1a-i -> #1547363254 }T
@@ -31,8 +34,10 @@ T{ s" hello worl" fnv1a-i -> #2767971961 }T
 T{ s" hello world" fnv1a-i -> #3582672807 }T
 T{ s" hELlO wOrLD" fnv1a-i -> #3582672807 }T
 
+
 \ -------------------------------------------------------------
-testing host::hash
+testing HOST::HASH
+
 T{ $12345 0 host::hash -> $0 }T	\ zero length
 T{ s" " host::hash -> $0 }T		\ zero length
 T{ s" h" host::hash -> $50FE4703 }T

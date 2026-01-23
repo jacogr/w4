@@ -6,7 +6,7 @@ require stack.f
 \
 \ u is the absolute value of n.
 
-	: abs ( n -- u ) dup 0< if negate then ;
+	: ABS ( n -- u ) dup 0< if negate then ;
 
 \ https://forth-standard.org/standard/core/TwoTimes
 \
@@ -40,13 +40,13 @@ require stack.f
 \
 \ n3 is the greater of n1 and n2.
 
-	: max ( n1 n2 -- n3 ) over 2dup > >r - r> and + ;
+	: MAX ( n1 n2 -- n3 ) over 2dup > >r - r> and + ;
 
 \ https://forth-standard.org/standard/core/MIN
 \
 \ n3 is the lesser of n1 and n2.
 
-	: min ( n1 n2 -- n3 ) over 2dup < >r - r> and + ;
+	: MIN ( n1 n2 -- n3 ) over 2dup < >r - r> and + ;
 
 \ mid-point require: *, /, & /mod is built on top of double operations
 
@@ -67,7 +67,7 @@ require math.double.f
 \ phrase >R S>D R> SM/REM.
 
 	\ As per C
-	: /mod ( n1 n2 -- q r ) >r s>d r> sm/rem ;
+	: /MOD ( n1 n2 -- q r ) >r s>d r> sm/rem ;
 
 \ https://forth-standard.org/standard/core/TimesDiv
 \
@@ -91,7 +91,7 @@ require math.double.f
 \ differ in sign, the implementation-defined result returned will be the same \
 \ as that returned by either the phrase >R M* R> FM/MOD or the phrase >R M* R> SM/REM.
 
-	: */mod ( n1 n2 n3 -- r q )
+	: */MOD ( n1 n2 n3 -- r q )
 		>r m* r> sm/rem
 	;
 
@@ -104,9 +104,9 @@ require math.double.f
 
 	: / ( q r - r ) /mod nip ;
 
-	: u/ u/mod nip ;
+	: U/ u/mod nip ;
 
-	: um/ um/mod nip ;
+	: UM/ um/mod nip ;
 
 \ https://forth-standard.org/standard/core/MOD
 \
@@ -115,4 +115,4 @@ require math.double.f
 \ result returned will be the same as that returned by either the phrase
 \ >R S>D R> FM/MOD DROP or the phrase >R S>D R> SM/REM DROP.
 
-	: mod ( q r - q ) /mod drop ;
+	: MOD ( q r - q ) /mod drop ;

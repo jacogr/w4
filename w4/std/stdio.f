@@ -8,7 +8,7 @@ require ../ext/wasi.f
 \ c-addr and u. Characters are in the display range as per the runtime
 \ environment.
 
-	: type ( c-addr u -- ) 1 iov>fd ; \ emit to stdout
+	: TYPE ( c-addr u -- ) 1 iov>fd ; \ emit to stdout
 
 \ https://forth-standard.org/standard/core/EMIT
 \
@@ -20,7 +20,7 @@ require ../ext/wasi.f
 \ hex 20 and 7E inclusive, the corresponding standard character, specified by
 \ 3.1.2.1 Graphic characters, is displayed.
 
-	: emit ( x -- )
+	: EMIT ( x -- )
 		$ff and			( x -- ch )
 		sp@ 1			( ch -- ch c-addr 1 )
 		1 iov>fd		( ch c-addr 1 -- ch ) \ emit to stdout
@@ -31,19 +31,19 @@ require ../ext/wasi.f
 \
 \ Display one space.
 
-	: space ( -- ) bl emit ;
+	: SPACE ( -- ) bl emit ;
 
 \ https://forth-standard.org/standard/core/SPACES
 \
 \ If n is greater than zero, display n spaces.
 
-	: spaces ?dup if 0 do space loop then ;
+	: SPACES ?dup if 0 do space loop then ;
 
 \ https://forth-standard.org/standard/core/CR
 \
 \ Cause subsequent output to appear at the beginning of the next line.
 
-	: cr ( -- ) #10 emit ;
+	: CR ( -- ) #10 emit ;
 
 \ https://forth-standard.org/standard/core/KEY
 \
@@ -57,7 +57,7 @@ require ../ext/wasi.f
 
 	$1 cells buffer: (key-buf)
 
-	: key ( -- c )
+	: KEY ( -- c )
 		begin
 			(key-buf) 1 0 iov<fd
 			1 =
@@ -78,7 +78,7 @@ require ../ext/wasi.f
 \ When input terminates, nothing is appended to the string, and the display is
 \ maintained in an implementation-defined way.
 
-	: accept ( c-addr u -- u2 )
+	: ACCEPT ( c-addr u -- u2 )
 		0 					( c-addr u -- c-addr u count )
 		begin
 			2dup swap <		( c-addr u count -- c-addr u count flag )

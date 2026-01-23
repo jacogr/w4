@@ -5,7 +5,7 @@ require stack.f
 \ u is the amount of space remaining in the region addressed by HERE,
 \ in address units.
 
-	: unused ( -- u ) (here-max) here - ;
+	: UNUSED ( -- u ) (here-max) here - ;
 
 \ https://forth-standard.org/standard/core/Comma
 \
@@ -28,14 +28,14 @@ require stack.f
 \ on a boundary. With this in mind, it certainly is probably less
 \ efficient than exposing it as a native
 
-	: c@ ( addr -- char ) @ $ff and	;
+	: C@ ( addr -- char ) @ $ff and	;
 
 \ https://forth-standard.org/standard/core/CStore
 \
 \ Store char at c-addr. When character size is smaller than cell size, only
 \ the number of low-order bits corresponding to character size are transferred.
 
-	: c! ( c addr -- )
+	: C! ( c addr -- )
 		dup @           ( c addr -- c addr u )   \ fetch memory
 		$ff invert and  ( c addr u -- c addr u ) \ zero out low byte
 		rot $ff and     \ zero out high byte of value being stored
@@ -45,7 +45,7 @@ require stack.f
 \ Non-standard extension to c!, as used inside s\" (and part of that proposal,
 \ so pretty well-known)
 
-	: c+! ( c c-addr -- ) tuck c@ + swap c! ;
+	: C+! ( c c-addr -- ) tuck c@ + swap c! ;
 
 \ https://forth-standard.org/standard/core/CComma
 \
@@ -53,7 +53,7 @@ require stack.f
 \ space. If the data-space pointer is character aligned when C, begins
 \ execution, it will remain character aligned when C, finishes execution.
 
-	: c, ( c -- )
+	: C, ( c -- )
 		here c!
 		1 allot
 	;
@@ -88,7 +88,7 @@ require stack.f
 \
 \ NOTE: create uses build, internally, so contents are aligned
 
-	: buffer: ( u "<name>" -- addr ) create allot ;
+	: BUFFER: ( u "<name>" -- addr ) create allot ;
 
 \ https://forth-standard.org/standard/core/PAD
 \
@@ -101,7 +101,7 @@ require stack.f
 \ this standard place anything in the region. Non-standard words provided by
 \ an implementation may use PAD, but such use shall be documented.
 
-	#84 buffer: pad
+	#84 buffer: PAD
 
 \ mid-point require since the remainder rely on looping being available
 
@@ -113,7 +113,7 @@ require loops.f
 \ space starting at c-addr1 to that starting at c-addr2, proceeding
 \ character-by-character from lower addresses to higher addresses.
 
-	: cmove ( src dst u -- )
+	: CMOVE ( src dst u -- )
 		begin
 			dup	0<>				( src dst u -- src dst u f )
 		while					( src dst u f -- src dst u )
@@ -133,7 +133,7 @@ require loops.f
 \ space starting at c-addr1 to that starting at c-addr2, proceeding
 \ character-by-character from higher addresses to lower addresses.
 
-	: cmove> ( src dst u -- )
+	: CMOVE> ( src dst u -- )
 		begin
 			dup 0<> 			( src dst u -- src dst u f )
 		while					( src dst u f -- src dst u )
@@ -151,7 +151,7 @@ require loops.f
 \ If u is greater than zero, copy the contents of u consecutive address units
 \ at src to the u consecutive address units at dst.
 
-	: move ( src dst u -- )
+	: MOVE ( src dst u -- )
 		dup 0= if 			( src dst u -- src dst u )
 			drop 2drop 		( src dst u -- )
 			exit
@@ -173,7 +173,7 @@ require loops.f
 \ If u is greater than zero, store char in each of u consecutive characters of
 \ memory beginning at c-addr.
 
-	: fill ( c-addr u ch -- )
+	: FILL ( c-addr u ch -- )
 		-rot						( c-addr u ch -- ch c-addr u )
 
 		begin
@@ -191,4 +191,4 @@ require loops.f
 \ If u is greater than zero, clear all bits in each of u consecutive address units
 \ of memory beginning at addr.
 
-	: erase ( a-addr u -- ) 0 fill ;
+	: ERASE ( a-addr u -- ) 0 fill ;

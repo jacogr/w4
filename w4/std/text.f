@@ -13,20 +13,20 @@ require string.f
 \
 \ Set the numeric conversion radix to ten (decimal).
 
-	: decimal ( -- ) #10 base ! ;
+	: DECIMAL ( -- ) #10 base ! ;
 
 \ https://forth-standard.org/standard/core/HEX
 \
 \ Set contents of BASE to sixteen.
 
-	: hex ( -- ) $10 base ! ;
+	: HEX ( -- ) $10 base ! ;
 
 \ https://forth-standard.org/standard/core/CHAR
 \
 \ Skip leading space delimiters. Parse name delimited by a space. Put the
 \ value of its first character onto the stack.
 
-	: char ( "<spaces>name" -- char )
+	: CHAR ( "<spaces>name" -- char )
 		parse-name			( -- c-addr u )   	   \ parse the name/next
 		0= #-12 and throw	( c-addr u -- c-addr )
 		c@					( c-addr -- char )  \ retrieve the first char
@@ -39,7 +39,7 @@ require string.f
 \
 \ At runtime: Place char, the value of the first character name, on the stack.
 
-	: [char] ( -- ) char postpone literal ; immediate
+	: [CHAR] ( -- ) char postpone literal ; immediate
 
 \ https://forth-standard.org/standard/core/HOLD
 \
@@ -50,7 +50,7 @@ require string.f
 
 	string-max 1+ buffer: (#tmp-buf)		\ pictured buffer
 
-	: hold ( char -- )
+	: HOLD ( char -- )
 		(#tmp-off) @		\ get offset
 		(#tmp-buf) + c! 	\ store char at offset
 		(#tmp-off) @ 1-		\ decrement offset
@@ -63,7 +63,7 @@ require string.f
 \ string. An ambiguous condition exists if HOLDS executes outside of a
 \ <# #> delimited number conversion.
 
-	: holds ( addr u -- )
+	: HOLDS ( addr u -- )
 		begin dup while
 			1- 2dup + c@ hold
 		repeat
@@ -75,7 +75,7 @@ require string.f
 \ If n is negative, add a minus sign to the beginning of the pictured
 \ numeric output string.
 
-	: sign ( n -- ) 0< if '-' hold then ;
+	: SIGN ( n -- ) 0< if '-' hold then ;
 
 \ https://forth-standard.org/standard/core/num-start
 \
@@ -141,13 +141,13 @@ require string.f
 
 	: (u.r) swap 0 #s (#pad) ;
 
-	: u.r ( u1 n -- )
+	: U.R ( u1 n -- )
 		<#
 			(u.r)
 		#> type space
 	;
 
-	: u.rd ( u1 n -- )
+	: U.RD ( u1 n -- )
 		<#
 			'.' hold
 			(u.r)
@@ -158,7 +158,7 @@ require string.f
 \
 \ Display u in free field format.
 
-	: u. ( u -- ) 0 u.r ;
+	: U. ( u -- ) 0 u.r ;
 
 \ https://forth-standard.org/standard/core/DotR
 \
@@ -166,7 +166,7 @@ require string.f
 \ of characters required to display n1 is greater than n2, all digits are
 \ displayed with no leading spaces in a field as wide as necessary.
 
-	: .r ( n1 n2 -- )
+	: .R ( n1 n2 -- )
 		<#
 			swap			( n1 n2 -- n2 n1 )
 			dup >r 			( n2 n1 -- n2 n1 )          ( r: -- n1 )
@@ -193,7 +193,7 @@ require string.f
 \
 \ display d right aligned in a field n characters wide
 
-	: d.r ( lo hi n -- )
+	: D.R ( lo hi n -- )
 		<#
 			>r 					\ r: n
 			2dup d0< >r 		\ r: n neg?
@@ -208,7 +208,7 @@ require string.f
 \
 \ display d in free field format
 
-	: d. ( lo hi -- ) 0 d.r ;
+	: D. ( lo hi -- ) 0 d.r ;
 
 \ https://forth-standard.org/standard/core/Sq
 \
@@ -220,7 +220,7 @@ require string.f
 
 	: (s") ( "input<quote>" -- c-addr u ) '"' parse state @ if string, then ;
 
-	: s" ( "input<quote>" -- c-addr u ) (s") ; immediate
+	: S" ( "input<quote>" -- c-addr u ) (s") ; immediate
 
 \ https://forth-standard.org/standard/core/Cq
 \
@@ -232,7 +232,7 @@ require string.f
 \ At runtime: Return c-addr, a counted string consisting of the characters ccc.
 \ A program shall not alter the returned string.;
 
-	: cstring, ( c-addr u -- )
+	: CSTRING, ( c-addr u -- )
 		here 					( c-addr u -- c-addr u dst )
 		swap dup 1+ allot 		( c-addr u dst -- c-addr dst u )
 		swap (place-result)		( c-addr dst u -- dst )
@@ -241,7 +241,7 @@ require string.f
 
 	: (c") ( "input<quote>" -- c-addr ) '"' parse state @ if cstring, then ;
 
-	: c" ( "input<quote>" -- c-addr ) (c") ; immediate
+	: C" ( "input<quote>" -- c-addr ) (c") ; immediate
 
 \ https://forth-standard.org/standard/core/Dotq
 \
@@ -273,9 +273,10 @@ require string.f
 \ number of unconverted characters in the string. An ambiguous condition exists
 \ if ud2 overflows during the conversion.
 
-	: >digit ( char -- +n true | 0 ) \ "to-digit"
+	: >DIGIT ( char -- +n true | 0 ) \ "to-digit"
 		\ convert char to a digit according to base followed by true, or false if out of range
 		dup [ '9' 1+ ] literal <
+
 		if '0' - \ convert '0'-'9'
 			dup 0< if drop 0 exit then \ reject < '0'
 		else
@@ -284,11 +285,13 @@ require string.f
 			dup 0< if drop 0 exit then \ reject non-letter < 'a'
 			#10 + \ convert 'a'-'z'
 		then
+
 		dup base @ < dup 0= if nip then ( +n true | false ) \ reject beyond base
 	;
 
-	: >number ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 ) \ "to-number"
+	: >NUMBER ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 ) \ "to-number"
 		2swap 2>r
+
 		begin ( c-addr u ) ( R: ud.accum )
 			dup while \ character left to inspect
 				over c@ >digit
@@ -297,6 +300,7 @@ require string.f
 				rot m+ 2>r \ add current digit to accum
 				1 /string ( c-addr1+1 u1-1 )
 		repeat then
+
 		2r> 2swap ( ud2 c-addr2 u2 )
 	;
 
@@ -427,7 +431,7 @@ require string.f
   		nip - >in +! r>
 	;
 
-	: s\"
+	: S\"
 		(s"\-readescaped) count
 		state @ if
 			string,

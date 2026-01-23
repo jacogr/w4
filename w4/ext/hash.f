@@ -5,7 +5,7 @@ require ../std/loops.f
 \
 \ https://en.wikipedia.org/wiki/Daniel_J._Bernstein
 
-	: djb2a-i ( c-addr u -- u )
+	: DJB2A-i ( c-addr u -- u )
 		$1505 swap			( c-addr u -- c-addr hash u -- )
 		0 ?do				( c-addr hash u 0 -- c-addr hash )
 			over i +		( c-addr hash -- c-addr hash ch-addr )
@@ -22,7 +22,7 @@ require ../std/loops.f
 \
 \ https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
 
-	: fnv1a-i ( c-addr u -- u )
+	: FNV1A-i ( c-addr u -- u )
 		$811c9dc5 swap		( c-addr u -- c-addr hash u )
 		0 ?do				( c-addr hash u 0 -- c-addr hash )
 			over i +		( c-addr hash -- c-addr hash ch-addr )
@@ -36,7 +36,7 @@ require ../std/loops.f
 \
 \ https://github.com/aappleby/smhasher/blob/master/src/MurmurHash3.cpp
 
-	: fmix32 ( u -- u' )
+	: FMIX32 ( u -- u' )
 		dup 16 rshift xor	\ h ^= h >> 16
 		$85ebca6b *			\ h *= 0x85ebca6b
 		dup 13 rshift xor	\ h ^= h >> 13
@@ -47,7 +47,7 @@ require ../std/loops.f
 \ host-compatible hash values for lookups, applies fmix32(fnv1a(value)), if
 \ it is a non-zero string, else return 0 as the hash value
 
-	: host::hash ( c-addr u -- hash )
+	: HOST::HASH ( c-addr u -- hash )
 		\ len <> 0
 		?dup 0<> if
 			fnv1a-i fmix32

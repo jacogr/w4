@@ -6,26 +6,26 @@ require stack.f
 \
 \ char is the character value for a space.
 
-	#32 constant bl
+	#32 constant BL
 
 \ https://forth-standard.org/standard/string/BLANK
 \
 \ If u is greater than zero, store the character value for space in u
 \ consecutive character positions beginning at c-addr.
 
-	: blank ( c-addr u -- ) bl fill ;
+	: BLANK ( c-addr u -- ) bl fill ;
 
 \ https://forth-standard.org/standard/core/CHARS
 \
 \ n2 is the size in address units of n1 characters.
 
-	: chars ( n1 -- n2 ) ; \ noop, char = 1 byte in size
+	: CHARS ( n1 -- n2 ) ; \ noop, char = 1 byte in size
 
 \ https://forth-standard.org/standard/core/CHARPlus
 \
 \ Add the size in address units of a character to c-addr1, giving c-addr2.
 
-	: char+ ( a-addr2 -- a-addr2 ) 1+ ;
+	: CHAR+ ( a-addr2 -- a-addr2 ) 1+ ;
 
 \ https://forth-standard.org/standard/string/SLITERAL
 \
@@ -34,7 +34,7 @@ require stack.f
 \ At runtime: Return c-addr2 u describing a string consisting of the characters
 \ specified by c-addr1 u during compilation. A program shall not alter the returned string.
 
-	: string, ( c-addr u -- )
+	: STRING, ( c-addr u -- )
 		\ Compiles the c-addr u on tos, into a stable buffer and then
 		\ compile the resulting address & length into the target body
 		\ for use at runtime
@@ -47,7 +47,7 @@ require stack.f
 		r> lit,			( -- ) ( r: u -- )
 	;
 
-	: sliteral ( c-addr u -- ) string, ; immediate
+	: SLITERAL ( c-addr u -- ) string, ; immediate
 
 \ https://forth-standard.org/standard/string/DivSTRING
 \
@@ -55,7 +55,7 @@ require stack.f
 \ character string, specified by c-addr2 u2, begins at c-addr1 plus n
 \ characters and is u1 minus n characters long.
 
-	: /string ( c-addr u n -- c-addr' u' )
+	: /STRING ( c-addr u n -- c-addr' u' )
 		tuck - 		( c-addr u n -- c-addr n u' )
 		>r chars + 	( c-addr n u' -- c-addr' ) ( r: -- u' )
 		r> 			( c-addr' -- c-addr' u' ) ( r: u' -- )
@@ -67,7 +67,7 @@ require stack.f
 \ at the end of the character string specified by c-addr u1. If u1 is zero
 \ or the entire string consists of spaces, u2 is zero.
 
-	: -trailing ( c-addr u1 -- c-addr u2 )
+	: -TRAILING ( c-addr u1 -- c-addr u2 )
 		begin
 			dup 0> if
 				2dup + 1- c@ bl =	\ last char is space?
@@ -93,7 +93,7 @@ require stack.f
 
 	: (compare-value) ( x1 x2 -- -1|0|1 ) - dup if 0< 1 or then ;
 
-	: compare ( a1 u1 a2 u2 -- -1|0|1 )
+	: COMPARE ( a1 u1 a2 u2 -- -1|0|1 )
 		rot 2dup swap				( a1 u1 a2 u2 -- a1 a2 u2 u1 u1 u2 )
 		(compare-value) >r			\ precompute length compare result
 		min ?dup if
@@ -124,7 +124,7 @@ require stack.f
 	2variable (search-pat)   \ c-addr2 u2
 	2variable (search-orig)  \ c-addr1 u1
 
-	: search ( c1 u1 c2 u2 -- c3 u3 flag )
+	: SEARCH ( c1 u1 c2 u2 -- c3 u3 flag )
 		2dup  (search-pat) 2!		\ save pattern
 		2over (search-orig) 2!		\ save original haystack
 
@@ -163,7 +163,7 @@ require stack.f
 \ condition occurs if the resulting string will not fit into the destination
 \ buffer (c-addr2).
 
-	: unescape ( c-addr1 u1 c-addr2 -- c-addr2 u2 )
+	: UNESCAPE ( c-addr1 u1 c-addr2 -- c-addr2 u2 )
 		dup 2swap over + swap ?do
 			i c@ '%' = if
 				'%' over c! 1+

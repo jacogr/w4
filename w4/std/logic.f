@@ -2,13 +2,13 @@
 \
 \ Return a false flag.
 
-	: false ( -- false ) 0 ;
+	: FALSE ( -- false ) 0 ;
 
 \ https://forth-standard.org/standard/core/TRUE
 \
 \ Return a true flag, a single-cell value with all bits set.
 
-	: true ( -- true ) 0 0= ;
+	: TRUE ( -- true ) 0 0= ;
 
 \ https://forth-standard.org/standard/core/OneMinus
 \
@@ -26,13 +26,13 @@
 \
 \ Invert all bits of x1, giving its logical inverse x2.
 
-	: invert ( x -- !x ) -1 xor ;
+	: INVERT ( x -- !x ) -1 xor ;
 
 \ https://forth-standard.org/standard/core/NEGATE
 \
 \ Negate n1, giving its arithmetic inverse n2.
 
-	: negate ( x -- -x ) invert 1+ ;
+	: NEGATE ( x -- -x ) invert 1+ ;
 
 \ https://forth-standard.org/standard/core/Zerone
 \
@@ -44,7 +44,7 @@
 \
 \ lag is true if and only if n is less than zero.
 
-	-1 1 rshift invert constant msb
+	-1 1 rshift invert constant MSB
 
 	: 0< ( n -- flag ) msb and 0<> ;
 
@@ -105,7 +105,7 @@ require stack.ptr.f
 \
 \ flag is true if and only if u1 is less than u2.
 
-	: u< ( u1 u2 -- f )
+	: U< ( u1 u2 -- f )
 		swap msb xor
 		swap msb xor
 		<
@@ -115,4 +115,4 @@ require stack.ptr.f
 \
 \ flag is true if and only if u1 is greater than u2.
 
-	: u>  ( u1 u2 -- flag ) swap u< ;
+	: U>  ( u1 u2 -- flag ) swap u< ;

@@ -15,7 +15,7 @@
 \ TODO There are certainly useful and supported values, see
 \ https://forth-standard.org/standard/usage#usage:env
 
-	: environment? ( c-addr u -- f ) 2drop 0 ;
+	: ENVIRONMENT? ( c-addr u -- f ) 2drop 0 ;
 
 \ https://forth-standard.org/standard/tools/BracketELSE
 \

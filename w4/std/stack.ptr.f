@@ -11,30 +11,30 @@ require logic.f
 		cells (sp^) +	( c-n -- a-addr )
 	;
 
-	: sp-0@ ( -- ) #0 (sp@-) @ ;
-	: sp-0! ( -- ) #0 (sp@-) ! ;
+	: SP-0@ ( -- ) #0 (sp@-) @ ;
+	: SP-0! ( -- ) #0 (sp@-) ! ;
 
-	: sp-1@ ( -- ) #1 (sp@-) @ ;
-	: sp-1! ( -- ) #1 (sp@-) ! ;
+	: SP-1@ ( -- ) #1 (sp@-) @ ;
+	: SP-1! ( -- ) #1 (sp@-) ! ;
 
-	: sp-2@ ( -- ) #2 (sp@-) @ ;
-	: sp-2! ( -- ) #2 (sp@-) ! ;
+	: SP-2@ ( -- ) #2 (sp@-) @ ;
+	: SP-2! ( -- ) #2 (sp@-) ! ;
 
-	: sp-3@ ( -- ) #3 (sp@-) @ ;
-	: sp-3! ( -- ) #3 (sp@-) ! ;
+	: SP-3@ ( -- ) #3 (sp@-) @ ;
+	: SP-3! ( -- ) #3 (sp@-) ! ;
 
-	: sp-4@ ( -- ) #4 (sp@-) @ ;
-	: sp-4! ( -- ) #4 (sp@-) ! ;
+	: SP-4@ ( -- ) #4 (sp@-) @ ;
+	: SP-4! ( -- ) #4 (sp@-) ! ;
 
-	: sp-5@ ( -- ) #5 (sp@-) @ ;
-	: sp-5! ( -- ) #5 (sp@-) ! ;
+	: SP-5@ ( -- ) #5 (sp@-) @ ;
+	: SP-5! ( -- ) #5 (sp@-) ! ;
 
-	: sp-6@ ( -- ) #6 (sp@-) @ ;
-	: sp-6! ( -- ) #6 (sp@-) ! ;
+	: SP-6@ ( -- ) #6 (sp@-) @ ;
+	: SP-6! ( -- ) #6 (sp@-) ! ;
 
 \ As per the above, a version for the control stack
 
-	: cs-depth ( r:... - u ) (cp^) @ ;
+	: CS-DEPTH ( r:... - u ) (cp^) @ ;
 
 \ As per the (sp@-) versions
 
@@ -43,37 +43,37 @@ require logic.f
 		cells (cp^) +
 	;
 
-	: cs@ ( -- ) cs-depth cells (cp^) + ;
+	: CS@ ( -- ) cs-depth cells (cp^) + ;
 
-	: cs-0@ ( -- ) #0 (cs@-) @ ;
-	: cs-0! ( -- ) #0 (cs@-) ! ;
+	: CS-0@ ( -- ) #0 (cs@-) @ ;
+	: CS-0! ( -- ) #0 (cs@-) ! ;
 
-	: cs-1@ ( -- ) #1 (cs@-) @ ;
-	: cs-1! ( -- ) #1 (cs@-) ! ;
+	: CS-1@ ( -- ) #1 (cs@-) @ ;
+	: CS-1! ( -- ) #1 (cs@-) ! ;
 
-	: cs-2@ ( -- ) #2 (cs@-) @ ;
-	: cs-2! ( -- ) #2 (cs@-) ! ;
+	: CS-2@ ( -- ) #2 (cs@-) @ ;
+	: CS-2! ( -- ) #2 (cs@-) ! ;
 
-	: cs-3@ ( -- ) #3 (cs@-) @ ;
-	: cs-3! ( -- ) #3 (cs@-) ! ;
+	: CS-3@ ( -- ) #3 (cs@-) @ ;
+	: CS-3! ( -- ) #3 (cs@-) ! ;
 
-	: cs-4@ ( -- ) #4 (cs@-) @ ;
-	: cs-4! ( -- ) #4 (cs@-) ! ;
+	: CS-4@ ( -- ) #4 (cs@-) @ ;
+	: CS-4! ( -- ) #4 (cs@-) ! ;
 
-	: cs-5@ ( -- ) #5 (cs@-) @ ;
-	: cs-5! ( -- ) #5 (cs@-) ! ;
+	: CS-5@ ( -- ) #5 (cs@-) @ ;
+	: CS-5! ( -- ) #5 (cs@-) ! ;
 
-	: cs-6@ ( -- ) #6 (cs@-) @ ;
-	: cs-6! ( -- ) #6 (cs@-) ! ;
+	: CS-6@ ( -- ) #6 (cs@-) @ ;
+	: CS-6! ( -- ) #6 (cs@-) ! ;
 
 \ As per the above, a version for the return stack
 
-	: r-depth ( r:... - u ) (rp^) @	1- ; \ remove this return
+	: R-DEPTH ( r:... - u ) (rp^) @	1- ; \ remove this return
 
 \ As per the sp@ version, same style, this on return stack
 \ (w/ additional cell removed for call into these)
 
-	: rp@ ( -- a-addr ) r-depth 1- cells (rp^) + ; \ extra 1- for call to this
+	: RP@ ( -- a-addr ) r-depth 1- cells (rp^) + ; \ extra 1- for call to this
 
 	: (rp@-) ( n -- a-addr )
 		1+ negate
@@ -83,27 +83,27 @@ require logic.f
 
 \ https://forth-standard.org/standard/core/RFetch
 
-	: r@ ( -- x ) ( r: x -- x ) 1 (rp@-) @ ;
+	: R@ ( -- x ) ( r: x -- x ) 1 (rp@-) @ ;
 
-	: r! ( -- x ) ( x -- r:x ) 1 (rp@-) ! ;
+	: R! ( -- x ) ( x -- r:x ) 1 (rp@-) ! ;
 
-	: r-0@ ( -- ) #1 (rp@-) @ ;
-	: r-0! ( -- ) #1 (rp@-) ! ;
+	: R-0@ ( -- ) #1 (rp@-) @ ;
+	: R-0! ( -- ) #1 (rp@-) ! ;
 
-	: r-1@ ( -- ) #2 (rp@-) @ ;
-	: r-1! ( -- ) #2 (rp@-) ! ;
+	: R-1@ ( -- ) #2 (rp@-) @ ;
+	: R-1! ( -- ) #2 (rp@-) ! ;
 
-	: r-2@ ( -- ) #3 (rp@-) @ ;
-	: r-2! ( -- ) #3 (rp@-) ! ;
+	: R-2@ ( -- ) #3 (rp@-) @ ;
+	: R-2! ( -- ) #3 (rp@-) ! ;
 
-	: r-3@ ( -- ) #4 (rp@-) @ ;
-	: r-3! ( -- ) #4 (rp@-) ! ;
+	: R-3@ ( -- ) #4 (rp@-) @ ;
+	: R-3! ( -- ) #4 (rp@-) ! ;
 
-	: r-4@ ( -- ) #5 (rp@-) @ ;
-	: r-4! ( -- ) #5 (rp@-) ! ;
+	: R-4@ ( -- ) #5 (rp@-) @ ;
+	: R-4! ( -- ) #5 (rp@-) ! ;
 
-	: r-5@ ( -- ) #6 (rp@-) @ ;
-	: r-5! ( -- ) #6 (rp@-) ! ;
+	: R-5@ ( -- ) #6 (rp@-) @ ;
+	: R-5! ( -- ) #6 (rp@-) ! ;
 
-	: r-6@ ( -- ) #7 (rp@-) @ ;
-	: r-6! ( -- ) #7 (rp@-) ! ;
+	: R-6@ ( -- ) #7 (rp@-) @ ;
+	: R-6! ( -- ) #7 (rp@-) ! ;

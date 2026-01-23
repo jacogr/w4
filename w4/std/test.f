@@ -97,7 +97,7 @@ require text.f
 
 \ run tests (usefule for std test execution)
 
-	: testing   \ ( -- ) TALKING COMMENT.
+	: TESTING \ ( -- ) TALKING COMMENT.
 		source (test-verbose) @
 		if
 			cr dup >r type cr r> >in !

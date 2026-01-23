@@ -1,6 +1,6 @@
 
 \ -------------------------------------------------------------
-testing lookup
+testing LOOKUP
 
 (new-lookup-small) constant widtest
 

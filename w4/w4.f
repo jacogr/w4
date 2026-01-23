@@ -2,8 +2,8 @@
 	#32 parse-token ] build, 1 $0150 ! 1 $0150 ! ;
 	#32 parse-token : build, ] #32 parse-token build, ] ;
 
-	: parse-name #32 parse-token ;
-	: require parse-name required ;
+	: PARSE-NAME #32 parse-token ;
+	: REQUIRE parse-name required ;
 
 require preamble.f
 
@@ -46,7 +46,7 @@ require preamble.f
 \ u is its length in characters. If the parse area is empty or contains only
 \ white space, the resulting string has length zero.
 \
-\	: parse-name ( -- c-addr u ) #32 parse-token ;
+\	: PARSE-NAME ( -- c-addr u ) #32 parse-token ;
 
 \ https://forth-standard.org/standard/file/REQUIRE
 \
@@ -54,7 +54,7 @@ require preamble.f
 \ character. Push the address and length of the name on the stack and
 \ perform the function of REQUIRED.
 \
-\ 	: require ( i * x "name" -- j * x ) parse-name required ;
+\ 	: REQUIRE ( i * x "name" -- j * x ) parse-name required ;
 
 require std/constants.f
 require std/compile.f
@@ -89,3 +89,6 @@ require ext/wasi.f
 \
 \ End of library
 \
+
+words
+lkjaslk

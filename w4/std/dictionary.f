@@ -38,7 +38,7 @@ require text.f
 		drop
 	;
 
-	: marker ( <spaces>name" -- )
+	: MARKER ( <spaces>name" -- )
 		parse-name				( -- c-addr u )
 		dup 0= #-16 and throw
 		build,					\ definition for "name"

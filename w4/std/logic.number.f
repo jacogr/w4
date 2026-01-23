@@ -10,4 +10,4 @@ require stack.f
 \ otherwise. An ambiguous condition exists n1 | u1, n2 | u2, and n3 | u3 are
 \ not all the same type.
 
-	: within ( test low high -- flag ) over - >r - r> u< ;
+	: WITHIN ( test low high -- flag ) over - >r - r> u< ;
