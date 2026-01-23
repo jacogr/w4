@@ -1,5 +1,6 @@
 require string.f
-require wasi.f
+
+require ../ext/wasi.f
 
 \ https://forth-standard.org/standard/core/TYPE
 \
