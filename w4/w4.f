@@ -77,13 +77,13 @@ require std/string.f
 require std/string.utils.f
 require std/test.f
 require std/text.f
-require std/unimplemented.f
 require std/value.f
 
 require ext/debug.f
 require ext/hash.f
 require ext/is.f
 require ext/list.f
+require ext/unimplemented.f
 require ext/wasi.f
 
 \
