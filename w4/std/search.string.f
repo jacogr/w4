@@ -22,7 +22,7 @@ include string.utils.f
 	(new-lookup-small) constant (widSubst)
 
 	: (makeSubst)	( c-addr len -- c-addr )
-		strdup-n-lower					( c-addr len -- c-addr' len' )
+		strdup-ni					( c-addr len -- c-addr' len' )
 		0 (flg-is-vis) (new-xt)			( c-addr len -- c-addr len xt )
 		-rot							( c-addr len xt -- xt c-addr len )
 		sp-2@ (xt>str+len+hash!)		( xt c-addr len -- xt )
@@ -36,13 +36,12 @@ include string.utils.f
 
 	: (findSubst) ( c-addr len -- a-addr|0 )
    		(widSubst) (lookup-search-xt)	( c-addr len -- xt|0 )
-		(xt>value@)						( xt|0 -- a-addr|0 )
 	;
 
 	: replaces ( text tlen name nlen -- )
 		2dup (findSubst)				( text tlen name nlen -- text tlen name nlen dst )
 		?dup if
-			2nip 						( text tlen name nlen dst -- text tlen dst )
+			2nip (xt>value@)						( text tlen name nlen dst -- text tlen dst )
 		else
 			(makeSubst)					( text tlen name nlen -- text tlen dst )
 		then
@@ -92,7 +91,7 @@ include string.utils.f
 		(substName) count
 		(findSubst)
 		?dup if
-			count >dest
+			(xt>value@) count >dest
 			true
 		else
 			'%' (addDestSubst)

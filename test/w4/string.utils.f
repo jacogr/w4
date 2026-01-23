@@ -1,36 +1,36 @@
 
 \ -------------------------------------------------------------
-testing streq-n
+testing streq-ni
 
-T{ s" abcdef" s" abcdef" streq-n -> TRUE }T
-T{ s" abc" s" abcdef" streq-n -> FALSE }T
-T{ s" abcdef" s" abc" streq-n -> FALSE }T
-T{ s" abc" s" def" streq-n -> FALSE }T
-T{ s" abcDEF" s" abcdef" streq-n -> FALSE }T
+T{ s" abcdef" s" abcdef" streq-ni -> TRUE }T
+T{ s" abcDEF" s" abcdef" streq-ni -> TRUE }T
+T{ s" abc" s" abcdef" streq-ni -> FALSE }T
+T{ s" abcdef" s" abc" streq-ni -> FALSE }T
+T{ s" abc" s" def" streq-ni -> FALSE }T
 
 \ -------------------------------------------------------------
-testing strcpy-n-lower
+testing strcpy-ni
 
 64 buffer: tbuf
 
-T{ s" AbCDeF" tbuf swap strcpy-n-lower -> tbuf 6 }T
-T{ tbuf 6 s" abcdef" streq-n -> TRUE }T
+T{ s" AbCDeF" tbuf swap strcpy-ni -> tbuf 6 }T
+T{ tbuf 6 s" abcdef" streq-ni -> TRUE }T
 
-T{ s" 9-_Zz!" tbuf swap strcpy-n-lower -> tbuf 6 }T
-T{ tbuf 6 s" 9-_zz!" streq-n -> TRUE }T
+T{ s" 9-_Zz!" tbuf swap strcpy-ni -> tbuf 6 }T
+T{ tbuf 6 s" 9-_zz!" streq-ni -> TRUE }T
 
 T{ $cc tbuf 6 + c!  $dd tbuf 7 + c! -> }T
-T{ s" ABCDEF" tbuf swap strcpy-n-lower -> tbuf 6 }T
-T{ tbuf 6 s" abcdef" streq-n -> TRUE }T
+T{ s" ABCDEF" tbuf swap strcpy-ni -> tbuf 6 }T
+T{ tbuf 6 s" abcdef" streq-ni -> TRUE }T
 T{ tbuf 6 + c@ -> $cc }T
 T{ tbuf 7 + c@ -> $dd }T
 
 \ -------------------------------------------------------------
-testing strdup-n-lower
+testing strdup-ni
 
-T{ s" AbCDeF" strdup-n-lower nip -> 6 }T
-T{ s" AbCDeF" strdup-n-lower s" abcdef" streq-n -> TRUE }T
-T{ 0 0 strdup-n-lower -> 0 0 }T
+T{ s" AbCDeF" strdup-ni nip -> 6 }T
+T{ s" AbCDeF" strdup-ni s" abcdef" streq-ni -> TRUE }T
+T{ 0 0 strdup-ni -> 0 0 }T
 
 \ -------------------------------------------------------------
 testing scan

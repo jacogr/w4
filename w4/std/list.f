@@ -156,7 +156,7 @@ require ../ext/hash.f
 				\ move check c-addr u to front
 				sp-4@ 				( hash c-addr u nt c-addr1 u1 -- hash c-addr u nt c-addr1 u1 c-addr )
 				sp-4@ 				( hash c-addr u nt c-addr1 u1 c-addr -- hash c-addr u nt c-addr1 u1 c-addr u )
-				streq-n				( hash c-addr u nt c-addr1 u1 c-addr u --  hash c-addr u nt f )
+				streq-ni			( hash c-addr u nt c-addr1 u1 c-addr u --  hash c-addr u nt f )
 			else drop 0 then 		( hash c-addr u nt xt -- hash c-addr u nt 0 )
 
 			\ not found, move to next
@@ -172,14 +172,10 @@ require ../ext/hash.f
 \ Like lookup-find, however this version only takes the wid and
 \ the string + length, calculating a lowercase hash
 
-	string-max 1+ buffer: (lookup-tmp)
-
 	: (lookup-search) ( c-addr u wid -- nt|0 )
 		over string-max > #-18 and throw
 
 		-rot						( src u wid -- wid src u )
-		(lookup-tmp) swap			( wid src u -- wid src dst u )
-		strcpy-n-lower				( wid src dst u -- wid dst u )
 		2dup host::hash				( wid dst u -- wid dst u hash )
 		(lookup-find)				( wid dst u hash -- nt|0 )
 	;

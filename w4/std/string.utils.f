@@ -8,7 +8,7 @@ require stack.f
 
 \ copy a string in lowercase
 
-	: strcpy-n-lower ( src dst u -- dst u )
+	: strcpy-ni ( src dst u -- dst u )
 		-rot sp-2@				( src dst u -- len src dst u )
 
 		begin
@@ -26,18 +26,18 @@ require stack.f
 
 \ duplicate a string in lowercase
 
-	: strdup-n-lower ( c-addr u -- c-addr2 u )
+	: strdup-ni ( c-addr u -- c-addr2 u )
 		\ len == 0?
 		?dup 0= if drop 0 0 exit then
 
 		here swap			( src len -- src dst len )
 		dup allot			( src dst len -- src dst len )
-		strcpy-n-lower
+		strcpy-ni
 	;
 
 \ Compare two strings byte for byte until the specified length
 
-	: streq-n ( c-addr1 u c-addr2 u -- f )
+	: streq-ni ( c-addr1 u c-addr2 u -- f )
 		sp-2@ =					( c-addr1 u c-addr2 u -- c-addr1 u c-addr2 f )				\ f = u1 == u2
 		rot						( c-addr1 u c-addr2 f -- c-addr1 c-addr2 f u )
 
@@ -48,8 +48,8 @@ require stack.f
 			and					( c-addr1 c-addr2 f u f1 f2 -- c-addr1 c-addr2 f u f' )
 		while					( c-addr1 c-addr2 f u f' -- c-addr1 c-addr2 f u )
 			1-					( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u' )
-			dup sp-4@ + c@ 		( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u c1 )
-			over sp-4@ + c@		( c-addr1 c-addr2 f u c1 -- c-addr1 c-addr2 f u c1 c2 )
+			dup sp-4@ + c@ >lower-ascii		( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u c1 )
+			over sp-4@ + c@	>lower-ascii	( c-addr1 c-addr2 f u c1 -- c-addr1 c-addr2 f u c1 c2 )
 
 			\ f = c1 == c2
 			=					( c-addr1 c-addr2 f u c1 c2 -- c-addr1 c-addr2 f u f' )
