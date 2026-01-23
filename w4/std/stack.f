@@ -89,16 +89,16 @@ require stack.ptr.f
 
 \ Drop a values from the control stack
 
-	: CS-DROP ( c: x -- ) cs-depth dup 0= #-7 and throw 1- (cp^) ! ;
+	: CS-DROP ( c: x -- ) cs-depth dup 0= #-7 and throw 1- (cs^) ! ;
 
 \ Move value to control stack
 
 	: >CS ( x -- ) ( c: -- x )
 		cs-depth 1+
 		dup $2f = #-52 and throw
-		(cp^) !			\ count++
+		(cs^) !			\ count++
 		cs-depth cells
-		(cp^) + !		\ store value
+		(cs^) + !		\ store value
 	;
 
 \ Move value from control stack
@@ -162,7 +162,7 @@ require stack.ptr.f
 	: (r-drop) ( -- )
 		r-depth 3 < #-6 and throw	\ call into r-drop & this
 		r-1@ r-2!					\ slide caller’s return-to down
-		r-depth 2 - (rp^) !			\ drop one slot under it
+		r-depth 2 - (rs^) !			\ drop one slot under it
 	;
 
 	: R-DROP ( -- ) (r-drop) ;
@@ -184,7 +184,7 @@ require stack.ptr.f
 	: (r-2drop) ( -- )
 		r-depth 4 < #-6 and throw	\ call into r-drop & this
 		r-1@ r-3!					\ slide caller’s return-to down
-		r-depth 3 - (rp^) !			\ drop two slots under it
+		r-depth 3 - (rs^) !			\ drop two slots under it
 	;
 
 	: 2R> ( -- x1 x2 ) ( R: x1 x2 -- )

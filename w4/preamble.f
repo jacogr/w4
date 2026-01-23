@@ -1,11 +1,11 @@
 
 	: CELLS $2 lshift ;
 
-	: (sp^) $0140 @ ;
-	: DEPTH (sp^) @ ;
-	: SP@ depth cells (sp^) + ;
+	: (ds^) $0140 @ ;
+	: DEPTH (ds^) @ ;
+	: SP@ depth cells (ds^) + ;
 	: DUP sp@ @ ;
-	: DROP depth dup 0= #-4 and throw $1 - (sp^) ! ;
+	: DROP depth dup 0= #-4 and throw $1 - (ds^) ! ;
 	: OVER sp@ $1 cells - @ ;
 	: SWAP over over sp@ $3 cells - ! sp@ $1 cells - ! ;
 	: OR over over xor sp@ $2 cells - @ sp@ $2 cells - @ and + sp@ $2 cells - ! drop ;
@@ -40,7 +40,7 @@
 \ value is hard-coded as an address)
 \
 \		: DEPTH ( ... -- ... n )
-\			(sp^) @	\ first cell on stack is count
+\			(ds^) @	\ first cell on stack is count
 \		;
 
 \ sp@ non-standard in forth2012, but widely known
@@ -50,7 +50,7 @@
 \
 \		: SP@ ( -- addr )
 \			depth cells \ depth in terms of cells
-\			(sp^) + 	\ add to stack pointer for offet addr
+\			(ds^) + 	\ add to stack pointer for offet addr
 \		;
 
 \ https://forth-standard.org/standard/core/DUP
@@ -66,7 +66,7 @@
 \
 \	: DROP ( n -- )
 \		depth dup 0= #-4 and throw	\ assert non-0 count
-\		$1 - (sp^) ! 				\ write count -1
+\		$1 - (ds^) ! 				\ write count -1
 \	;
 
 \ https://forth-standard.org/standard/core/OVER

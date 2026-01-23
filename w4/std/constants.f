@@ -198,8 +198,8 @@
 
 	: >BODY ( xt -- a-addr )
 		(xt>value@)		\ read address of token list
-		(lst>head@)	\ first entry inside the list
-		(nt>value@)	\ get the first token, address literal
+		(lst>head@)		\ first entry inside the list
+		(nt>value@)		\ get the first token, address literal
 		(xt>value@)		\ read the value
 	;
 
@@ -267,8 +267,8 @@
 
 \ pointers for the return & control stacks
 
-	$0144 (mmio@) (rp^)
-	$0148 (mmio@) (cp^)
+	$0144 (mmio@) (rs^)
+	$0148 (mmio@) (cs^)
 
 \ https://forth-standard.org/standard/core/STATE
 \

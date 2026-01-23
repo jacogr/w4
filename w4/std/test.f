@@ -29,7 +29,7 @@ require text.f
 
 \ empty the stack
 
-	: (test-empty-stack) ( ... -- ) $0 (sp^) ! ;
+	: (test-empty-stack) ( ... -- ) $0 (ds^) ! ;
 
 \ display an error
 

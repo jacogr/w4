@@ -128,11 +128,11 @@ require is.f
 		drop					( off -- )
 	;
 
-	: .S ( -- ) (sp^) #3 s" data stack " (.s) ;
+	: .S ( -- ) (ds^) #3 s" data stack " (.s) ;
 
-	: .SC ( -- ) (cp^) #0 s" ctrl stack " (.s) ;
+	: .SC ( -- ) (cs^) #0 s" ctrl stack " (.s) ;
 
-	: (.sr) ( -- ) (rp^) #2 s" rtrn stack " (.s) ;
+	: (.sr) ( -- ) (rs^) #2 s" rtrn stack " (.s) ;
 
 	: .SR ( -- ) (.sr) ;
 

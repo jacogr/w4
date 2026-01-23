@@ -8,7 +8,7 @@ require logic.f
 	: (sp@-) ( n -- a-addr )
 		1+ negate		\ remove effect of count
 		depth +			( -n -- c-n )
-		cells (sp^) +	( c-n -- a-addr )
+		cells (ds^) +	( c-n -- a-addr )
 	;
 
 	: SP-0@ ( -- ) #0 (sp@-) @ ;
@@ -34,16 +34,16 @@ require logic.f
 
 \ As per the above, a version for the control stack
 
-	: CS-DEPTH ( r:... - u ) (cp^) @ ;
+	: CS-DEPTH ( r:... - u ) (cs^) @ ;
 
 \ As per the (sp@-) versions
 
 	: (cs@-) ( n -- a-addr )
 		cs-depth - negate
-		cells (cp^) +
+		cells (cs^) +
 	;
 
-	: CS@ ( -- ) cs-depth cells (cp^) + ;
+	: CS@ ( -- ) cs-depth cells (cs^) + ;
 
 	: CS-0@ ( -- ) #0 (cs@-) @ ;
 	: CS-0! ( -- ) #0 (cs@-) ! ;
@@ -68,17 +68,17 @@ require logic.f
 
 \ As per the above, a version for the return stack
 
-	: R-DEPTH ( r:... - u ) (rp^) @	1- ; \ remove this return
+	: R-DEPTH ( r:... - u ) (rs^) @	1- ; \ remove this return
 
 \ As per the sp@ version, same style, this on return stack
 \ (w/ additional cell removed for call into these)
 
-	: RP@ ( -- a-addr ) r-depth 1- cells (rp^) + ; \ extra 1- for call to this
+	: RP@ ( -- a-addr ) r-depth 1- cells (rs^) + ; \ extra 1- for call to this
 
 	: (rp@-) ( n -- a-addr )
 		1+ negate
 		r-depth +
-		cells (rp^) +
+		cells (rs^) +
 	;
 
 \ https://forth-standard.org/standard/core/RFetch
