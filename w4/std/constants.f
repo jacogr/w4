@@ -225,10 +225,10 @@
 
 \ builtin flags for the environment
 
-	$c0de0000 constant (flg-set-any)
-	$c0de0001 constant (flg-set-vis)
-	$c0de0002 constant (flg-set-imm)
-	$c0de0004 constant (flg-set-var)
+	$c0de0000 constant (flg-is-any)
+	$c0de0001 constant (flg-is-vis)
+	$c0de0002 constant (flg-is-imm)
+	$c0de0004 constant (flg-is-var)
 	$c0de0010 constant (flg-xt-asm)
 	$c0de0020 constant (flg-xt-tkn)
 	$c0de0040 constant (flg-xt-lit)

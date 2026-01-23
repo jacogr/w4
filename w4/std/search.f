@@ -86,6 +86,6 @@ require stack.f
 			dup (xt>flags@)			( xt -- xt flags )
 
 			\ immediate? flag = 1
-			(flg-set-imm) and if 1 else -1 then
+			(flg-is-imm) and if 1 else -1 then
 		then
 	;

@@ -21,7 +21,7 @@ require ../std/text.f
 
 	: is-list? ( addr -- f ) (flg-list) is-flagged? ;
 
-	: is-xt? ( addr -- f ) (flg-set-any) is-flagged? ;
+	: is-xt? ( addr -- f ) (flg-is-any) is-flagged? ;
 
 	: is-nt? ( addr -- f )
 		dup (flg-name) is-flagged? if
@@ -56,7 +56,7 @@ require ../std/text.f
 		\ dup (u.r-tab)						( a-addr flags -- a-addr flags )
 
 		dup (flg-xt-lit) is-flag? if		( a-addr flags -- a-addr flags )
-			(flg-set-var) is-flag? if		( a-addr flags -- a-addr ) \ variation?
+			(flg-is-var) is-flag? if		( a-addr flags -- a-addr ) \ variation?
 				dup (xt>value@) (u.r-tabd)	( a-addr -- a-addr )
 			else
 				dup (xt>value@) (u.r-tab)	( a-addr -- a-addr )
@@ -92,7 +92,7 @@ require ../std/text.f
 		cr (see-text-skip)
 		dup (see-xt)					( base xt -- base xt )
 
-		dup (xt>flags@) (flg-set-imm) is-flag? if
+		dup (xt>flags@) (flg-is-imm) is-flag? if
 			(see-text-skip)
 			(see-text-imm.)
 		then
@@ -178,7 +178,7 @@ require ../std/text.f
 		dup (nt>flags@)				( xt -- xt flags )
 
 		\ visible?
-		(flg-set-vis) is-flag? if 		( xt flags -- xt )
+		(flg-is-vis) is-flag? if 		( xt flags -- xt )
 			>str+len						( xt -- c-addr u )
 			sp-1@ c@ '('  =				( c-addr u -- c-addr u f1 )		\ f1 = startsWith (
 			-rot						( c-addr u f1 -- f1 c-addr u )
@@ -212,7 +212,7 @@ require ../std/text.f
 
 				\ show immediate?
 				(xt>flags@)						( nt xt -- nt flags )
-				(flg-set-imm) is-flag? if		( nt flags -- nt )
+				(flg-is-imm) is-flag? if		( nt flags -- nt )
 					(see-text-imm.)
 				then
 

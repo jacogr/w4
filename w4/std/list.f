@@ -38,7 +38,7 @@ require ../ext/hash.f
 		0= #-49 and throw			( count f -- count ) 						\ throw if not power of 2 & big enough
 
 		\ allocate list (aligned) & buckets
-		(flg-set-var) ((new-list)) 	( count flags -- count list )
+		(flg-is-var) ((new-list)) 	( count flags -- count list )
 		swap dup 1- >r 				( count list -- list count ) ( r: -- mask )	\ mask = count - 1
 		here swap					( list count -- list buckets count )
 		cells allot					( list buckets count -- list buckets )		\ allocate count cells
@@ -60,7 +60,7 @@ require ../ext/hash.f
 
 	: (list-append) ( a-addr xt -- nt )
 		\ flags can have variants in the lower 8 bits, e.g.
-		\ (flg-list) & (flg-set-var) for lookups, so compare with
+		\ (flg-list) & (flg-is-var) for lookups, so compare with
 		\ and then =
 		over (lst>flags@)		( list xt -- list xt flags )
 		(flg-list) and			( list xt flags -- list xt f1 )	\ f1 = flg-list & flags
