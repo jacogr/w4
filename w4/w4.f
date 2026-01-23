@@ -60,7 +60,6 @@ require std/constants.f
 require std/compile.f
 require std/dictionary.f
 require std/exceptions.f
-require std/list.f
 require std/logic.f
 require std/logic.number.f
 require std/loops.f
@@ -84,6 +83,7 @@ require std/value.f
 require ext/debug.f
 require ext/hash.f
 require ext/is.f
+require ext/list.f
 require ext/wasi.f
 
 \

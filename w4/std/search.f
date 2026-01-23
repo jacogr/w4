@@ -1,7 +1,8 @@
 require constants.f
-require list.f
 require loops.f
 require stack.f
+
+require ../ext/list.f
 
 \ https://forth-standard.org/standard/search/WORDLIST
 \

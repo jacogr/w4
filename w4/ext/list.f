@@ -1,11 +1,11 @@
-require constants.f
-require loops.f
-require stack.f
-require string.utils.f
-require text.f
+require ../std/constants.f
+require ../std/loops.f
+require ../std/stack.f
+require ../std/string.utils.f
+require ../std/text.f
 
-require ../ext/hash.f
-require ../ext/is.f
+require hash.f
+require is.f
 
 \ Non-standard, but needed for this environment. Create a new list.
 
