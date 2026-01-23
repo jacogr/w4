@@ -11,7 +11,7 @@ require stack.f
 \ creation of at least 8 new word lists in addition to any provided as part
 \ of the system.
 
-	: wordlist ( -- wid ) (new-lookup-small) ;
+	: WORDLIST ( -- wid ) (new-lookup-large) ;
 
 \ https://forth-standard.org/standard/search/FORTH-WORDLIST
 \
@@ -19,7 +19,7 @@ require stack.f
 \ provided by the implementation. This word list is initially the compilation
 \ word list and is part of the initial search order.
 
-	: forth-wordlist ( -- wid ) (dict^) ;
+	: FORTH-WORDLIST ( -- wid ) (dict^) ;
 
 \ https://forth-standard.org/standard/search/SEARCH-WORDLIST
 \
@@ -28,12 +28,12 @@ require stack.f
 \ definition is found, return its execution token xt and one (1) if the
 \ definition is immediate, minus-one (-1) otherwise.
 
-	: search-wordlist ( c-addr u wid -- 0 | xt 1 | xt -1 )
+	: SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 )
 		(lookup-search-xt) dup if	( c-addr u wid -- xt )
 			dup (xt>flags@)			( xt -- xt flags )
 
-			\ immediate? flag = 1
-			(flg-is-imm) and if 1 else -1 then
+			\ immediate? set flag = 1
+			(flg-is-imm) and (flg-is-imm) = if 1 else -1 then
 		then
 	;
 
@@ -47,7 +47,7 @@ require stack.f
 	variable (#wordlist-order)
 	create (wordlist-context) $16 cells allot
 
-	: get-order ( -- wid1 ... widn n )
+	: GET-ORDER ( -- wid1 ... widn n )
 		(#wordlist-order) @ 0 ?do
 			(#wordlist-order) @ i -
 			1- cells
@@ -66,8 +66,12 @@ require stack.f
 \ The minimum search order shall include the words FORTH-WORDLIST and
 \ SET-ORDER. A system shall allow n to be at least eight.
 
-	: set-order ( wid1 ... widn n -0 )
-		dup -1 = if drop then
+	: SET-ORDER ( wid1 ... widn n -0 )
+		dup -1 = if
+			drop
+			forth-wordlist 1 recurse
+        	exit
+		then
 
 		dup (#wordlist-order) !
 
@@ -90,28 +94,28 @@ require stack.f
 			r> swap set-order
 		;
 
-	forth-wordlist (wordlist) forth
+	forth-wordlist (wordlist) FORTH
 
 \ https://forth-standard.org/standard/search/GET-CURRENT
 \
 \ Return wid, the identifier of the compilation word list.
 
-	variable (wordlist-current) forth-wordlist (wordlist-current) !
+	variable (wordlist-current)	\ init in setup at end of file
 
-	: get-current ( -- wid ) (wordlist-current) @ ;
+	: GET-CURRENT ( -- wid ) (wordlist-current) @ ;
 
 \ https://forth-standard.org/standard/search/SET-CURRENT
 \
 \ Set the compilation word list to the word list identified by wid.
 
-	: set-current ( wid -- ) (wordlist-current) @ ! ;
+	: SET-CURRENT ( wid -- ) (wordlist-current) ! ;
 
 \ https://forth-standard.org/standard/search/ONLY
 \
 \ Set the search order to the implementation-defined minimum search order. The
 \ minimum search order shall include the words FORTH-WORDLIST and SET-ORDER.
 
-	: only ( -- ) -1 set-order ;
+	: ONLY ( -- ) -1 set-order ;
 
 \ https://forth-standard.org/standard/search/ALSO
 \
@@ -119,7 +123,15 @@ require stack.f
 \ is searched first) into widn, ... wid2, wid1, wid1. An ambiguous condition
 \ exists if there are too many word lists in the search order.
 
-	: also ( -- ) get-order over swap 1+ set-order ;
+	: ALSO ( -- ) get-order over swap 1+ set-order ;
+
+\ https://forth-standard.org/standard/search/PREVIOUS
+\
+\ Transform the search order consisting of widn, ... wid2, wid1 (where wid1
+\ is searched first) into widn, ... wid2. An ambiguous condition exists if
+\ the search order was empty before PREVIOUS was executed.
+
+	: PREVIOUS ( -- ) get-order nip 1- set-order ;
 
 \ https://forth-standard.org/standard/search/DEFINITIONS
 \
@@ -128,7 +140,7 @@ require stack.f
 \ the compilation word list. Subsequent changes in the search order will not
 \ affect the compilation word list.
 
-	: definitions ( -- ) get-order over set-current set-order ;
+	: DEFINITIONS ( -- ) get-order over set-current set-order ;
 
 \ https://forth-standard.org/standard/search/FIND
 \
@@ -141,21 +153,22 @@ require stack.f
 \ given string, the values returned by FIND while compiling may differ from
 \ those returned while not compiling.
 
-	\ : find ( c-addr -- c-addr 0 | xt 1 | xt -1 )
-	\ 	0								( c-addr 0 )
-	\ 	(#wordlist-order) @
-	\ 	0 ?do
-	\ 		over count					( c-addr 0 c-addr' u )
-	\ 		i cells
-	\ 		(wordlist-context) + @		( c-addr 0 c-addr' u wid )
-	\ 		search-wordlist				( c-addr 0; 0 | w 1 | q -1 )
+	: FIND ( c-addr -- c-addr 0 | xt 1 | xt -1 )
+		0								( c-addr 0 )
+		(#wordlist-order) @
+		0 ?do
+			over count					( c-addr 0 c-addr' u )
+			i cells
+			(wordlist-context) + @		( c-addr 0 c-addr' u wid )
+			search-wordlist				( c-addr 0; 0 | w 1 | q -1 )
 
-	\ 		?dup if						( c-addr 0; w 1 | w -1 )
-	\ 			2swap 2drop
-	\ 			leave					( w 1 | w -1 )
-	\ 		then						( c-addr 0 )
-	\ 	loop							( c-addr 0 | w 1 | w -1 )
-	\ ;
+			?dup if						( c-addr 0; w 1 | w -1 )
+				2swap 2drop
+				leave					( w 1 | w -1 )
+			then						( c-addr 0 )
+		loop							( c-addr 0 | w 1 | w -1 )
+	;
 
-	\ \ setup
-	\ only forth definitions
+\ setup, make it usable via the standard init string
+
+	only forth definitions
