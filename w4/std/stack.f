@@ -17,6 +17,8 @@ require stack.ptr.f
 
 	: 2nip ( x y z -- z ) nip nip ;
 
+	: 3nip ( a x y z -- z ) nip nip nip ;
+
 \ https://forth-standard.org/standard/core/PICK
 \
 \ Copy the xu to the top of the stack. An ambiguous condition exists if there

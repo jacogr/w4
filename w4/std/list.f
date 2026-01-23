@@ -166,7 +166,7 @@ require ../ext/hash.f
 		repeat
 
 		\ cleanup
-		2nip nip					( hash c-addr u nt -- nt )
+		3nip						( hash c-addr u nt -- nt )
 	;
 
 \ Like lookup-find, however this version only takes the wid and
