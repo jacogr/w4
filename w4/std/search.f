@@ -1,6 +1,7 @@
 require constants.f
 require loops.f
 require stack.f
+require text.f
 
 require ../ext/list.f
 
@@ -81,6 +82,31 @@ require ../ext/list.f
 			i cells
 			(wordlist-context) + !
 		loop
+	;
+
+\ https://forth-standard.org/standard/search/ORDER
+\
+\ Display the word lists in the search order in their search order
+\ sequence, from first searched to last searched. Also display the
+\ word list into which new definitions will be placed. The display
+\ format is implementation dependent.
+
+	: ORDER ( -- )
+		base @							( -- base )
+		decimal
+
+		(#wordlist-order) @ u.
+
+		hex
+
+		(#wordlist-order) @ 0 ?do
+			(#wordlist-order) @ i -
+			1- cells
+			(wordlist-context) + @
+			9 u.r
+		loop
+
+		base !							( base -- )
 	;
 
 \ https://forth-standard.org/standard/search/FORTH
