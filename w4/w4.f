@@ -84,6 +84,7 @@ require std/wasi.f
 
 require ext/debug.f
 require ext/hash.f
+require ext/is.f
 
 \
 \ End of library

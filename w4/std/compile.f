@@ -63,13 +63,13 @@ require stack.f
 \ has the stack effect ( i * x x -- j * x ). Executing xt consumes x and
 \ performs the compilation semantics of the word represented by nt.
 
-	: not-immediate? ( xt -- f ) >flags @ $02 and 0= ;
+	: is-xt-immediate? ( xt -- f ) >flags @ $02 and 0<> ;
 
 	: name>compile ( nt -- xt action-xt )
 		(nt>value@)					( nt -- xt )
-  		dup not-immediate?			( xt -- xt flag )
-  		['] compile, ['] execute	( xt flag -- xt flag xtc xte )
-		select						( xt flag xtc xte -- xt action-xt )
+  		dup is-xt-immediate?			( xt -- xt flag )
+  		['] execute ['] compile,	( xt flag -- xt flag xte xtc )
+		select						( xt flag xte xtc -- xt action-xt )
 	;
 
 \ https://forth-standard.org/standard/tools/NAMEtoINTERPRET

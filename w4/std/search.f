@@ -29,11 +29,10 @@ require stack.f
 \ definition is immediate, minus-one (-1) otherwise.
 
 	: SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 )
-		(lookup-search-xt) dup if	( c-addr u wid -- xt )
-			dup (xt>flags@)			( xt -- xt flags )
-
+		(lookup-search-xt) dup if	( c-addr u wid -- xt|0 )
 			\ immediate? set flag = 1
-			(flg-is-imm) and (flg-is-imm) = if 1 else -1 then
+			dup is-xt-immediate?	( xt -- xt f )
+			1 -1 select				( xt f -- xt -1|1 )
 		then
 	;
 

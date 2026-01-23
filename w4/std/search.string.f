@@ -3,6 +3,8 @@ include loops.f
 include search.f
 include string.utils.f
 
+include ../ext/is.f
+
 \ Helpers first encoutered here... move these elsewhere
 \ (NOTE: host::hash dependency)
 
@@ -116,7 +118,7 @@ include string.utils.f
 	: substitute ( src slen dst dlen -- dst len' n )
 		\ as per spec, overlap error
 		2over 2over							( src slen dst dlen --  src slen dst dlen src slen dst dlen )
-		not-overlapped? 0= if				( src slen dst dlen src slen dst dlen -- src slen dst dlen )
+		is-overlapped? if					( src slen dst dlen src slen dst dlen -- src slen dst dlen )
 			drop 2nip						( src slen dst dlen -- dst )
 			0 -1							( dst -- dst 0 -1 )
 			exit

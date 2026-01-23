@@ -170,8 +170,8 @@ require stack.f
 		else
 			r> drop
 			(nt>value@)				\ xt
-			dup not-immediate?		\ -1 if not immediate, 0 if immediate
-			-1 1 select				\ -1 normal, 1 immediate
+			dup is-xt-immediate?		\ -1 if not immediate, 0 if immediate
+			1 -1 select				\ -1 normal, 1 immediate
 		then
 	;
 
