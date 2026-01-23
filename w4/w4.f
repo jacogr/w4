@@ -89,6 +89,3 @@ require ext/wasi.f
 \
 \ End of library
 \
-
-words
-lkjaslk
