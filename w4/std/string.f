@@ -109,6 +109,7 @@ require stack.f
 				1+ swap
 			loop
 		then
+
 		2drop
 		r>
 	;

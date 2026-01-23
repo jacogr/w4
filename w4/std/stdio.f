@@ -96,5 +96,6 @@ require wasi.f
 				1+ 			( c-addr u count -- c-addr u count' )
 			then
 		repeat
+
 		2nip				( c-addr u count -- count )
 	;
