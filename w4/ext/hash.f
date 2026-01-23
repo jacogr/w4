@@ -5,7 +5,7 @@ require ../std/loops.f
 \
 \ https://en.wikipedia.org/wiki/Daniel_J._Bernstein
 
-	: djb2a ( c-addr u -- u )
+	: djb2a-i ( c-addr u -- u )
 		$1505 swap			( c-addr u -- c-addr hash u -- )
 		0 ?do				( c-addr hash u 0 -- c-addr hash )
 			over i +		( c-addr hash -- c-addr hash ch-addr )
@@ -22,7 +22,7 @@ require ../std/loops.f
 \
 \ https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
 
-	: fnv1a ( c-addr u -- u )
+	: fnv1a-i ( c-addr u -- u )
 		$811c9dc5 swap		( c-addr u -- c-addr hash u )
 		0 ?do				( c-addr hash u 0 -- c-addr hash )
 			over i +		( c-addr hash -- c-addr hash ch-addr )
@@ -50,7 +50,7 @@ require ../std/loops.f
 	: host::hash ( c-addr u -- hash )
 		\ len <> 0
 		?dup 0<> if
-			fnv1a fmix32
+			fnv1a-i fmix32
 		else drop 0 then
 	;
 

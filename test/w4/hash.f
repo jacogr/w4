@@ -1,35 +1,35 @@
 
 \ -------------------------------------------------------------
-testing djb2a
-T{ s" " djb2a -> #5381 }T	\ default 0 length
-T{ s" h" djb2a -> #177613 }T
-T{ s" he" djb2a -> #5861128 }T
-T{ s" hel" djb2a -> #193417316 }T
-T{ s" hell" djb2a -> #2087804040 }T
-T{ s" hello" djb2a -> #178056679 }T
-T{ s" hello " djb2a -> #1580903143 }T
-T{ s" hello w" djb2a -> #630196144 }T
-T{ s" hello wo" djb2a -> #3616603615 }T
-T{ s" hello wor" djb2a -> #3383802317 }T
-T{ s" hello worl" djb2a -> #4291293953 }T
-T{ s" hello world" djb2a -> #4173747013 }T
-T{ s" hELlO wOrLD" djb2a -> #4173747013 }T
+testing djb2a-i
+T{ s" " djb2a-i -> #5381 }T	\ default 0 length
+T{ s" h" djb2a-i -> #177613 }T
+T{ s" he" djb2a-i -> #5861128 }T
+T{ s" hel" djb2a-i -> #193417316 }T
+T{ s" hell" djb2a-i -> #2087804040 }T
+T{ s" hello" djb2a-i -> #178056679 }T
+T{ s" hello " djb2a-i -> #1580903143 }T
+T{ s" hello w" djb2a-i -> #630196144 }T
+T{ s" hello wo" djb2a-i -> #3616603615 }T
+T{ s" hello wor" djb2a-i -> #3383802317 }T
+T{ s" hello worl" djb2a-i -> #4291293953 }T
+T{ s" hello world" djb2a-i -> #4173747013 }T
+T{ s" hELlO wOrLD" djb2a-i -> #4173747013 }T
 
 \ -------------------------------------------------------------
-testing fnv1a
-T{ s" " fnv1a -> #2166136261 }T	\ default 0 length
-T{ s" h" fnv1a -> #3977000791 }T
-T{ s" he" fnv1a -> #1547363254 }T
-T{ s" hel" fnv1a -> #179613742 }T
-T{ s" hell" fnv1a -> #477198310 }T
-T{ s" hello" fnv1a -> #1335831723 }T
-T{ s" hello " fnv1a -> #3801292497 }T
-T{ s" hello w" fnv1a -> #1402552146 }T
-T{ s" hello wo" fnv1a -> #3611200775 }T
-T{ s" hello wor" fnv1a -> #1282977583 }T
-T{ s" hello worl" fnv1a -> #2767971961 }T
-T{ s" hello world" fnv1a -> #3582672807 }T
-T{ s" hELlO wOrLD" djb2a -> #3582672807 }T
+testing fnv1a-i
+T{ s" " fnv1a-i -> #2166136261 }T	\ default 0 length
+T{ s" h" fnv1a-i -> #3977000791 }T
+T{ s" he" fnv1a-i -> #1547363254 }T
+T{ s" hel" fnv1a-i -> #179613742 }T
+T{ s" hell" fnv1a-i -> #477198310 }T
+T{ s" hello" fnv1a-i -> #1335831723 }T
+T{ s" hello " fnv1a-i -> #3801292497 }T
+T{ s" hello w" fnv1a-i -> #1402552146 }T
+T{ s" hello wo" fnv1a-i -> #3611200775 }T
+T{ s" hello wor" fnv1a-i -> #1282977583 }T
+T{ s" hello worl" fnv1a-i -> #2767971961 }T
+T{ s" hello world" fnv1a-i -> #3582672807 }T
+T{ s" hELlO wOrLD" fnv1a-i -> #3582672807 }T
 
 \ -------------------------------------------------------------
 testing host::hash
