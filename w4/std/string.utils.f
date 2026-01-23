@@ -99,3 +99,15 @@ require stack.f
 
 		rot	drop					( c c-addr u -- c-addr u )
 	;
+
+\ Non-standard. Checks if 2 string regions has no overlap
+
+	: not-overlapped? ( c-addr1 u c-addr2 u -- f )
+		2over +
+		sp-2@ u<
+
+		if 4drop true exit then
+
+		+ rot u<
+		nip
+	;

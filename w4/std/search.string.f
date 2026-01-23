@@ -19,33 +19,48 @@ include string.utils.f
 \ The program may then reuse the buffer c-addr1 u1 without affecting the
 \ definition of the substitution.
 
-	(new-lookup-small) constant (widSubst)
+	(new-lookup-small) constant (subst-wid)
 
-	: (makeSubst)	( c-addr len -- c-addr )
-		strdup-ni					( c-addr len -- c-addr' len' )
-		0 (flg-is-vis) (new-xt)			( c-addr len -- c-addr len xt )
+	2variable (subst-dst+len)
+	variable (subst-dlen)
+	variable (subst-err)
+
+	: (make-subst)	( c-addr u -- c-addr )
+		\ create xt
+		strdup-ni						( c-addr len -- c-addr' len' )
+		$0 (flg-is-vis) (new-xt)		( c-addr len -- c-addr len xt )
+
+		\ set str, len & hash
 		-rot							( c-addr len xt -- xt c-addr len )
 		sp-2@ (xt>str+len+hash!)		( xt c-addr len -- xt )
-		here swap						( xt -- here^ xt )
-		string-max 1+ allot				\ allocate string buffer at here
-		2dup (xt>value!)				( here^ xt -- here^ xt )
-		(widSubst) swap					( here^ xt -- here^ wid xt )
-		(lookup-append)					( here^ wid xt -- here^ nt )
-    	drop							( here^ nt -- here^ )
-   ;
 
-	: (findSubst) ( c-addr len -- a-addr|0 )
-   		(widSubst) (lookup-search-xt)	( c-addr len -- xt|0 )
+		\ allocate string buffer at here
+		here swap						( xt -- here^ xt )
+		string-max 1+ allot				( her^ xt -- here^ xt )
+
+		\ store buffer as xt>value
+		2dup (xt>value!)				( here^ xt -- here^ xt )
+
+		\ add to wordlist
+		(subst-wid) swap					( here^ xt -- here^ wid xt )
+		(lookup-append)					( here^ wid xt -- here^ nt )
+		drop							( here^ nt -- here^ )
+	;
+
+	: (find-subst) ( c-addr u -- c-addr | 0 )
+		(subst-wid) (lookup-search-xt) (xt>value@)
 	;
 
 	: replaces ( text tlen name nlen -- )
-		2dup (findSubst)				( text tlen name nlen -- text tlen name nlen dst )
-		?dup if
-			2nip (xt>value@)						( text tlen name nlen dst -- text tlen dst )
-		else
-			(makeSubst)					( text tlen name nlen -- text tlen dst )
-		then
-		place							( text tlen dst -- )
+		\ found?
+		2dup (find-subst) ?dup if
+			2nip
+		else (make-subst) then
+
+		\ place with len != 0
+		over 0<> if
+			place
+		else 3drop then
 	;
 
 \ https://forth-standard.org/standard/string/SUBSTITUTE
@@ -57,93 +72,95 @@ include string.utils.f
 \ 0 on success and indicates the number of substitutions made. A negative
 \ value for n indicates that an error occurred, leaving c-addr2 u3 undefined
 
-	string-max 1+ buffer: (substName)	\ Holds substitution name as a counted string.
+	: (add-subst-dst) ( char -- )
+		\ not at end?
+		(subst-dst+len) @ (subst-dlen) @ < if
+			\ xero error?
+			(subst-err) @ 0= if
+				\ add character, increment offset
+				(subst-dst+len) 2@ + c!
+				$1 (subst-dst+len) +!
+			else drop then
+		else drop -1 (subst-err) ! then
+	;
 
-	variable (substDestLen)			\ Maximum length of the destination buffer.
-	variable (substDestAddr)   		\ destination base address
-	variable (substDestCur)    		\ current length
-	variable (substErr)				\ Holds zero or an error code.
+	: (form-subst-name) ( c-addr u -- c-addr1 u1 c-addr2 u2 )
+		1 /string				( c-addr u -- c-addr' u' )
 
-	: (addDestSubst) ( char -- )
-		(substDestCur) @ (substDestLen) @ < if
-			(substDestAddr) @
-			(substDestCur) @ + c!          \ store char
-			1 (substDestCur) +!            \ advance length
-		else
-			drop -1 (substErr) !
+		2dup '%' scan			( c-addr u -- c-addr u c-addr' u' )
+		dup if					( c-addr u c-addr' u' u' -- c-addr u c-addr' u' )
+			swap drop			( c-addr u c-addr' u' -- c-addr u u' )
+			sp-2@ sp-2@			( c-addr u u' -- c-addr u u' c-addr u )
+			rot					( c-addr u u' -- c-addr u c-addr u u' )
+			- 2>r r@			( c-addr u c-addr u u' -- c-addr u u2 ) ( r: -- c-addr2 u2 )
+			1+ /string			( c-addr u u' -- c-addr1 u1 )
+			2r>					( c-addr1 u1 -- c-addr1 u1 c-addr2 u2 )
 		then
 	;
 
-	: (formNameSubst) ( c-addr len -- c-addr' len' )
-		1 /string
-		2dup '%' scan >r drop
-		2dup r> - dup >r (substName) place
-		r> 1 chars + /string
-	;
+	: (to-subst-dst) ( c-addr u -- ) bounds ?do i c@ (add-subst-dst) $1 +loop ;
 
-	: >dest ( c-addr len -- )
-		bounds ?do
-			i c@ (addDestSubst)
-		1 chars +loop
-	;
-
-	: (processNameSubst) ( -- flag )
-		(substName) count
-		(findSubst)
-		?dup if
-			(xt>value@) count >dest
+	: (layout-subst-name) ( )
+		2dup (find-subst) ?dup if
+			2nip
+			count (to-subst-dst)
 			true
 		else
-			'%' (addDestSubst)
-			(substName) count >dest
-			'%' (addDestSubst)
+			'%' (add-subst-dst)
+			(to-subst-dst)
+			'%' (add-subst-dst)
 			false
 		then
 	;
 
-	: substitute ( src slen dest dlen -- dest dlen' n )
-		(substDestLen) !
-		(substDestAddr) !
-		0 (substDestCur) !
-		0 (substErr) !
-
-		\ error if src == dest
-		2over drop 2over drop = if
-			2drop 2drop 0 0 -1 exit
+	: substitute ( src slen dst dlen -- dst len' n )
+		\ as per spec, overlap error
+		2over 2over							( src slen dst dlen --  src slen dst dlen src slen dst dlen )
+		not-overlapped? 0= if				( src slen dst dlen src slen dst dlen -- src slen dst dlen )
+			drop 2nip						( src slen dst dlen -- dst )
+			0 -1							( dst -- dst 0 -1 )
+			exit
 		then
 
-		0 -rot					\ -- 0 src slen
+		\ setup buffers
+		(subst-dlen) !						( src slen dst dlen -- src slen dst )
+		0 (subst-dst+len) 2!				( src slen dst -- src slen )
+		0 (subst-err) !
+
+		\ add initial n = 0
+		0 -rot								( src slen -- n src slen )
 
 		begin
-			dup 0 >
+			dup 0>
 		while
-			over c@ '%' <> if				\ character not %
-				over c@ (addDestSubst) 1 /string
+			\ not %?
+			over c@ '%' <> if
+				over c@ (add-subst-dst)
+				$1 /string
 			else
-				dup 1 > if					\ safe to look at next char
-					over 1 chars + c@ '%' = if		\ %% for one output %
-						'%' (addDestSubst)
-						2 /string
-					else
-						(formNameSubst)
-						(processNameSubst) if
-							rot 1+ -rot		\ count substitutions
-						then
-					then
+				\ %%?
+				over 1+ c@ '%' = if
+					'%' (add-subst-dst)
+					$2 /string
 				else
-					\ single trailing '%'
-					'%' (addDestSubst)
-					1 /string
+					\ start & end %?
+					(form-subst-name) dup if
+						(layout-subst-name)
+						if rot 1+ -rot then	( n src slen n -- n' src slen )
+					else
+						2drop
+						'%' (add-subst-dst)
+					then
 				then
 			then
 		repeat
 
-		2drop
-		(substDestAddr) @
-		(substDestCur) @
-		rot
+		2drop (subst-dst+len) 2@				( n src slen -- n dst dlen )
+		rot									( n dst dlen -- dst dlen n )
 
-		(substErr) @ if
-			drop (substErr) @
+		\ error?
+		(subst-err) @ if
+			drop
+			(subst-err) @ 	\ negative n for error
 		then
 	;
