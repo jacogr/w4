@@ -13,6 +13,7 @@ T{ s" hello wo" djb2a -> #3616603615 }T
 T{ s" hello wor" djb2a -> #3383802317 }T
 T{ s" hello worl" djb2a -> #4291293953 }T
 T{ s" hello world" djb2a -> #4173747013 }T
+T{ s" hELlO wOrLD" djb2a -> #4173747013 }T
 
 \ -------------------------------------------------------------
 testing fnv1a
@@ -28,6 +29,7 @@ T{ s" hello wo" fnv1a -> #3611200775 }T
 T{ s" hello wor" fnv1a -> #1282977583 }T
 T{ s" hello worl" fnv1a -> #2767971961 }T
 T{ s" hello world" fnv1a -> #3582672807 }T
+T{ s" hELlO wOrLD" djb2a -> #3582672807 }T
 
 \ -------------------------------------------------------------
 testing host::hash
@@ -44,3 +46,4 @@ T{ s" hello wo" host::hash -> $-25EDB6CC }T
 T{ s" hello wor" host::hash -> $4DBE4336 }T
 T{ s" hello worl" host::hash -> $13DB95C }T
 T{ s" hello world" host::hash -> $-46FBA914 }T
+T{ s" hELlO wOrLD" host::hash -> $-46FBA914 }T
