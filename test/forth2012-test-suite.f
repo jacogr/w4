@@ -28,16 +28,29 @@ S" forth2012-test-suite/src/coreplustest.fth" INCLUDED
 S" forth2012-test-suite/src/utilities.fth" INCLUDED
 S" forth2012-test-suite/src/errorreport.fth" INCLUDED
 S" forth2012-test-suite/src/coreexttest.fth" INCLUDED
+
+\ The host is wasi, with preloaded file access, depending on environment.
+\ Adding a block layer need to take this constraint into account.
 \ UNPLANNED S" forth2012-test-suite/src/blocktest.fth" INCLUDED
+
 S" forth2012-test-suite/src/doubletest.fth" INCLUDED
 \ TODO S" forth2012-test-suite/src/exceptiontest.fth" INCLUDED
-\ UNPLANNED S" forth2012-test-suite/src/facilitytest.fth" INCLUDED
+
+\ There are no environmental constraints, so this could very well be
+\ a very useful addition for structs as found in other languages.
+\ UNKNOWN S" forth2012-test-suite/src/facilitytest.fth" INCLUDED
+
 \ TODO S" forth2012-test-suite/src/filetest.fth" INCLUDED
 \ TODO S" forth2012-test-suite/src/localstest.fth" INCLUDED
+
+\ The host is wasi, it doesn't have access to the lower-level system
+\ allocator. these can be stubbed around allot, but never pure system
 \ UNPLANNED S" forth2012-test-suite/src/memorytest.fth" INCLUDED
+
 \ TODO S" forth2012-test-suite/src/toolstest.fth" INCLUDED
 \ TODO S" forth2012-test-suite/src/searchordertest.fth" INCLUDED
 S" forth2012-test-suite/src/stringtest.fth" INCLUDED
+
 REPORT-ERRORS
 
 CR .( Forth tests completed ) CR CR
