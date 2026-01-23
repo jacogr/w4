@@ -3,7 +3,8 @@ require stack.f
 
 \ convert a character to lowercase
 
-	: >lower-ascii ( c -- c' ) dup 'A' 'Z' 1+ within if $20 or then ;
+	\ 'A' = 65, 'Z' + 1 = 91
+	: >lower-ascii ( c -- c' ) dup #65 #91 within $20 and or ;
 
 \ copy a string in lowercase
 
@@ -47,9 +48,8 @@ require stack.f
 			and					( c-addr1 c-addr2 f u f1 f2 -- c-addr1 c-addr2 f u f' )
 		while					( c-addr1 c-addr2 f u f' -- c-addr1 c-addr2 f u )
 			1-					( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u' )
-			dup dup				( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u u u )
-			sp-5@ + c@ swap		( c-addr1 c-addr2 f u u u -- c-addr1 c-addr2 f u c1 u )
-			sp-4@ + c@			( c-addr1 c-addr2 f u c1 u -- c-addr1 c-addr2 f u c1 c2 )
+			dup sp-4@ + c@ 		( c-addr1 c-addr2 f u -- c-addr1 c-addr2 f u c1 )
+			over sp-4@ + c@		( c-addr1 c-addr2 f u c1 -- c-addr1 c-addr2 f u c1 c2 )
 
 			\ f = c1 == c2
 			=					( c-addr1 c-addr2 f u c1 c2 -- c-addr1 c-addr2 f u f' )

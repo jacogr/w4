@@ -7,7 +7,7 @@ testing lookup
 \ make a visible xt with a permanently stored (lowercased) name
 : mkxt ( c-addr u -- xt )
   strdup-n-lower                 ( c-addr' u' )
-  0 (flg-set-vis) (new-xt)       ( c-addr' u' xt )
+  0 (flg-is-vis) (new-xt)       ( c-addr' u' xt )
   dup >r                         ( c-addr' u' xt ) ( r: xt )
   (xt>str+len+hash!)             ( c-addr' u' xt -- )
   r>                             ( -- xt )
