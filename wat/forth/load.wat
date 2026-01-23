@@ -132,7 +132,7 @@
 			(then
 				;; included?
 				(call $__lookup_find
-					(global.get $list_incl)
+					(call $__get_list_incl)
 					(local.get $str)
 					(local.get $len)
 					(local.get $hash)) (if
@@ -148,7 +148,7 @@
 
 		;; add to the known includes (w/ non-transient string)
 		(call $__lookup_append
-			(global.get $list_incl)
+			(call $__get_list_incl)
 			(local.get $hash)
 			(local.tee $f
 				(call $__val_new

@@ -27,8 +27,6 @@
 	(global $stack_ret		(mut i32) (i32.const 0))
 	(global $stack_ctl		(mut i32) (i32.const 0))
 	(global $stack_src		(mut i32) (i32.const 0))
-	(global $list_dict      (mut i32) (i32.const 0))
-	(global $list_incl      (mut i32) (i32.const 0))
 	(global $list_toks      (mut i32) (i32.const 0))
 
 	;;
@@ -94,7 +92,7 @@
 			;; hash, add to dictionary
 			(then
 				(call $__lookup_append
-					(global.get $list_dict)
+					(call $__get_list_dict)
 					(local.get $hash)
 					(global.get $xt_comp)))
 
@@ -448,7 +446,7 @@
 			(local.tee $ptr_xt
 				(call $__val_get_value
 					(call $__lookup_find
-						(global.get $list_dict)
+						(call $__get_list_dict)
 						(local.get $wptr)
 						(local.get $wlen)
 						(call $__hash

@@ -1,5 +1,5 @@
 
-	#32 parse-token ] build, 1 $0150 ! 1 $0150 ! ;
+	#32 parse-token ] build, 1 $0130 ! 1 $0130 ! ;
 	#32 parse-token : build, ] #32 parse-token build, ] ;
 
 	: PARSE-NAME #32 parse-token ;
@@ -18,8 +18,8 @@ require preamble.f
 \ Enter compilation state.
 \
 \	#32 parse-token ] build,	\ define "]"
-\		1 $0050 ! 		\ compile, 1 state ! (state constant not defined yet)
-\		1 $0050 !		\ apply when executed
+\		1 $0130 ! 		\ compile, 1 state ! (state constant not defined yet)
+\		1 $0130 !		\ apply when executed
 \	;
 
 \ https://forth-standard.org/standard/core/Colon

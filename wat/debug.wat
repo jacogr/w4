@@ -118,7 +118,7 @@
 	(func $__DEBUG_emit_dict
 		(call $__iov_emit_chr_stdout (i32.const 10))
 		(call $__iov_emit_chr_stdout (i32.const 10))
-		(call $__DEBUG_emit_list (global.get $list_dict))
+		(call $__DEBUG_emit_list (call $__get_list_dict))
 	)
 
 	(func $__DEBUG_emit_list (param $ptr_list i32)

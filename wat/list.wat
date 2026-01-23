@@ -163,3 +163,13 @@
 		;; col
 		(i32.shr_u (local.get $rc) (i32.const 16))
 	)
+
+	;;
+	;; Helpers to retrieve specific lists
+	;;
+
+	(func $__get_list_dict (result i32)
+		(i32.load (global.get $PTR_PTR_DICT)))
+
+	(func $__get_list_incl (result i32)
+		(i32.load (global.get $PTR_PTR_INCL)))

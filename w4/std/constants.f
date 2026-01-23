@@ -279,11 +279,11 @@
 \ Only the following standard words alter the value in STATE: : (colon),
 \ ; (semicolon), ABORT, QUIT, :NONAME, [ (left-bracket), ] (right-bracket).
 
-	$0150 (mmio:) STATE
+	$0130 (mmio:) STATE
 
 \ https://forth-standard.org/standard/core/BASE
 \
 \ a-addr is the address of a cell containing the current number-conversion
 \ radix {{2...36}}.
 
-	$0154 (mmio:) BASE
+	$0134 (mmio:) BASE

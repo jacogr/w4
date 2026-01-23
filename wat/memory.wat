@@ -29,16 +29,16 @@
 	(global $PTR_PTR_TOK_EXE   i32 (i32.const 0x0124)) ;; current executing token
 	(global $PTR_PTR_DICT      i32 (i32.const 0x0128))
 	(global $PTR_PTR_INCL      i32 (i32.const 0x012c)) ;; list of included files
+	(global $PTR_STATE         i32 (i32.const 0x0130))
+	(global $PTR_BASE          i32 (i32.const 0x0134))
 	(global $PTR_PTR_STACK_DAT i32 (i32.const 0x0140))
 	(global $PTR_PTR_STACK_RET i32 (i32.const 0x0144))
 	(global $PTR_PTR_STACK_CTL i32 (i32.const 0x0148))
 	(global $PTR_PTR_STACK_SRC i32 (i32.const 0x014c))
-	(global $PTR_STATE         i32 (i32.const 0x0150))
-	(global $PTR_BASE          i32 (i32.const 0x0154))
 	;; next layout starting at 512 (0x0200)
 
 	;; init for known values
-	(data (i32.const 0x0154) "\0a") ;; base = 10
+	(data (i32.const 0x0134) "\0a") ;; base = 10
 
 	;; general scratchpad area is available at the start of the memory
 	;; (we further break up into general areas)

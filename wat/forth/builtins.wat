@@ -272,7 +272,7 @@
 
 		(call $__stack_dat_push
 			(call $__lookup_find
-				(global.get $list_dict)
+				(call $__get_list_dict)
 				(local.get $str)
 				(local.get $len)
 				(call $__hash
