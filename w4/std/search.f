@@ -20,7 +20,9 @@ require ../ext/list.f
 \ provided by the implementation. This word list is initially the compilation
 \ word list and is part of the initial search order.
 
-	: FORTH-WORDLIST ( -- wid ) (dict^) ;
+	variable (wordlist-forth) (dict^) (wordlist-forth) !	\ setup (dict^) as default wordlist
+
+	: FORTH-WORDLIST ( -- wid ) (wordlist-forth) @ ;
 
 \ https://forth-standard.org/standard/search/SEARCH-WORDLIST
 \
@@ -44,7 +46,7 @@ require ../ext/list.f
 \ the word list that is searched first, and widn the word list that is
 \ searched last. The search order is unaffected.
 
-	variable (#wordlist-order)
+	variable (#wordlist-order)	\ initialized in definitions below
 	create (wordlist-context) $16 cells allot
 
 	: GET-ORDER ( -- wid1 ... widn n )
@@ -125,14 +127,6 @@ require ../ext/list.f
 
 	: ALSO ( -- ) get-order over swap 1+ set-order ;
 
-\ https://forth-standard.org/standard/search/PREVIOUS
-\
-\ Transform the search order consisting of widn, ... wid2, wid1 (where wid1
-\ is searched first) into widn, ... wid2. An ambiguous condition exists if
-\ the search order was empty before PREVIOUS was executed.
-
-	: PREVIOUS ( -- ) get-order nip 1- set-order ;
-
 \ https://forth-standard.org/standard/search/DEFINITIONS
 \
 \ Make the compilation word list the same as the first word list in the search
@@ -141,6 +135,14 @@ require ../ext/list.f
 \ affect the compilation word list.
 
 	: DEFINITIONS ( -- ) get-order over set-current set-order ;
+
+\ https://forth-standard.org/standard/search/PREVIOUS
+\
+\ Transform the search order consisting of widn, ... wid2, wid1 (where wid1
+\ is searched first) into widn, ... wid2. An ambiguous condition exists if
+\ the search order was empty before PREVIOUS was executed.
+
+	: PREVIOUS ( -- ) get-order nip 1- set-order ;
 
 \ https://forth-standard.org/standard/search/FIND
 \
@@ -171,4 +173,4 @@ require ../ext/list.f
 
 \ setup, make it usable via the standard init string
 
-	only forth definitions
+	only forth definitions		\ setup initial search order
