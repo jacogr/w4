@@ -1,6 +1,7 @@
 require constants.f
 require logic.f
 require loops.f
+require search.f \ needs search, updated find w/ wordlists
 require stack.f
 require text.f
 

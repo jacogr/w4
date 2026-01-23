@@ -38,3 +38,7 @@ require ../std/constants.f
 		+ rot u< 0=
 		nip
 	;
+
+\ checks if an nt is visible (via xt)
+
+	: is-xt-visible? ( xt -- f ) >flags @ (flg-is-vis) is-flag? ;

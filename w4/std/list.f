@@ -5,6 +5,7 @@ require string.utils.f
 require text.f
 
 require ../ext/hash.f
+require ../ext/is.f
 
 \ Non-standard, but needed for this environment. Create a new list.
 
@@ -144,20 +145,26 @@ require ../ext/hash.f
 			\ found == 0 & nt <> 0
 			0= over 0<> and			( hash c-addr u nt f -- hash c-addr u nt f' )
 		while						( hash c-addr u nt f -- hash c-addr u nt )
-			\ get hashes
+			\ get xt
 			dup (nt>value@)			( hash c-addr u nt -- hash c-addr u nt xt )
-			dup (xt>hash@)			( hash c-addr u nt xt -- hash c-addr u nt xt hash1 )
 
-			\ hash1 == hash?
-			sp-5@ = if				( hash c-addr u nt xt hash1 -- hash c-addr u nt xt )
-				\ get string
-				>str+len			( hash c-addr u nt xt -- hash c-addr u nt c-addr1 u1 )
+			\ is visible?
+			dup is-xt-visible? if
 
-				\ move check c-addr u to front
-				sp-4@ 				( hash c-addr u nt c-addr1 u1 -- hash c-addr u nt c-addr1 u1 c-addr )
-				sp-4@ 				( hash c-addr u nt c-addr1 u1 c-addr -- hash c-addr u nt c-addr1 u1 c-addr u )
-				streq-ni			( hash c-addr u nt c-addr1 u1 c-addr u --  hash c-addr u nt f )
-			else drop 0 then 		( hash c-addr u nt xt -- hash c-addr u nt 0 )
+				\ get hash
+				dup (xt>hash@)			( hash c-addr u nt xt -- hash c-addr u nt xt hash1 )
+
+				\ hash1 == hash?
+				sp-5@ = if				( hash c-addr u nt xt hash1 -- hash c-addr u nt xt )
+					\ get string
+					>str+len			( hash c-addr u nt xt -- hash c-addr u nt c-addr1 u1 )
+
+					\ move check c-addr u to front
+					sp-4@ 				( hash c-addr u nt c-addr1 u1 -- hash c-addr u nt c-addr1 u1 c-addr )
+					sp-4@ 				( hash c-addr u nt c-addr1 u1 c-addr -- hash c-addr u nt c-addr1 u1 c-addr u )
+					streq-ni			( hash c-addr u nt c-addr1 u1 c-addr u --  hash c-addr u nt f )
+				else drop 0 then 		( hash c-addr u nt xt -- hash c-addr u nt 0 )
+			else drop 0 then
 
 			\ not found, move to next
 			?dup 0= if				( hash c-addr u nt f -- hash c-addr u nt )

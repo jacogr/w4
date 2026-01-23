@@ -1,5 +1,8 @@
+require logic.number.f
 require loops.f
+require memory.f
 require stack.f
+require stack.loop.f
 
 \ convert a character to lowercase
 
