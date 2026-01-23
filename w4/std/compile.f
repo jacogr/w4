@@ -63,7 +63,7 @@ require stack.f
 \ has the stack effect ( i * x x -- j * x ). Executing xt consumes x and
 \ performs the compilation semantics of the word represented by nt.
 
-	: IS-XT-IMMEDIATE? ( xt -- f ) >flags @ $02 and 0<> ;
+	: is-xt-immediate? ( xt -- f ) >flags @ $02 and 0<> ;
 
 	: NAME>COMPILE ( nt -- xt action-xt )
 		(nt>value@)					( nt -- xt )
