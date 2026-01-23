@@ -324,7 +324,7 @@ require stack.f
 	;
 
 	: +loop ( n -- ) ( c: dest -- )
-		postpone (+loop)            \ produces done?
+		postpone (+loop)		\ produces done?
   		(loop-close)
 	; immediate
 
@@ -355,10 +355,10 @@ require stack.f
 \ continue execution in line.
 
 	: of       ( c: -- orig )
-		postpone over         \ ( sel x -- sel x sel )
-		postpone =            \ ( sel x sel -- sel flag )
-		postpone if           \ IF consumes flag, leaves sel
-		postpone drop         \ matched: drop sel
+		postpone over	( sel x -- sel x sel )
+		postpone =		( sel x sel -- sel flag )
+		postpone if		\ IF consumes flag, leaves sel
+		postpone drop	\ matched: drop sel
 	; immediate
 
 \ https://forth-standard.org/standard/core/ENDOF
@@ -373,7 +373,7 @@ require stack.f
 \ At runtime: Continue execution at the location specified by the consumer of case-sys2.
 
 	: endof    ( c: orig -- orig' )
-		postpone else         \ resolves the IF, leaves a new orig for the forward branch
+		postpone else	\ resolves the IF, leaves a new orig for the forward branch
 	; immediate
 
 \ https://forth-standard.org/standard/core/ENDCASE
@@ -387,11 +387,11 @@ require stack.f
 \ At runtime: Discard the case selector x and continue execution.
 
 	: endcase  ( c: 0 | orig... -- )
-		postpone drop         \ no match path: drop sel
+		postpone drop			\ no match path: drop sel
 		begin
 			cs> dup
 		while
-			(resolve-inner)       \ resolve each pending ELSE
+			(resolve-inner)		\ resolve each pending ELSE
 		repeat
 		drop
 	; immediate

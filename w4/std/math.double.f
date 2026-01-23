@@ -152,7 +152,7 @@ require stack.f
 		1 swap m*/mod			( lo hi n -- rem qlo qhi )
 		\ range check: qhi must equal sign-extension of qlo
 		>r						( rem qlo qhi -- rem qlo ) ( r: -- qhi )
-		dup 0<                  ( rem qlo -- req qlo signq )
+		dup 0<					( rem qlo -- req qlo signq )
 		r>						( rem qlo signq -- rem qlo signq qhi )
 		<> #-11 and throw    	( rem qlo signq qhi -- rem qlo )
 	;
@@ -165,20 +165,20 @@ require stack.f
 \ integer.
 
 	: fm/mod ( lo hi n -- r q )
-		dup >r             ( lo hi n -- lo hi n ) ( r: -- n )
-		over 0< >r         ( lo hi n -- lo hi n ) ( r: n -- n signD ) \ signD = hi sign
-		sm/rem             ( lo hi n --  r q )
+		dup >r				( lo hi n -- lo hi n ) ( r: -- n )
+		over 0< >r			( lo hi n -- lo hi n ) ( r: n -- n signD ) \ signD = hi sign
+		sm/rem				( lo hi n --  r q )
 
-		over 0<>           ( r q -- r q nz ) \ nz = r <> 0
-		r>                 ( r q nz -- r q nz signD ) ( r: n signD -- n )
-		r@ 0< xor          ( r q nz signD -- r q nz mismatch? ) ( r: n -- n )
-		and                ( r q nz mismatch? -- r q adjust? ) \ adjust? = nz & mismatch?
+		over 0<>			( r q -- r q nz ) \ nz = r <> 0
+		r>					( r q nz -- r q nz signD ) ( r: n signD -- n )
+		r@ 0< xor			( r q nz signD -- r q nz mismatch? ) ( r: n -- n )
+		and 				( r q nz mismatch? -- r q adjust? ) \ adjust? = nz & mismatch?
 
 		if
-			swap r> +       ( r q -- q r+n ) ( r: n -- )
-			swap 1-         ( q r+ n -- r+n q-1 )
+			swap r> +		( r q -- q r+n ) ( r: n -- )
+			swap 1-			( q r+ n -- r+n q-1 )
 		else
-			r-drop         ( r q -- r q ) ( r: n -- )
+			r-drop			( r q -- r q ) ( r: n -- )
 		then
 	;
 
@@ -198,6 +198,7 @@ require stack.f
 	: m*/  ( lo hi n1 +n2 -- lo' hi' )
 		dup 0= #-10 and throw
 		dup 0< #-11 and throw
+
 		m*/mod				( lo hi n1 +n2 -- rem qlo qhi )
 		rot drop			( rem qlo qhi -- qlo qhi )
 	;
@@ -235,12 +236,12 @@ require stack.f
 	;
 
 	: d2/ ( lo hi -- lo' hi' )
-		dup 1 and                 \ lo hi hibit
+		dup 1 and 			\ lo hi hibit
 		>r
-		arshift1                  \ lo hi'
-		swap 1 rshift             \ hi' lo>>1
-		r> 31 lshift or           \ hi' lo'
-		swap                      \ lo' hi'
+		arshift1			\ lo hi'
+		swap 1 rshift		\ hi' lo>>1
+		r> 31 lshift or		\ hi' lo'
+		swap				\ lo' hi'
 	;
 
 \ https://forth-standard.org/standard/double/DMax
@@ -300,7 +301,7 @@ require stack.f
 \ name. A program is responsible for initializing the contents.
 
 	: 2variable ( "name" -- )
-		create  0 ,  0 ,          \ reserve 2 cells, init to 0. (lo=0 hi=0)
+		create  0 ,  0 ,	\ reserve 2 cells, init to 0. (lo=0 hi=0)
   		does>
 	;
 

@@ -22,7 +22,7 @@ require text.f
 		begin
 			?dup
 		while
-			dup (nt>value@)		( nt -- nt xt )
+			dup (nt>value@)	( nt -- nt xt )
 
 			\ reverse of reveal in constants.f
 			>flags			( nt xt -- nt flags-addr )

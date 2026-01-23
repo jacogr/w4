@@ -37,6 +37,7 @@ require stack.f
 			1- cells
 			(wordlist-context) + @
 		loop
+
 		(#wordlist-order) @
 	;
 
@@ -53,6 +54,7 @@ require stack.f
 		dup -1 = if
 			drop 		\ TODO: push system default word lists and n
 		then
+
 		dup (#wordlist-order) !
 
 		0 ?do

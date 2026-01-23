@@ -51,10 +51,10 @@ require stack.f
 \ uses: false ^ ((false ^ true) & flag)
 
 	: select ( flag true false -- result )
-		swap		\ flag false true
-		over xor	\ flag false (false^true)
-		rot and		\ false ((false^true)&flag)
-		xor			\ false ^ ((false^true)&flag) => result
+		swap		( f true false -- flag false true )
+		over xor	( f false true -- flag false r1 )	\ r1 = (false^true)
+		rot and		( f false r1 -- false r2 ) 			\ r2 = f1 & f
+		xor			( false r2 -- result ) 				\ result = false ^ r2
 	;
 
 \ https://forth-standard.org/standard/tools/NAMEtoCOMPILE
@@ -66,7 +66,7 @@ require stack.f
 	: not-immediate? ( xt -- f ) >flags @ $02 and 0= ;
 
 	: name>compile ( nt -- xt action-xt )
-		(nt>value@)				( nt -- xt )
+		(nt>value@)					( nt -- xt )
   		dup not-immediate?			( xt -- xt flag )
   		['] compile, ['] execute	( xt flag -- xt flag xtc xte )
 		select						( xt flag xtc xte -- xt action-xt )

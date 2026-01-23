@@ -43,11 +43,11 @@ require ../ext/hash.f
 		here swap					( list count -- list buckets count )
 		cells allot					( list buckets count -- list buckets )		\ allocate count cells
 		here swap					( list buckets -- list index buckets )		\ index ptr
-		(sizeof-idx) allot		\ allocate index
+		(sizeof-idx) allot			\ allocate index
 
 		\ setup index buckets & mask
-		over (idx>buckets!)		( list index buckets -- list index )		\ set buckets
-		r> over (idx>mask!)		( list index -- list index ) ( r: mask -- )	\ set mask
+		over (idx>buckets!)			( list index buckets -- list index )		\ set buckets
+		r> over (idx>mask!)			( list index -- list index ) ( r: mask -- )	\ set mask
 
 		\ set index on list
 		over (lst>owner!)			( list index -- list )
@@ -77,22 +77,22 @@ require ../ext/hash.f
 		\ tail exist?
 		?dup if					( list nt tail nt tail -- list nt tail nt tail )
 			\ tail>next = nt, nt>prev = tail
-			(nt>next!)		( list nt tail nt tail -- list nt tail )
+			(nt>next!)			( list nt tail nt tail -- list nt tail )
 			over				( list nt tail -- list nt tail nt )
-			(nt>prev!)		( list nt tail nt -- list nt )
+			(nt>prev!)			( list nt tail nt -- list nt )
 		else 2drop then 		( list nt tail nt -- list nt )
 
 		\ set tail
 		2dup swap				( list nt -- list nt nt list )
-		(lst>tail!)			( list nt nt list -- list nt )
+		(lst>tail!)				( list nt nt list -- list nt )
 
 		\ get head
 		dup rot	dup				( list nt -- nt nt list list )
-		(lst>head@)			( nt nt list list -- nt nt list head )
+		(lst>head@)				( nt nt list list -- nt nt list head )
 
 		\ unset head?
 		0= if					( nt nt list head -- nt nt list )
-			(lst>head!)		( nt nt list -- nt )
+			(lst>head!)			( nt nt list -- nt )
 		else 2drop then			( nt nt list -- nt )
 	;
 

@@ -42,7 +42,7 @@ include string.utils.f
 		2dup (xt>value!)				( here^ xt -- here^ xt )
 
 		\ add to wordlist
-		(subst-wid) swap					( here^ xt -- here^ wid xt )
+		(subst-wid) swap				( here^ xt -- here^ wid xt )
 		(lookup-append)					( here^ wid xt -- here^ nt )
 		drop							( here^ nt -- here^ )
 	;
@@ -155,7 +155,7 @@ include string.utils.f
 			then
 		repeat
 
-		2drop (subst-dst+len) 2@				( n src slen -- n dst dlen )
+		2drop (subst-dst+len) 2@			( n src slen -- n dst dlen )
 		rot									( n dst dlen -- dst dlen n )
 
 		\ error?

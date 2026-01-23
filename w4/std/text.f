@@ -107,10 +107,10 @@ require string.f
 \ of the pictured numeric output string
 
 	: # ( ud -- ud' )
-		base @ ud/mod          \ rem qlo qhi
-		>r                     \ rem qlo    R: qhi
-		swap (#chr) hold       \ qlo
-		r>                     \ qlo qhi    (ud')
+		base @ ud/mod		\ rem qlo qhi
+		>r					\ rem qlo    R: qhi
+		swap (#chr) hold	\ qlo
+		r>					\ qlo qhi    (ud')
 	;
 
 \ https://forth-standard.org/standard/core/numS
@@ -312,32 +312,32 @@ require string.f
 		string-max 1+ allot                   \ 256 + count byte
 
 	create (s"\-escapetable)
-		 #7 c,    \ \a bel
-		 #8 c,    \ \b bs
-		'c' c,    \ \c
-		'd' c,    \ \d
-		#27 c,    \ \e esc
-		#12 c,    \ \f ff
-		'g' c,    \ \g
-		'h' c,    \ \h
-		'i' c,    \ \i
-		'j' c,    \ \j
-		'k' c,    \ \k
-		#10 c,    \ \l lf
-		'm' c,    \ \m  (note: handled specially below)
-		#10 c,    \ \n  (unix lf; \n handled specially below)
-		'o' c,    \ \o
-		'p' c,    \ \p
-		'"' c,    \ \q  => "
-		#13 c,    \ \r cr
-		's' c,    \ \s
-		 #9 c,    \ \t ht
-		'u' c,    \ \u
-		#11 c,    \ \v vt
-		'w' c,    \ \w
-		'x' c,    \ \x  (note: handled specially below)
-		'y' c,    \ \y
-		 #0 c,    \ \z nul
+		 #7 c,	\ \a bel
+		 #8 c,	\ \b bs
+		'c' c,	\ \c
+		'd' c,	\ \d
+		#27 c,	\ \e esc
+		#12 c,	\ \f ff
+		'g' c,	\ \g
+		'h' c,	\ \h
+		'i' c,	\ \i
+		'j' c,	\ \j
+		'k' c,	\ \k
+		#10 c,	\ \l lf
+		'm' c,	\ \m  (note: handled specially below)
+		#10 c,	\ \n  (unix lf; \n handled specially below)
+		'o' c,	\ \o
+		'p' c,	\ \p
+		'"' c,	\ \q  => "
+		#13 c,	\ \r cr
+		's' c,	\ \s
+		 #9 c,	\ \t ht
+		'u' c,	\ \u
+		#11 c,	\ \v vt
+		'w' c,	\ \w
+		'x' c,	\ \x  (note: handled specially below)
+		'y' c,	\ \y
+		 #0 c,	\ \z nul
 
 	create (s"\-crlf)
 		#2 c,  #13 c,  #10 c,

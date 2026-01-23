@@ -161,7 +161,7 @@ require loops.f
 		sp-3@ 				( src dst u dst -- src dst u dst src )
 
 		\ dst < src ?
-		u< if               ( src dst u dst src -- src dst u )
+		u< if				( src dst u dst src -- src dst u )
 			cmove 			( src dst u -- )
 		else
 			cmove> 			( src dst u -- )
