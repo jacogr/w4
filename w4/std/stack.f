@@ -14,6 +14,7 @@ require stack.ptr.f
 \ Drop the first item below the top of stack.
 
 	: nip ( x y -- y ) sp-1! ;
+
 	: 2nip ( x y z -- z ) nip nip ;
 
 \ https://forth-standard.org/standard/core/PICK
@@ -33,7 +34,11 @@ require stack.ptr.f
 \
 \ Duplicate cell pair
 
-	: 2dup ( x y -- x y x y ) over over ;
+	: 2dup ( x y -- x y x y ) sp-1@ sp-1@ ;
+
+	: 3dup ( x y z -- x y z x y z ) sp-2@ sp-2@ sp-2@ ;
+
+	: 4dup ( a b c d -- a b c d a b c d ) sp-3@ sp-3@ sp-3@ sp-3@ ;
 
 \ https://forth-standard.org/standard/core/TwoOVER
 \
@@ -58,11 +63,13 @@ require stack.ptr.f
 
 	: 2drop ( x y -- ) drop drop ;
 
+	: 3drop ( x y -- ) drop drop drop ;
+
+	: 4drop ( x y -- ) drop drop drop drop ;
+
 \ https://forth-standard.org/standard/core/ROT
 \
 \ Rotate the top three stack entries. (-rot is the reverse, or rot rot)
-
-	: 3dup ( x y z -- x y z x y z ) sp-2@ sp-2@ sp-2@ ;
 
 	: rot ( x y z -- y z x )
 		3dup
