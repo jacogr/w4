@@ -23,7 +23,7 @@ include string.utils.f
 
 	: (makeSubst)	( c-addr len -- c-addr )
 		strdup-n-lower					( c-addr len -- c-addr' len' )
-		0 (flg-set-vis) (new-xt)		( c-addr len -- c-addr len xt )
+		0 (flg-is-vis) (new-xt)			( c-addr len -- c-addr len xt )
 		-rot							( c-addr len xt -- xt c-addr len )
 		sp-2@ (xt>str+len+hash!)		( xt c-addr len -- xt )
 		here swap						( xt -- here^ xt )
