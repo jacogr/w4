@@ -13,13 +13,21 @@ require stack.f
 
 	: wordlist ( -- wid ) (new-lookup-small) ;
 
-\ https://forth-standard.org/standard/search/GET-CURRENT
+\ https://forth-standard.org/standard/search/SEARCH-WORDLIST
 \
-\ Return wid, the identifier of the compilation word list.
+\ Find the definition identified by the string c-addr u in the word list
+\ identified by wid. If the definition is not found, return zero. If the
+\ definition is found, return its execution token xt and one (1) if the
+\ definition is immediate, minus-one (-1) otherwise.
 
-	variable (wordlist-current) (dict^) (wordlist-current) !
+	: search-wordlist ( c-addr u wid -- 0 | xt 1 | xt -1 )
+		(lookup-search-xt) dup if	( c-addr u wid -- xt )
+			dup (xt>flags@)			( xt -- xt flags )
 
-	: get-current ( -- wid ) (wordlist-current) @ ;
+			\ immediate? flag = 1
+			(flg-is-imm) and if 1 else -1 then
+		then
+	;
 
 \ https://forth-standard.org/standard/search/GET-ORDER
 \
@@ -51,9 +59,7 @@ require stack.f
 \ SET-ORDER. A system shall allow n to be at least eight.
 
 	: set-order ( wid1 ... widn n -0 )
-		dup -1 = if
-			drop 		\ TODO: push system default word lists and n
-		then
+		dup -1 = if drop then
 
 		dup (#wordlist-order) !
 
@@ -62,6 +68,40 @@ require stack.f
 			(wordlist-context) + !
 		loop
 	;
+
+\ https://forth-standard.org/standard/search/FORTH-WORDLIST
+\
+\ Return wid, the identifier of the word list that includes all standard words
+\ provided by the implementation. This word list is initially the compilation
+\ word list and is part of the initial search order.
+
+	: forth-wordlist ( -- wid ) (dict^) ;
+
+\ https://forth-standard.org/standard/search/FORTH
+\
+\ Transform the search order consisting of widn, ... wid2, wid1 (where wid1 is
+\ searched first) into widn, ... wid2, widFORTH-WORDLIST.
+
+	: (wordlist) ( wid "<name>" -- ; )
+		create ,
+		does>
+			@ >r
+			get-order nip
+			r> swap set-order
+		;
+
+	\ setup
+
+	forth-wordlist (wordlist) forth
+	forth-wordlist 1 set-order
+
+\ https://forth-standard.org/standard/search/GET-CURRENT
+\
+\ Return wid, the identifier of the compilation word list.
+
+	variable (wordlist-current) forth-wordlist (wordlist-current) !
+
+	: get-current ( -- wid ) (wordlist-current) @ ;
 
 \ https://forth-standard.org/standard/search/SET-CURRENT
 \
@@ -76,18 +116,52 @@ require stack.f
 
 	: only ( -- ) -1 set-order ;
 
-\ https://forth-standard.org/standard/search/SEARCH-WORDLIST
+\ https://forth-standard.org/standard/search/ALSO
 \
-\ Find the definition identified by the string c-addr u in the word list
-\ identified by wid. If the definition is not found, return zero. If the
-\ definition is found, return its execution token xt and one (1) if the
-\ definition is immediate, minus-one (-1) otherwise.
+\ Transform the search order consisting of widn, ... wid2, wid1 (where wid1
+\ is searched first) into widn, ... wid2, wid1, wid1. An ambiguous condition
+\ exists if there are too many word lists in the search order.
 
-	: search-wordlist ( c-addr u wid -- 0 | xt 1 | xt -1 )
-		(lookup-search-xt) dup if	( c-addr u wid -- xt )
-			dup (xt>flags@)			( xt -- xt flags )
+	: also ( -- ) get-order over swap 1+ set-order ;
 
-			\ immediate? flag = 1
-			(flg-is-imm) and if 1 else -1 then
-		then
-	;
+\ https://forth-standard.org/standard/search/DEFINITIONS
+\
+\ Make the compilation word list the same as the first word list in the search
+\ order. Specifies that the names of subsequent definitions will be placed in
+\ the compilation word list. Subsequent changes in the search order will not
+\ affect the compilation word list.
+
+	\ Drop u+1 stack items
+	: (definitions-discard) ( x1 ... xn u -- ) 0 ?do drop loop ;
+
+	: definitions ( -- ) get-order swap set-current (definitions-discard) ;
+
+\ https://forth-standard.org/standard/search/FIND
+\
+\ Extend the semantics of 6.1.1550 FIND to be: ( c-addr -- c-addr 0 | xt 1 | xt -1 )
+\
+\ Find the definition named in the counted string at c-addr. If the definition
+\ is not found after searching all the word lists in the search order, return
+\ c-addr and zero. If the definition is found, return xt. If the definition is
+\ immediate, also return one (1); otherwise also return minus-one (-1). For a
+\ given string, the values returned by FIND while compiling may differ from
+\ those returned while not compiling.
+
+\ FIXME These fail some of the standard tests, which is weird since above we
+\ have set the default wordlist (without that even more fail)
+
+	\ : find ( c-addr -- c-addr 0 | xt 1 | xt -1 )
+	\ 	0								( c-addr 0 )
+	\ 	(#wordlist-order) @
+	\ 	0 ?do
+	\ 		over count					( c-addr 0 c-addr' u )
+	\ 		i cells
+	\ 		(wordlist-context) + @		( c-addr 0 c-addr' u wid )
+	\ 		search-wordlist				( c-addr 0; 0 | w 1 | q -1 )
+
+	\ 		?dup if						( c-addr 0; w 1 | w -1 )
+	\ 			2swap 2drop
+	\ 			leave					( w 1 | w -1 )
+	\ 		then						( c-addr 0 )
+	\ 	loop							( c-addr 0 | w 1 | w -1 )
+	\ ;
