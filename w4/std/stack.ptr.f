@@ -5,38 +5,38 @@ require logic.f
 \ the second-from-top entry on the stack. Same logic as above,
 \ count is just offset by the index
 
-	: (sp@-) ( n -- a-addr )
+	: (ds@@-) ( n -- a-addr )
 		1+ negate		\ remove effect of count
 		depth +			( -n -- c-n )
 		cells (ds^) +	( c-n -- a-addr )
 	;
 
-	: SP-0@ ( -- ) #0 (sp@-) @ ;
-	: SP-0! ( -- ) #0 (sp@-) ! ;
+	: SP-0@ ( -- ) #0 (ds@@-) @ ;
+	: SP-0! ( -- ) #0 (ds@@-) ! ;
 
-	: SP-1@ ( -- ) #1 (sp@-) @ ;
-	: SP-1! ( -- ) #1 (sp@-) ! ;
+	: SP-1@ ( -- ) #1 (ds@@-) @ ;
+	: SP-1! ( -- ) #1 (ds@@-) ! ;
 
-	: SP-2@ ( -- ) #2 (sp@-) @ ;
-	: SP-2! ( -- ) #2 (sp@-) ! ;
+	: SP-2@ ( -- ) #2 (ds@@-) @ ;
+	: SP-2! ( -- ) #2 (ds@@-) ! ;
 
-	: SP-3@ ( -- ) #3 (sp@-) @ ;
-	: SP-3! ( -- ) #3 (sp@-) ! ;
+	: SP-3@ ( -- ) #3 (ds@@-) @ ;
+	: SP-3! ( -- ) #3 (ds@@-) ! ;
 
-	: SP-4@ ( -- ) #4 (sp@-) @ ;
-	: SP-4! ( -- ) #4 (sp@-) ! ;
+	: SP-4@ ( -- ) #4 (ds@@-) @ ;
+	: SP-4! ( -- ) #4 (ds@@-) ! ;
 
-	: SP-5@ ( -- ) #5 (sp@-) @ ;
-	: SP-5! ( -- ) #5 (sp@-) ! ;
+	: SP-5@ ( -- ) #5 (ds@@-) @ ;
+	: SP-5! ( -- ) #5 (ds@@-) ! ;
 
-	: SP-6@ ( -- ) #6 (sp@-) @ ;
-	: SP-6! ( -- ) #6 (sp@-) ! ;
+	: SP-6@ ( -- ) #6 (ds@@-) @ ;
+	: SP-6! ( -- ) #6 (ds@@-) ! ;
 
 \ As per the above, a version for the control stack
 
 	: CS-DEPTH ( r:... - u ) (cs^) @ ;
 
-\ As per the (sp@-) versions
+\ As per the (ds@@-) versions
 
 	: (cs@-) ( n -- a-addr )
 		cs-depth - negate
@@ -75,7 +75,7 @@ require logic.f
 
 	: RP@ ( -- a-addr ) r-depth 1- cells (rs^) + ; \ extra 1- for call to this
 
-	: (rp@-) ( n -- a-addr )
+	: (rs@-) ( n -- a-addr )
 		1+ negate
 		r-depth +
 		cells (rs^) +
@@ -83,27 +83,27 @@ require logic.f
 
 \ https://forth-standard.org/standard/core/RFetch
 
-	: R@ ( -- x ) ( r: x -- x ) 1 (rp@-) @ ;
+	: R@ ( -- x ) ( r: x -- x ) 1 (rs@-) @ ;
 
-	: R! ( -- x ) ( x -- r:x ) 1 (rp@-) ! ;
+	: R! ( -- x ) ( x -- r:x ) 1 (rs@-) ! ;
 
-	: R-0@ ( -- ) #1 (rp@-) @ ;
-	: R-0! ( -- ) #1 (rp@-) ! ;
+	: R-0@ ( -- ) #1 (rs@-) @ ;
+	: R-0! ( -- ) #1 (rs@-) ! ;
 
-	: R-1@ ( -- ) #2 (rp@-) @ ;
-	: R-1! ( -- ) #2 (rp@-) ! ;
+	: R-1@ ( -- ) #2 (rs@-) @ ;
+	: R-1! ( -- ) #2 (rs@-) ! ;
 
-	: R-2@ ( -- ) #3 (rp@-) @ ;
-	: R-2! ( -- ) #3 (rp@-) ! ;
+	: R-2@ ( -- ) #3 (rs@-) @ ;
+	: R-2! ( -- ) #3 (rs@-) ! ;
 
-	: R-3@ ( -- ) #4 (rp@-) @ ;
-	: R-3! ( -- ) #4 (rp@-) ! ;
+	: R-3@ ( -- ) #4 (rs@-) @ ;
+	: R-3! ( -- ) #4 (rs@-) ! ;
 
-	: R-4@ ( -- ) #5 (rp@-) @ ;
-	: R-4! ( -- ) #5 (rp@-) ! ;
+	: R-4@ ( -- ) #5 (rs@-) @ ;
+	: R-4! ( -- ) #5 (rs@-) ! ;
 
-	: R-5@ ( -- ) #6 (rp@-) @ ;
-	: R-5! ( -- ) #6 (rp@-) ! ;
+	: R-5@ ( -- ) #6 (rs@-) @ ;
+	: R-5! ( -- ) #6 (rs@-) ! ;
 
-	: R-6@ ( -- ) #7 (rp@-) @ ;
-	: R-6! ( -- ) #7 (rp@-) ! ;
+	: R-6@ ( -- ) #7 (rs@-) @ ;
+	: R-6! ( -- ) #7 (rs@-) ! ;

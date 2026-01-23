@@ -5,7 +5,7 @@ require ../std/stack.f
 	$1 cells buffer: (iov-tmp-nwrite)
 
 	: IOV>FD ( c-addr-u u 1|2 -- ) \ 1=stdout, 2=stderr
-		#2 (sp@-) 			( c-addr u 1|2 -- c-addr u 1|2 a-iov )
+		#2 (ds@@-) 			( c-addr u 1|2 -- c-addr u 1|2 a-iov )
 		1 					\ write a single iov
 		(iov-tmp-nwrite)	( c-addr u 1|2 a-iov 1 -- c-addr u 1|2 a-iov 1 a-tmp )
 		wasi::fd_write		( c-addr u 1|2 a-iov 1 a-tmp -- c-addr u err )
