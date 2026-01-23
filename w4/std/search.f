@@ -82,7 +82,7 @@ require stack.f
 \ definition is immediate, minus-one (-1) otherwise.
 
 	: search-wordlist ( c-addr u wid -- 0 | xt 1 | xt -1 )
-		(lookup-search-xt) ?dup if	( c-addr u wid -- xt )
+		(lookup-search-xt) dup if	( c-addr u wid -- xt )
 			dup (xt>flags@)			( xt -- xt flags )
 
 			\ immediate? flag = 1
