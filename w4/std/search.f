@@ -13,6 +13,14 @@ require stack.f
 
 	: wordlist ( -- wid ) (new-lookup-small) ;
 
+\ https://forth-standard.org/standard/search/FORTH-WORDLIST
+\
+\ Return wid, the identifier of the word list that includes all standard words
+\ provided by the implementation. This word list is initially the compilation
+\ word list and is part of the initial search order.
+
+	: forth-wordlist ( -- wid ) (dict^) ;
+
 \ https://forth-standard.org/standard/search/SEARCH-WORDLIST
 \
 \ Find the definition identified by the string c-addr u in the word list
@@ -69,14 +77,6 @@ require stack.f
 		loop
 	;
 
-\ https://forth-standard.org/standard/search/FORTH-WORDLIST
-\
-\ Return wid, the identifier of the word list that includes all standard words
-\ provided by the implementation. This word list is initially the compilation
-\ word list and is part of the initial search order.
-
-	: forth-wordlist ( -- wid ) (dict^) ;
-
 \ https://forth-standard.org/standard/search/FORTH
 \
 \ Transform the search order consisting of widn, ... wid2, wid1 (where wid1 is
@@ -90,10 +90,7 @@ require stack.f
 			r> swap set-order
 		;
 
-	\ setup
-
 	forth-wordlist (wordlist) forth
-	forth-wordlist 1 set-order
 
 \ https://forth-standard.org/standard/search/GET-CURRENT
 \
@@ -131,10 +128,7 @@ require stack.f
 \ the compilation word list. Subsequent changes in the search order will not
 \ affect the compilation word list.
 
-	\ Drop u+1 stack items
-	: (definitions-discard) ( x1 ... xn u -- ) 0 ?do drop loop ;
-
-	: definitions ( -- ) get-order swap set-current (definitions-discard) ;
+	: definitions ( -- ) get-order over set-current set-order ;
 
 \ https://forth-standard.org/standard/search/FIND
 \
@@ -146,9 +140,6 @@ require stack.f
 \ immediate, also return one (1); otherwise also return minus-one (-1). For a
 \ given string, the values returned by FIND while compiling may differ from
 \ those returned while not compiling.
-
-\ FIXME These fail some of the standard tests, which is weird since above we
-\ have set the default wordlist (without that even more fail)
 
 	\ : find ( c-addr -- c-addr 0 | xt 1 | xt -1 )
 	\ 	0								( c-addr 0 )
@@ -165,3 +156,6 @@ require stack.f
 	\ 		then						( c-addr 0 )
 	\ 	loop							( c-addr 0 | w 1 | w -1 )
 	\ ;
+
+	\ \ setup
+	\ only forth definitions
