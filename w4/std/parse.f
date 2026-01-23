@@ -162,15 +162,16 @@ require stack.f
 
 	: find ( c-addr -- c-addr 0 | xt 1 | xt -1 )
 		dup >r
-		count find-name              \ nt | 0
+		count find-name				\ nt | 0
+
 		dup 0= if
 			drop
 			r> 0
 		else
 			r> drop
-			(nt>value@)                    \ xt
+			(nt>value@)				\ xt
 			dup not-immediate?		\ -1 if not immediate, 0 if immediate
-			-1 1 select                \ -1 normal, 1 immediate
+			-1 1 select				\ -1 normal, 1 immediate
 		then
 	;
 
@@ -203,7 +204,5 @@ require stack.f
 			else
 				>in ! false 	\ restore >in
 			then
-		else
-			0 ?do drop loop true
-		then
+		else 0 ?do drop loop true then
 	;
