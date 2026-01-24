@@ -57,8 +57,12 @@
 		;; set the current alloc position (after execption, end of constant memory)
 		(i32.store (global.get $PTR_ALLOC) (call $__excep_init))
 
-		;; allocate dictionary & list for includes
+		;; allocate dictionary
+		(i32.store (global.get $PTR_PTR_WID_LIST) (call $__alloc (i32.mul (i32.const 16) (i32.const 4))))
 		(i32.store (global.get $PTR_PTR_WID_CURR) (call $__store (global.get $PTR_PTR_WID_ORIG) (call $__dict_init (i32.const 1024))))
+		(i32.store (i32.load (global.get $PTR_PTR_WID_LIST)) (i32.load (global.get $PTR_PTR_WID_CURR)))
+
+		;; list of includes
 		(i32.store (global.get $PTR_PTR_INCL) (call $__lookup_new (i32.const 256)))
 
 		;; allocate stacks, all with global pointers

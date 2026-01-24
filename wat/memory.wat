@@ -36,10 +36,13 @@
 	(global $PTR_PTR_STACK_SRC i32 (i32.const 0x014c))
 	(global $PTR_PTR_WID_ORIG  i32 (i32.const 0x0150))
 	(global $PTR_PTR_WID_CURR  i32 (i32.const 0x0154))
+	(global $PTR_PTR_WID_LIST  i32 (i32.const 0x0158))
+	(global $PTR_WID_COUNT     i32 (i32.const 0x015c))
 	;; next layout starting at 512 (0x0200)
 
 	;; init for known values
 	(data (i32.const 0x0134) "\0a") ;; base = 10
+	(data (i32.const 0x015c) "\01") ;; one (original) wordlist
 
 	;; general scratchpad area is available at the start of the memory
 	;; (we further break up into general areas)

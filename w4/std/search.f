@@ -15,14 +15,6 @@ require ../ext/list.f
 
 	: WORDLIST ( -- wid ) (new-lookup-large) ;
 
-\ https://forth-standard.org/standard/search/FORTH-WORDLIST
-\
-\ Return wid, the identifier of the word list that includes all standard words
-\ provided by the implementation. This word list is initially the compilation
-\ word list and is part of the initial search order.
-
-	: FORTH-WORDLIST ( -- wid ) (wid-orig) ;
-
 \ https://forth-standard.org/standard/search/SEARCH-WORDLIST
 \
 \ Find the definition identified by the string c-addr u in the word list
@@ -45,17 +37,16 @@ require ../ext/list.f
 \ the word list that is searched first, and widn the word list that is
 \ searched last. The search order is unaffected.
 
-	variable (#wordlist-order)	\ initialized in definitions below
-	create (wordlist-context) $16 cells allot
+	$16 constant (wordlists-max) \ TODO check pushes against this
 
 	: GET-ORDER ( -- wid1 ... widn n )
-		(#wordlist-order) @ 0 ?do
-			(#wordlist-order) @ i -
+		(wid-count) 0 ?do
+			(wid-count) i -
 			1- cells
-			(wordlist-context) + @
+			(wid-list) + @
 		loop
 
-		(#wordlist-order) @
+		(wid-count)
 	;
 
 \ https://forth-standard.org/standard/search/SET-ORDER
@@ -74,11 +65,11 @@ require ../ext/list.f
         	exit
 		then
 
-		dup (#wordlist-order) !
+		dup (wid-count!)
 
 		0 ?do
 			i cells
-			(wordlist-context) + !
+			(wid-list) + !
 		loop
 	;
 
@@ -93,14 +84,14 @@ require ../ext/list.f
 		base @							( -- base )
 		decimal
 
-		(#wordlist-order) @ u.
+		(wid-count) u.
 
 		hex
 
-		(#wordlist-order) @ 0 ?do
-			(#wordlist-order) @ i -
+		(wid-count) 0 ?do
+			(wid-count) i -
 			1- cells
-			(wordlist-context) + @
+			(wid-list) + @
 			9 u.r
 		loop
 
@@ -179,11 +170,10 @@ require ../ext/list.f
 
 	: FIND ( c-addr -- c-addr 0 | xt 1 | xt -1 )
 		0								( c-addr 0 )
-		(#wordlist-order) @
-		0 ?do
+		(wid-count) 0 ?do
 			over count					( c-addr 0 c-addr' u )
 			i cells
-			(wordlist-context) + @		( c-addr 0 c-addr' u wid )
+			(wid-list) + @				( c-addr 0 c-addr' u wid )
 			search-wordlist				( c-addr 0; 0 | w 1 | q -1 )
 
 			?dup if						( c-addr 0; w 1 | w -1 )

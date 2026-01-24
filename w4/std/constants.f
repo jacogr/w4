@@ -288,7 +288,13 @@
 	$0144 (mmio@) (rs^)
 	$0148 (mmio@) (cs^)
 
-\ dictionary
+\ https://forth-standard.org/standard/search/FORTH-WORDLIST
+\
+\ Return wid, the identifier of the word list that includes all standard words
+\ provided by the implementation. This word list is initially the compilation
+\ word list and is part of the initial search order.
 
-	$0150 (mmio@) (wid-orig)
+	$0150 (mmio@) FORTH-WORDLIST
 	$0154 (mmio@) (wid-curr) : (wid-curr!) $0154 ! ;
+	$0158 (mmio@) (wid-list)
+	$015c (mmio@) (wid-count) : (wid-count!) $015c ! ;
