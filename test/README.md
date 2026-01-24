@@ -2,6 +2,7 @@
 
 | date | result | source |
 |--|--|--|
+| Sat 24 Jan 2026 | passes search tests | [searchordertest.fth](forth2012-test-suite/src/searchordertest.fth) |
 | Fri 23 Jan 2026 | passes string tests | [stringtest.fth](forth2012-test-suite/src/stringtest.fth) |
 | Mon 19 Jan 2026 | passes double tests | [doubletest.fth](forth2012-test-suite/src/doubletest.fth) |
 | Sun 18 Jan 2026 | passes core ext tests | [coreexttest.fth](forth2012-test-suite/src/coreexttest.fth) |

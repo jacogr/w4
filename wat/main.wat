@@ -76,7 +76,7 @@
 		(i32.store (global.get $PTR_ALLOC_MAX) (global.get $SIZEOF_MEMORY_MAX))
 
 		;; save the exit pointer for token lists
-		(global.set $dict_exit_ptr (call $__val_get_value (call $__list_get_head (call $__get_list_dict))))
+		(global.set $dict_exit_ptr (call $__val_get_value (call $__list_get_head (i32.load (global.get $PTR_PTR_WID_CURR)))))
 
 		;; excute all bundled files
 		(local.set $str (global.get $PTR_W4_FILES))

@@ -271,8 +271,7 @@
 		(local.set $str (call $__stack_dat_pop))
 
 		(call $__stack_dat_push
-			(call $__lookup_find
-				(call $__get_list_dict)
+			(call $__internal_lookup
 				(local.get $str)
 				(local.get $len)
 				(call $__hash

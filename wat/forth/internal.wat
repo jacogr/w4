@@ -92,7 +92,7 @@
 			;; hash, add to dictionary
 			(then
 				(call $__lookup_append
-					(call $__get_list_dict)
+					(i32.load (global.get $PTR_PTR_WID_CURR))
 					(local.get $hash)
 					(global.get $xt_comp)))
 
@@ -422,41 +422,34 @@
 	;; Find a word in the dictionary(ies)
 	;;
 	(func $__internal_lookup (param $str i32) (param $len i32) (param $hash i32) (result i32)
-		(local $wid i32)
-		(local $wid_orig i32)
+		(local $idx i32)
+		(local $num i32)
+		(local $ptr i32)
 		(local $xt i32)
 
-		(local.tee $xt
-			(call $__lookup_find
-				(local.tee $wid (call $__get_list_dict))
-				(local.get $str)
-				(local.get $len)
-				(local.get $hash))) (if
+		;; get the number of wids
+		(local.set $num (i32.load (global.get $PTR_WID_COUNT)))
+		(local.set $ptr (i32.load (global.get $PTR_PTR_WID_LIST)))
 
-			;; found it, will return
-			(then)
+		;; lookup until found or no next
+		(block $exit (loop $loop
+			;; exit if exhausted
+			(br_if $exit
+				(i32.eq (local.get $idx) (local.get $num)))
 
-			;; not found, continue
-			(else
+			;; exit if found
+			(br_if $exit
+				(local.tee $xt
+					(call $__lookup_find
+						(i32.load (local.get $ptr))
+						(local.get $str)
+						(local.get $len)
+						(local.get $hash))))
 
-				;; default dict?
-				(i32.eq
-					(local.get $wid)
-					(local.tee $wid_orig (i32.load (global.get $PTR_PTR_WID_ORIG)))) (if
-
-					;; default dict, not found
-					(then)
-
-					;; another list
-					(else
-
-						;; retrieve
-						(local.set $xt
-							(call $__lookup_find
-								(local.get $wid_orig)
-								(local.get $str)
-								(local.get $len)
-								(local.get $hash)))))))
+			;; continue
+			(local.set $idx (i32.add (local.get $idx) (i32.const 1)))
+			(local.set $ptr (i32.add (local.get $ptr) (i32.const 4)))
+			(br $loop)))
 
 		;; return it
 		local.get $xt
