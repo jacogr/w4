@@ -34,23 +34,27 @@ require text.f
 \ display an error
 
 	: (test-error) ( c-addr u -- )
-		cr type source type
-		base @ cr
+		cr type source type cr
+
+		base @
 
 		(test-depth) @ ?dup if
 			dup decimal . hex ':' emit space
+
 			dup 0 do				\ reverse results, keep size on top
 				(test-results)
 				i cells + @			( ... size --- ... size n )
 				swap				( ... size n --- ... n size )
 			loop
+
 			0 do . loop				\ display all cells
 		else
 			." <empty stack>"
 		then
 
 		base !
-		1 (test-is-error) !
+
+		true (test-is-error) !
 		1 (test-num-errors) +!
 		(test-empty-stack)
 	;
@@ -63,6 +67,7 @@ require text.f
 
 	: -> ( ... -- )
 		depth dup (test-depth) !
+
 		?dup if
 			0 do
 				(test-results)
@@ -88,20 +93,23 @@ require text.f
 			s" WRONG NUMBER OF RESULTS: " (test-error)
 		then
 
-		(test-is-error) @ 0= if
-			'*' emit
-		else
-			0 (test-is-error) !
-		then
+		(test-is-error) @ 0=
+		'*' 'x' select emit
+
+		false (test-is-error) !
+
 	;
 
 \ run tests (usefule for std test execution)
 
 	: TESTING \ ( -- ) TALKING COMMENT.
-		source (test-verbose) @
-		if
-			cr dup >r type cr r> >in !
+		source							( -- c-addr u )
+
+		(test-verbose) @ if
+			dup >r						( c-addr u -- c-addr u ) ( r: -- u )
+			cr type cr 					( c-addr u -- )
+			r> >in !					( r: u -- )
 		else
-			>in ! drop '*' emit
+			>in ! drop					( c-addr u -- )
 		then
 	;
