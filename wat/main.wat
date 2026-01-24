@@ -59,8 +59,8 @@
 
 		;; allocate dictionary
 		(i32.store (global.get $PTR_PTR_WID_LIST) (call $__alloc (i32.mul (i32.const 16) (i32.const 4))))
-		(i32.store (global.get $PTR_PTR_WID_CURR) (call $__store (global.get $PTR_PTR_WID_ORIG) (call $__dict_init (i32.const 1024))))
-		(i32.store (i32.load (global.get $PTR_PTR_WID_LIST)) (i32.load (global.get $PTR_PTR_WID_CURR)))
+		(i32.store (global.get $PTR_WID_CURR) (call $__store (global.get $PTR_WID_ORIG) (call $__dict_init (i32.const 1024))))
+		(i32.store (i32.load (global.get $PTR_PTR_WID_LIST)) (i32.load (global.get $PTR_WID_CURR)))
 
 		;; list of includes
 		(i32.store (global.get $PTR_PTR_INCL) (call $__lookup_new (i32.const 256)))
@@ -71,12 +71,16 @@
 		(global.set $stack_ctl (call $__store (global.get $PTR_PTR_STACK_CTL) (call $__stack_new)))
 		(global.set $stack_src (call $__store (global.get $PTR_PTR_STACK_SRC) (call $__stack_new)))
 
+		;; allocate space for locals
+		(global.set $local_frame (call $__store (global.get $PTR_PTR_LOC_FRAME) (call $__stack_new)))
+		(global.set $local_value (call $__store (global.get $PTR_PTR_LOC_VALUE) (call $__stack_new)))
+
 		;; set the alloc start/end for checks
 		(i32.store (global.get $PTR_ALLOC_MIN) (i32.load (global.get $PTR_ALLOC)))
 		(i32.store (global.get $PTR_ALLOC_MAX) (global.get $SIZEOF_MEMORY_MAX))
 
 		;; save the exit pointer for token lists
-		(global.set $dict_exit_ptr (call $__val_get_value (call $__list_get_head (i32.load (global.get $PTR_PTR_WID_CURR)))))
+		(global.set $dict_exit_ptr (call $__val_get_value (call $__list_get_head (i32.load (global.get $PTR_WID_CURR)))))
 
 		;; excute all bundled files
 		(local.set $str (global.get $PTR_W4_FILES))

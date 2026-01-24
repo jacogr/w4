@@ -27,6 +27,8 @@
 	(global $stack_ret		(mut i32) (i32.const 0))
 	(global $stack_ctl		(mut i32) (i32.const 0))
 	(global $stack_src		(mut i32) (i32.const 0))
+	(global $local_frame    (mut i32) (i32.const 0))
+	(global $local_value    (mut i32) (i32.const 0))
 	(global $list_toks      (mut i32) (i32.const 0))
 
 	;;
@@ -92,7 +94,7 @@
 			;; hash, add to dictionary
 			(then
 				(call $__lookup_append
-					(i32.load (global.get $PTR_PTR_WID_CURR))
+					(i32.load (global.get $PTR_WID_CURR))
 					(local.get $hash)
 					(global.get $xt_comp)))
 

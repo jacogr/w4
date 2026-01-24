@@ -9,8 +9,8 @@
 
 ;)
 
-	;; maxiumum entries on a stack (either data or return)
-	(global $STACK_MAX i32 (i32.const 48))
+	;; maxiumum entries on a stack
+	(global $STACK_MAX i32 (i32.const 255))
 
 	;;
 	;; Retrieve the specified stack pointer

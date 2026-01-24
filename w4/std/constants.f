@@ -298,3 +298,10 @@
 	$0154 (mmio@) (wid-curr) : (wid-curr!) $0154 ! ;
 	$0158 (mmio@) (wid-list)
 	$015c (mmio@) (wid-count) : (wid-count!) $015c ! ;
+
+\ pointers for locals definitions
+
+	$0160 (mmio:) (locals-value^)
+	$0164 (mmio:) (locals-frame^)
+	$0168 (mmio:) (locals-fp^)
+	$016c (mmio@) (locals-wid) : (locals-wid!) $016c ! ;
