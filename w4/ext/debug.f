@@ -170,7 +170,9 @@ require is.f
 
 		\ init counter, set list start
 		0 (words-count) !
-		(dict^@) (lst>head@)
+
+		\ TODO Iterate through all wids, as per lookup
+		(wid-curr) (lst>head@)
 
 		begin
 			\ show nt?

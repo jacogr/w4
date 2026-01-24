@@ -169,7 +169,7 @@
 	;;
 
 	(func $__get_list_dict (result i32)
-		(i32.load (global.get $PTR_PTR_DICT)))
+		(i32.load (global.get $PTR_PTR_WID_CURR)))
 
 	(func $__get_list_incl (result i32)
 		(i32.load (global.get $PTR_PTR_INCL)))

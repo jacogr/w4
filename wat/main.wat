@@ -58,7 +58,7 @@
 		(i32.store (global.get $PTR_ALLOC) (call $__excep_init))
 
 		;; allocate dictionary & list for includes
-		(i32.store (global.get $PTR_PTR_DICT) (call $__dict_init (i32.const 1024)))
+		(i32.store (global.get $PTR_PTR_WID_CURR) (call $__store (global.get $PTR_PTR_WID_ORIG) (call $__dict_init (i32.const 1024))))
 		(i32.store (global.get $PTR_PTR_INCL) (call $__lookup_new (i32.const 256)))
 
 		;; allocate stacks, all with global pointers

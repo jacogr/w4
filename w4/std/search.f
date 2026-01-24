@@ -21,9 +21,7 @@ require ../ext/list.f
 \ provided by the implementation. This word list is initially the compilation
 \ word list and is part of the initial search order.
 
-	variable (wordlist-forth) (dict^@) (wordlist-forth) !	\ setup (dict^@) as default wordlist
-
-	: FORTH-WORDLIST ( -- wid ) (wordlist-forth) @ ;
+	: FORTH-WORDLIST ( -- wid ) (wid-orig) ;
 
 \ https://forth-standard.org/standard/search/SEARCH-WORDLIST
 \
@@ -128,15 +126,13 @@ require ../ext/list.f
 \
 \ Return wid, the identifier of the compilation word list.
 
-	variable (wordlist-current)	\ init in setup at end of file
-
-	: GET-CURRENT ( -- wid ) (wordlist-current) @ ;
+	: GET-CURRENT ( -- wid ) (wid-curr) ;
 
 \ https://forth-standard.org/standard/search/SET-CURRENT
 \
 \ Set the compilation word list to the word list identified by wid.
 
-	: SET-CURRENT ( wid -- ) (wordlist-current) ! ;
+	: SET-CURRENT ( wid -- ) (wid-curr!) ;
 
 \ https://forth-standard.org/standard/search/ONLY
 \

@@ -419,6 +419,50 @@
 	)
 
 	;;
+	;; Find a word in the dictionary(ies)
+	;;
+	(func $__internal_lookup (param $str i32) (param $len i32) (param $hash i32) (result i32)
+		(local $wid i32)
+		(local $wid_orig i32)
+		(local $xt i32)
+
+		(local.tee $xt
+			(call $__lookup_find
+				(local.tee $wid (call $__get_list_dict))
+				(local.get $str)
+				(local.get $len)
+				(local.get $hash))) (if
+
+			;; found it, will return
+			(then)
+
+			;; not found, continue
+			(else
+
+				;; default dict?
+				(i32.eq
+					(local.get $wid)
+					(local.tee $wid_orig (i32.load (global.get $PTR_PTR_WID_ORIG)))) (if
+
+					;; default dict, not found
+					(then)
+
+					;; another list
+					(else
+
+						;; retrieve
+						(local.set $xt
+							(call $__lookup_find
+								(local.get $wid_orig)
+								(local.get $str)
+								(local.get $len)
+								(local.get $hash)))))))
+
+		;; return it
+		local.get $xt
+	)
+
+	;;
 	;; Interprets the current line (as called from evaluate/quit)
 	;;
 	;; https://forth-standard.org/standard/core/QUIT
@@ -445,8 +489,7 @@
 			;; find it (nt|0 -> name>xt|0)
 			(local.tee $ptr_xt
 				(call $__val_get_value
-					(call $__lookup_find
-						(call $__get_list_dict)
+					(call $__internal_lookup
 						(local.get $wptr)
 						(local.get $wlen)
 						(call $__hash

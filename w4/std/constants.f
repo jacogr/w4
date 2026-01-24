@@ -256,19 +256,13 @@
 
 	$0118 (mmio@) (lniov^)
 
-\ latest executing token
+\ latest executing token (latest definition already defined)
 
 	$0124 (mmio@) (exec^)
 
-\ dictionary & include lookups
+\ include lookups
 
-	$0128 (mmio@) (dict^@) : (dict^!) $0128 ! ;
-	$012c (mmio@) (incl^@)
-
-\ pointers for the return & control stacks
-
-	$0144 (mmio@) (rs^)
-	$0148 (mmio@) (cs^)
+	$0128 (mmio@) (incl^)
 
 \ https://forth-standard.org/standard/core/STATE
 \
@@ -287,3 +281,14 @@
 \ radix {{2...36}}.
 
 	$0134 (mmio:) BASE
+
+\ pointers for the return & control stacks (the data stack has already been
+\ defined in the preamble)
+
+	$0144 (mmio@) (rs^)
+	$0148 (mmio@) (cs^)
+
+\ dictionary
+
+	$0150 (mmio@) (wid-orig)
+	$0154 (mmio@) (wid-curr) : (wid-curr!) $0154 ! ;
