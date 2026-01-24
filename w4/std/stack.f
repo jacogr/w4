@@ -122,7 +122,7 @@ require stack.ptr.f
 \ condition exists if there are less than u+1 items, each of which shall be
 \ an orig or dest, on the control-flow stack before CS-PICK is executed.
 
-	: CS-PICK ( n -- x ) (cs@-) @ ;
+	: CS-PICK ( n -- x ) (cs^-n) @ ;
 
 \ unconditional branch to value on cs
 \ (Standard in older versions of ANS Forth, not in 2012)
