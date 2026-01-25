@@ -60,6 +60,7 @@ require std/constants.f
 require std/compile.f
 require std/dictionary.f
 require std/exceptions.f
+require std/locals.f
 require std/logic.f
 require std/logic.number.f
 require std/loops.f
