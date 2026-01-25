@@ -149,11 +149,23 @@
 	;; local values
 
 	(func $__stack_loc_peek_at (param $idx i32) (result i32)
+		(local $base i32)
+
+		;; get base offset from frame stack
+		(local.set $base
+			(i32.load
+				(i32.mul
+					(i32.const 4)
+					(i32.add
+						(i32.load (i32.load (global.get $PTR_PTR_LOC_FRAME)))
+						(i32.const 1)))))
+
+		;; load specific value
 		(i32.load
 			(i32.add
+				(i32.load (global.get $PTR_PTR_LOC_VALUE))
 				(i32.mul
+					(i32.const 4)
 					(i32.add
-						(local.get $idx)
-						(i32.const 1))
-					(i32.const 4))
-				(i32.load (global.get $PTR_PTR_LOC_VALUE)))))
+						(i32.add (local.get $idx) (local.get $base))
+						(i32.const 1))))))
