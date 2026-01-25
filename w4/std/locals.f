@@ -1,3 +1,4 @@
+require constants.f
 require loops.f
 require search.f
 require stack.f
@@ -18,18 +19,18 @@ require string.f
 \ Stack layout (all stacks):
 \   [ count ] [ cell0 ] [ cell1 ] ... [ cellN ]
 
-	: stk-count@   ( a -- n ) @ ;
-	: stk-count!   ( n a -- ) ! ;
+	: stk-count@ ( a -- n ) @ ;
+	: stk-count! ( n a -- ) ! ;
 
-	: stk-base     ( a -- a' ) cell+ ;              \ first data cell
-	: stk-addr     ( i a -- a_i ) swap cells + stk-base + ;
+	: stk-base ( a -- a' ) cell+ ; \ first data cell
+	: stk-addr ( i a -- a_i ) swap cells + stk-base + ;
 
-	: stk-push     ( x a -- )
+	: stk-push ( x a -- )
 		dup stk-count@ over stk-addr !
 		dup stk-count@ 1+ swap stk-count!
 	;
 
-	: stk-pop      ( a -- x )
+	: stk-pop ( a -- x )
 		dup stk-count@ 1- dup >r
 		over stk-count!
 		r> swap stk-addr @
@@ -37,21 +38,21 @@ require string.f
 
 \ Locals runtime state helpers
 
-	: locals-sp@   ( -- sp ) (locals-value^) stk-count@ ;
-	: locals-sp!   ( sp -- ) (locals-value^) stk-count! ;
+	: locals-sp@ ( -- sp ) (locals-value^) stk-count@ ;
+	: locals-sp! ( sp -- ) (locals-value^) stk-count! ;
 
-	: locals-fp@   ( -- fp ) (locals-fp^) @ ;
-	: locals-fp!   ( fp -- ) (locals-fp^) ! ;
+	: locals-fp@ ( -- fp ) (locals-fp^) @ ;
+	: locals-fp! ( fp -- ) (locals-fp^) ! ;
 
 \ Locals FRAME stack (saved fp/sp per colon entry)
 \ Each frame record = 2 cells: saved-fp saved-sp
 
-	: locals-enter ( -- )    \ called at EVERY colon entry
+	: locals-enter ( -- ) \ called at EVERY colon entry
 		locals-fp@ (locals-frame^) stk-push
 		locals-sp@ (locals-frame^) stk-push
 	;
 
-	: locals-exit  ( -- )    \ called at EVERY colon exit
+	: locals-exit ( -- ) \ called at EVERY colon exit
 		(locals-frame^) stk-pop locals-sp!
 		(locals-frame^) stk-pop locals-fp!
 	;
@@ -59,19 +60,19 @@ require string.f
 \ Allocate locals for THIS definition (called by {:} prologue)
 
 	: (local-enter) ( n -- )
-		locals-sp@ dup locals-fp!    \ fp = old sp (cell index)
-		+ locals-sp!                 \ sp += n
+		locals-sp@ dup locals-fp!	\ fp = old sp (cell index)
+		+ locals-sp!				\ sp += n
 	;
 
 \ Local accessors (used by local identifiers)
 
 	: (local-addr) ( i -- a-addr )
-		locals-fp@ +                 \ absolute cell index
+		locals-fp@ + 				\ absolute cell index
 		(locals-value^) stk-addr
 	;
 
-	: (local@)     ( i -- x ) (local-addr) @ ;
-	: (local!)     ( x i -- ) (local-addr) ! ;
+	: (local@) ( i -- x ) (local-addr) @ ;
+	: (local!) ( x i -- ) (local-addr) ! ;
 
 \ Define one local identifier (VALUE-like)
 \ Body layout:
@@ -79,10 +80,15 @@ require string.f
 \   cell 1 : local index
 
 	: (local-define) ( c-addr u i -- )
+		get-current >r 		( r: --  wid )
 		(locals-wid) set-current
+
 		create
-			['] (local!) ,      \ executor used by TO
-			,                   \ local index
+			['] (local!) ,	\ executor used by TO
+			,				\ local index
+
+		r> set-current		( r: wid -- )
+
 		does>
 			cell+ @ (local@)
 	;
@@ -95,7 +101,7 @@ require string.f
 		postpone (local-enter)
 
 		dup 0 ?do
-			dup 1- i -			( n -- n' ) \ idx = n-1-i
+			dup 1- i -			( n -- n idx ) \ idx = n-1-i
 
 			postpone literal
 			postpone (local!)
@@ -126,8 +132,9 @@ require string.f
 	variable (locals#)					\ number of locals in current definition
 
 	: (LOCAL) ( c-addr u -- )
-		?dup 0<> if						( c-addr u -- c-addr u )
-			(locals-wid) @ 0= if		( c-addr u -- c-addr u )
+		?dup if							( c-addr u -- c-addr u )
+			\ no wordlist?
+			(locals-wid) 0= if			( c-addr u -- c-addr u )
 				wordlist (locals-wid!)
 				0 (locals#) !
 			then
@@ -137,7 +144,11 @@ require string.f
 			(local-define)				( c-addr u -- )
 		else							( c-addr -- c-addr )
 			drop						( c-addr -- )
-			(locals#) @ (locals-compile-prologue)
+
+			\ locals started?
+			(locals-wid) 0<> if			( --  )
+				(locals#) @ (locals-compile-prologue)
+			then
 		then
 	;
 
@@ -202,7 +213,7 @@ require string.f
 \ INTEGRATION NOTES
 \
 \ 1) FIND / find-name:
-\    If (locals-active) is true, search (locals-wid) FIRST.
+\    search (locals-wid) FIRST if non zero.
 \
 \ 2) Colon entry (docol):
 \      locals-enter
