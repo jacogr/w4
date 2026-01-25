@@ -167,10 +167,15 @@ require ../ext/list.f
 \ immediate, also return one (1); otherwise also return minus-one (-1). For a
 \ given string, the values returned by FIND while compiling may differ from
 \ those returned while not compiling.
+\
+\ NOTE the `FIND` in parse.f already uses `find-name` internally which searches
+\ both the locals-wid and the wordlists. Until we get to untangle `find-name`,
+\ this doesn't actually add any new functionality.
 
 	: FIND ( c-addr -- c-addr 0 | xt 1 | xt -1 )
 		0								( c-addr 0 )
 
+		\ search locals word list (if available)
 		(locals-wid) ?dup if
 			over count rot				( c-addr 0 wid -- c-addr 0 c-addr' u wid )
 			search-wordlist				( c-addr 0; 0 | w 1 | q -1 )
@@ -181,6 +186,7 @@ require ../ext/list.f
 			then
 		then
 
+		\ search all available wordlists
 		(wid-count) 0 ?do
 			over count					( c-addr 0 c-addr' u )
 			i cells

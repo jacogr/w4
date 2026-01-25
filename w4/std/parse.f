@@ -159,6 +159,10 @@ require stack.f
 \ is not found, return c-addr and zero. If the definition is found, return its
 \ execution token xt. If the definition is immediate, also return one (1),
 \ otherwise also return minus-one (-1).
+\
+\ NOTE/TODO This actually has the same functionality as the `FIND` in `search.f`
+\ since the wasm find-name adds the locals & wordlists functionality. Need to
+\ untangle with a locally defined find-name that has all the functionality
 
 	: FIND ( c-addr -- c-addr 0 | xt 1 | xt -1 )
 		dup >r						( c-addr -- c-addr ) ( r: -- c-addr )
