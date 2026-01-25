@@ -270,11 +270,13 @@
 			(else))
 	)
 
-	(func $__internal_execute_local (param $xt i32)
+	(func $__internal_execute_local (param $idx i32)
+		(local $val i32)
+
 		;; retrieve the value, set it
-		(call $__val_set_value
-			(local.get $xt)
-			(call $__stack_dat_pop))
+		(local.set $val (call $__stack_dat_pop))
+
+		;; TODO set the value in memory, at index
 	)
 
 	(func $__internal_execute_list (param $val i32)
@@ -378,7 +380,7 @@
 											(global.get $FLG_LOCAL)) (if
 
 										;; local
-										(then (call $__internal_execute_local (local.get $ptr_xt)))
+										(then (call $__internal_execute_local (local.get $val)))
 
 										;; unknown, -12 argument type mismatch
 										(else (call $__assert (i32.const 0) (i32.const -12))))))))))))
