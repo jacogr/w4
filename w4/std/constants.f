@@ -182,13 +182,17 @@
 	: (latest>prev^) (latest>tail^) (nt>prev@) ;
 	: (latest>body^) (latest>head^) (nt>value@) >value ;
 
+	: (create) ( c-addr u -- )
+		build,
+		-1 lit,                 \ store body address (does>)
+		here (latest>body^) !
+		reveal
+	;
+
 	: CREATE
 		parse-name
 		dup 0= #-16 and throw
-		build,
-		-1 lit,					\ store body address (does>)
-		here (latest>body^) !
-		reveal
+		(create)
 	;
 
 \ https://forth-standard.org/standard/core/toBODY
