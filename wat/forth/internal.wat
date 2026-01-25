@@ -433,14 +433,18 @@
 		(local $ptr i32)
 		(local $xt i32)
 
+		;; get the number of wids
+		(local.set $num (i32.load (global.get $PTR_WID_COUNT)))
+		(local.set $ptr (i32.load (global.get $PTR_PTR_WID_LIST)))
+
 		;; local wid?
 		(local.tee $lwid (i32.load (global.get $PTR_LOC_WID))) (if
 
-			;; lookup for locals
+			;; lookup in locals wid
 			(then
 				(local.set $xt
 					(call $__lookup_find
-						(i32.load (local.get $lwid))
+						(local.get $lwid)
 						(local.get $str)
 						(local.get $len)
 						(local.get $hash))))
@@ -448,37 +452,28 @@
 			;; no, continue below
 			(else))
 
-		;; xt found in wid?
-		(local.get $xt) (if
+		;; lookup until found or no next
+		(block $exit (loop $loop
+			;; exit if xt found or no more lists
+			(br_if $exit
+				(i32.or
+					(local.get $xt)
+					(i32.eq (local.get $idx) (local.get $num))))
 
-			;; have xt, return below
-			(then)
+			;; get xt
+			(local.set $xt
+				(call $__lookup_find
+					(i32.load (local.get $ptr))
+					(local.get $str)
+					(local.get $len)
+					(local.get $hash)))
 
-			;; no xt, loop lookup
-			(else
-				;; get the number of wids
-				(local.set $num (i32.load (global.get $PTR_WID_COUNT)))
-				(local.set $ptr (i32.load (global.get $PTR_PTR_WID_LIST)))
+			;; move to next entry
+			(local.set $idx (i32.add (local.get $idx) (i32.const 1)))
+			(local.set $ptr (i32.add (local.get $ptr) (i32.const 4)))
 
-				;; lookup until found or no next
-				(block $exit (loop $loop
-					;; exit if exhausted
-					(br_if $exit
-						(i32.eq (local.get $idx) (local.get $num)))
-
-					;; exit if found
-					(br_if $exit
-						(local.tee $xt
-							(call $__lookup_find
-								(i32.load (local.get $ptr))
-								(local.get $str)
-								(local.get $len)
-								(local.get $hash))))
-
-					;; continue
-					(local.set $idx (i32.add (local.get $idx) (i32.const 1)))
-					(local.set $ptr (i32.add (local.get $ptr) (i32.const 4)))
-					(br $loop)))))
+			;; continue loop
+			(br $loop)))
 
 		;; return it
 		local.get $xt
