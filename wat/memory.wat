@@ -40,7 +40,7 @@
 	(global $PTR_WID_COUNT     i32 (i32.const 0x015c))
 	(global $PTR_PTR_LOC_VALUE i32 (i32.const 0x0160)) ;; local values
 	(global $PTR_PTR_LOC_FRAME i32 (i32.const 0x0164)) ;; local frames
-	(global $PTR_PTR_LOC_FP    i32 (i32.const 0x0168)) ;; local frames
+	(global $PTR_LOC_FP        i32 (i32.const 0x0168)) ;; local frames
 	(global $PTR_LOC_WID  	   i32 (i32.const 0x016c))
 	;; next layout starting at 512 (0x0200)
 

@@ -163,8 +163,15 @@
 			;; value on return stack?
 			(call $__stack_ret_count) (if (result i32)
 
-				;; pop pointer
-				(then (call $__stack_ret_pop))
+				;; have return location
+				(then
+					;; ;; restore locals position (locals-exit in forth)
+					;; ;; reverse of order in __internal_call
+					;; (i32.store (global.get $local_value) (call $__stack_loc_pop))
+					;; (i32.store (global.get $PTR_LOC_FP) (call $__stack_loc_pop))
+
+					;; pop pointer
+					(call $__stack_ret_pop))
 
 				;; zero pointer
 				(else (i32.const 0))))
@@ -177,8 +184,15 @@
 		;; global next available?
 		(global.get $exec_next) (if
 
-			;; store return location
-			(then (call $__stack_ret_push (global.get $exec_next)))
+			;; global next available
+			(then
+				;; ;; store locals position (locals-enter in forth)
+				;; ;; reverse of order in __internal_exit
+				;; (call $__stack_loc_push (i32.load (global.get $PTR_LOC_FP)))
+				;; (call $__stack_loc_push (i32.load (global.get $local_value)))
+
+				;; store return location
+				(call $__stack_ret_push (global.get $exec_next)))
 
 			(else))
 
