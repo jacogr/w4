@@ -119,6 +119,16 @@
 	(func $__iov_emit_num_stdout (param $val i32)
 		(call $__iov_emit_num (i32.const 1) (local.get $val)))
 
+	(func $__iov_emit_hex_stdout (param $val i32)
+		(call $__iov_emit_stdout
+				(call $__iov_fill
+					(global.get $PTR_PRI_EMIT_STR)
+					(call $__num_to_str
+						(i32.const 16)
+						(local.get $val)
+						(i32.const 0))
+					(i32.const 0))))
+
 	(func $__iov_emit_str_stdout (param $str i32) (param $len i32)
 		(call $__iov_emit_str (i32.const 1) (local.get $str) (local.get $len)))
 
