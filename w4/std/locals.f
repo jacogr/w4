@@ -89,9 +89,7 @@ require string.f
 
 	: (local-define) ( c-addr u i -- )
 		\ create local xt
-		(flg-xt-local)
-		(flg-is-imm) or
-		(flg-is-vis) or					( c-addr u i -- xt c-addr u i flags )
+		(flg-xt-local) (flg-is-vis) or	( c-addr u i -- xt c-addr u i flags )
 		(new-xt) -rot					( c-addr u i flags -- xt c-addr u )
 		sp-2@ (xt>str+len+hash!)		( xt c-addr u -- xt )
 
@@ -170,7 +168,7 @@ require string.f
 
 			\ locals started?
 			(locals-wid) 0<> if			( --  )
-				(locals#) @ (locals-compile-prologue)
+				(locals-count#) @ (locals-compile-prologue)
 			then
 		then
 	;

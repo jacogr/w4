@@ -271,13 +271,8 @@
 	)
 
 	(func $__internal_execute_local (param $xt i32) (param $idx i32)
-		(i32.load (global.get $PTR_STATE)) (if
-
-			;; compile, compile xt into stream
-			(then (call $__internal_compile (local.get $xt)))
-
-			;; execute, retrieve value, push it
-			(else (call $__stack_dat_push (call $__stack_loc_peek_at (local.get $idx)))))
+		;; retrieve value, push it
+		(call $__stack_dat_push (call $__stack_loc_peek_at (local.get $idx)))
 	)
 
 	(func $__internal_execute_list (param $val i32)
