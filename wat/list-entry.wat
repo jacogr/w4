@@ -44,6 +44,7 @@
 	(global $FLG_LITD       i32 (i32.const 0xc0de0044))
 	(global $FLG_DO_MARK    i32 (i32.const 0xc0de0080))
 	(global $FLG_DO_EXEC    i32 (i32.const 0xc0de0084))
+	(global $FLG_LOCAL		i32 (i32.const 0xc0de0100))
 	(global $FLG_LIST		i32 (i32.const 0xfeedca11))
 	(global $FLG_ITEM		i32 (i32.const 0xbabeca11))
 

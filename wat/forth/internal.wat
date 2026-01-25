@@ -270,6 +270,13 @@
 			(else))
 	)
 
+	(func $__internal_execute_local (param $xt i32)
+		;; retrieve the value, set it
+		(call $__val_set_value
+			(local.get $xt)
+			(call $__stack_dat_pop))
+	)
+
 	(func $__internal_execute_list (param $val i32)
 		;; store execution list, jump to head
 		(global.set $exec_list (local.get $val))
@@ -364,8 +371,17 @@
 									;; does marker, check for execution
 									(then (call $__internal_execute_does (local.get $val) (local.get $flg)))
 
-									;; unknown, -12 argument type mismatch
-									(else (call $__assert (i32.const 0) (i32.const -12))))))))))
+									;; not does, check locals
+									(else
+										(call $__has_flag
+											(local.get $flg)
+											(global.get $FLG_LOCAL)) (if
+
+										;; local
+										(then (call $__internal_execute_local (local.get $ptr_xt)))
+
+										;; unknown, -12 argument type mismatch
+										(else (call $__assert (i32.const 0) (i32.const -12))))))))))))
 	)
 
 	;;
