@@ -170,6 +170,17 @@ require ../ext/list.f
 
 	: FIND ( c-addr -- c-addr 0 | xt 1 | xt -1 )
 		0								( c-addr 0 )
+
+		(locals-wid) ?dup if
+			over count rot				( c-addr 0 wid -- c-addr 0 c-addr' u wid )
+			search-wordlist				( c-addr 0; 0 | w 1 | q -1 )
+
+			?dup if						( c-addr 0; w 1 | w -1 )
+				2swap 2drop
+				exit
+			then
+		then
+
 		(wid-count) 0 ?do
 			over count					( c-addr 0 c-addr' u )
 			i cells

@@ -73,17 +73,6 @@ require string.f
 	: (local@)     ( i -- x ) (local-addr) @ ;
 	: (local!)     ( x i -- ) (local-addr) ! ;
 
-\ Compile-time locals bookkeeping
-
-	variable (locals-active)        \ 0 / -1
-	variable (locals#)              \ number of locals in current definition
-
-	: (locals-reset) ( -- )         \ called at ';'
-		0 (locals-active) !
-		0 (locals#) !
-		0 (locals-wid!)
-	;
-
 \ Define one local identifier (VALUE-like)
 \ Body layout:
 \   cell 0 : executor for TO   (local!)
@@ -132,13 +121,14 @@ require string.f
 \ During compilation:
 \   ( c-addr u ) with u<>0 : declare a local identifier (name) with next index
 \   ( c-addr 0 )          : "last local" -> emit prologue and keep locals active
-\ Cleanup must happen at ';' (hook (locals-reset) there).
+\ Cleanup must happen at ';' (hook (locals-wid) reset there).
+
+	variable (locals#)					\ number of locals in current definition
 
 	: (LOCAL) ( c-addr u -- )
 		?dup 0<> if						( c-addr u -- c-addr u )
-			(locals-active) @ 0= if		( c-addr u -- c-addr u )
+			(locals-wid) @ 0= if		( c-addr u -- c-addr u )
 				wordlist (locals-wid!)
-				-1 (locals-active) !
 				0 (locals#) !
 			then
 
@@ -221,7 +211,7 @@ require string.f
 \      locals-exit
 \
 \ 4) ';' (end of definition):
-\      (locals-reset)
+\      (locals-wid) set to 0
 \
 \ With this, nested calls like:
 \   foo {: a -- :} ...

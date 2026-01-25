@@ -113,6 +113,9 @@
 		;; check for compilation state, -29 compiler nesting
 		(call $__assert (i32.load (global.get $PTR_STATE)) (i32.const -29))
 
+		;; reset wid for locals
+		(i32.store (global.get $PTR_LOC_WID) (i32.const 0))
+
 		;; make visible
 		(call $__val_set_flags
 			(global.get $xt_comp)
@@ -424,34 +427,58 @@
 	;; Find a word in the dictionary(ies)
 	;;
 	(func $__internal_lookup (param $str i32) (param $len i32) (param $hash i32) (result i32)
+		(local $lwid i32)
 		(local $idx i32)
 		(local $num i32)
 		(local $ptr i32)
 		(local $xt i32)
 
-		;; get the number of wids
-		(local.set $num (i32.load (global.get $PTR_WID_COUNT)))
-		(local.set $ptr (i32.load (global.get $PTR_PTR_WID_LIST)))
+		;; local wid?
+		(local.tee $lwid (i32.load (global.get $PTR_LOC_WID))) (if
 
-		;; lookup until found or no next
-		(block $exit (loop $loop
-			;; exit if exhausted
-			(br_if $exit
-				(i32.eq (local.get $idx) (local.get $num)))
-
-			;; exit if found
-			(br_if $exit
-				(local.tee $xt
+			;; lookup for locals
+			(then
+				(local.set $xt
 					(call $__lookup_find
-						(i32.load (local.get $ptr))
+						(i32.load (local.get $lwid))
 						(local.get $str)
 						(local.get $len)
 						(local.get $hash))))
 
-			;; continue
-			(local.set $idx (i32.add (local.get $idx) (i32.const 1)))
-			(local.set $ptr (i32.add (local.get $ptr) (i32.const 4)))
-			(br $loop)))
+			;; no, continue below
+			(else))
+
+		;; xt found in wid?
+		(local.get $xt) (if
+
+			;; have xt, return below
+			(then)
+
+			;; no xt, loop lookup
+			(else
+				;; get the number of wids
+				(local.set $num (i32.load (global.get $PTR_WID_COUNT)))
+				(local.set $ptr (i32.load (global.get $PTR_PTR_WID_LIST)))
+
+				;; lookup until found or no next
+				(block $exit (loop $loop
+					;; exit if exhausted
+					(br_if $exit
+						(i32.eq (local.get $idx) (local.get $num)))
+
+					;; exit if found
+					(br_if $exit
+						(local.tee $xt
+							(call $__lookup_find
+								(i32.load (local.get $ptr))
+								(local.get $str)
+								(local.get $len)
+								(local.get $hash))))
+
+					;; continue
+					(local.set $idx (i32.add (local.get $idx) (i32.const 1)))
+					(local.set $ptr (i32.add (local.get $ptr) (i32.const 4)))
+					(br $loop)))))
 
 		;; return it
 		local.get $xt
