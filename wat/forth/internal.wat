@@ -27,8 +27,6 @@
 	(global $stack_ret		(mut i32) (i32.const 0))
 	(global $stack_ctl		(mut i32) (i32.const 0))
 	(global $stack_src		(mut i32) (i32.const 0))
-	(global $local_frame    (mut i32) (i32.const 0))
-	(global $local_value    (mut i32) (i32.const 0))
 	(global $list_toks      (mut i32) (i32.const 0))
 
 	;;
@@ -165,11 +163,6 @@
 
 				;; have return location
 				(then
-					;; ;; restore locals position (locals-exit in forth)
-					;; ;; reverse of order in __internal_call
-					;; (i32.store (global.get $local_value) (call $__stack_loc_pop))
-					;; (i32.store (global.get $PTR_LOC_FP) (call $__stack_loc_pop))
-
 					;; pop pointer
 					(call $__stack_ret_pop))
 
@@ -186,11 +179,6 @@
 
 			;; global next available
 			(then
-				;; ;; store locals position (locals-enter in forth)
-				;; ;; reverse of order in __internal_exit
-				;; (call $__stack_loc_push (i32.load (global.get $PTR_LOC_FP)))
-				;; (call $__stack_loc_push (i32.load (global.get $local_value)))
-
 				;; store return location
 				(call $__stack_ret_push (global.get $exec_next)))
 
