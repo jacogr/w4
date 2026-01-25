@@ -1,3 +1,9 @@
+require constants.f
+require loops.f
+require search.f
+require stack.f
+require string.utils.f
+
 \ https://forth-standard.org/standard/core/ENVIRONMENTq
 \
 \ c-addr is the address of a character string and u is the string's character
@@ -15,7 +21,18 @@
 \ TODO There are certainly useful and supported values, see
 \ https://forth-standard.org/standard/usage#usage:env
 
-	: ENVIRONMENT? ( c-addr u -- f ) 2drop 0 ;
+	: ENVIRONMENT? ( c-addr u -- f )
+		2dup s" #LOCALS" streq-ni 0= if 2drop (env-locals#) exit then
+		2dup s" RETURN-STACK-CELLS" streq-ni 0= if 2drop (env-stackmax#) exit then
+		2dup s" STACK-CELLS" streq-ni 0= if 2drop (env-stackmax#) exit then
+		2dup s" WORDLISTS" streq-ni 0= if 2drop (env-wordlists-max#) exit then
+
+		2dup s" /COUNTED-STRING" if 2drop string-max exit then
+		2dup s" /HOLD" if 2drop (env-holdsize#) exit then
+		2dup s" /PAD" if 2drop (env-padsize#) exit then
+
+		2drop 0				\ default, return false
+	;
 
 \ https://forth-standard.org/standard/tools/BracketELSE
 \
@@ -27,13 +44,13 @@
 	: [ELSE] ( -- )
 		1 begin                                          \ level
 			begin parse-name dup while                  \ level adr len
-				2dup S" [IF]" compare 0= if                  \ level adr len
+				2dup S" [IF]" streq-ni 0= if                  \ level adr len
 					2drop 1+                                 \ level'
 				else                                        \ level adr len
-					2dup S" [ELSE]" compare 0= if             \ level adr len
+					2dup S" [ELSE]" streq-ni 0= if             \ level adr len
 						2drop 1- dup if 1+ then               \ level'
 					else                                      \ level adr len
-						S" [THEN]" compare 0= if              \ level
+						S" [THEN]" streq-ni 0= if              \ level
 						1-                                 \ level'
 					then
 				then

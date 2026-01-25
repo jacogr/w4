@@ -241,6 +241,14 @@
 	$feedca11 constant (flg-list)
 	$babeca11 constant (flg-name)
 
+\ environment constants
+
+	$10 constant (env-locals#)
+	$2f constant (env-stackmax#)
+	$10 constant (env-wordlists-max#)
+	#84 constant (env-padsize#)
+	$ff constant (env-holdsize#) \ aligns with string-max
+
 \ Internal constant helpers for the exposed/host memory pointers
 
 	: (mmio:) constant ;

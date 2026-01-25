@@ -59,6 +59,7 @@ require preamble.f
 require std/constants.f
 require std/compile.f
 require std/dictionary.f
+require std/environment.f
 require std/exceptions.f
 require std/locals.f
 require std/logic.f

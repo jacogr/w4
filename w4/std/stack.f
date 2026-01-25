@@ -1,3 +1,4 @@
+require constants.f
 require logic.f
 require stack.ptr.f
 
@@ -95,7 +96,7 @@ require stack.ptr.f
 
 	: >CS ( x -- ) ( c: -- x )
 		cs-depth 1+
-		dup $2f = #-52 and throw
+		dup (env-stackmax#) = #-52 and throw
 		(cs^) !			\ count++
 		cs-depth cells
 		(cs^) + !		\ store value

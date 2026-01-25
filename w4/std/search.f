@@ -37,8 +37,6 @@ require ../ext/list.f
 \ the word list that is searched first, and widn the word list that is
 \ searched last. The search order is unaffected.
 
-	$16 constant (wordlists-max) \ TODO check pushes against this
-
 	: GET-ORDER ( -- wid1 ... widn n )
 		(wid-count) 0 ?do
 			(wid-count) i -

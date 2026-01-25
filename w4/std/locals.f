@@ -221,6 +221,9 @@ require string.f
 	;
 
 	: (local-define-locals) ( c-addr1 u1 ... c-addrn un n -- )
+		\ ensure we have a sane amount of locals
+		dup (env-locals#) > #-8 and throw
+
 		\ store the count for index in (local)
 		dup (locals-count#) !
 

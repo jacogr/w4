@@ -1,3 +1,4 @@
+require constants.f
 require stack.f
 
 \ https://forth-standard.org/standard/core/UNUSED
@@ -101,7 +102,7 @@ require stack.f
 \ this standard place anything in the region. Non-standard words provided by
 \ an implementation may use PAD, but such use shall be documented.
 
-	#84 buffer: PAD
+	(env-padsize#) buffer: PAD
 
 \ mid-point require since the remainder rely on looping being available
 
