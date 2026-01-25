@@ -145,3 +145,15 @@
 
 			;; no count, return -1
 			(else (i32.const -1))))
+
+	;; local values
+
+	(func $__stack_loc_peek_at (param $idx i32) (result i32)
+		(i32.load
+			(i32.add
+				(i32.mul
+					(i32.add
+						(local.get $idx)
+						(i32.const 1))
+					(i32.const 4))
+				(i32.load (global.get $PTR_PTR_LOC_VALUE)))))

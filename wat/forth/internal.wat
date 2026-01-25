@@ -270,13 +270,14 @@
 			(else))
 	)
 
-	(func $__internal_execute_local (param $idx i32)
-		(local $val i32)
+	(func $__internal_execute_local (param $xt i32) (param $idx i32)
+		(i32.load (global.get $PTR_STATE)) (if
 
-		;; retrieve the value, set it
-		(local.set $val (call $__stack_dat_pop))
+			;; compile, compile xt into stream
+			(then (call $__internal_compile (local.get $xt)))
 
-		;; TODO set the value in memory, at index
+			;; execute, retrieve value, push it
+			(else (call $__stack_dat_push (call $__stack_loc_peek_at (local.get $idx)))))
 	)
 
 	(func $__internal_execute_list (param $val i32)
@@ -380,7 +381,7 @@
 											(global.get $FLG_LOCAL)) (if
 
 										;; local
-										(then (call $__internal_execute_local (local.get $val)))
+										(then (call $__internal_execute_local (local.get $ptr_xt) (local.get $val)))
 
 										;; unknown, -12 argument type mismatch
 										(else (call $__assert (i32.const 0) (i32.const -12))))))))))))
