@@ -103,6 +103,8 @@
 	;; Stack helpers
 	;;
 
+	;; data
+
 	(func $__stack_new (result i32)
 		(call $__alloc (i32.mul (i32.add (global.get $STACK_MAX) (i32.const 1)) (i32.const 4))))
 
@@ -124,6 +126,8 @@
 		(call $__stack_dat_push (local.get $a))
 		(call $__stack_dat_push (local.get $b)))
 
+	;; return
+
 	(func $__stack_ret_count (result i32)
 		(i32.load (global.get $stack_ret)))
 
@@ -141,3 +145,14 @@
 
 			;; no count, return -1
 			(else (i32.const -1))))
+
+	;; locals frame
+
+	(func $__stack_loc_count (result i32)
+		(i32.load (global.get $local_frame)))
+
+	(func $__stack_loc_pop (result i32)
+		(call $__stack_pop (i32.const 46) (global.get $local_frame)))
+
+	(func $__stack_loc_push (param $val i32)
+		(call $__stack_push (i32.const 46) (global.get $local_frame) (local.get $val)))
