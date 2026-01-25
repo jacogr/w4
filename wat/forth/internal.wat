@@ -111,9 +111,6 @@
 		;; check for compilation state, -29 compiler nesting
 		(call $__assert (i32.load (global.get $PTR_STATE)) (i32.const -29))
 
-		;; reset wid for locals
-		(i32.store (global.get $PTR_LOC_WID) (i32.const 0))
-
 		;; make visible
 		(call $__val_set_flags
 			(global.get $xt_comp)
