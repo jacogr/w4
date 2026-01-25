@@ -1,4 +1,8 @@
+require constants.f
+require locals.f
 require memory.f
+
+require ../ext/is.f
 
 \ https://forth-standard.org/standard/core/VALUE
 \
@@ -27,7 +31,7 @@ require memory.f
 \ name was created, until the phrase "x1 x2 TO name" is executed, causing a
 \ new cell pair x1 x2 to be assigned to name.
 
-	: (to-2value) ( x1 x2 a-addr -- )  2! ;
+	: (to-2value) ( x1 x2 a-addr -- ) 2! ;
 
 	: 2VALUE ( x1 x2 "name" -- )
 		create ['] (to-2value) , 2,	\ store executor & values
@@ -42,13 +46,27 @@ require memory.f
 \ by a word with "TO name run-time" semantics.
 
 	: TO ( x "name" -- )
-		' >body				( x "name" -- x... a-addr )
-		dup @				( x... a-addr -- x... a-addr xt )
-		swap cell+			( x... a-addr xt -- x... xt a-addr' )
-		state @ if
-			lit, lit,		\ compile a-addr, xt (runtime: xt, a-addr )
-			postpone execute
-		else swap execute then
+		\ get xt
+		'							( x "name" -- x... xt )
+
+		\ check for local
+		dup >flags @				( x... xt -- x... xt flags )
+		(flg-xt-local) is-flag? if 	( x... xt flags -- x... xt )
+			(xt>value@)				( x... xt -- x... idx )
+			state @ if
+				lit,
+				postpone (to-local)
+			else (to-local) then
+		else
+			\ assume via create
+			>body					( x... xt -- x... a-addr )
+			dup @					( x... a-addr -- x... a-addr xt )
+			swap cell+				( x... a-addr xt -- x... xt a-addr' )
+			state @ if
+				lit, lit,			\ compile a-addr, xt (runtime: xt, a-addr )
+				postpone execute
+			else swap execute then
+		else
 	; immediate
 
 \ https://forth-standard.org/standard/core/DEFER

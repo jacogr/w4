@@ -237,6 +237,7 @@
 	$c0de0020 constant (flg-xt-tkn)
 	$c0de0040 constant (flg-xt-lit)
 	$c0de0080 constant (flg-xt-does)
+	$c0de0100 constant (flg-xt-local)
 	$feedca11 constant (flg-list)
 	$babeca11 constant (flg-name)
 

@@ -1,6 +1,7 @@
 require constants.f
 require loops.f
 require search.f
+require search.string.f
 require stack.f
 require string.f
 
@@ -19,21 +20,30 @@ require string.f
 \ Stack layout (all stacks):
 \   [ count ] [ cell0 ] [ cell1 ] ... [ cellN ]
 
-	: stk-count@ ( a -- n ) @ ;
-	: stk-count! ( n a -- ) ! ;
+	: stk-count@ ( a-addr -- n ) @ ;
+	: stk-count! ( n a-addr -- ) ! ;
 
-	: stk-base ( a -- a' ) cell+ ; \ first data cell
-	: stk-addr ( i a -- a_i ) swap cells + stk-base + ;
+	: stk-base ( a-addr -- a-addr' ) cell+ ;
+	: stk-addr ( i a-addr -- a-addr' ) stk-base swap cells + ;
 
-	: stk-push ( x a -- )
-		dup stk-count@ over stk-addr !
-		dup stk-count@ 1+ swap stk-count!
+	: stk-push ( x a-addr -- )
+		\ write value
+		swap 				( x a-addr -- a-addr x )
+		over stk-count@		( a-addr x -- a-addr x n )
+		sp-2@				( a-addr x n -- a-addr x n a-addr )
+		stk-addr !			( a-addr x n a-addr -- a-addr )
+
+		\ update count
+		dup stk-count@		( a-addr -- a-addr n )
+		1+ swap				( a-addr n -- n' a-addr )
+		stk-count!			( a-addr n' -- )
 	;
 
-	: stk-pop ( a -- x )
-		dup stk-count@ 1- dup >r
-		over stk-count!
-		r> swap stk-addr @
+	: stk-pop ( a-addr -- x )
+		dup >r						( a-addr -- a-addr ) ( r: -- a-addr )
+		stk-count@ 1-				( a-addr -- i )
+		dup r@ stk-count!			( i -- i ) ( r: a-addr -- a-addr )   \ write new count
+		r> stk-addr @				( i a -- x ) ( r: a-addr -- )
 	;
 
 \ Locals runtime state helpers
@@ -47,19 +57,19 @@ require string.f
 \ Locals FRAME stack (saved fp/sp per colon entry)
 \ Each frame record = 2 cells: saved-fp saved-sp
 
-	: locals-enter ( -- ) \ called at EVERY colon entry
+	: locals-push-frame ( -- ) \ called at EVERY colon entry
 		locals-fp@ (locals-frame^) stk-push
 		locals-sp@ (locals-frame^) stk-push
 	;
 
-	: locals-exit ( -- ) \ called at EVERY colon exit
-		(locals-frame^) stk-pop locals-sp!
-		(locals-frame^) stk-pop locals-fp!
+	: locals-pop-frame ( -- )
+  		(locals-frame^) stk-pop locals-sp!
+  		(locals-frame^) stk-pop locals-fp!
 	;
 
 \ Allocate locals for THIS definition (called by {:} prologue)
 
-	: (local-enter) ( n -- )
+	: locals-alloc ( n -- )
 		locals-sp@ dup locals-fp!	\ fp = old sp (cell index)
 		+ locals-sp!				\ sp += n
 	;
@@ -67,47 +77,53 @@ require string.f
 \ Local accessors (used by local identifiers)
 
 	: (local-addr) ( i -- a-addr )
-		locals-fp@ + 				\ absolute cell index
+		locals-fp@ + 			\ absolute cell index
 		(locals-value^) stk-addr
 	;
 
-	: (local@) ( i -- x ) (local-addr) @ ;
-	: (local!) ( x i -- ) (local-addr) ! ;
+	: (local@) ( i -- n ) (local-addr) @ ;
+	: (local!) ( n i -- ) (local-addr) ! ;
+	: (to-local) ( n i -- ) (local!) ;
 
-\ Define one local identifier (VALUE-like)
-\ Body layout:
-\   cell 0 : executor for TO   (local!)
-\   cell 1 : local index
+\ Define a local xt which carries the index
 
 	: (local-define) ( c-addr u i -- )
-		get-current >r 		( r: --  wid )
-		(locals-wid) set-current
+		\ create local xt
+		(flg-xt-local)
+		(flg-is-imm) or
+		(flg-is-vis) or					( c-addr u i -- xt c-addr u i flags )
+		(new-xt) -rot					( c-addr u i flags -- xt c-addr u )
+		sp-2@ (xt>str+len+hash!)		( xt c-addr u -- xt )
 
-		create
-			['] (local!) ,	\ executor used by TO
-			,				\ local index
-
-		r> set-current		( r: wid -- )
-
-		does>
-			cell+ @ (local@)
+		\ add to locals-wid
+		(locals-wid) swap				( xt -- wid xt )
+		(lookup-append)					( wid xt -- nt )
+		drop							( nt -- )
 	;
 
 \ Emit locals initialization prologue
 \ Runtime stack already has exactly n init values
 
 	: (locals-compile-prologue) ( n -- )
-		postpone literal
-		postpone (local-enter)
+		\ skip prologue on no values
+		dup 0= if (locals-wid!) exit then
+
+		postpone locals-push-frame	( n -- n )
+		dup lit,					( n -- n )
+		postpone locals-alloc		( n -- n )
 
 		dup 0 ?do
-			dup 1- i -			( n -- n idx ) \ idx = n-1-i
+			dup 1- i -				( n -- n i ) \ idx = n-1-i
 
-			postpone literal
+			lit,
 			postpone (local!)
 		loop
 
 		drop					( n -- )
+	;
+
+	: (locals-compile-epilogue) ( -- )
+		postpone locals-pop-frame
 	;
 
 \ https://forth-standard.org/standard/locals/LOCAL
@@ -130,18 +146,25 @@ require string.f
 \ Cleanup must happen at ';' (hook (locals-wid) reset there).
 
 	variable (locals#)					\ number of locals in current definition
+	variable (locals-count#)			\ number of locals being defined
 
 	: (LOCAL) ( c-addr u -- )
 		?dup if							( c-addr u -- c-addr u )
 			\ no wordlist?
 			(locals-wid) 0= if			( c-addr u -- c-addr u )
-				wordlist (locals-wid!)
+				(new-lookup-small) (locals-wid!)
 				0 (locals#) !
 			then
 
-			(locals#) @					( c-addr u -- c-addr u i )
-			1 (locals#) +!				( c-addr u i -- c-addr u )
-			(local-define)				( c-addr u -- )
+			\ internal = locals# @
+			\ actual   = (locals-max# @ - 1) - internal
+			(locals-count#) @ 1-		( c-addr u -- c-addr u max-1 )
+			(locals#) @ -				( c-addr u max-1 -- c-addr u actual )
+
+			(local-define)				( c-addr u i -- )
+
+			\ bump number defined
+			1 (locals#) +!				( --  )
 		else							( c-addr -- c-addr )
 			drop						( c-addr -- )
 
@@ -200,6 +223,10 @@ require string.f
 	;
 
 	: (local-define-locals) ( c-addr1 u1 ... c-addrn un n -- )
+		\ store the count for index in (local)
+		dup (locals-count#) !
+
+		\ add all locals
 		0 ?do (local) loop
 		0 0 (local)
 	;
@@ -209,6 +236,39 @@ require string.f
 		(local-scan-args) (local-scan-locals) (local-scan-end)
 		2drop (local-define-locals)
 	; immediate
+
+\ https://forth-standard.org/standard/core/Semi
+\
+\ Append the run-time semantics below to the current definition. End the
+\ current definition, allow it to be found in the dictionary and enter
+\ interpretation state, consuming colon-sys. If the data-space pointer is
+\ not aligned, reserve enough data space to align it.
+
+	' ; constant (xt-orig-;)
+
+	: ; ( -- )
+		(locals-wid) 0<> if
+			\ compile pop
+			postpone locals-pop-frame
+
+			\ clear local usage
+			0 (locals-wid!)
+			0 (locals#) !
+		then
+
+		\ original colon
+		(xt-orig-;) execute
+	; immediate
+
+	\ : exit ( -- )
+	\ 	state @ if
+	\ 		(locals-wid) 0<> if
+	\ 			postpone locals-pop-frame
+	\ 		then
+
+	\ 		postpone exit
+	\ 	then
+	\ ; immediate
 
 \ INTEGRATION NOTES
 \

@@ -136,6 +136,8 @@ require is.f
 
 	: .SR ( -- ) (.sr) ;
 
+	: .SL ( -- ) (locals-value^) #0 s" local stack " (.s) ;
+
 	: .SA ( -- ) .s .sc (.sr) ;
 
 \ https://forth-standard.org/standard/tools/WORDS
