@@ -19,9 +19,8 @@ require string.f
 \ Local accessors (used by local identifiers)
 
 	: (local-addr-0) ( -- a-addr ) (locals-base^) @ dup @ cells - ;
-	: (local-addr) ( i -- a-addr ) cells (local-addr-0) + ;
 
-	: (to-local) ( n i -- ) (local-addr) ! ;
+	: (to-local) ( n i -- ) cells (local-addr-0) + ! ;
 
 \ Enter & exit a locals definition
 
