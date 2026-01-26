@@ -108,13 +108,13 @@ require string.f
 				0 (locals-done#) !
 			then
 
+			\ bump done count
+			1 (locals-done#) +!			( c-addr u -- c-addr u )
+
 			\ calculate index & define
-			(locals-count#) @ 1-		( c-addr u -- c-addr u max-1 )
+			(locals-count#) @			( c-addr u -- c-addr u max-1 )
 			(locals-done#) @ -			( c-addr u max-1 -- c-addr u actual )
 			(local-define)				( c-addr u i -- )
-
-			\ bump number defined
-			1 (locals-done#) +!				( -- )
 		else							( c-addr -- c-addr )
 			drop						( c-addr -- )
 
