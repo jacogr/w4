@@ -97,24 +97,24 @@ require string.f
 \   ( c-addr 0 )          : "last local" -> emit prologue and keep locals active
 \ Cleanup must happen at ';' (hook (locals-wid) reset there).
 
-	variable (locals#)					\ number of locals in current definition
-	variable (locals-count#)			\ number of locals being defined
+	variable (locals-done#)				\ number of locals done in current definition
+	variable (locals-count#)			\ total number of locals being defined
 
 	: (LOCAL) ( c-addr u -- )
 		?dup if							( c-addr u -- c-addr u )
 			\ no wordlist?
 			(locals-wid) 0= if			( c-addr u -- c-addr u )
 				(new-lookup-tiny) (locals-wid!)
-				0 (locals#) !
+				0 (locals-done#) !
 			then
 
 			\ calculate index & define
 			(locals-count#) @ 1-		( c-addr u -- c-addr u max-1 )
-			(locals#) @ -				( c-addr u max-1 -- c-addr u actual )
+			(locals-done#) @ -			( c-addr u max-1 -- c-addr u actual )
 			(local-define)				( c-addr u i -- )
 
 			\ bump number defined
-			1 (locals#) +!				( -- )
+			1 (locals-done#) +!				( -- )
 		else							( c-addr -- c-addr )
 			drop						( c-addr -- )
 
@@ -203,7 +203,6 @@ require string.f
 
 			\ clear local usage
 			0 (locals-wid!)
-			0 (locals#) !
 		then
 
 		\ execute original colon (also immediate)
