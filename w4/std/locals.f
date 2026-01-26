@@ -5,6 +5,23 @@ require search.string.f
 require stack.f
 require string.f
 
+\ Local accessors (used by local identifiers)
+
+	: (local-addr-0) ( -- a-addr )
+		(locals-base^) @ 	( -- a-addr )
+		dup @				( a-addr -- a-addr n )
+		cells -				( a-addr n -- a-addr' )
+	;
+
+	: (local-addr) ( i -- a-addr )
+		(local-addr-0) 		( i -- a-addr )
+		swap cells +		( i a-addr -- a-addr' )
+	;
+
+	: (local@) ( i -- n ) (local-addr) @ ;
+	: (local!) ( n i -- ) (local-addr) ! ;
+	: (to-local) ( n i -- ) (local!) ;
+
 \ Enter & exit a locals definition
 
 	: locals-enter ( n -- )
@@ -20,25 +37,13 @@ require string.f
 	;
 
 	: locals-exit ( -- )
-		(locals-base^) @		( -- a-addr )
-		dup @ 					( a-addr -- a-addr n )
-		1+ cells swap -			( a-addr n -- a-addr' )
+		\ address before offset 0, previous base
+		(local-addr-0)			( -- a-addr )
+		1 cells -				( a-addr -- a-addr' )
 
 		\ store previous base addr
 		(locals-base^) !
 	;
-
-\ Local accessors (used by local identifiers)
-
-	: (local-addr) ( i -- a-addr )
-		(locals-base^) @ 	( -- a-addr )
-		dup @				( a-addr -- a-addr n )
-		cells swap -		( a-addr n -- a-addr' )
-	;
-
-	: (local@) ( i -- n ) (local-addr) @ ;
-	: (local!) ( n i -- ) (local-addr) ! ;
-	: (to-local) ( n i -- ) (local!) ;
 
 \ Define a local xt which carries the index
 
