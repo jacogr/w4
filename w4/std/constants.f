@@ -314,6 +314,5 @@
 
 \ pointers for locals definitions
 
-	$0160 (mmio@) (locals-memory^)
-	$0164 (mmio:) (locals-base^)
-	$0168 (mmio@) (locals-wid) : (locals-wid!) $0168 ! ;
+	$0160 (mmio:) (locals-base^)
+	$0164 (mmio@) (locals-wid) : (locals-wid!) $0164 ! ;

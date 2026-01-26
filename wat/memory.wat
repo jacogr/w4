@@ -38,9 +38,8 @@
 	(global $PTR_WID_CURR      i32 (i32.const 0x0154))
 	(global $PTR_PTR_WID_LIST  i32 (i32.const 0x0158))
 	(global $PTR_WID_COUNT     i32 (i32.const 0x015c))
-	(global $PTR_PTR_LOC_VALUE i32 (i32.const 0x0160)) ;; local values
-	(global $PTR_LOC_VALUE_AT  i32 (i32.const 0x0164)) ;; local value offset
-	(global $PTR_LOC_WID  	   i32 (i32.const 0x0168))
+	(global $PTR_LOC_VALUE_AT  i32 (i32.const 0x0160)) ;; local value offset
+	(global $PTR_LOC_WID  	   i32 (i32.const 0x0164))
 	;; next layout starting at 512 (0x0200)
 
 	;; init for known values

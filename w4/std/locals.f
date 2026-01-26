@@ -5,6 +5,17 @@ require search.string.f
 require stack.f
 require string.f
 
+\ allocate memory for locals
+
+	$200 cells constant (locals-memory-size) \ 512 cells
+	(locals-memory-size) cells buffer: (locals-memory^)
+
+	\ max address, TODO check this when moving
+	(locals-memory-size) (locals-memory^) + constant (locals-memory-max)
+
+	\ store base offset
+	(locals-memory^) (locals-base^) !
+
 \ Local accessors (used by local identifiers)
 
 	: (local-addr-0) ( -- a-addr )
