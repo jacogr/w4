@@ -41,7 +41,7 @@ S" forth2012-test-suite/src/doubletest.fth" INCLUDED
 \ UNKNOWN S" forth2012-test-suite/src/facilitytest.fth" INCLUDED
 
 \ TODO S" forth2012-test-suite/src/filetest.fth" INCLUDED
-\ TODO S" forth2012-test-suite/src/localstest.fth" INCLUDED
+S" forth2012-test-suite/src/localstest.fth" INCLUDED
 
 \ The host is wasi, it doesn't have access to the lower-level system
 \ allocator. these can be stubbed around allot, but never pure system

@@ -170,7 +170,7 @@ require string.utils.f
 	;
 
 	: (local-define-locals) ( c-addr1 u1 ... c-addrn un n -- )
-		\ ensure we have a sane amount of locals
+		\ ensure we can handle this number, -8	dictionary overflow
 		dup (env-locals#) > #-8 and throw
 
 		\ store the count for index in (local)
@@ -179,6 +179,9 @@ require string.utils.f
 		\ add all locals
 		0 ?do (local) loop
 		0 0 (local)
+
+		\ reset
+		0 (locals-count#) !
 	;
 
 	: {: ( -- )
