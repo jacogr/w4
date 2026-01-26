@@ -184,7 +184,7 @@ require string.f
 	;
 
 	: {: ( -- )
-		parse-name				( -- 0 c-addr u )
+		0 parse-name				( -- 0 c-addr u )
 		(local-scan-args) (local-scan-locals) (local-scan-end)
 		2drop (local-define-locals)
 	; immediate
