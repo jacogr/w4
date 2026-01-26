@@ -33,11 +33,8 @@ require string.f
 		\ check address, -52 control-flow stack overflow
 		dup (locals-memory-max) > #-52 and throw
 
-		\ store locals count
-		swap over !		 		( n a-addr -- a-addr )
-
-		\ store new base address
-		(locals-base^) !		( a-addr -- )
+		\ store locals count & base
+		dup (locals-base^) ! !	( n a-addr -- )
 	;
 
 	: locals-exit ( -- )
@@ -45,31 +42,27 @@ require string.f
 		(local-addr-0)			( -- a-addr )
 		1 cells -				( a-addr -- a-addr' )
 
-		\ store previous base addr
+		\ restore previous base addr
 		(locals-base^) !
 	;
 
 \ Define a local xt which carries the index
 
 	: (local-define) ( c-addr u i -- )
-		\ create local xt
-		(flg-xt-local) (flg-is-vis) or	( c-addr u i -- xt c-addr u i flags )
+		\ create local xt with name & hash
+		(flg-xt-local) (flg-is-vis) or	( c-addr u i -- c-addr u i flags )
 		(new-xt) -rot					( c-addr u i flags -- xt c-addr u )
 		sp-2@ (xt>str+len+hash!)		( xt c-addr u -- xt )
 
 		\ add to locals-wid
 		(locals-wid) swap				( xt -- wid xt )
-		(lookup-append)					( wid xt -- nt )
-		drop							( nt -- )
+		(lookup-append)	drop			( wid xt -- )
 	;
 
 \ Emit locals initialization prologue
 \ Runtime stack already has exactly n init values
 
 	: (locals-compile-prologue) ( n -- )
-		\ skip prologue on no values
-		dup 0= if (locals-wid!) exit then
-
 		\ compile `n locals-enter`
 		dup lit,					( n -- n )
 		postpone locals-enter		( n -- n )
@@ -115,21 +108,20 @@ require string.f
 				0 (locals#) !
 			then
 
-			\ internal = locals# @
-			\ actual   = (locals-max# @ - 1) - internal
+			\ calculate index & define
 			(locals-count#) @ 1-		( c-addr u -- c-addr u max-1 )
 			(locals#) @ -				( c-addr u max-1 -- c-addr u actual )
-
 			(local-define)				( c-addr u i -- )
 
 			\ bump number defined
-			1 (locals#) +!				( --  )
+			1 (locals#) +!				( -- )
 		else							( c-addr -- c-addr )
 			drop						( c-addr -- )
 
 			\ locals started?
-			(locals-wid) 0<> if			( --  )
-				(locals-count#) @ (locals-compile-prologue)
+			(locals-wid) 0<> if			( -- )
+				(locals-count#) @		( -- n )
+				(locals-compile-prologue)
 			then
 		then
 	;
