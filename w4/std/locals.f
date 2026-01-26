@@ -198,11 +198,11 @@ require string.f
 
 	: ; ( -- )
 		(locals-wid) 0<> if
-			\ compile locals restore
-			postpone locals-exit
-
 			\ clear local usage
 			0 (locals-wid!)
+
+			\ compile locals restore
+			postpone locals-exit
 		then
 
 		\ execute original colon (also immediate)
