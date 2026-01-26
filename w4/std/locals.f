@@ -7,31 +7,21 @@ require string.f
 
 \ allocate memory for locals
 
-	$200 cells constant (locals-memory-size) \ 512 cells
-	(locals-memory-size) cells buffer: (locals-memory^)
+	$200 constant (locals-memory-cells) \ 512 cells
+	(locals-memory-cells) 1+ cells buffer: (locals-memory^)
 
 	\ max address, TODO check this when moving
-	(locals-memory-size) (locals-memory^) + constant (locals-memory-max)
+	(locals-memory-cells) cells (locals-memory^) + constant (locals-memory-max)
 
 	\ store base offset
 	(locals-memory^) (locals-base^) !
 
 \ Local accessors (used by local identifiers)
 
-	: (local-addr-0) ( -- a-addr )
-		(locals-base^) @ 	( -- a-addr )
-		dup @				( a-addr -- a-addr n )
-		cells -				( a-addr n -- a-addr' )
-	;
+	: (local-addr-0) ( -- a-addr ) (locals-base^) @ dup @ cells - ;
+	: (local-addr) ( i -- a-addr ) cells (local-addr-0) + ;
 
-	: (local-addr) ( i -- a-addr )
-		(local-addr-0) 		( i -- a-addr )
-		swap cells +		( i a-addr -- a-addr' )
-	;
-
-	: (local@) ( i -- n ) (local-addr) @ ;
-	: (local!) ( n i -- ) (local-addr) ! ;
-	: (to-local) ( n i -- ) (local!) ;
+	: (to-local) ( n i -- ) (local-addr) ! ;
 
 \ Enter & exit a locals definition
 
@@ -39,6 +29,9 @@ require string.f
 		\ calculate base address for counter
 		dup 1+ cells			( n n --  n n' )
 		(locals-base^) @ +		( n n' -- n a-addr )
+
+		\ check address, -52 control-flow stack overflow
+		dup (locals-memory-max) > #-52 and throw
 
 		\ store locals count
 		swap over !		 		( n a-addr -- a-addr )
@@ -84,8 +77,9 @@ require string.f
 		dup 0 ?do
 			dup 1- i -				( n -- n i ) \ idx = n-1-i
 
+			\ compile `i (to-local)`, value expected on stack
 			lit,
-			postpone (local!)
+			postpone (to-local)
 		loop
 
 		drop					( n -- )
@@ -216,7 +210,7 @@ require string.f
 
 	: ; ( -- )
 		(locals-wid) 0<> if
-			\ compile pop
+			\ compile locals restore
 			postpone locals-exit
 
 			\ clear local usage
@@ -228,12 +222,22 @@ require string.f
 		(xt-orig-;) execute
 	; immediate
 
-	\ : exit ( -- )
+\ https://forth-standard.org/standard/core/EXIT
+\
+\ Return control to the calling definition specified by nest-sys. Before
+\ executing EXIT within a do-loop, a program shall discard the loop-control
+\ parameters by executing UNLOOP.
+
+	\ : EXIT ( -- )
 	\ 	state @ if
+	\		\ clear locals (if available)
 	\ 		(locals-wid) 0<> if
 	\ 			postpone locals-exit
 	\ 		then
 
 	\ 		postpone exit
+	\	else
+	\		\ don't allow in interpret, -25	return stack imbalance
+	\		#-25 throw
 	\ 	then
 	\ ; immediate
