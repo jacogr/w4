@@ -104,11 +104,10 @@ require string.f
 			\ no wordlist?
 			(locals-wid) 0= if			( c-addr u -- c-addr u )
 				(new-lookup-tiny) (locals-wid!)
-				0 (locals-done#) !
+				1 (locals-done#) !
+			else
+				1 (locals-done#) +!
 			then
-
-			\ bump done count
-			1 (locals-done#) +!			( c-addr u -- c-addr u )
 
 			\ calculate index & define
 			(locals-count#) @			( c-addr u -- c-addr u max-1 )
@@ -188,26 +187,6 @@ require string.f
 		2drop (local-define-locals)
 	; immediate
 
-\ https://forth-standard.org/standard/core/Semi
-\
-\ Append the run-time semantics below to the current definition. End the
-\ current definition, allow it to be found in the dictionary and enter
-\ interpretation state, consuming colon-sys. If the data-space pointer is
-\ not aligned, reserve enough data space to align it.
-
-	: ; ( -- )
-		(locals-wid) 0<> if
-			\ clear local usage
-			0 (locals-wid!)
-
-			\ compile locals restore
-			postpone locals-exit
-		then
-
-		\ execute original colon (also immediate)
-		postpone ;
-	; immediate
-
 \ https://forth-standard.org/standard/core/EXIT
 \
 \ Return control to the calling definition specified by nest-sys. Before
@@ -227,3 +206,24 @@ require string.f
 	\		#-25 throw
 	\ 	then
 	\ ; immediate
+
+\ https://forth-standard.org/standard/core/Semi
+\
+\ Append the run-time semantics below to the current definition. End the
+\ current definition, allow it to be found in the dictionary and enter
+\ interpretation state, consuming colon-sys. If the data-space pointer is
+\ not aligned, reserve enough data space to align it.
+
+	: ; ( -- )
+		(locals-wid) 0<> if
+			\ clear local usage
+			0 (locals-wid!)
+
+			\ compile locals restore
+			\ TODO Change to `exit` when the above goes in
+			postpone locals-exit
+		then
+
+		\ execute original colon (also immediate)
+		postpone ;
+	; immediate
