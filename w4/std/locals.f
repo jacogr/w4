@@ -75,7 +75,7 @@ require string.f
 			postpone (to-local)
 		loop
 
-		drop					( n -- )
+		drop						( n -- )
 	;
 
 \ https://forth-standard.org/standard/locals/LOCAL
@@ -140,8 +140,7 @@ require string.f
 		r> or
 	;
 
-	: (local-scan-args)
-		\ 0 c-addr1 u1 -- c-addr1 u1 ... c-addrn un n c-addrn+1 un+1
+	: (local-scan-args) ( 0 c-addr1 u1 -- c-addr1 u1 ... c-addrn un n c-addrn+1 un+1 )
 		begin
 			2dup s" |" (local-match-or-end?) 0= while
 			2dup s" --" (local-match-or-end?) 0= while
@@ -151,8 +150,7 @@ require string.f
 		again then then then
 	;
 
-	: (local-scan-locals)
-		\ n c-addr1 u1 -- c-addr1 u1 ... c-addrn un n c-addrn+1 un+1
+	: (local-scan-locals) ( n c-addr1 u1 -- c-addr1 u1 ... c-addrn un n c-addrn+1 un+1 )
 		2dup s" |" compare 0= 0= if exit then
 		2drop parse-name
 
@@ -186,7 +184,7 @@ require string.f
 	;
 
 	: {: ( -- )
-		0 parse-name
+		parse-name				( -- 0 c-addr u )
 		(local-scan-args) (local-scan-locals) (local-scan-end)
 		2drop (local-define-locals)
 	; immediate
