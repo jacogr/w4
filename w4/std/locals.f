@@ -196,8 +196,6 @@ require string.f
 \ interpretation state, consuming colon-sys. If the data-space pointer is
 \ not aligned, reserve enough data space to align it.
 
-	' ; constant (xt-orig-;)
-
 	: ; ( -- )
 		(locals-wid) 0<> if
 			\ compile locals restore
@@ -208,8 +206,8 @@ require string.f
 			0 (locals#) !
 		then
 
-		\ original colon
-		(xt-orig-;) execute
+		\ execute original colon (also immediate)
+		postpone ;
 	; immediate
 
 \ https://forth-standard.org/standard/core/EXIT
