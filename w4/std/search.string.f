@@ -14,6 +14,12 @@ require ../ext/is.f
 		(xt>hash!)						( hash xt -- )
 	;
 
+	: (new-xt-full) ( c-addr u val flags -- xt )
+		(new-xt) -rot					( c-addr u val flags -- xt c-addr u )
+		strdup							( xt c-addr u -- xt c-addr' u )
+		sp-2@ (xt>str+len+hash!)		( xt c-addr u -- xt )
+	;
+
 \ https://forth-standard.org/standard/string/REPLACES
 \
 \ Set the string c-addr1 u1 as the text to substitute for the substitution
@@ -28,13 +34,7 @@ require ../ext/is.f
 	variable (subst-err)
 
 	: (make-subst)	( c-addr u -- c-addr )
-		\ create xt
-		strdup							( c-addr len -- c-addr' len' )
-		$0 (flg-is-vis) (new-xt)		( c-addr len -- c-addr len xt )
-
-		\ set str, len & hash
-		-rot							( c-addr len xt -- xt c-addr len )
-		sp-2@ (xt>str+len+hash!)		( xt c-addr len -- xt )
+		$0 (flg-is-vis) (new-xt-full)	( c-addr len -- xt )
 
 		\ allocate string buffer at here
 		here swap						( xt -- here^ xt )

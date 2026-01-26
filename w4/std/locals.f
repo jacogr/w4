@@ -51,9 +51,7 @@ require string.utils.f
 	: (local-define) ( c-addr u i -- )
 		\ create local xt with name & hash
 		(flg-xt-local) (flg-is-vis) or	( c-addr u i -- c-addr u i flags )
-		(new-xt) -rot					( c-addr u i flags -- xt c-addr u )
-		strdup							( xt c-addr u -- xt c-addr' u )
-		sp-2@ (xt>str+len+hash!)		( xt c-addr u -- xt )
+		(new-xt-full)					( c-addr u i flags -- xt )
 
 		\ add to locals-wid
 		(locals-wid) swap				( xt -- wid xt )
