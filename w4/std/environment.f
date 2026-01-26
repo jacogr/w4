@@ -22,14 +22,14 @@ require string.utils.f
 \ https://forth-standard.org/standard/usage#usage:env
 
 	: ENVIRONMENT? ( c-addr u -- f )
-		2dup s" #LOCALS" streq-ni 0= if 2drop (env-locals#) exit then
-		2dup s" RETURN-STACK-CELLS" streq-ni 0= if 2drop (env-stackmax#) exit then
-		2dup s" STACK-CELLS" streq-ni 0= if 2drop (env-stackmax#) exit then
-		2dup s" WORDLISTS" streq-ni 0= if 2drop (env-wordlists-max#) exit then
+		2dup s" #LOCALS" streq-ni 0= if 2drop (env-locals#) true exit then
+		2dup s" RETURN-STACK-CELLS" streq-ni 0= if 2drop (env-stackmax#) true exit then
+		2dup s" STACK-CELLS" streq-ni 0= if 2drop (env-stackmax#) true exit then
+		2dup s" WORDLISTS" streq-ni 0= if 2drop (env-wordlists-max#) true exit then
 
-		2dup s" /COUNTED-STRING" if 2drop string-max exit then
-		2dup s" /HOLD" if 2drop (env-holdsize#) exit then
-		2dup s" /PAD" if 2drop (env-padsize#) exit then
+		2dup s" /COUNTED-STRING" if 2drop string-max true exit then
+		2dup s" /HOLD" if 2drop (env-holdsize#) true exit then
+		2dup s" /PAD" if 2drop (env-padsize#) true exit then
 
 		2drop 0				\ default, return false
 	;
