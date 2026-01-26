@@ -72,8 +72,7 @@
 		(global.set $stack_src (call $__store (global.get $PTR_PTR_STACK_SRC) (call $__stack_new)))
 
 		;; allocate space for locals
-		(i32.store (global.get $PTR_PTR_LOC_FRAME) (call $__stack_new))
-		(i32.store (global.get $PTR_PTR_LOC_VALUE) (call $__stack_new))
+		(i32.store (global.get $PTR_LOC_VALUE_AT) (call $__store (global.get $PTR_PTR_LOC_VALUE) (call $__alloc (i32.mul (i32.const 256) (i32.const 4)))))
 
 		;; set the alloc start/end for checks
 		(i32.store (global.get $PTR_ALLOC_MIN) (i32.load (global.get $PTR_ALLOC)))

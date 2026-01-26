@@ -31,8 +31,8 @@ require is.f
 \ Creates a lookup list (list + hashed headers)
 
 	: (new-lookup) ( count -- a-addr )
-		\ size > 255 (tiny) & power of 2
-		dup $ff >					( count -- count f1 ) 						\ f1 = count > 255
+		\ size > 15 (tiny) & power of 2
+		dup $f >					( count -- count f1 ) 						\ f1 = count > 15
 		over dup					( count f1 -- count f1 count count )
 		1- and 0=					( count f1 count count -- count f1 f2 )		\ f2 = (count - 1) & count
 		and							( count f1 f2 -- count f ) 					\ f = f1 & f2
@@ -54,6 +54,7 @@ require is.f
 		over (lst>owner!)			( list index -- list )
 	;
 
+	: (new-lookup-tiny) ( -- a-addr ) $010 (new-lookup) ; \ 16
 	: (new-lookup-small) ( -- a-addr ) $100 (new-lookup) ; \ 256
 	: (new-lookup-large) ( -- a-addr ) $800 (new-lookup) ; \ 2048
 

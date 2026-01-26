@@ -5,80 +5,35 @@ require search.string.f
 require stack.f
 require string.f
 
-\ Design:
-\ - All semantics expressed in Forth (self-hosting source of truth)
-\ - Two stacks in linear memory (header-cell layout):
-\     * locals VALUE stack  : actual local values
-\     * locals FRAME stack  : saved fp/sp per colon entry
-\ - One current frame pointer (fp) stored separately
-\ - Every colon entry pushes a frame record
-\ - Every colon exit pops a frame record
-\ - {: ... :} allocates locals within the current frame
+\ Enter & exit a locals definition
 
-\ Generic helpers for header-cell stacks
-\
-\ Stack layout (all stacks):
-\   [ count ] [ cell0 ] [ cell1 ] ... [ cellN ]
+	: locals-enter ( n -- )
+		\ calculate base address for counter
+		dup 1+ cells			( n n --  n n' )
+		(locals-base^) @ +		( n n' -- n a-addr )
 
-	: stk-count@ ( a-addr -- n ) @ ;
-	: stk-count! ( n a-addr -- ) ! ;
+		\ store locals count
+		swap over !		 		( n a-addr -- a-addr )
 
-	: stk-base ( a-addr -- a-addr' ) cell+ ;
-	: stk-addr ( i a-addr -- a-addr' ) stk-base swap cells + ;
-
-	: stk-push ( x a-addr -- )
-		\ write value
-		swap 				( x a-addr -- a-addr x )
-		over stk-count@		( a-addr x -- a-addr x n )
-		sp-2@				( a-addr x n -- a-addr x n a-addr )
-		stk-addr !			( a-addr x n a-addr -- a-addr )
-
-		\ update count
-		dup stk-count@		( a-addr -- a-addr n )
-		1+ swap				( a-addr n -- n' a-addr )
-		stk-count!			( a-addr n' -- )
+		\ store new base address
+		(locals-base^) !		( a-addr -- )
 	;
 
-	: stk-pop ( a-addr -- x )
-		dup >r						( a-addr -- a-addr ) ( r: -- a-addr )
-		stk-count@ 1-				( a-addr -- i )
-		dup r@ stk-count!			( i -- i ) ( r: a-addr -- a-addr )   \ write new count
-		r> stk-addr @				( i a -- x ) ( r: a-addr -- )
-	;
+	: locals-exit ( -- )
+		(locals-base^) @		( -- a-addr )
+		dup @ 					( a-addr -- a-addr n )
+		1+ cells swap -			( a-addr n -- a-addr' )
 
-\ Locals runtime state helpers
-
-	: locals-sp@ ( -- sp ) (locals-value^) stk-count@ ;
-	: locals-sp! ( sp -- ) (locals-value^) stk-count! ;
-
-	: locals-fp@ ( -- fp ) (locals-fp^) @ ;
-	: locals-fp! ( fp -- ) (locals-fp^) ! ;
-
-\ Locals FRAME stack (saved fp/sp per colon entry)
-\ Each frame record = 2 cells: saved-fp saved-sp
-
-	: locals-push-frame ( -- ) \ called at EVERY colon entry
-		locals-fp@ (locals-frame^) stk-push
-		locals-sp@ (locals-frame^) stk-push
-	;
-
-	: locals-pop-frame ( -- )
-  		(locals-frame^) stk-pop locals-sp!
-  		(locals-frame^) stk-pop locals-fp!
-	;
-
-\ Allocate locals for THIS definition (called by {:} prologue)
-
-	: locals-alloc ( n -- )
-		locals-sp@ dup locals-fp!	\ fp = old sp (cell index)
-		+ locals-sp!				\ sp += n
+		\ store previous base addr
+		(locals-base^) !
 	;
 
 \ Local accessors (used by local identifiers)
 
 	: (local-addr) ( i -- a-addr )
-		locals-fp@ + 			\ absolute cell index
-		(locals-value^) stk-addr
+		(locals-base^) @ 	( -- a-addr )
+		dup @				( a-addr -- a-addr n )
+		cells swap -		( a-addr n -- a-addr' )
 	;
 
 	: (local@) ( i -- n ) (local-addr) @ ;
@@ -106,9 +61,9 @@ require string.f
 		\ skip prologue on no values
 		dup 0= if (locals-wid!) exit then
 
-		postpone locals-push-frame	( n -- n )
+		\ compile `n locals-enter`
 		dup lit,					( n -- n )
-		postpone locals-alloc		( n -- n )
+		postpone locals-enter		( n -- n )
 
 		dup 0 ?do
 			dup 1- i -				( n -- n i ) \ idx = n-1-i
@@ -118,10 +73,6 @@ require string.f
 		loop
 
 		drop					( n -- )
-	;
-
-	: (locals-compile-epilogue) ( -- )
-		postpone locals-pop-frame
 	;
 
 \ https://forth-standard.org/standard/locals/LOCAL
@@ -150,7 +101,7 @@ require string.f
 		?dup if							( c-addr u -- c-addr u )
 			\ no wordlist?
 			(locals-wid) 0= if			( c-addr u -- c-addr u )
-				(new-lookup-small) (locals-wid!)
+				(new-lookup-tiny) (locals-wid!)
 				0 (locals#) !
 			then
 
@@ -250,7 +201,7 @@ require string.f
 	: ; ( -- )
 		(locals-wid) 0<> if
 			\ compile pop
-			postpone locals-pop-frame
+			postpone locals-exit
 
 			\ clear local usage
 			0 (locals-wid!)
@@ -264,29 +215,9 @@ require string.f
 	\ : exit ( -- )
 	\ 	state @ if
 	\ 		(locals-wid) 0<> if
-	\ 			postpone locals-pop-frame
+	\ 			postpone locals-exit
 	\ 		then
 
 	\ 		postpone exit
 	\ 	then
 	\ ; immediate
-
-\ INTEGRATION NOTES
-\
-\ 1) FIND / find-name:
-\    search (locals-wid) FIRST if non zero.
-\
-\ 2) Colon entry (docol):
-\      locals-enter
-\
-\ 3) Colon exit / EXIT:
-\      locals-exit
-\
-\ 4) ';' (end of definition):
-\      (locals-wid) set to 0
-\
-\ With this, nested calls like:
-\   foo {: a -- :} ...
-\   bar ...
-\   baz {: a -- :} ... bar foo to a
-\ work correctly and deterministically.
