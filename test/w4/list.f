@@ -6,17 +6,17 @@ testing LOOKUP
 
 \ make a visible xt with a permanently stored (lowercased) name
 : mkxt ( c-addr u -- xt )
-  strdup-ni                 ( c-addr' u' )
-  0 (flg-is-vis) (new-xt)       ( c-addr' u' xt )
-  dup >r                         ( c-addr' u' xt ) ( r: xt )
-  (xt>str+len+hash!)             ( c-addr' u' xt -- )
-  r>                             ( -- xt )
+  strdup					( c-addr' u' )
+  0 (flg-is-vis) (new-xt)	( c-addr' u' xt )
+  dup >r					( c-addr' u' xt ) ( r: xt )
+  (xt>str+len+hash!)		( c-addr' u' xt -- )
+  r> 						( -- xt )
 ;
 
 : addxt ( c-addr u -- )
-  mkxt                           ( xt )
-  widtest swap                   ( wid xt )
-  (lookup-append) drop           ( -- )
+  mkxt					( xt )
+  widtest swap			( wid xt )
+  (lookup-append) drop	( -- )
 ;
 
 \ populate two entries

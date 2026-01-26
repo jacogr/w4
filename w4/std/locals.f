@@ -4,6 +4,7 @@ require search.f
 require search.string.f
 require stack.f
 require string.f
+require string.utils.f
 
 \ allocate memory for locals
 
@@ -51,6 +52,7 @@ require string.f
 		\ create local xt with name & hash
 		(flg-xt-local) (flg-is-vis) or	( c-addr u i -- c-addr u i flags )
 		(new-xt) -rot					( c-addr u i flags -- xt c-addr u )
+		strdup							( xt c-addr u -- xt c-addr' u )
 		sp-2@ (xt>str+len+hash!)		( xt c-addr u -- xt )
 
 		\ add to locals-wid

@@ -9,9 +9,9 @@ require stack.loop.f
 	\ 'A' = 65, 'Z' + 1 = 91
 	: >LOWER-ASCII ( c -- c' ) dup #65 #91 within $20 and or ;
 
-\ copy a string in lowercase
+\ copy a string
 
-	: STRCPY-ni ( src dst u -- dst u )
+	: STRCPY ( src dst u -- dst u )
 		-rot sp-2@				( src dst u -- len src dst u )
 
 		begin
@@ -19,7 +19,6 @@ require stack.loop.f
 		while					( len src dst u f -- len src dst u )
 			1- dup dup			( len src dst u -- len src dst u' u' u' )
 			sp-4@ + c@			( len src dst u u u -- len src dst u u c )
-			>lower-ascii		( len src dst u u c -- len src dst u u c' )
 			swap sp-3@ + c!		( len src dst u u c -- len src dst u )
 		repeat
 
@@ -27,15 +26,15 @@ require stack.loop.f
 		swap					( len dst -- dst len )
 	;
 
-\ duplicate a string in lowercase
+\ duplicate a string
 
-	: STRDUP-ni ( c-addr u -- c-addr2 u )
+	: STRDUP ( c-addr u -- c-addr2 u )
 		\ len == 0?
 		?dup 0= if drop 0 0 exit then
 
 		here swap			( src len -- src dst len )
 		dup allot			( src dst len -- src dst len )
-		strcpy-ni
+		strcpy
 	;
 
 \ Compare two strings byte for byte until the specified length

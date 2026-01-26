@@ -29,7 +29,7 @@ require ../ext/is.f
 
 	: (make-subst)	( c-addr u -- c-addr )
 		\ create xt
-		strdup-ni						( c-addr len -- c-addr' len' )
+		strdup							( c-addr len -- c-addr' len' )
 		$0 (flg-is-vis) (new-xt)		( c-addr len -- c-addr len xt )
 
 		\ set str, len & hash
