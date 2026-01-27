@@ -68,7 +68,6 @@
 		;; allocate stacks, all with global pointers
 		(global.set $stack_dat (call $__store (global.get $PTR_PTR_STACK_DAT) (call $__stack_new)))
 		(global.set $stack_ret (call $__store (global.get $PTR_PTR_STACK_RET) (call $__stack_new)))
-		(global.set $stack_ctl (call $__store (global.get $PTR_PTR_STACK_CTL) (call $__stack_new)))
 		(global.set $stack_src (call $__store (global.get $PTR_PTR_STACK_SRC) (call $__stack_new)))
 
 		;; set the alloc start/end for checks

@@ -291,6 +291,10 @@
 
 	(env-padsize#) buffer: PAD
 
+\ control stack
+
+	(env-stackmax#) 1 + cells buffer: (cs^)
+
 \ Internal constant helpers for the exposed/host memory pointers
 
 	: (mmio:) constant ;
@@ -341,7 +345,6 @@
 \ defined in the preamble)
 
 	$0144 (mmio@) (rs^)
-	$0148 (mmio@) (cs^)
 
 \ https://forth-standard.org/standard/search/FORTH-WORDLIST
 \
