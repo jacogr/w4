@@ -163,6 +163,15 @@
 		swap !			( flags-addr flags' -- )
 	;
 
+\ Reverse of REVEAL, hides a dictionary entry
+
+	: HIDE ( -- )
+		latest >flags	( -- flags-addr )
+		dup @			( flags-addr -- flags-addr flags )
+		$fffffffe and	( flags-addr flags -- flags-addr flags' )
+		swap !			( flags-addr flags' -- )
+	;
+
 \ https://forth-standard.org/standard/core/CREATE
 \
 \ Skip leading space delimiters. Parse name delimited by a space. Create a

@@ -97,6 +97,24 @@ require ../ext/is.f
 
 	: DEFER! ( xt2 xt1 -- ) >body ! ;
 
+\ https://forth-standard.org/standard/tools/SYNONYM
+\
+\ For both strings skip leading space delimiters. Parse newname and oldname
+\ delimited by a space. Create a definition for newname with the semantics
+\ defined below. Newname may be the same as oldname; when looking up oldname,
+\ newname shall not be found.
+\
+\ An ambiguous conditions exists if oldname can not be found or IMMEDIATE is
+\ applied to newname.
+
+	: SYNONYM ( "newname" "oldname" -- )
+		create immediate
+			hide ' , reveal
+		does>
+			@ state @ 0= over is-xt-immediate? or
+			if execute else compile, then
+	;
+
 \ https://forth-standard.org/standard/core/IS
 \
 \ Skip leading spaces and parse name delimited by a space. Set name to execute xt.
