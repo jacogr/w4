@@ -127,6 +127,39 @@ require is.f
 		over swap !					( nt bucket -- nt )					\ write nt as head
 	;
 
+\ traverse a lookup (like traverse-wordlist), executing the xt for each
+
+	: (lookup-traverse) ( cb list -- )
+		(lst>tail@)		( cb list -- cb nt )
+
+		\ do nothing on empty list
+		?dup 0= if drop exit then
+
+		begin
+			\ stack to be expanded, store
+			2>r r@						( cb nt -- nt ) ( r: -- cb nt )
+
+			\ get xt & flags
+			(nt>value@)					( nt -- xt )
+			dup (xt>flags@)				( xt -- xt flags )
+
+			\ visible?
+			(flg-is-vis) is-flag? if	( xt flags -- xt )
+				r-1@ execute			( xt -- f ) ( r: cb nt )
+			else drop true then			( xt -- f )
+
+			\ restore from stack
+			2r>							( f -- f cb nt ) ( r: cb nt -- )
+
+			\ check next for zero
+			rot	if						( f cb nt -- cb nt )
+				(nt>prev@) dup 0=		( cb nt -- cb nt' f )
+			else true then				( cb nt -- cb nt f )
+		until
+
+		2drop
+	;
+
 \ Find an item in a lookup list based on hash, length & string value
 
 	: (lookup-find) ( list c-addr u hash -- nt|0 )

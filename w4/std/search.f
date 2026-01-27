@@ -155,6 +155,28 @@ require ../ext/list.f
 
 	: PREVIOUS ( -- ) get-order nip 1- set-order ;
 
+\ https://forth-standard.org/standard/tools/TRAVERSE-WORDLIST
+\
+\ Remove wid and xt from the stack. Execute xt once for every word in
+\ thenwordlist wid, passing the name token nt of the word to xt, until
+\ the wordlist is exhausted or until xt returns false.
+\
+\ The invoked xt has the stack effect ( k * x nt -- l * x flag ).
+\
+\ If flag is true, TRAVERSE-WORDLIST will continue with the next name,
+\ otherwise it will return. TRAVERSE-WORDLIST does not put any items other
+\ than nt on the stack when calling xt, so that xt can access and modify
+\ the rest of the stack.
+\
+\ TRAVERSE-WORDLIST may visit words in any order, with one exception: words
+\ with the same name are called in the order newest-to-oldest (possibly with
+\ other words in between).
+\
+\ An ambiguous condition exists if words are added to or deleted from the
+\ wordlist wid during the execution of TRAVERSE-WORDLIST.
+
+	: TRAVERSE-WORDLIST ( i * x xt wid -- j * x ) (lookup-traverse) ;
+
 \ https://forth-standard.org/standard/search/FIND
 \
 \ Extend the semantics of 6.1.1550 FIND to be: ( c-addr -- c-addr 0 | xt 1 | xt -1 )
