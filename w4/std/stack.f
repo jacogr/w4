@@ -90,13 +90,23 @@ require stack.ptr.f
 
 \ Drop a values from the control stack
 
-	: CS-DROP ( c: x -- ) cs-depth dup 0= #-7 and throw 1- (cs^) ! ;
+	: CS-DROP ( c: x -- )
+		cs-depth 				( -- n )
+
+		\ -7 do-loops nested too deeply during execution
+		dup 0= #-7 and throw	( n -- n )
+
+		1- (cs^) !				( n -- )
+	;
 
 \ Move value to control stack
 
 	: >CS ( x -- ) ( c: -- x )
 		cs-depth 1+
+
+		\ -52 control-flow stack overflow
 		dup (env-stackmax#) = #-52 and throw
+
 		(cs^) !			\ count++
 		cs-depth cells
 		(cs^) + !		\ store value
@@ -165,7 +175,9 @@ require stack.ptr.f
 \ Drop the top-most return stack value
 
 	: (r-drop) ( -- )
+		\ -6 return stack underflow
 		r-depth 3 < #-6 and throw	\ call into r-drop & this
+
 		r-1@ r-2!					\ slide caller’s return-to down
 		r-depth 2 - (rs^) !			\ drop one slot under it
 	;
@@ -187,7 +199,9 @@ require stack.ptr.f
 \ equivalent to R> R> SWAP.
 
 	: (r-2drop) ( -- )
+		\ -6 return stack underflow
 		r-depth 4 < #-6 and throw	\ call into r-drop & this
+
 		r-1@ r-3!					\ slide caller’s return-to down
 		r-depth 3 - (rs^) !			\ drop two slots under it
 	;

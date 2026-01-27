@@ -9,7 +9,10 @@ require ../std/stack.f
 		1 					\ write a single iov
 		(iov-tmp-nwrite)	( c-addr u 1|2 a-iov 1 -- c-addr u 1|2 a-iov 1 a-tmp )
 		wasi::fd_write		( c-addr u 1|2 a-iov 1 a-tmp -- c-addr u err )
+
+		\ -37 file I/O exception
 		0<> #-37 and throw	( c-addr u err -- c-addr u )
+
 		2drop				( c-addr u -- )
 	;
 
@@ -37,5 +40,7 @@ require ../std/stack.f
 
 	: IOV<FD ( c-addr u fd -- nread )
 		iov<fd?					( errno nread )
+
+		\ -37 file I/O exception
 		swap 0<> #-37 and throw	( nread )
 	;

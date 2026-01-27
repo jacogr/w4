@@ -83,6 +83,7 @@ require stack.f
 			sp-2@ execute				( ch xt c-addr u -- ch xt )
 			r> 							( ch xt -- ch xt more? )
 		while
+			\ -14 interpreting a compile-only word
 			refill 0= #-14 and throw
 		repeat
 		2drop							( ch xt -- )

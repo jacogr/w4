@@ -36,6 +36,8 @@ require is.f
 		over dup					( count f1 -- count f1 count count )
 		1- and 0=					( count f1 count count -- count f1 f2 )		\ f2 = (count - 1) & count
 		and							( count f1 f2 -- count f ) 					\ f = f1 & f2
+
+		\ -49 search-order overflow
 		0= #-49 and throw			( count f -- count ) 						\ throw if not power of 2 & big enough
 
 		\ allocate list (aligned) & buckets
@@ -67,6 +69,8 @@ require is.f
 		over (lst>flags@)		( list xt -- list xt flags )
 		(flg-list) and			( list xt flags -- list xt f1 )	\ f1 = flg-list & flags
 		(flg-list) = 			( list xt f1 -- list xt f2 )	\ f2 = f1 == flg-list
+
+		\ -50 search-order underflow
 		0= #-50 and throw		\ ensure list
 
 		\ new nt, set xt as nt value
@@ -214,6 +218,7 @@ require is.f
 \ the string + length, calculating a lowercase hash
 
 	: (lookup-search) ( c-addr u wid -- nt|0 )
+		\ -18 parsed string overflow
 		over string-max > #-18 and throw
 
 		-rot						( src u wid -- wid src u )

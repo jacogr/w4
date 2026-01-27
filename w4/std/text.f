@@ -28,7 +28,10 @@ require string.f
 
 	: CHAR ( "<spaces>name" -- char )
 		parse-name			( -- c-addr u )   	   \ parse the name/next
+
+		\ -12	argument type mismatch
 		0= #-12 and throw	( c-addr u -- c-addr )
+
 		c@					( c-addr -- char )  \ retrieve the first char
 	;
 

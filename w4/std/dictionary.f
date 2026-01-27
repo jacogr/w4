@@ -42,7 +42,10 @@ require text.f
 
 	: MARKER ( <spaces>name" -- )
 		parse-name				( -- c-addr u )
+
+		\ -16 attempt to use zero-length string as a name
 		dup 0= #-16 and throw
+
 		build,					\ definition for "name"
 		(latest-nt) lit,		\ compile marker nt to body
 		postpone (marker)		\ execute (marker) ( nt -- )

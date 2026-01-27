@@ -107,7 +107,10 @@
 	: (here!)	( a-addr -- )
 		dup (here-max) - 	\ subtract from maxiumum memory position
 		$80000000 and 0=	\ signed bit should not be set
+
+		\ -23 address alignment exception
 		#-23 and throw 		\ if negative, throw error
+
 		(here^) !			\ update address, underlying here pointer
 	;
 
@@ -200,7 +203,10 @@
 
 	: CREATE
 		parse-name
+
+		\ -16 attempt to use zero-length string as a name
 		dup 0= #-16 and throw
+
 		(create)
 	;
 

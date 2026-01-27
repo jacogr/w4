@@ -143,7 +143,10 @@
 
 	: ( \ ( -- )
 		')' parse-token		\ ( -- c-addr u )
+
+		\ -14 interpreting a compile-only word
 		0= #-14 and throw	\ ( c-addr u -- c-addr )
+
 		drop 				\ ( c-addr -- )
 	; immediate
 

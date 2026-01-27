@@ -9,7 +9,10 @@ require ../std/text.f
 
 	: :UNIMPLEMENTED
 		parse-name							( -- c-addr u )
+
+		\ -16 attempt to use zero-length string as a name
 		dup 0= #-16 and throw
+
 		2dup								( c-addr u -- c-addr u c-addr u )
 		build,								( c-addr u c-addr u -- c-addr u )
 		s" [TODO: not implemented]: "		( c-addr u -- c-addr u c-addr u )

@@ -125,8 +125,10 @@ require stack.f
 	: UM/MOD  ( lo hi u -- rem quot )
 		1 swap 					( lo hi u -- lo hi 1 u )
 		um*/mod 				( lo hi 1 u -- rem qlo qhi )
-		\ enforce standard um/mod quotient range: qhi must be 0
+
+		\ enforce standard um/mod quotient range: qhi must be 0, -11 result out of range
 		dup 0<> #-11 and throw 	( rem qlo qhi -- rem qlo qhi )  \ throw if qhi != 0
+
 		drop 					( rem qlo qhi -- rem qlo )
 	;
 
@@ -154,6 +156,8 @@ require stack.f
 		>r						( rem qlo qhi -- rem qlo ) ( r: -- qhi )
 		dup 0<					( rem qlo -- req qlo signq )
 		r>						( rem qlo signq -- rem qlo signq qhi )
+
+		\ -11 result out of range
 		<> #-11 and throw    	( rem qlo signq qhi -- rem qlo )
 	;
 
@@ -196,7 +200,10 @@ require stack.f
 \ double-precision signed integer.
 
 	: M*/  ( lo hi n1 +n2 -- lo' hi' )
+		\ -10 division by zero
 		dup 0= #-10 and throw
+
+		\ -11 result out of range
 		dup 0< #-11 and throw
 
 		m*/mod				( lo hi n1 +n2 -- rem qlo qhi )
