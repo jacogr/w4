@@ -97,3 +97,21 @@ require string.utils.f
 \ Does nothing. [THEN] is an immediate word.
 
 	: [THEN] ( -- ) ; immediate
+
+\ https://forth-standard.org/standard/tools/BracketDEFINED
+\
+\ Skip leading space delimiters. Parse name delimited by a space. Return a
+\ true flag if name is the name of a word that can be found (according to
+\ the rules in the system's FIND); otherwise return a false flag. [DEFINED]
+\ is an immediate word.
+
+	: [DEFINED] parse-name find-name 0<> ; immediate
+
+\ https://forth-standard.org/standard/tools/BracketUNDEFINED
+\
+\ Skip leading space delimiters. Parse name delimited by a space. Return a
+\ false flag if name is the name of a word that can be found (according to
+\ the rules in the system's FIND); otherwise return a true flag. [UNDEFINED]
+\ is an immediate word.
+
+	: [UNDEFINED] parse-name find-name 0= ; immediate
