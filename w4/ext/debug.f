@@ -176,7 +176,7 @@ require is.f
 
 		begin
 			\ show nt?
-			dup (words-nt-shown?) if			( nt -- nt )
+			dup (words-nt-shown?) if		( nt -- nt )
 
 				\ increment count
 				1 (words-count) +!
@@ -185,11 +185,11 @@ require is.f
 				dup (nt>value@)				( nt -- nt xt )
 
 				\ display name
-				dup >str+len type				( nt xt -- nt xt )
+				dup >str+len type			( nt xt -- nt xt )
 
 				\ show immediate?
-				(xt>flags@)						( nt xt -- nt flags )
-				(flg-is-imm) is-flag? if		( nt flags -- nt )
+				(xt>flags@)					( nt xt -- nt flags )
+				(flg-is-imm) is-flag? if	( nt flags -- nt )
 					(see-text-imm.)
 				then
 
@@ -197,10 +197,10 @@ require is.f
 			then
 
 			\ check next for zero
-			(nt>next@) dup 0=					( nt -- nt' f )
+			(nt>next@) dup 0=				( nt -- nt' f )
 		until
 
-		drop									( nt -- )
+		drop								( nt -- )
 
 		decimal
 		cr cr ." words: "
