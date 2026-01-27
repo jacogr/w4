@@ -19,15 +19,15 @@ require string.utils.f
 \ https://forth-standard.org/standard/usage#usage:env
 
 	: ENVIRONMENT? ( c-addr u -- false | <value> true )
-		2dup s" #LOCALS"            streq-ni 0= if 2drop (env-locals#) true exit then
+		2dup s" #LOCALS"            streq-ni if 2drop (env-locals#) true exit then
 
-		2dup s" /COUNTED-STRING"    streq-ni 0= if 2drop string-max true exit then
-		2dup s" /HOLD"              streq-ni 0= if 2drop (env-holdsize#) true exit then
-		2dup s" /PAD"               streq-ni 0= if 2drop (env-padsize#) true exit then
+		2dup s" /COUNTED-STRING"    streq-ni if 2drop string-max true exit then
+		2dup s" /HOLD"              streq-ni if 2drop (env-holdsize#) true exit then
+		2dup s" /PAD"               streq-ni if 2drop (env-padsize#) true exit then
 
-		2dup s" RETURN-STACK-CELLS" streq-ni 0= if 2drop (env-stackmax#) true exit then
-		2dup s" STACK-CELLS"        streq-ni 0= if 2drop (env-stackmax#) true exit then
-		2dup s" WORDLISTS"          streq-ni 0= if 2drop (env-wordlists-max#) true exit then
+		2dup s" RETURN-STACK-CELLS" streq-ni if 2drop (env-stackmax#) true exit then
+		2dup s" STACK-CELLS"        streq-ni if 2drop (env-stackmax#) true exit then
+		2dup s" WORDLISTS"          streq-ni if 2drop (env-wordlists-max#) true exit then
 
 		\ not found
 		2drop false		( c-addr u -- false )
@@ -43,13 +43,13 @@ require string.utils.f
 	: [ELSE] ( -- )
 		1 begin										\ level
 			begin parse-name dup while				\ level adr len
-				2dup S" [IF]" streq-ni 0= if		\ level adr len
+				2dup S" [IF]" streq-ni if			\ level adr len
 					2drop 1+						\ level'
 				else								\ level adr len
-					2dup S" [ELSE]" streq-ni 0= if	\ level adr len
+					2dup S" [ELSE]" streq-ni if		\ level adr len
 						2drop 1- dup if 1+ then		\ level'
 					else							\ level adr len
-						S" [THEN]" streq-ni 0= if	\ level
+						S" [THEN]" streq-ni if		\ level
 						1-							\ level'
 					then
 				then
