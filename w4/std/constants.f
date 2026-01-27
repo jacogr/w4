@@ -244,11 +244,6 @@ require constants.structs.f
 
 	$0134 (mmio:) BASE
 
-\ pointers for the return & control stacks (the data stack has already been
-\ defined in the preamble)
-
-	$0144 (mmio@) (rs^)
-
 \ https://forth-standard.org/standard/search/FORTH-WORDLIST
 \
 \ Return wid, the identifier of the word list that includes all standard words

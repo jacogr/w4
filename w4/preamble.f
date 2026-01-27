@@ -2,6 +2,8 @@
 	: CELLS $2 lshift ;
 
 	: (ds^) $0140 @ ;
+	: (rs^) $0144 @ ;
+
 	: DEPTH (ds^) @ ;
 	: SP@ depth cells (ds^) + ;
 	: DUP sp@ @ ;
