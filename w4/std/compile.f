@@ -101,8 +101,8 @@ require stack.f
 	: POSTPONE  ( "name" -- )
 		?parse-name ?find-name		( "name" -- nt )
 
-		\ -48 invalid POSTPONE
-		state @ 0= #-48 and throw	\ only allowed in compilation state
+		\ only allowed in compilation, -48 invalid POSTPONE
+		state @ 0= #-48 and throw
 
 		name>compile				( nt -- xt action-xt )
 		swap lit,					( xt action-xt -- xt )

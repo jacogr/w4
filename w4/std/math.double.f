@@ -152,6 +152,7 @@ require stack.f
 
 	: SM/REM  ( lo hi n -- rem quot )
 		1 swap m*/mod			( lo hi n -- rem qlo qhi )
+
 		\ range check: qhi must equal sign-extension of qlo
 		>r						( rem qlo qhi -- rem qlo ) ( r: -- qhi )
 		dup 0<					( rem qlo -- req qlo signq )
@@ -236,10 +237,10 @@ require stack.f
 \ leaving the most-significant bit unchanged.
 
 	: ARSHIFT1 ( n -- n' )
-		dup 0< 			\ n flag
-		msb 0 select 	\ n mask
-		swap 1 rshift 	\ mask n>>1
-		or
+		dup 0< msb 0	( n -- n flag msb 0 )
+		select 			( flag msb 0 -- n mask )
+		swap 1 rshift 	( n mask -- mask n>>1 )
+		or				( mask n -- n' )
 	;
 
 	: D2/ ( lo hi -- lo' hi' )

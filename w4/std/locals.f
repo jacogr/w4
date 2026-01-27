@@ -161,7 +161,7 @@ require string.utils.f
 	;
 
 	: (local-define-locals) ( c-addr1 u1 ... c-addrn un n -- )
-		\ ensure we can handle this number, -8 dictionary overflow
+		\ ensure we can handle this count, -8 dictionary overflow
 		dup (env-locals#) > #-8 and throw
 
 		\ add all locals
