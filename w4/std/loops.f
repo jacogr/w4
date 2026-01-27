@@ -72,6 +72,10 @@ require stack.f
 		(resolve)
 	; immediate
 
+\ Non-standard, widely known alias for THEN (e.g. gforth, vfx)
+
+	: ENDIF ( c: orig -- ) postpone then ; immediate
+
 \ https://forth-standard.org/standard/core/ELSE
 \
 \ Put the location of a new unresolved forward reference orig2 onto the
