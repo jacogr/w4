@@ -35,10 +35,7 @@ S" forth2012-test-suite/src/coreexttest.fth" INCLUDED
 
 S" forth2012-test-suite/src/doubletest.fth" INCLUDED
 \ TODO S" forth2012-test-suite/src/exceptiontest.fth" INCLUDED
-
-\ There are no environmental constraints, so this could very well be
-\ a very useful addition for structs as found in other languages.
-\ UNKNOWN S" forth2012-test-suite/src/facilitytest.fth" INCLUDED
+S" forth2012-test-suite/src/facilitytest.fth" INCLUDED
 
 \ TODO S" forth2012-test-suite/src/filetest.fth" INCLUDED
 S" forth2012-test-suite/src/localstest.fth" INCLUDED

@@ -77,6 +77,7 @@ require std/stack.ptr.f
 require std/stdio.f
 require std/string.f
 require std/string.utils.f
+require std/structs.f
 require std/test.f
 require std/text.f
 require std/value.f
