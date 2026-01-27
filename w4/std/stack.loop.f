@@ -1,3 +1,4 @@
+require compile.f
 require loops.f
 require stack.f
 

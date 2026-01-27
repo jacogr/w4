@@ -1,3 +1,4 @@
+require constants.f
 require logic.f
 
 \ Returns the address of a specific stack pointer entry offset
