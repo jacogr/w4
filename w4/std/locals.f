@@ -67,10 +67,8 @@ require string.utils.f
 		postpone locals-enter		( n -- n )
 
 		dup 0 ?do
-			dup 1- i -				( n -- n i ) \ idx = n-1-i
-
-			\ compile `i (to-local)`, value expected on stack
-			lit,
+			\ compile `i (to-local)`, value expected at runtime
+			i lit,
 			postpone (to-local)
 		loop
 
@@ -89,36 +87,29 @@ require string.utils.f
 \ to create a set of named local identifiers, each of which is a definition
 \ name, that only have execution semantics within the scope of that definition's
 \ source.
-\
-\ (LOCAL) as required by the standard protocol used by {: ... :}
-\ During compilation:
-\   ( c-addr u ) with u<>0 : declare a local identifier (name) with next index
-\   ( c-addr 0 )          : "last local" -> emit prologue and keep locals active
-\ Cleanup must happen at ';' (hook (locals-wid) reset there).
 
-	variable (locals-done#)				\ number of locals done in current definition
-	variable (locals-count#)			\ total number of locals being defined
+	variable (locals#)					\ number of locals done in current definition
 
 	: (LOCAL) ( c-addr u -- )
 		?dup if							( c-addr u -- c-addr u )
 			\ no wordlist?
 			(locals-wid) 0= if			( c-addr u -- c-addr u )
 				(new-lookup-tiny) (locals-wid!)
-				1 (locals-done#) !
-			else
-				1 (locals-done#) +!
+
+				\ clear count
+				0 (locals#) !
 			then
 
-			\ calculate index & define
-			(locals-count#) @			( c-addr u -- c-addr u max-1 )
-			(locals-done#) @ -			( c-addr u max-1 -- c-addr u actual )
+			\ define with index
+			(locals#) @
 			(local-define)				( c-addr u i -- )
+			1 (locals#) +!
 		else							( c-addr -- c-addr )
 			drop						( c-addr -- )
 
 			\ locals started?
 			(locals-wid) 0<> if			( -- )
-				(locals-count#) @		( -- n )
+				(locals#) @		( -- n )
 				(locals-compile-prologue)
 			then
 		then
@@ -173,18 +164,16 @@ require string.utils.f
 		\ ensure we can handle this number, -8	dictionary overflow
 		dup (env-locals#) > #-8 and throw
 
-		\ store the count for index in (local)
-		dup (locals-count#) !
-
 		\ add all locals
 		0 ?do (local) loop
 		0 0 (local)
-
-		\ reset
-		0 (locals-count#) !
 	;
 
 	: {: ( -- )
+		\ new index for this occurence (allows for nested, eg. does>)
+		0 (locals#) !
+
+		\ parse & define
 		0 parse-name				( -- 0 c-addr u )
 		(local-scan-args) (local-scan-locals) (local-scan-end)
 		2drop (local-define-locals)
@@ -223,7 +212,11 @@ require string.utils.f
 			0 (locals-wid!)
 
 			\ compile locals restore
-			\ TODO Change to `exit` when the above goes in
+			\
+			\ TODO
+			\   - Change to `exit` when the above `exit` goes in
+			\ 	- Wasm runtime always compiles `original` exit, so
+			\	  below cannot be `exit` until it applies latest
 			postpone locals-exit
 		then
 

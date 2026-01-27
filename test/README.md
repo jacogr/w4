@@ -2,6 +2,7 @@
 
 | date | result | source |
 |--|--|--|
+| Mon 27 Jan 2026 | passes locals tests | [localstest.fth](forth2012-test-suite/src/localstest.fth) |
 | Sat 24 Jan 2026 | passes search tests | [searchordertest.fth](forth2012-test-suite/src/searchordertest.fth) |
 | Fri 23 Jan 2026 | passes string tests | [stringtest.fth](forth2012-test-suite/src/stringtest.fth) |
 | Mon 19 Jan 2026 | passes double tests | [doubletest.fth](forth2012-test-suite/src/doubletest.fth) |
