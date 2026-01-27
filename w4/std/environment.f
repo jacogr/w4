@@ -15,23 +15,22 @@ require string.utils.f
 \ otherwise, the flag is true and the i * x returned is of the type specified
 \ in the table for the attribute queried.
 \
-\ currently there are no environment flags specifed, so
-\ any query will return false by default (with stack removal)
-\
-\ TODO There are certainly useful and supported values, see
+\ There are certainly useful and supported values, see
 \ https://forth-standard.org/standard/usage#usage:env
 
-	: ENVIRONMENT? ( c-addr u -- f )
-		2dup s" #LOCALS" streq-ni 0= if 2drop (env-locals#) true exit then
+	: ENVIRONMENT? ( c-addr u -- false | <value> true )
+		2dup s" #LOCALS"            streq-ni 0= if 2drop (env-locals#) true exit then
+
+		2dup s" /COUNTED-STRING"    streq-ni 0= if 2drop string-max true exit then
+		2dup s" /HOLD"              streq-ni 0= if 2drop (env-holdsize#) true exit then
+		2dup s" /PAD"               streq-ni 0= if 2drop (env-padsize#) true exit then
+
 		2dup s" RETURN-STACK-CELLS" streq-ni 0= if 2drop (env-stackmax#) true exit then
-		2dup s" STACK-CELLS" streq-ni 0= if 2drop (env-stackmax#) true exit then
-		2dup s" WORDLISTS" streq-ni 0= if 2drop (env-wordlists-max#) true exit then
+		2dup s" STACK-CELLS"        streq-ni 0= if 2drop (env-stackmax#) true exit then
+		2dup s" WORDLISTS"          streq-ni 0= if 2drop (env-wordlists-max#) true exit then
 
-		2dup s" /COUNTED-STRING" if 2drop string-max true exit then
-		2dup s" /HOLD" if 2drop (env-holdsize#) true exit then
-		2dup s" /PAD" if 2drop (env-padsize#) true exit then
-
-		2drop 0				\ default, return false
+		\ not found
+		2drop false		( c-addr u -- false )
 	;
 
 \ https://forth-standard.org/standard/tools/BracketELSE
@@ -42,21 +41,22 @@ require string.utils.f
 \ the parse area becomes exhausted, it is refilled as with REFILL.
 
 	: [ELSE] ( -- )
-		1 begin                                          \ level
-			begin parse-name dup while                  \ level adr len
-				2dup S" [IF]" streq-ni 0= if                  \ level adr len
-					2drop 1+                                 \ level'
-				else                                        \ level adr len
-					2dup S" [ELSE]" streq-ni 0= if             \ level adr len
-						2drop 1- dup if 1+ then               \ level'
-					else                                      \ level adr len
-						S" [THEN]" streq-ni 0= if              \ level
-						1-                                 \ level'
+		1 begin										\ level
+			begin parse-name dup while				\ level adr len
+				2dup S" [IF]" streq-ni 0= if		\ level adr len
+					2drop 1+						\ level'
+				else								\ level adr len
+					2dup S" [ELSE]" streq-ni 0= if	\ level adr len
+						2drop 1- dup if 1+ then		\ level'
+					else							\ level adr len
+						S" [THEN]" streq-ni 0= if	\ level
+						1-							\ level'
 					then
 				then
-			then ?dup 0= if exit then                   \ level'
-		repeat 2drop refill 0= until                                   \ level
-		drop
+			then ?dup 0= if exit then				\ level'
+		repeat 2drop refill 0= until				\ level
+
+		drop										( n -- )
 	; immediate
 
 	\ Interesting implementation using wordlists
@@ -89,7 +89,7 @@ require string.utils.f
 \ or [THEN] is parsed.
 
 	: [IF] ( flag -- )
-		0= if postpone [ELSE] then
+		0= if postpone [else] then
 	; immediate
 
 \ https://forth-standard.org/standard/tools/BracketTHEN
