@@ -4,6 +4,9 @@ require loops.f
 require stack.f
 require text.f
 
+\ TODO See if we should include this is `search.f` which deals
+\ with all things related to wordlists (and maybe rename it as well)
+
 \ https://forth-standard.org/standard/core/MARKER
 \
 \ Skip leading space delimiters. Parse name delimited by a space. Create a
