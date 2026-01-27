@@ -16,9 +16,9 @@ require stack.f
 \ (mark) returns the address of the last compiled literal cell (the one to patch).
 
 	: (mark) ( c: -- orig )
-		-1 lit,						\ placeholder
-		(latest>prev^) 				\ get placeholder address
-		>cs							( c: -- orig )
+		-1 lit,			\ placeholder
+		(latest>prev^) 	\ get placeholder address
+		>cs				( c: -- orig )
 	;
 
 \ (resolve) patches the literal cell created via (mark) to the current fallthrough address
@@ -26,7 +26,7 @@ require stack.f
 
 	: (resolve-inner) ( orig -- )
 		(nt>value@) >value		( orig -- a-addr )
-		(latest>tail^) swap !		\ write tail location
+		(latest>tail^) swap !	\ write tail location
 	;
 
 	: (resolve) ( c: orig -- ) cs> (resolve-inner) ;
@@ -273,9 +273,9 @@ require stack.f
 \ following the loop. Otherwise continue execution at the beginning of the loop.
 
 	: (loop) ( -- done? ) ( r: exit-dst u i ret )
-		r-1@ 1+ dup			( -- i+1 1+1 ) ( r: exit-dst u i ret )
-		r-1!				( i+1 i+1 -- ) ( r: exit-dst u i ret -- exit-dst u i+1 ret )
-		r-2@ =				( i+1 -- done? ) \ i == u
+		r-1@ 1+ dup		( -- i+1 1+1 ) ( r: exit-dst u i ret )
+		r-1!			( i+1 i+1 -- ) ( r: exit-dst u i ret -- exit-dst u i+1 ret )
+		r-2@ =			( i+1 -- done? ) \ i == u
 	;
 
 	: LOOP ( c: dest -- )
@@ -388,10 +388,12 @@ require stack.f
 
 	: ENDCASE ( c: 0 | orig... -- )
 		postpone drop			\ no match path: drop sel
+
 		begin
 			cs> dup
 		while
 			(resolve-inner)		\ resolve each pending ELSE
 		repeat
+
 		drop
 	; immediate
