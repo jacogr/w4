@@ -68,21 +68,25 @@ require constants.structs.f
 \ Swap a dictionary entry from "hidden" to "available to lookups" by
 \ flipping the visible flag on the token
 
-	: REVEAL ( -- )
-		latest >flags	( -- flags-addr )
-		dup @			( flags-addr -- flags-addr flags )
-		$1 or			( flags-addr flags -- flags-addr flags' )
-		swap !			( flags-addr flags' -- )
+	: (reveal) ( xt -- )
+		>flags		( -- flags-addr )
+		dup @		( flags-addr -- flags-addr flags )
+		$1 or		( flags-addr flags -- flags-addr flags' )
+		swap !		( flags-addr flags' -- )
 	;
+
+	: REVEAL ( -- ) latest (reveal) ;
 
 \ Reverse of REVEAL, hides a dictionary entry
 
-	: HIDE ( -- )
-		latest >flags	( -- flags-addr )
-		dup @			( flags-addr -- flags-addr flags )
-		$fffffffe and	( flags-addr flags -- flags-addr flags' )
-		swap !			( flags-addr flags' -- )
+	: (hide) ( xt -- )
+		>flags		( xt -- flags-addr )
+		dup @		( flags-addr -- flags-addr flags )
+		$-2 and		( flags-addr flags -- flags-addr flags' )
+		swap !		( flags-addr flags' -- )
 	;
+
+	: HIDE ( -- ) latest (hide) ;
 
 \ https://forth-standard.org/standard/core/CREATE
 \
