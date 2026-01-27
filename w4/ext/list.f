@@ -140,13 +140,13 @@ require is.f
 			2>r r@						( cb nt -- nt ) ( r: -- cb nt )
 
 			\ get xt & flags
-			(nt>value@)					( nt -- xt )
-			dup (xt>flags@)				( xt -- xt flags )
+			dup (nt>value@)				( nt -- nt xt )
+			(xt>flags@)					( nt xt -- nt flags )
 
 			\ visible?
-			(flg-is-vis) is-flag? if	( xt flags -- xt )
-				r-1@ execute			( xt -- f ) ( r: cb nt )
-			else drop true then			( xt -- f )
+			(flg-is-vis) is-flag? if	( nt flags -- nt )
+				r-1@ execute			( nt -- f ) ( r: cb nt )
+			else drop true then			( nt -- f )
 
 			\ restore from stack
 			2r>							( f -- f cb nt ) ( r: cb nt -- )
