@@ -8,18 +8,24 @@ NODE      = node
 
 # paths
 
-WAT_DIR   = wat
-BUILD     = build
+BUILD        = build
+FTH_DIR      = w4
+WAT_DIR      = wat
+TEST_DIR     = test
 
-ENTRY_WAT = $(WAT_DIR)/main.wat
-GEN_WAT   = $(BUILD)/w4.wat
-SRC_WATS  := $(shell find $(WAT_DIR) -type f -name '*.wat' -print)
+FTH_ENTRY    = $(FTH_DIR)/w4.f
+FTH_GEN      = $(BUILD)/w4.f
+FTH_SRC     := $(shell find $(FTH_DIR) -type f -name '*.f' -print)
 
-WASM      = $(BUILD)/w4.wasm
-WASMOPTED = $(BUILD)/w4-opt.wasm
+WAT_ENTRY    = $(WAT_DIR)/main.wat
+WAT_GEN      = $(BUILD)/w4.wat
+WAT_SRC     := $(shell find $(WAT_DIR) -type f -name '*.wat' -print)
 
-TESTS_STD = test/forth2012-test-suite.f
-TESTS_W4  = test/w4.f
+WASM_GEN     = $(BUILD)/w4.wasm
+WASM_GEN_OPT = $(BUILD)/w4-opt.wasm
+
+TEST_STD     = $(TEST_DIR)/forth2012-test-suite.f
+TEST_W4      = $(TEST_DIR)/w4.f
 
 
 # flags
@@ -27,10 +33,10 @@ TESTS_W4  = test/w4.f
 DEBUG ?= 0
 
 ifeq ($(DEBUG),1)
-M4_FLAGS      = -P -I$(WAT_DIR) -DDEBUG
+M4_FLAGS      = -P -DDEBUG
 WASMOPT_FLAGS = -O0 --enable-multivalue --enable-bulk-memory-opt
 else
-M4_FLAGS      = -P -I$(WAT_DIR) -DRELEASE
+M4_FLAGS      = -P -DRELEASE
 WASMOPT_FLAGS = -O4 --enable-multivalue --enable-bulk-memory-opt --converge
 endif
 
@@ -40,21 +46,25 @@ NODE_FLAGS = --disable-warning=ExperimentalWarning
 # targets
 
 .PHONY: all run clean check
-all: $(WASMOPTED)
+all: $(FTH_GEN) $(WASM_GEN_OPT)
 
 $(BUILD):
 	mkdir -p $(BUILD)
 
-# m4 expand
-$(GEN_WAT): $(SRC_WATS) | $(BUILD)
-	$(M4) $(M4_FLAGS) $(ENTRY_WAT) > $@
+# forth m4 expand
+$(FTH_GEN): $(FTH_SRC) | $(BUILD)
+	$(M4) $(M4_FLAGS) -I$(FTH_DIR) $(FTH_ENTRY) > $@
+
+# wat m4 expand
+$(WAT_GEN): $(WAT_SRC) | $(BUILD)
+	$(M4) $(M4_FLAGS) -I$(WAT_DIR) $(WAT_ENTRY) > $@
 
 # wat -> wasm
-$(WASM): $(GEN_WAT)
+$(WASM_GEN): $(WAT_GEN)
 	$(WAT2WASM) $< -o $@
 
 # optimize
-$(WASMOPTED): $(WASM)
+$(WASM_GEN_OPT): $(WASM_GEN)
 	$(WASMOPT) $(WASMOPT_FLAGS) $< -o $@
 
 # cleanup build
@@ -62,6 +72,6 @@ clean:
 	rm -rf $(BUILD)
 
 # run tests
-check: $(WASMOPTED) $(TESTS_STD)
-	$(NODE) $(NODE_FLAGS) w4.js $(TESTS_W4)
-	$(NODE) $(NODE_FLAGS) w4.js $(TESTS_STD) <test/forth2012-test-input.txt
+check: $(FTH_GEN) $(WASM_GEN_OPT) $(TEST_STD)
+	$(NODE) $(NODE_FLAGS) w4.js $(TEST_W4)
+	$(NODE) $(NODE_FLAGS) w4.js $(TEST_STD) <test/forth2012-test-input.txt
