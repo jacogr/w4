@@ -2,9 +2,6 @@
 	#32 parse-token ] build, 1 $0130 ! 1 $0130 ! ;
 	#32 parse-token : build, ] #32 parse-token build, ] ;
 
-	: PARSE-NAME #32 parse-token ;
-	: REQUIRE parse-name required ;
-
 m4_include(`preclude.m4')
 m4_require(`preamble.f')
 
@@ -38,24 +35,6 @@ m4_require(`preamble.f')
 \		]							\ switch to compile
 \		build, #32 parse-token ] 	\ apply "build, parse-name ]" to children
 \	;
-
-\ https://forth-standard.org/standard/core/PARSE-NAME
-\
-\ Skip leading space delimiters. Parse name delimited by a space.
-\
-\ c-addr is the address of the selected string within the input buffer and
-\ u is its length in characters. If the parse area is empty or contains only
-\ white space, the resulting string has length zero.
-\
-\	: PARSE-NAME ( -- c-addr u ) #32 parse-token ;
-
-\ https://forth-standard.org/standard/file/REQUIRE
-\
-\ Skip leading white space and parse name delimited by a white space
-\ character. Push the address and length of the name on the stack and
-\ perform the function of REQUIRED.
-\
-\ 	: REQUIRE ( i * x "name" -- j * x ) parse-name required ;
 
 m4_require(`std/constants.f')
 m4_require(`std/compile.f')

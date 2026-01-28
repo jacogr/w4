@@ -88,6 +88,16 @@ m4_require(`std/constants.structs.f')
 
 	: HIDE ( -- ) latest (hide) ;
 
+\ https://forth-standard.org/standard/core/PARSE-NAME
+\
+\ Skip leading space delimiters. Parse name delimited by a space.
+\
+\ c-addr is the address of the selected string within the input buffer and
+\ u is its length in characters. If the parse area is empty or contains only
+\ white space, the resulting string has length zero.
+
+	: PARSE-NAME ( -- c-addr u ) #32 parse-token ;
+
 \ https://forth-standard.org/standard/core/CREATE
 \
 \ Skip leading space delimiters. Parse name delimited by a space. Create a

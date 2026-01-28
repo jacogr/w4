@@ -1,3 +1,4 @@
+m4_require(`std/constants.f')
 m4_require(`std/stack.f')
 
 \ Non-standard, but well-known

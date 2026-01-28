@@ -1,4 +1,5 @@
 m4_require(`std/compile.f')
+m4_require(`std/constants.f')
 m4_require(`std/loops.f')
 m4_require(`std/memory.f')
 m4_require(`std/stack.f')
@@ -17,6 +18,14 @@ m4_require(`std/stack.f')
 \ perform the function of INCLUDED.
 
 	: INCLUDE ( i * x "name" -- j * x ) parse-name included	;
+
+\ https://forth-standard.org/standard/file/REQUIRE
+\
+\ Skip leading white space and parse name delimited by a white space
+\ character. Push the address and length of the name on the stack and
+\ perform the function of REQUIRED.
+
+ 	: REQUIRE ( i * x "name" -- j * x ) parse-name required ;
 
 \ https://forth-standard.org/standard/core/PARSE
 \
