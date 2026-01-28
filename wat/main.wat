@@ -62,9 +62,6 @@
 		(i32.store (global.get $PTR_WID_CURR) (call $__store (global.get $PTR_WID_ORIG) (call $__dict_init (i32.const 1024))))
 		(i32.store (i32.load (global.get $PTR_PTR_WID_LIST)) (i32.load (global.get $PTR_WID_CURR)))
 
-		;; list of includes
-		(i32.store (global.get $PTR_PTR_INCL) (call $__lookup_new (i32.const 256)))
-
 		;; allocate stacks, all with global pointers
 		(global.set $stack_dat (call $__store (global.get $PTR_PTR_STACK_DAT) (call $__stack_new)))
 		(global.set $stack_ret (call $__store (global.get $PTR_PTR_STACK_RET) (call $__stack_new)))
@@ -87,8 +84,8 @@
 			(br_if $exit
 				(i32.eqz (local.tee $len (call $__strlen_z (local.get $str)))))
 
-			;; require it
-			(call $__internal_required (local.get $str) (local.get $len))
+			;; include it
+			(call $__internal_included (local.get $str) (local.get $len))
 
 			;; move to next (taking \0 into account)
 			(local.set $str (i32.add (local.get $str) (i32.add (local.get $len) (i32.const 1))))

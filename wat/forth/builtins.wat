@@ -43,10 +43,9 @@
 		(; 20 ;) "execute"				"\00\00"
 		(; 21 ;) "compile,"				"\00\00"
 		(; 22 ;) "included"				"\00\00"
-		(; 23 ;) "required"				"\00\00"
-		(; 24 ;) "throw"				"\00\00"
-		(; 25 ;) "wasi::fd_write"		"\00\00"
-		(; 26 ;) "wasi::fd_read"		"\00\00"
+		(; 23 ;) "throw"				"\00\00"
+		(; 24 ;) "wasi::fd_write"		"\00\00"
+		(; 25 ;) "wasi::fd_read"		"\00\00"
 		(;  z ;)
 	)
 
@@ -330,15 +329,8 @@
 		(call $__internal_included (call $__stack_dat_2pop))
 	)
 
-	;; https://forth-standard.org/standard/file/REQUIRED
-	;; ( i * x c-add u -- j * x )
-	(elem (i32.const 23) $__forth_fn_required)
-	(func $__forth_fn_required (type $TypeForthFn)
-		(call $__internal_required (call $__stack_dat_2pop))
-	)
-
 	;; https://forth-standard.org/standard/exception/THROW
-	(elem (i32.const 24) $__forth_fn_throw)
+	(elem (i32.const 23) $__forth_fn_throw)
 	(func $__forth_fn_throw (type $TypeForthFn)
 		(local $err i32)
 
@@ -348,7 +340,7 @@
 	)
 
 	;; Expose wasmi function for writing to stdout/stderr
-	(elem (i32.const 25) $__forth_fn_wasi_fd_write)
+	(elem (i32.const 24) $__forth_fn_wasi_fd_write)
 	(func $__forth_fn_wasi_fd_write (type $TypeForthFn)
 		(local $iovs i32)
 		(local $iovs_len i32)
@@ -367,7 +359,7 @@
 	)
 
 	;; Expose wasmi for reading from stdin
-	(elem (i32.const 26) $__forth_fn_wasi_fd_read)
+	(elem (i32.const 25) $__forth_fn_wasi_fd_read)
 	(func $__forth_fn_wasi_fd_read (type $TypeForthFn)
 		(local $iovs i32)
 		(local $iovs_len i32)

@@ -238,10 +238,6 @@ m4_require(`std/constants.structs.f')
 
 	$0124 (mmio@) (exec^)
 
-\ include lookups
-
-	$0128 (mmio@) (incl^)
-
 \ https://forth-standard.org/standard/core/STATE
 \
 \ a-addr is the address of a cell containing the compilation-state flag.

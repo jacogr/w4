@@ -1,6 +1,7 @@
 m4_require(`std/loops.f')
 m4_require(`std/parse.f')
 m4_require(`std/stack.f')
+m4_require(`std/stack.loop.f')
 
 \ https://forth-standard.org/standard/core/BL
 \
@@ -49,6 +50,19 @@ m4_require(`std/stack.f')
 
 	: SLITERAL ( c-addr u -- ) string, ; immediate
 
+\ Non-standard, widely known, used in replaces. Store c-addr u as
+\ a counted string in the destination, truncate length to 255
+
+	: (place-result) ( c-addr u dst -- dst )
+		>r					( c-addr u dst -- c-addr u ) ( r: -- dst )
+		$ff and				( c-addr u -- c-addr u' )
+		dup r@ c!			( c-addr u' -- c-addr u' ) ( r: dst -- dst' )
+		r@ 1+ swap cmove 	\ copy u bytes
+		r>
+	;
+
+	: PLACE ( c-addr u dst -- ) (place-result) drop ;
+
 \ https://forth-standard.org/standard/string/DivSTRING
 \
 \ Adjust the character string at c-addr1 by n characters. The resulting
@@ -59,6 +73,17 @@ m4_require(`std/stack.f')
 		tuck - 		( c-addr u n -- c-addr n u' )
 		>r chars + 	( c-addr n u' -- c-addr' ) ( r: -- u' )
 		r> 			( c-addr' -- c-addr' u' ) ( r: u' -- )
+	;
+
+\ https://forth-standard.org/standard/core/COUNT
+\
+\ Return the character string specification for the counted string
+\ stored at c-addr1
+
+	: COUNT ( c-addr1 -- c-addr2 u )
+		dup c@ 		\ fetch count
+		swap 1+ 	\ point to first char
+		swap
 	;
 
 \ https://forth-standard.org/standard/string/MinusTRAILING

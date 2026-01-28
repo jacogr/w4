@@ -1,8 +1,10 @@
 m4_require(`std/constants.f')
 m4_require(`std/loops.f')
-m4_require(`std/search.f')
+m4_require(`std/string.f')
 m4_require(`std/string.utils.f')
 
+m4_require(`ext/hash.f')
+m4_require(`ext/list.f')
 m4_require(`ext/is.f')
 
 \ Helpers first encoutered here... move these elsewhere
@@ -103,7 +105,7 @@ m4_require(`ext/is.f')
 
 	: (to-subst-dst) ( c-addr u -- ) bounds ?do i c@ (add-subst-dst) $1 +loop ;
 
-	: (layout-subst-name) ( )
+	: (layout-subst-name) ( -- )
 		2dup (find-subst) ?dup if
 			2nip
 			count (to-subst-dst)

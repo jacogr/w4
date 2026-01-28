@@ -2,7 +2,9 @@ m4_require(`std/compile.f')
 m4_require(`std/constants.f')
 m4_require(`std/loops.f')
 m4_require(`std/memory.f')
+m4_require(`std/search.string.f')
 m4_require(`std/stack.f')
+m4_require(`std/string.f')
 
 m4_require(`ext/hash.f')
 m4_require(`ext/list.f')
@@ -13,6 +15,50 @@ m4_require(`ext/list.f')
 \ the input buffer.
 
 	: SOURCE (lniov^) >str+len ;
+
+\ https://forth-standard.org/standard/file/INCLUDED
+\
+\ Remove c-addr u from the stack. Save the current input source specification,
+\ including the current value of SOURCE-ID. Open the file specified by c-addr u,
+\ store the resulting fileid in SOURCE-ID, and make it the input source. Store
+\ zero in BLK. Other stack effects are due to the words included.
+\
+\ Repeat until end of file: read a line from the file, fill the input buffer
+\ from the contents of that line, set >IN to zero, and interpret.
+\
+\ Text interpretation begins at the start of the file.
+\
+\ When the end of the file is reached, close the file and restore the input source
+\ specification to its saved value.
+\
+\ An ambiguous condition exists if the named file can not be opened, if an I/O
+\ exception occurs reading the file, or if an I/O exception occurs while closing
+\ the file. When an ambiguous condition exists, the status (open or closed) of any
+\ files that were being interpreted is implementation-defined.
+\
+\ INCLUDED may allocate memory in data space before it starts interpreting the file.
+
+	(new-lookup-small) constant (included-wid)
+
+	: (is-not-included?) ( c-addr u -- f )
+		(included-wid) -rot		( c-addr u -- wid c-addr u )
+		2dup host::hash			( wid c-addr u -- wid c-addr u hash )
+		(lookup-find) 0=		( wid c-addr u hash -- f )
+	;
+
+	: (if-not-included-add) ( c-addr u -- c-addr u f )
+		\ add
+		2dup (is-not-included?) if		( c-addr u -- c-addr u f )
+			2dup (included-wid)			( c-addr u -- c-addr u c-addr u wid )
+			(lookup-string-append)		( c-addr u c-addr u wid -- c-addr u a-addr )
+			drop true					( c-addr u a-addr -- c-addr u  f)
+		else false then					( c-addr u -- c-addr u f )
+	;
+
+	: INCLUDED ( i * x c-addr u -- j * x )
+		(if-not-included-add) drop		( c-addr u -- c-addr u )
+		included						( c-addr u -- )
+	;
 
 \ https://forth-standard.org/standard/file/INCLUDE
 \
@@ -43,6 +89,9 @@ m4_require(`ext/list.f')
 \ ( i * x -- i * x ).
 
 	: REQUIRED ( i * x c-addr u -- i * x )
+		(if-not-included-add) if
+			included
+		else 2drop then
 	;
 
 \ https://forth-standard.org/standard/file/REQUIRE
@@ -132,19 +181,6 @@ m4_require(`ext/list.f')
 	the above functions are not doing what they are supposed to do.
 )
 
-\ Non-standard, widely known, used in replaces. Store c-addr u as
-\ a counted string in the destination, truncate length to 255
-
-	: (place-result) ( c-addr u dst -- dst )
-		>r					( c-addr u dst -- c-addr u ) ( r: -- dst )
-		$ff and				( c-addr u -- c-addr u' )
-		dup r@ c!			( c-addr u' -- c-addr u' ) ( r: dst -- dst' )
-		r@ 1+ swap cmove 	\ copy u bytes
-		r>
-	;
-
-	: PLACE ( c-addr u dst -- ) (place-result) drop ;
-
 \ https://forth-standard.org/standard/core/WORD
 \
 \ Skip leading delimiters. Parse characters ccc delimited by char. An
@@ -174,17 +210,6 @@ m4_require(`ext/list.f')
 		parse					( ch -- c-addr u )
 		(word-tmp-buf)			( c-addr u -- c-addr u dst )
 		(place-result)			( c-addr u dst -- dst )
-	;
-
-\ https://forth-standard.org/standard/core/COUNT
-\
-\ Return the character string specification for the counted string
-\ stored at c-addr1
-
-	: COUNT ( c-addr1 -- c-addr2 u )
-		dup c@ 		\ fetch count
-		swap 1+ 	\ point to first char
-		swap
 	;
 
 \ https://forth-standard.org/standard/core/FIND

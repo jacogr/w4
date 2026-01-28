@@ -65,28 +65,12 @@
 	)
 
 	;;
-	;; Ensure that a file is only included once
-	;;
-	;; https://forth-standard.org/standard/file/REQUIRED
-	;;
-	(func $__internal_required (param $str i32) (param $len i32)
-		(call $__internal_included_inner (local.get $str) (local.get $len) (i32.const 1))
-	)
-
-	;;
 	;; Includes a file into the source, suspends/resumes buffer parsing
 	;; (Not in the standards docs, but widely used)
 	;;
 	;; https://forth-standard.org/standard/file/INCLUDED
 	;;
 	(func $__internal_included (export "evaluate_file") (param $str i32) (param $len i32)
-		(call $__internal_included_inner
-			(local.get $str)
-			(local.get $len)
-			(i32.const 0))
-	)
-
-	(func $__internal_included_inner (param $str i32) (param $len i32) (param $is_req i32)
 		(local $f i32)
 		(local $s i32)
 		(local $p i32)
@@ -125,38 +109,14 @@
 		;; create hash on adjusted values
 		(local.set $hash (call $__hash (local.get $str) (local.get $len)))
 
-		;; duplicate check?
-		(local.get $is_req) (if
-
-			;; check dupes
-			(then
-				;; included?
-				(call $__lookup_find
-					(call $__get_list_incl)
-					(local.get $str)
-					(local.get $len)
-					(local.get $hash)) (if
-
-					;; already included, return
-					(then return)
-
-					;; not included, continue
-					(else)))
-
-			;; no checking
-			(else))
-
-		;; add to the known includes (w/ non-transient string)
-		(call $__lookup_append
-			(call $__get_list_incl)
-			(local.get $hash)
-			(local.tee $f
-				(call $__val_new
-					(call $__strdup_n (local.get $str) (local.get $len))
-					(local.get $len)
-					(local.get $hash)
-					(local.tee $s (call $__alloc (global.get $SIZEOF_SRC)))
-					(global.get $FLG_VISIBLE))))
+		;; add the file
+		(local.set $f
+			(call $__val_new
+				(call $__strdup_n (local.get $str) (local.get $len))
+				(local.get $len)
+				(local.get $hash)
+				(local.tee $s (call $__alloc (global.get $SIZEOF_SRC)))
+				(global.get $FLG_VISIBLE)))
 
 		;; store base info
 		(call $__src_set_kind (local.get $s) (global.get $SRC_KIND_FIL))
