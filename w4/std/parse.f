@@ -41,21 +41,21 @@ m4_require(`ext/list.f')
 	(new-lookup-small) constant (included-wid)
 
 	: (if-not-included-add) ( c-addr u -- c-addr u f )
-		(included-wid) sp-2@ sp-2@	( c-addr u -- c-addr u wid c-addr u )
-		2dup host::hash				( c-addr u wid c-addr u -- c-addr u wid c-addr u hash )
-		(lookup-find)				( c-addr u wid c-addr u hash -- c-addr u a-addr )
+		(included-wid) sp-2@ sp-2@		( c-addr u -- c-addr u wid c-addr u )
+		2dup host::hash					( c-addr u wid c-addr u -- c-addr u wid c-addr u hash )
+		(lookup-find)					( c-addr u wid c-addr u hash -- c-addr u a-addr )
 
 		\ append if not found
 		0= if
-			2dup (included-wid)			( c-addr u -- c-addr u c-addr u wid )
-			(lookup-string-append)		( c-addr u c-addr u wid -- c-addr u a-addr )
-			drop true					( c-addr u a-addr -- c-addr u  f)
-		else false then					( c-addr u -- c-addr u f )
+			(included-wid)				( c-addr u -- c-addr u wid )
+			(lookup-string-append)		( c-addr u wid -- a-addr )
+			drop true					( a-addr -- c-addr u f )
+		else 2drop false then			( c-addr u -- f )
 	;
 
 	: INCLUDED ( i * x c-addr u -- j * x )
-		(if-not-included-add) drop		( c-addr u -- c-addr u )
-		included						( c-addr u -- )
+		2dup (if-not-included-add)		( c-addr u -- c-addr u f )
+		drop included					( c-addr u f -- )
 	;
 
 \ https://forth-standard.org/standard/file/INCLUDE
@@ -87,9 +87,9 @@ m4_require(`ext/list.f')
 \ ( i * x -- i * x ).
 
 	: REQUIRED ( i * x c-addr u -- i * x )
-		(if-not-included-add) if
-			included
-		else 2drop then
+		2dup (if-not-included-add) if	( c-addr u -- c-addr u )
+			included					( c-addr u -- )
+		else 2drop then					( c-addr u -- )
 	;
 
 \ https://forth-standard.org/standard/file/REQUIRE
