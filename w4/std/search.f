@@ -188,8 +188,8 @@ require ../ext/list.f
 \ given string, the values returned by FIND while compiling may differ from
 \ those returned while not compiling.
 \
-\ NOTE the `FIND` in parse.f already uses `find-name` internally which searches
-\ both the locals-wid and the wordlists. Until we get to untangle `find-name`,
+\ NOTE the FIND in parse.f already uses FIND-NAME internally which searches
+\ both the locals-wid and the wordlists. Until we get to untangle FIND-NAME,
 \ this doesn't actually add any new functionality.
 
 	: FIND ( c-addr -- c-addr 0 | xt 1 | xt -1 )

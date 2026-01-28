@@ -157,7 +157,7 @@ require stack.f
 
 \ https://forth-standard.org/standard/string/UNESCAPE
 \
-\ Replace each `%' character in the input string c-addr1 u1 by two `%'
+\ Replace each % character in the input string c-addr1 u1 by two %
 \ characters. The output is represented by c-addr2 u2. The buffer at
 \ c-addr2 shall be big enough to hold the unescaped string. An ambiguous
 \ condition occurs if the resulting string will not fit into the destination

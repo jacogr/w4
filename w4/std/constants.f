@@ -25,8 +25,8 @@ require constants.structs.f
 
 \ https://forth-standard.org/standard/core/ALLOT
 \
-\ NOTE: As mentioned a number of times below, `here` is not yet available,
-\ `$0100` is the pointer to pointer that would later (once we have constants)
+\ NOTE: As mentioned a number of times below, here is not yet available,
+\ $0100 is the pointer to pointer that would later (once we have constants)
 \ be known as here
 
 	: ALLOT ( n -- )
@@ -53,7 +53,7 @@ require constants.structs.f
 \ Non-standard but widely known words to create literals and compile it
 \ into the body of the latest definition
 \
-\ `$c0de0140` defined below as literal
+\ $c0de0140 defined below as literal
 
 	: (new-xt) ( n flags -- a-addr )
 		align here				( n flags -- n flags a-addr )

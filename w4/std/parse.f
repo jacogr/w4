@@ -161,7 +161,7 @@ require stack.f
 \ execution token xt. If the definition is immediate, also return one (1),
 \ otherwise also return minus-one (-1).
 \
-\ NOTE/TODO This actually has the same functionality as the `FIND` in `search.f`
+\ NOTE/TODO This actually has the same functionality as the FIND in search.f
 \ since the wasm find-name adds the locals & wordlists functionality. Need to
 \ untangle with a locally defined find-name that has all the functionality
 

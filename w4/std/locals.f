@@ -62,12 +62,12 @@ require string.utils.f
 \ Runtime stack already has exactly n init values
 
 	: (locals-compile-prologue) ( n -- )
-		\ compile `n locals-enter`
+		\ compile n locals-enter
 		dup lit,					( n -- n )
 		postpone locals-enter		( n -- n )
 
 		dup 0 ?do
-			\ compile `i (to-local)`, value expected at runtime
+			\ compile i (to-local), value expected at runtime
 			i lit,
 			postpone (to-local)
 		loop
@@ -214,9 +214,9 @@ require string.utils.f
 			\ compile locals restore
 			\
 			\ TODO
-			\   - Change to `exit` when the above `exit` goes in
-			\ 	- Wasm runtime always compiles `original` exit, so
-			\	  below cannot be `exit` until it applies latest
+			\   - Change to EXIT when the above EXIT goes in
+			\ 	- Wasm runtime always compiles original exit, so
+			\	  below cannot be EXIT until it applies latest
 			postpone locals-exit
 		then
 
