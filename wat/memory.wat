@@ -57,8 +57,8 @@
 	(global $PTR_DO_MARK_TEXT i32 (i32.const  980))
 	(global $PTR_DO_EXEC_TEXT i32 (i32.const  990)) ;; location of the jump string
 	(global $PTR_NATIVE_TEXT  i32 (i32.const 1000)) ;; location of the first native, "exit" (1000)
-	(global $PTR_EXCEP_CODE   i32 (i32.const 1232)) ;; exception lookup table
-	(global $PTR_EXCEP_TEXT   i32 (i32.const 1392)) ;; exception text, 1232 + 160
+	(global $PTR_EXCEP_CODE   i32 (i32.const 1264)) ;; exception lookup table
+	(global $PTR_EXCEP_TEXT   i32 (i32.const 1424)) ;; exception text, 1264 + 160
 
 	;;
 	;; Allocates a section of memory and returns the address

@@ -46,6 +46,8 @@
 		(; 23 ;) "throw"				"\00\00"
 		(; 24 ;) "wasi::fd_write"		"\00\00"
 		(; 25 ;) "wasi::fd_read"		"\00\00"
+		(; 26 ;) "wasi::fd_close"		"\00\00"
+		(; 27 ;) "wasi::path_open"		"\00\00"
 		(;  z ;)
 	)
 
@@ -339,7 +341,9 @@
 			(local.get $err))
 	)
 
-	;; Expose wasmi function for writing to stdout/stderr
+	;; Expose wasmi function for writing to file
+	;;
+	;; (fd:i32, iovs_ptr:i32, iovs_len:i32, nwritten_ptr:i32) -> errno:i32
 	(elem (i32.const 24) $__forth_fn_wasi_fd_write)
 	(func $__forth_fn_wasi_fd_write (type $TypeForthFn)
 		(local $iovs i32)
@@ -358,7 +362,9 @@
 				(local.get $n_ptr)))
 	)
 
-	;; Expose wasmi for reading from stdin
+	;; Expose wasmi for reading from file
+	;;
+	;; (fd:i32, iovs_ptr:i32, iovs_len:i32, nread_ptr:i32) -> errno:i32
 	(elem (i32.const 25) $__forth_fn_wasi_fd_read)
 	(func $__forth_fn_wasi_fd_read (type $TypeForthFn)
 		(local $iovs i32)
@@ -375,6 +381,61 @@
 				(local.get $iovs)
 				(local.get $iovs_len)
 				(local.get $n_ptr)))
+	)
+
+	;; Expose wasmi for closing a file
+	;;
+	;; (fd:i32) -> errno:i32
+	(elem (i32.const 26) $__forth_fn_wasi_fd_close)
+	(func $__forth_fn_wasi_fd_close (type $TypeForthFn)
+		(call $__stack_dat_push
+			(call $__wasi::fd_close
+				(call $__stack_dat_pop))) ;; fd
+	)
+
+	;; Expose wasmi for opening a path
+	;;
+	;; (dirfd:i32, dirflags:i32, path_ptr:i32, path_len:i32,
+	;;  oflags:i32, fs_rights_base:i64, fs_rights_inheriting:i64,
+	;;  fdflags:i32, opened_fd_ptr:i32) -> errno:i32
+	(elem (i32.const 27) $__forth_fn_wasi_path_open)
+	(func $__forth_fn_wasi_path_open (type $TypeForthFn)
+		(local $opened_fd_ptr i32)
+		(local $fdflags i32)
+		(local $fs_rights_inheriting i64)
+		(local $fs_rights_base i64)
+		(local $oflags i32)
+		(local $path_len i32)
+		(local $path_ptr i32)
+		(local $dirflags i32)
+
+		(local.set $opened_fd_ptr (call $__stack_dat_pop))
+		(local.set $fdflags (call $__stack_dat_pop))
+
+		;; NOTE we assume (based on the available flags) that we don't
+		;; need the high bit flags for usage in our envionement at this point.
+		;; This is certainly the case, we only want "simple" reads/writes, not
+		;; yet any more exotic stuff. In the future, we may need to change this
+		;; interface if the need arrises
+		(local.set $fs_rights_inheriting (i64.extend_i32_u (call $__stack_dat_pop)))
+		(local.set $fs_rights_base (i64.extend_i32_u (call $__stack_dat_pop)))
+
+		(local.set $oflags (call $__stack_dat_pop))
+		(local.set $path_len (call $__stack_dat_pop))
+		(local.set $path_ptr (call $__stack_dat_pop))
+		(local.set $dirflags (call $__stack_dat_pop))
+
+		(call $__stack_dat_push
+			(call $__wasi::path_open
+				(call $__stack_dat_pop) ;; dir_fd
+				(local.get $dirflags)
+				(local.get $path_ptr)
+				(local.get $path_len)
+				(local.get $oflags)
+				(local.get $fs_rights_base)
+				(local.get $fs_rights_inheriting)
+				(local.get $fdflags)
+				(local.get $opened_fd_ptr)))
 	)
 
 	;;
