@@ -40,15 +40,13 @@ m4_require(`ext/list.f')
 
 	(new-lookup-small) constant (included-wid)
 
-	: (is-not-included?) ( c-addr u -- f )
-		(included-wid) -rot		( c-addr u -- wid c-addr u )
-		2dup host::hash			( wid c-addr u -- wid c-addr u hash )
-		(lookup-find) 0=		( wid c-addr u hash -- f )
-	;
-
 	: (if-not-included-add) ( c-addr u -- c-addr u f )
-		\ add
-		2dup (is-not-included?) if		( c-addr u -- c-addr u f )
+		(included-wid) sp-2@ sp-2@	( c-addr u -- c-addr u wid c-addr u )
+		2dup host::hash				( c-addr u wid c-addr u -- c-addr u wid c-addr u hash )
+		(lookup-find)				( c-addr u wid c-addr u hash -- c-addr u a-addr )
+
+		\ append if not found
+		0= if
 			2dup (included-wid)			( c-addr u -- c-addr u c-addr u wid )
 			(lookup-string-append)		( c-addr u c-addr u wid -- c-addr u a-addr )
 			drop true					( c-addr u a-addr -- c-addr u  f)
