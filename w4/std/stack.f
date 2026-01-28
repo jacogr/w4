@@ -1,6 +1,6 @@
-require constants.f
-require logic.f
-require stack.ptr.f
+m4_require(`std/constants.f')
+m4_require(`std/logic.f')
+m4_require(`std/stack.ptr.f')
 
 \ https://forth-standard.org/standard/core/CELLPlus
 \

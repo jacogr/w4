@@ -1,11 +1,11 @@
-require ../std/constants.f
-require ../std/loops.f
-require ../std/stack.f
-require ../std/string.utils.f
-require ../std/text.f
+m4_require(`std/constants.f')
+m4_require(`std/loops.f')
+m4_require(`std/stack.f')
+m4_require(`std/string.utils.f')
+m4_require(`std/text.f')
 
-require hash.f
-require is.f
+m4_require(`ext/hash.f')
+m4_require(`ext/is.f')
 
 \ Non-standard, but needed for this environment. Create a new list.
 

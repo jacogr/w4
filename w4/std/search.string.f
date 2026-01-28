@@ -1,9 +1,9 @@
-require constants.f
-require loops.f
-require search.f
-require string.utils.f
+m4_require(`std/constants.f')
+m4_require(`std/loops.f')
+m4_require(`std/search.f')
+m4_require(`std/string.utils.f')
 
-require ../ext/is.f
+m4_require(`ext/is.f')
 
 \ Helpers first encoutered here... move these elsewhere
 \ (NOTE: host::hash dependency)

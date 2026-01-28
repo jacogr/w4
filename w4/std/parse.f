@@ -1,7 +1,7 @@
-require compile.f
-require loops.f
-require memory.f
-require stack.f
+m4_require(`std/compile.f')
+m4_require(`std/loops.f')
+m4_require(`std/memory.f')
+m4_require(`std/stack.f')
 
 \ https://forth-standard.org/standard/core/SOURCE
 \

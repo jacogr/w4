@@ -1,5 +1,5 @@
-require constants.f
-require stack.f
+m4_require(`std/constants.f')
+m4_require(`std/stack.f')
 
 \ https://forth-standard.org/standard/core/UNUSED
 \
@@ -77,9 +77,9 @@ require stack.f
 
 	: 2, ( x1 x2 -- ) , , ;
 
-\ mid-point require since the remainder rely on looping being available
+\ mid-point include since the remainder rely on looping being available
 
-require loops.f
+m4_require(`std/loops.f')
 
 \ https://forth-standard.org/standard/string/CMOVE
 \

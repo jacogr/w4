@@ -1,4 +1,4 @@
-require ../std/stack.f
+m4_require(`std/stack.f')
 
 \ Helper to wrap the wasi:fd_write for use in type & emit
 

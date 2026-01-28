@@ -1,13 +1,13 @@
-require compile.f
-require constants.f
-require logic.number.f
-require math.f
-require memory.f
-require parse.f
-require stack.f
-require stack.loop.f
-require stdio.f
-require string.f
+m4_require(`std/compile.f')
+m4_require(`std/constants.f')
+m4_require(`std/logic.number.f')
+m4_require(`std/math.f')
+m4_require(`std/memory.f')
+m4_require(`std/parse.f')
+m4_require(`std/stack.f')
+m4_require(`std/stack.loop.f')
+m4_require(`std/stdio.f')
+m4_require(`std/string.f')
 
 \ https://forth-standard.org/standard/core/DECIMAL
 \

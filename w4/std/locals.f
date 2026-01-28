@@ -1,10 +1,10 @@
-require constants.f
-require loops.f
-require search.f
-require search.string.f
-require stack.f
-require string.f
-require string.utils.f
+m4_require(`std/constants.f')
+m4_require(`std/loops.f')
+m4_require(`std/search.f')
+m4_require(`std/search.string.f')
+m4_require(`std/stack.f')
+m4_require(`std/string.f')
+m4_require(`std/string.utils.f')
 
 \ allocate memory for locals
 

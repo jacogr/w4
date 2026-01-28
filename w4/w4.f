@@ -5,7 +5,8 @@
 	: PARSE-NAME #32 parse-token ;
 	: REQUIRE parse-name required ;
 
-require preamble.f
+m4_include(`preclude.m4')
+m4_require(`preamble.f')
 
 \
 \ From here we should now be able to actually (mostly) parse
@@ -56,39 +57,35 @@ require preamble.f
 \
 \ 	: REQUIRE ( i * x "name" -- j * x ) parse-name required ;
 
-require std/constants.f
-require std/compile.f
-require std/dictionary.f
-require std/environment.f
-require std/exceptions.f
-require std/locals.f
-require std/logic.f
-require std/logic.number.f
-require std/loops.f
-require std/math.f
-require std/math.double.f
-require std/memory.f
-require std/parse.f
-require std/search.f
-require std/search.string.f
-require std/stack.f
-require std/stack.loop.f
-require std/stack.ptr.f
-require std/stdio.f
-require std/string.f
-require std/string.utils.f
-require std/structs.f
-require std/test.f
-require std/text.f
-require std/value.f
+m4_require(`std/constants.f')
+m4_require(`std/compile.f')
+m4_require(`std/dictionary.f')
+m4_require(`std/environment.f')
+m4_require(`std/exceptions.f')
+m4_require(`std/locals.f')
+m4_require(`std/logic.f')
+m4_require(`std/logic.number.f')
+m4_require(`std/loops.f')
+m4_require(`std/math.f')
+m4_require(`std/math.double.f')
+m4_require(`std/memory.f')
+m4_require(`std/parse.f')
+m4_require(`std/search.f')
+m4_require(`std/search.string.f')
+m4_require(`std/stack.f')
+m4_require(`std/stack.loop.f')
+m4_require(`std/stack.ptr.f')
+m4_require(`std/stdio.f')
+m4_require(`std/string.f')
+m4_require(`std/string.utils.f')
+m4_require(`std/structs.f')
+m4_require(`std/test.f')
+m4_require(`std/text.f')
+m4_require(`std/value.f')
 
-require ext/debug.f
-require ext/hash.f
-require ext/is.f
-require ext/list.f
-require ext/unimplemented.f
-require ext/wasi.f
-
-\
-\ End of library
-\
+m4_require(`ext/debug.f')
+m4_require(`ext/hash.f')
+m4_require(`ext/is.f')
+m4_require(`ext/list.f')
+m4_require(`ext/unimplemented.f')
+m4_require(`ext/wasi.f')

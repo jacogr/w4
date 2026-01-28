@@ -1,5 +1,5 @@
-require loops.f
-require memory.f
+m4_require(`std/loops.f')
+m4_require(`std/memory.f')
 
 \ https://forth-standard.org/standard/facility/BEGIN-STRUCTURE
 \

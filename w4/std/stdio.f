@@ -1,6 +1,6 @@
-require string.f
+m4_require(`std/string.f')
 
-require ../ext/wasi.f
+m4_require(`ext/wasi.f')
 
 \ https://forth-standard.org/standard/core/TYPE
 \

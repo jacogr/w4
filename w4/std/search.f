@@ -1,9 +1,9 @@
-require constants.f
-require loops.f
-require stack.f
-require text.f
+m4_require(`std/constants.f')
+m4_require(`std/loops.f')
+m4_require(`std/stack.f')
+m4_require(`std/text.f')
 
-require ../ext/list.f
+m4_require(`ext/list.f')
 
 \ https://forth-standard.org/standard/search/WORDLIST
 \

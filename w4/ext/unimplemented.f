@@ -1,5 +1,5 @@
-require ../std/stack.f
-require ../std/text.f
+m4_require(`std/stack.f')
+m4_require(`std/text.f')
 
 \ creates a stub for a function, when executed shows a message
 \ that shows that this is a TODO item

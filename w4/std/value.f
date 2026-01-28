@@ -1,8 +1,8 @@
-require constants.f
-require locals.f
-require memory.f
+m4_require(`std/constants.f')
+m4_require(`std/locals.f')
+m4_require(`std/memory.f')
 
-require ../ext/is.f
+m4_require(`ext/is.f')
 
 \ https://forth-standard.org/standard/core/VALUE
 \

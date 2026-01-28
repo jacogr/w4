@@ -70,9 +70,9 @@
 
 	: <> ( x y -- flag ) = invert ;
 
-\ mid-point require, we need the sp-n@ versions for <
+\ mid-point include, we need the sp-n@ versions for <
 
-require stack.ptr.f
+m4_require(`std/stack.ptr.f')
 
 \ https://forth-standard.org/standard/core/less
 \

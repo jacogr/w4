@@ -1,6 +1,6 @@
-require loops.f
-require parse.f
-require stack.f
+m4_require(`std/loops.f')
+m4_require(`std/parse.f')
+m4_require(`std/stack.f')
 
 \ https://forth-standard.org/standard/core/BL
 \

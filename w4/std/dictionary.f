@@ -1,8 +1,8 @@
-require constants.f
-require logic.f
-require loops.f
-require stack.f
-require text.f
+m4_require(`std/constants.f')
+m4_require(`std/logic.f')
+m4_require(`std/loops.f')
+m4_require(`std/stack.f')
+m4_require(`std/text.f')
 
 \ TODO See if we should include this is search.f which deals
 \ with all things related to wordlists (and maybe rename it as well)
