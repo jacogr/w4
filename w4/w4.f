@@ -3,7 +3,7 @@
 	#32 parse-token : build, ] #32 parse-token build, ] ;
 
 m4_include(`preclude.m4')
-m4_require(`preamble.f')
+m4_include(`preamble.f')
 
 \
 \ From here we should now be able to actually (mostly) parse
