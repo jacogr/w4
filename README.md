@@ -7,11 +7,12 @@ What you found is a [Forth](https://forth-standard.org/) interpreter (and possib
 
 There are a couple of tools needed to actually build and run the demos. There certainly should not be the need for installation-fatigue, so it is meant to be kept simple:
 
-- [make](https://en.wikipedia.org/wiki/Make_(software)) - A very widely used toolset, if you've compiled anything before, it _should_ be available on your machine
-- [m4](https://en.wikipedia.org/wiki/M4_(computer_language)) - It should be included if you are using a unix-y OS
-- [find](https://en.wikipedia.org/wiki/Find_(Unix)) - used in the Makefile to build a source list, standard on unix-y OS
-- [wat2wasm & wasmopt](https://github.com/WebAssembly/wabt) - Used to build the WAT sources
-- (optional) [node](https://nodejs.org/en) - Used to run the included `w4.js` sample (other language bridges should follow)
+- [make](https://en.wikipedia.org/wiki/Make_(software)) - A very widely used toolset, if you've compiled anything before, it _should_ be available on your machine. Used to run the build & test scripts and keep it lean.
+- [m4](https://en.wikipedia.org/wiki/M4_(computer_language)) - Used for macro processing, specifically around includes for sources. It should be included if you are using a unix-y OS.
+- [sed](https://en.wikipedia.org/wiki/Sed) - Provides some cleanups for sources when combined. As with m4, it should be availble on a unix-y OS.
+- [find](https://en.wikipedia.org/wiki/Find_(Unix)) - Used in the Makefile to build a source list, standard on unix-y OS.
+- [wat2wasm & wasmopt](https://github.com/WebAssembly/wabt) - Used to build the WAT sources.
+- (optional) [node](https://nodejs.org/en) - Used to run the included `w4.js` sample (other language bridges should follow).
 
 
 ## building
@@ -33,7 +34,7 @@ The core tests are from the [forth2012-test-suite](https://github.com/gerryjacks
 - `git submodule init` initializes the submodules
 - `git submodule update` updates the actual code from the test suite
 
-At the root, tests can be executed with `node w4.js test/forth2012-test-suite/src/runtests.fth` - expect a lot of failures to start. The `make check` wraps the above submodule test suite, effectively executing the command just shown.
+At the root, tests can be executed with `make check` to execute both the built-in tests (for functionality not fully tested in the standard suite) as well as the tests pulled it by the git submodule, ensuring compliance to a wide range of Forth tests.
 
 
 ## future
@@ -42,11 +43,10 @@ For now it is being put out there since the overhead of not having pull requests
 
 Current plans are -
 
-- make it fully forth-2012 compilant (extends and build all missing words)
-- expand the tests to actually pass the whole forth-2012 suite
+- make it forth-2012 compilant (extend and build missing words for identified modules)
 - cater for an interactive evaluation environment (bonus: available on the web) - it focussses on interpreting files and then exiting
-- expand this into a forth2wat compiler, we have the definitions, it can output calls from there
-- probably a lot of other things
+- expand this into a forth2wat compiler
+- ... probably a lot of other things
 
 
 ## faq
