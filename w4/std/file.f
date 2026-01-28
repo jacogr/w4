@@ -15,15 +15,19 @@ m4_require_w4(`ext/wasi.f')
 \
 \ fam is the implementation-defined value for selecting the "write only"
 \ file access method.
-
-	$00000000 constant W/O
+\
+\ TODO Only file reads available at this point
+\
+\	$00000000 constant W/O
 
 \ https://forth-standard.org/standard/file/RDivW
 \
 \ fam is the implementation-defined value for selecting the "read/write"
 \ file access method.
-
-	$00000000 constant R/W
+\
+\ TODO Only file reads available at this point
+\
+\	$00000000 constant R/W
 
 \ https://forth-standard.org/standard/file/CLOSE-FILE
 \
@@ -100,4 +104,77 @@ m4_require_w4(`ext/wasi.f')
 	: READ-FILE ( c-addr u fd -- u2 ior )
 		iov<fd?		( c-addr u fd -- errno nread )
 		swap		( errno nread -- nread errno )
+	;
+
+\ https://forth-standard.org/standard/file/READ-LINE
+\
+\ Read the next line from the file specified by fileid into memory at the
+\ address c-addr. At most u1 characters are read. Up to two implementation-
+\ defined line-terminating characters may be read into memory at the end of
+\ the line, but are not included in the num u2. The line buffer provided
+\ by c-addr should be at least u1+2 characters long.
+\
+\ If the operation succeeded, flag is true and ior is zero. If a line
+\ terminator was received before u1 characters were read, then u2 is the
+\ number of characters, not including the line terminator, actually read
+\ (0 <= u2 <= u1). When u1 = u2 the line terminator has yet to be reached.
+\
+\ If the operation is initiated when the value returned by FILE-POSITION is
+\ equal to the value returned by FILE-SIZE for the file identified by fileid,
+\ flag is false, ior is zero, and u2 is zero. If ior is non-zero, an exception
+\ occurred during the operation and ior is the implementation-defined I/O
+\ result code.
+\
+\ An ambiguous condition exists if the operation is initiated when the value
+\ returned by FILE-POSITION is greater than the value returned by FILE-SIZE
+\ for the file identified by fileid, or if the requested operation attempts to
+\ read portions of the file not written.
+\
+\ At the conclusion of the operation, FILE-POSITION returns the next file
+\ position after the last character read.
+
+	$1 cells buffer: (file-line-buf)
+
+	: READ-LINE ( c-addr u fd -- u2 flag ior )
+		true 0 2>r true						( c-addr u fd -- c-addr u fd f ) ( r: -- ok? num )
+
+		begin
+			r-0@ sp-2@ <					( c-addr u fd f -- c-addr u fd f f1 )	\ f1 = num < u?
+			and								( c-addr u fd f f1 -- c-addr u fd f' )	\ f' = f & f1
+			r-1@ and						( c-addr u fd f -- c-addr u fd f' )		\ f' = f & ok?
+			dup 							( c-addr u fd f -- c-addr u fd f f )
+		while								( c-addr u fd f f -- c-addr u fd f )
+			\ setup and read a single character
+			(file-line-buf) 1 sp-3@			( c-addr u fd f -- c-addr u fd f buf 1 fd )
+			read-file						( c-addr u fd f buf 1 fd -- c-addr u fd f u2 ior )
+
+			\ ior <> 0?
+			0<> if							( c-addr u fd f u2 ior -- c-addr u fd f u2 )
+				drop						( c-addr u fd f u2 -- c-addr u fd f )
+				false r-1!					( r: ok? num -- false num )
+			else
+				\ u2 == 0? (eof)
+				0= if
+					false r-1!				( r: ok? num -- false num )
+				else
+					\ retrieve first char
+					(file-line-buf) c@		( c-addr u fd f u2 -- c-addr u fd f u2 char )
+
+					\ char == 10? (lf)
+					dup 10 = if				( c-addr u fd f u2 char -- c-addr u fd f u2 char )
+						3drop false 		( c-addr u fd f u2 char -- c-addr u fd false )
+					else
+						\ char <> 13? (cr)
+						dup 13 <> if		( c-addr u fd f u2 char -- c-addr u fd f u2 char )
+							sp-5@ r@ + c!	( c-addr u fd f u2 char -- c-addr u fd f u2 )
+							r> + >r			( c-addr u fd f u2 -- c-addr u fd f ) ( r: ok? num -- ok? num' ) \ num' = num + u2
+						then
+					then
+				then
+			then
+		repeat
+
+		4drop		( c-addr u fd f -- )
+		2r>			( -- ok? num ) ( r: ok? num -- )
+		swap 0		( ok? num -- num ok? 0 )
 	;
