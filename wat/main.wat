@@ -41,7 +41,7 @@
 
 	;; files to execute at startup
 	(data (i32.const 960)
-		(; 0 ;) "build/w4.f" "\00"
+		(; 0 ;) "w4.f" "\00"
 		(; z ;)
 	)
 

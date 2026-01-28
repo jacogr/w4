@@ -63,7 +63,7 @@ import nodeWasi from 'node:wasi';
 			preopens: {
 				// user location first, default for includes/requires
 				/* fd:3 */ '/app': nodeProcess.cwd(),
-				/* fd:4 */ '/lib': import.meta.dirname,
+				/* fd:4 */ '/lib': nodePath.join(import.meta.dirname, 'build'),
 			},
 			stdin: nodeProcess.stdin.fd,
   			stdout: nodeProcess.stdout.fd,
