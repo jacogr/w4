@@ -33,25 +33,26 @@ m4_require(`ext/is.f')
 	variable (subst-dlen)
 	variable (subst-err)
 
-	: (make-subst)	( c-addr u -- c-addr )
-		$0 (flg-is-vis) (new-xt-full)	( c-addr len -- xt )
+	: (lookup-string-append) ( c-addr len wid -- a-addr )
+		\ create xt
+		-rot							( c-addr len wid -- wid c-addr len )
+		$0 (flg-is-vis) (new-xt-full)	( wid c-addr len -- xt )
 
 		\ allocate string buffer at here
-		here swap						( xt -- here^ xt )
-		string-max 1+ allot				( her^ xt -- here^ xt )
+		here swap						( wid xt -- wid here^ xt )
+		string-max 1+ allot				( wid here^ xt -- wid here^ xt )
 
 		\ store buffer as xt>value
-		2dup (xt>value!)				( here^ xt -- here^ xt )
+		2dup (xt>value!)				( wid here^ xt -- wid here^ xt )
 
 		\ add to wordlist
-		(subst-wid) swap				( here^ xt -- here^ wid xt )
+		rot swap						( wid here^ xt -- here^ wid xt )
 		(lookup-append)					( here^ wid xt -- here^ nt )
 		drop							( here^ nt -- here^ )
 	;
 
-	: (find-subst) ( c-addr u -- c-addr | 0 )
-		(subst-wid) (lookup-search-xt) (xt>value@)
-	;
+	: (make-subst)	( c-addr u -- c-addr ) (subst-wid) (lookup-string-append) ;
+	: (find-subst) ( c-addr u -- c-addr | 0 ) (subst-wid) (lookup-search-xt) (xt>value@) ;
 
 	: REPLACES ( text tlen name nlen -- )
 		\ found?

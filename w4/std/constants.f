@@ -189,11 +189,13 @@ m4_require(`std/constants.structs.f')
 
 \ environment constants
 
+	$ff 1 + constant STRING-MAX
+
 	$10 constant (env-locals#)
 	$2f constant (env-stackmax#)
 	$10 constant (env-wordlists-max#)
 	#84 constant (env-padsize#)
-	$ff constant (env-holdsize#) \ aligns with string-max
+	STRING-MAX constant (env-holdsize#)
 
 \ https://forth-standard.org/standard/core/PAD
 \

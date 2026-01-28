@@ -4,6 +4,9 @@ m4_require(`std/loops.f')
 m4_require(`std/memory.f')
 m4_require(`std/stack.f')
 
+m4_require(`ext/hash.f')
+m4_require(`ext/list.f')
+
 \ https://forth-standard.org/standard/core/SOURCE
 \
 \ c-addr is the address of, and u is the number of characters in
@@ -18,6 +21,29 @@ m4_require(`std/stack.f')
 \ perform the function of INCLUDED.
 
 	: INCLUDE ( i * x "name" -- j * x ) parse-name included	;
+
+\ https://forth-standard.org/standard/file/REQUIRED
+\
+\ If the file specified by c-addr u has been INCLUDED or REQUIRED already,
+\ but not between the definition and execution of a marker (or equivalent
+\ usage of FORGET), discard c-addr u; otherwise, perform the function of
+\ INCLUDED.
+\
+\ An ambiguous condition exists if a file is REQUIRED while it is being
+\ REQUIRED or INCLUDED.
+\
+\ An ambiguous condition exists, if a marker is defined outside and executed
+\ inside a file or vice versa, and the file is REQUIRED again.
+\
+\ An ambiguous condition exists if the same file is REQUIRED twice using different
+\ names (e.g., through symbolic links), or different files with the same name are
+\ REQUIRED (by doing some renaming between the invocations of REQUIRED).
+\
+\ An ambiguous condition exists if the stack effect of including the file is not
+\ ( i * x -- i * x ).
+
+	: REQUIRED ( i * x c-addr u -- i * x )
+	;
 
 \ https://forth-standard.org/standard/file/REQUIRE
 \
@@ -108,8 +134,6 @@ m4_require(`std/stack.f')
 
 \ Non-standard, widely known, used in replaces. Store c-addr u as
 \ a counted string in the destination, truncate length to 255
-
-	$ff 1+ constant STRING-MAX
 
 	: (place-result) ( c-addr u dst -- dst )
 		>r					( c-addr u dst -- c-addr u ) ( r: -- dst )
