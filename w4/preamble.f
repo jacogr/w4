@@ -1,4 +1,7 @@
 
+	#32 parse-token ] build, 1 $0130 ! 1 $0130 ! ;
+	#32 parse-token : build, ] #32 parse-token build, ] ;
+
 	: CELLS $2 lshift ;
 
 	: (ds^) $0140 @ ;
@@ -25,6 +28,31 @@
 \ The lines above implements the ability to handle line
 \ comments. Start using it immediately by documenting what
 \ has been defined above.
+
+\ https://forth-standard.org/standard/right-bracket
+\
+\ Enter compilation state.
+\
+\	#32 parse-token ] build,	\ define "]"
+\		1 $0130 ! 		\ compile, 1 state ! (state constant not defined yet)
+\		1 $0130 !		\ apply when executed
+\	;
+
+\ https://forth-standard.org/standard/core/Colon
+\
+\ Skip leading space delimiters. Parse name delimited by a space. Create a
+\ definition for name, called a "colon definition". Enter compilation state
+\ and start the current definition/ Append the initiation semantics given
+\ below to the current definition.
+\
+\ The execution semantics of name will be determined by the words compiled
+\ into the body of the definition. The current definition shall not be findable
+\ in the dictionary until it is ended.
+\
+\	#32 parse-token : build,		\ define ":"
+\		]							\ switch to compile
+\		build, #32 parse-token ] 	\ apply "build, parse-name ]" to children
+\	;
 
 \ https://forth-standard.org/standard/core/CELLS
 \
@@ -153,3 +181,5 @@
 	; immediate
 
 ( here we now have these comments, although they are not multi-line )
+
+\ *** end-of std/preamble.f

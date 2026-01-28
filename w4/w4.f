@@ -1,40 +1,6 @@
 
-	#32 parse-token ] build, 1 $0130 ! 1 $0130 ! ;
-	#32 parse-token : build, ] #32 parse-token build, ] ;
-
 m4_include(`preclude.m4')
 m4_include(`preamble.f')
-
-\
-\ From here we should now be able to actually (mostly) parse
-\ normal code, we have line comments and we have (inline) stack
-\ comments so definitions can appear to be "normal"
-\
-
-\ https://forth-standard.org/standard/right-bracket
-\
-\ Enter compilation state.
-\
-\	#32 parse-token ] build,	\ define "]"
-\		1 $0130 ! 		\ compile, 1 state ! (state constant not defined yet)
-\		1 $0130 !		\ apply when executed
-\	;
-
-\ https://forth-standard.org/standard/core/Colon
-\
-\ Skip leading space delimiters. Parse name delimited by a space. Create a
-\ definition for name, called a "colon definition". Enter compilation state
-\ and start the current definition/ Append the initiation semantics given
-\ below to the current definition.
-\
-\ The execution semantics of name will be determined by the words compiled
-\ into the body of the definition. The current definition shall not be findable
-\ in the dictionary until it is ended.
-\
-\	#32 parse-token : build,		\ define ":"
-\		]							\ switch to compile
-\		build, #32 parse-token ] 	\ apply "build, parse-name ]" to children
-\	;
 
 m4_require(`std/constants.f')
 m4_require(`std/compile.f')
