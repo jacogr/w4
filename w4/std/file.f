@@ -34,7 +34,7 @@ m4_require_w4(`ext/wasi.f')
 \ Close the file identified by fileid. ior is the implementation-defined
 \ I/O result code.
 
-	: CLOSE-FILE ( fd -- ior ) wasi::fd_close ;
+	: CLOSE-FILE ( fd -- ior ) wasi::fd_close 0<> ;
 
 \ https://forth-standard.org/standard/file/OPEN-FILE
 \
@@ -66,12 +66,13 @@ m4_require_w4(`ext/wasi.f')
 		0 (opened-fd)		( dir_fd dir_flags c-addr u of rb ri -- dir_fd dir_flags c-addr u of rb ri fd_flags fd )
 
 		\ call into host
-		wasi::path_open		( dir_fd ... fd -- errno )
+		wasi::path_open		( dir_fd ... fd -- err )
 		dup 0= if
-			(opened-fd) @	( ior -- ior fileid )
-		else 0 then			( ior -- ior fileid )
+			(opened-fd) @	( err -- err fileid )
+		else 0 then			( err -- err fileid )
 
-		swap				( ior fileid -- fileid ior )
+		\ ior = 0 on success, -1 on failure
+		swap 0<>			( err fileid -- fileid ior )
 	;
 
 \ https://forth-standard.org/standard/file/READ-FILE
@@ -102,8 +103,10 @@ m4_require_w4(`ext/wasi.f')
 \ position after the last character read.
 
 	: READ-FILE ( c-addr u fd -- u2 ior )
-		iov<fd?		( c-addr u fd -- errno nread )
-		swap		( errno nread -- nread errno )
+		iov<fd?		( c-addr u fd -- err nread )
+
+		\ ior = 0 on success, -1 on failure
+		swap 0<>	( err nread -- nread ior )
 	;
 
 \ https://forth-standard.org/standard/file/READ-LINE
@@ -136,7 +139,8 @@ m4_require_w4(`ext/wasi.f')
 	$1 cells buffer: (file-line-buf)
 
 	: READ-LINE ( c-addr u fd -- u2 flag ior )
-		true 0 2>r true						( c-addr u fd -- c-addr u fd f ) ( r: -- ok? num )
+		0 true 2>r 0 >r						( r: -- ior ok? num )
+		true								( c-addr u fd -- c-addr u fd f )
 
 		begin
 			r-0@ sp-2@ <					( c-addr u fd f -- c-addr u fd f f1 )	\ f1 = num < u?
@@ -146,7 +150,10 @@ m4_require_w4(`ext/wasi.f')
 		while								( c-addr u fd f f -- c-addr u fd f )
 			\ setup and read a single character
 			(file-line-buf) 1 sp-3@			( c-addr u fd f -- c-addr u fd f buf 1 fd )
-			read-file						( c-addr u fd f buf 1 fd -- c-addr u fd f u2 ior )
+			read-file						( c-addr u fd f buf 1 fd -- c-addr u fd f u2 err )
+
+			\ store errorno as ior
+			0<> dup r-2!					( c-addr u fd f u2 err -- c-addr u fd f u2 ior' ) ( r: ior ok? num -- ior' ok? num )
 
 			\ ior <> 0?
 			0<> if							( c-addr u fd f u2 ior -- c-addr u fd f u2 )
@@ -155,7 +162,7 @@ m4_require_w4(`ext/wasi.f')
 			else
 				\ u2 == 0? (eof)
 				0= if
-					false r-1!				( r: ok? num -- false num )
+					false r-1!				( r: ior ok? num -- ior false num )
 				else
 					\ retrieve first char
 					(file-line-buf) c@		( c-addr u fd f u2 -- c-addr u fd f u2 char )
@@ -167,7 +174,7 @@ m4_require_w4(`ext/wasi.f')
 						\ char <> 13? (cr)
 						dup 13 <> if		( c-addr u fd f u2 char -- c-addr u fd f u2 char )
 							sp-5@ r@ + c!	( c-addr u fd f u2 char -- c-addr u fd f u2 )
-							r> + >r			( c-addr u fd f u2 -- c-addr u fd f ) ( r: ok? num -- ok? num' ) \ num' = num + u2
+							r> + >r			( c-addr u fd f u2 -- c-addr u fd f ) ( r: ior ok? num -- ior ok? num' ) \ num' = num + u2
 						then
 					then
 				then
@@ -175,6 +182,6 @@ m4_require_w4(`ext/wasi.f')
 		repeat
 
 		4drop		( c-addr u fd f -- )
-		2r>			( -- ok? num ) ( r: ok? num -- )
-		swap 0		( ok? num -- num ok? 0 )
+		r> 2r>		( -- num ior ok? ) ( r: ior ok? num -- )
+		0<>	swap	( num ior ok? -- num f ior )
 	;

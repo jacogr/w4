@@ -27,20 +27,20 @@ m4_require_w4(`std/stack.f')
 		r> ! 			( c-addr -- )                       \ store c-addr at [a-iov + 0]
 	;
 
-	: IOV<FD? ( c-addr u fd -- errno nread )
+	: IOV<FD? ( c-addr u fd --  err nread )
 		>r 					( c-addr u fd -- c-addr u ) ( r: -- fd )
 		(iov-tmp-in) iov! 	( c-addr u -- ) ( r: fd )
-		r> 					( -- fd )                             \ restore fd
-		(iov-tmp-in) 		( fd -- fd iovs_ptr )                 \ iovs_ptr
-		1 					( ... -- fd iovs_ptr iovs_len )       \ iovs_len = 1
+		r> 					( -- fd )							\ restore fd
+		(iov-tmp-in) 		( fd -- fd iovs_ptr )				\ iovs_ptr
+		1 					( ... -- fd iovs_ptr iovs_len )		\ iovs_len = 1
 		(iov-tmp-nread) 	( ... -- fd iovs_ptr iovs_len nread_ptr )
-		wasi::fd_read 		( ... -- errno )                      \ call wrapper → errno
-		(iov-tmp-nread) @	( errno -- errno nread )              \ fetch nread
+		wasi::fd_read 		( ... -- err )						\ call wrapper -> err
+		(iov-tmp-nread) @	( err -- err nread )				\ fetch nread
 	;
 
 	: IOV<FD ( c-addr u fd -- nread )
-		iov<fd?					( errno nread )
+		iov<fd?						( c-addr u fd -- err nread )
 
 		\ -37 file I/O exception
-		swap 0<> #-37 and throw	( nread )
+		swap 0<> #-37 and throw		( err nread -- nread )
 	;
