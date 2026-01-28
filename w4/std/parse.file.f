@@ -1,5 +1,6 @@
 m4_require_w4(`std/file.f')
 m4_require_w4(`std/loops.f')
+m4_require_w4(`std/parse.f')
 m4_require_w4(`std/stack.f')
 m4_require_w4(`std/string.f')
 
