@@ -1,4 +1,4 @@
-m4_require(`std/constants.f')
+m4_require_w4(`std/constants.f')
 
 \ Checks for the validity of the addresses, either valid, xt, nt or
 \ list. In this the defined flags for the implemetation is used.

@@ -1,13 +1,13 @@
-m4_require(`std/compile.f')
-m4_require(`std/constants.f')
-m4_require(`std/loops.f')
-m4_require(`std/memory.f')
-m4_require(`std/search.string.f')
-m4_require(`std/stack.f')
-m4_require(`std/string.f')
+m4_require_w4(`std/compile.f')
+m4_require_w4(`std/constants.f')
+m4_require_w4(`std/loops.f')
+m4_require_w4(`std/memory.f')
+m4_require_w4(`std/search.string.f')
+m4_require_w4(`std/stack.f')
+m4_require_w4(`std/string.f')
 
-m4_require(`ext/hash.f')
-m4_require(`ext/list.f')
+m4_require_w4(`ext/hash.f')
+m4_require_w4(`ext/list.f')
 
 \ https://forth-standard.org/standard/core/SOURCE
 \

@@ -1,6 +1,6 @@
-m4_require(`std/loops.f')
-m4_require(`std/stack.loop.f')
-m4_require(`std/string.utils.f')
+m4_require_w4(`std/loops.f')
+m4_require_w4(`std/stack.loop.f')
+m4_require_w4(`std/string.utils.f')
 
 \ djb2a hash
 \ loops: ((hash << 5) + hash) ^ ch

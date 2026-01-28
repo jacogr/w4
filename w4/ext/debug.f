@@ -1,8 +1,8 @@
 
-m4_require(`std/constants.f')
-m4_require(`std/text.f')
+m4_require_w4(`std/constants.f')
+m4_require_w4(`std/text.f')
 
-m4_require(`ext/is.f')
+m4_require_w4(`ext/is.f')
 
 \ https://forth-standard.org/standard/tools/SEE
 \

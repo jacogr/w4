@@ -1,11 +1,11 @@
-m4_require(`std/constants.f')
-m4_require(`std/loops.f')
-m4_require(`std/string.f')
-m4_require(`std/string.utils.f')
+m4_require_w4(`std/constants.f')
+m4_require_w4(`std/loops.f')
+m4_require_w4(`std/string.f')
+m4_require_w4(`std/string.utils.f')
 
-m4_require(`ext/hash.f')
-m4_require(`ext/list.f')
-m4_require(`ext/is.f')
+m4_require_w4(`ext/hash.f')
+m4_require_w4(`ext/list.f')
+m4_require_w4(`ext/is.f')
 
 \ Helpers first encoutered here... move these elsewhere
 \ (NOTE: host::hash dependency)

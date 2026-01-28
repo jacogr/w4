@@ -1,5 +1,5 @@
-m4_require(`std/constants.f')
-m4_require(`std/stack.f')
+m4_require_w4(`std/constants.f')
+m4_require_w4(`std/stack.f')
 
 \ Non-standard, but well-known
 

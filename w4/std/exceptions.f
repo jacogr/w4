@@ -1,6 +1,6 @@
-m4_require(`std/compile.f')
-m4_require(`std/loops.f')
-m4_require(`std/text.f')
+m4_require_w4(`std/compile.f')
+m4_require_w4(`std/loops.f')
+m4_require_w4(`std/text.f')
 
 \ https://forth-standard.org/standard/exception/CATCH
 \ https://forth-standard.org/standard/implement#imp:exception:CATCH

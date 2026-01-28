@@ -1,8 +1,8 @@
-m4_require(`std/constants.f')
-m4_require(`std/loops.f')
-m4_require(`std/search.f')
-m4_require(`std/stack.f')
-m4_require(`std/string.utils.f')
+m4_require_w4(`std/constants.f')
+m4_require_w4(`std/loops.f')
+m4_require_w4(`std/search.f')
+m4_require_w4(`std/stack.f')
+m4_require_w4(`std/string.utils.f')
 
 \ https://forth-standard.org/standard/core/ENVIRONMENTq
 \
