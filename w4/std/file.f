@@ -150,10 +150,10 @@ m4_require_w4(`ext/wasi.f')
 		while								( c-addr u fd f f -- c-addr u fd f )
 			\ setup and read a single character
 			(file-line-buf) 1 sp-3@			( c-addr u fd f -- c-addr u fd f buf 1 fd )
-			read-file						( c-addr u fd f buf 1 fd -- c-addr u fd f u2 err )
+			read-file						( c-addr u fd f buf 1 fd -- c-addr u fd f u2 ior )
 
-			\ store errorno as ior
-			0<> dup r-2!					( c-addr u fd f u2 err -- c-addr u fd f u2 ior' ) ( r: ior ok? num -- ior' ok? num )
+			\ store ior for return
+			dup r-2!						( c-addr u fd f u2 err -- c-addr u fd f u2 ior ) ( r: ior ok? num -- ior' ok? num )
 
 			\ ior <> 0?
 			0<> if							( c-addr u fd f u2 ior -- c-addr u fd f u2 )
