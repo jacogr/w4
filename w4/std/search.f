@@ -175,6 +175,45 @@ m4_require_w4(`ext/list.f')
 
 	: TRAVERSE-WORDLIST ( i * x xt wid -- j * x ) (lookup-traverse) ;
 
+\ https://forth-standard.org/standard/core/MARKER
+\
+\ Skip leading space delimiters. Parse name delimited by a space. Create a
+\ definition for name with the execution semantics defined below.
+\
+\ At runtime: Restore all dictionary allocation and search order pointers
+\ to the state they had just prior to the definition of name. Remove the
+\ definition of name and all subsequent definitions. Restoration of any
+\ structures still existing that could refer to deleted definitions or
+\ deallocated data space is not necessarily provided. No other contextual
+\ information such as numeric base is affected.
+
+	: (latest-nt) (wid-curr) (lst>tail@) ;
+
+	: (marker) ( nt -- )
+		begin
+			?dup
+		while
+			dup (nt>value@)	( nt -- nt xt )
+			(hide)			( nt xt -- nt )
+			(nt>next@)		( nt -- nt' )
+			dup 0=			( nt -- nt f )
+		until
+
+		drop
+	;
+
+	: MARKER ( <spaces>name" -- )
+		parse-name				( -- c-addr u )
+
+		\ -16 attempt to use zero-length string as a name
+		dup 0= #-16 and throw
+
+		build,					\ definition for "name"
+		(latest-nt) lit,		\ compile marker nt to body
+		postpone (marker)		\ execute (marker) ( nt -- )
+		reveal					\ set visible
+	;
+
 \ https://forth-standard.org/standard/search/FIND
 \
 \ Extend the semantics of 6.1.1550 FIND to be: ( c-addr -- c-addr 0 | xt 1 | xt -1 )
