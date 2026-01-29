@@ -24,9 +24,7 @@ m4_require_w4(`ext/list.f')
 
 	: SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 )
 		(lookup-search-xt) dup if	( c-addr u wid -- xt|0 )
-			\ immediate? set flag = 1
-			dup is-xt-immediate?	( xt -- xt f )
-			1 -1 select				( xt f -- xt -1|1 )
+			(find-flag-xt)			( xt -- xt f )
 		then
 	;
 

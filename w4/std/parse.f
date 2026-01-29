@@ -133,18 +133,22 @@ m4_require_w4(`std/string.f')
 \ since the wasm find-name adds the locals & wordlists functionality. Need to
 \ untangle with a locally defined find-name that has all the functionality
 
+	: (find-flag-xt) ( xt -- xt f )
+		dup is-xt-immediate?	( xt -- xt f )
+		1 -1 select				\ -1 normal, 1 immediate
+	;
+
 	: FIND ( c-addr -- c-addr 0 | xt 1 | xt -1 )
-		dup >r						( c-addr -- c-addr ) ( r: -- c-addr )
-		count find-name				( c-addr -- nt | 0 )
+		dup >r					( c-addr -- c-addr ) ( r: -- c-addr )
+		count find-name			( c-addr -- nt | 0 )
 
 		dup 0= if
-			drop					( 0 -- )
-			r> 0					( -- c-addr 0 )
+			drop				( 0 -- )
+			r> 0				( -- c-addr 0 )
 		else
 			r> drop
-			(nt>value@)				( nt -- xt )
-			dup is-xt-immediate?	( xt -- xt f )
-			1 -1 select				\ -1 normal, 1 immediate
+			(nt>value@)			( nt -- xt )
+			(find-flag-xt)		( xt -- xt f )
 		then
 	;
 

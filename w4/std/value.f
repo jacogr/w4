@@ -1,6 +1,7 @@
 m4_require_w4(`std/compile.f')
 m4_require_w4(`std/constants.f')
 m4_require_w4(`std/memory.f')
+m4_require_w4(`std/parse.f')
 
 m4_require_w4(`ext/is.f')
 
@@ -112,7 +113,8 @@ m4_require_w4(`ext/is.f')
 			hide ' , reveal
 		does>
 			@ state @ 0= over is-xt-immediate? or
-			if execute else compile, then
+			['] execute ['] compile,
+			select
 	;
 
 \ https://forth-standard.org/standard/core/IS
