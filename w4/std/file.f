@@ -54,18 +54,16 @@ m4_require_w4(`ext/wasi.f')
 	$1 cells buffer: (opened-fd)
 
 	: OPEN-FILE ( c-addr u fam -- fileid ior )
-		\ store fam, used as rights_base
-		>r					( c-addr u fam -- c-addr u ) ( r: -- fam )
+		{: path len rb :}	( c-addr u fam -- )
 
 		\ currently we only open from cwd, preopened as dir_fd = 3
-		3 -rot				( c-addr u -- dir_fd c-addr u )
-		0 -rot				( dir_fd c-addr u -- dir_fd dir_flags c-addr u )
+		3 0					( -- dir_fd dir_flags )
 
-		\ output flags (no create/trunc)
-		0					( dir_fd dir_flags c-addr u -- dir_fd dir_flags c-addr u of )
+		\ path & len, output flags (no create/trunc)
+		path len 0			( dir_fd dir_flags -- dir_fd dir_flags c-addr u of )
 
 		\ rights (base = fam, inherit = 0), file flags & pointer
-		r> 0				( dir_fd dir_flags c-addr u of -- dir_fd dir_flags c-addr u of rb ri ) ( r: fam -- )
+		rb 0				( dir_fd dir_flags c-addr u of -- dir_fd dir_flags c-addr u of rb ri )
 		0 (opened-fd)		( dir_fd dir_flags c-addr u of rb ri -- dir_fd dir_flags c-addr u of rb ri fd_flags fd )
 
 		\ call into host
