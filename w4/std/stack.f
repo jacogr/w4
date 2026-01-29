@@ -160,13 +160,13 @@ m4_require_w4(`std/stack-ptr.f')
 \ equivalent to SWAP >R >R.
 
 	: (2>radd) ( ret x2 -- ) ( r: -- x1 x2 )
-		r!			( ret x2 -- ret ) ( r: x1 -- x1 x2 )
+		r!				( ret x2 -- ret ) ( r: x1 ret-2>r -- x1 x2 )
 		branch
 	;
 
 	: 2>R ( x1 x2 -- ) ( R: -- x1 x2 )
-		r@ -rot swap	( x1 x2 -- ret x2 x1 )
-		r!				( ret x2 x1 -- ret x2 ) ( r: -- x1 )
+		swap r@ swap	( x1 x2 -- x2 ret x1 ) ( r: ret -- ret )
+		r! swap			( x2 ret x1 -- ret x2 ) ( r: ret -- x1 )
 		(2>radd)
 	;
 

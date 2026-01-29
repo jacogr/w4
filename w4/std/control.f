@@ -7,10 +7,9 @@ m4_require_w4(`std/stack.f')
 \ (Standard in older versions of ANS Forth, not in 2012)
 
 	: ?BRANCH ( f dst -- ) ( r: ret -- ret|dst )
-		swap 0<>		( f dst -- dst t|f )
-		r@				( dst t|f -- dst t|f ret ) ( r: ret )
-		rot				( dst t|f ret -- t|f ret dst )
-		select			( t|f ret dst -- ret|dst )
+		swap 0<> swap	( f dst -- f' dst )	\ f' = f <> 0
+		r@ swap			( f dst -- f retr dst ) ( r: ret )
+		select			( f ret dst -- ret|dst )
 		r!				( ret|dst -- ) ( r: ret -- ret|dst )
 	;
 
@@ -209,11 +208,10 @@ m4_require_w4(`std/stack.f')
 \ control parameters are discarded.
 
 	: (do) ( u i exit-dst -- ) ( r: -- exit-dst u i ret )
-		r>			( u i exit-dst -- u i exit-dst ret ) ( r: ret -- )
-		swap		( u i exit-dst ret -- u i ret exit-dst )
-		>r 			( u i ret exit-dst -- u i ret ) ( r: -- exit-dst )
-		-rot		( u i ret -- ret u i )
-		2>r			( ret u i -- ret ) ( r: exit-dst -- exit-dst u i )
+		>r swap r>	( u i exit-dst -- i u exit-dst ) ( r: ret -- ret )
+		r> swap >r  ( i u exit-dst -- i u ret ) ( r: ret -- exit-dst )
+		swap >r		( i u ret -- i ret ) ( r: exit-dst -- exit-dst u )
+		swap >r		( i ret -- ret ) ( r: exit-dst u -- exit-dst u i )
 		>r			( ret -- ) ( r: exit-dst u i -- exit-dst u i ret )
 	;
 
