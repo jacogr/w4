@@ -79,7 +79,7 @@ m4_require_w4(`std/stack.f')
 
 \ mid-point include since the remainder rely on looping being available
 
-m4_require_w4(`std/loops.f')
+m4_require_w4(`std/control.f')
 
 \ https://forth-standard.org/standard/string/CMOVE
 \

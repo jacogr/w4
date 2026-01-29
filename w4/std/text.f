@@ -5,7 +5,7 @@ m4_require_w4(`std/math.f')
 m4_require_w4(`std/memory.f')
 m4_require_w4(`std/parse.f')
 m4_require_w4(`std/stack.f')
-m4_require_w4(`std/stack.loop.f')
+m4_require_w4(`std/stack.control.f')
 m4_require_w4(`std/stdio.f')
 m4_require_w4(`std/string.f')
 

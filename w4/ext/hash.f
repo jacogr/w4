@@ -1,5 +1,5 @@
-m4_require_w4(`std/loops.f')
-m4_require_w4(`std/stack.loop.f')
+m4_require_w4(`std/control.f')
+m4_require_w4(`std/stack.control.f')
 m4_require_w4(`std/string.utils.f')
 
 \ djb2a hash

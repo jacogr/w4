@@ -1,5 +1,5 @@
 m4_require_w4(`std/constants.f')
-m4_require_w4(`std/loops.f')
+m4_require_w4(`std/control.f')
 m4_require_w4(`std/locals.f')
 m4_require_w4(`std/value.f')
 
