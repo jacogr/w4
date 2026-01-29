@@ -140,42 +140,46 @@ m4_require_w4(`ext/wasi.f')
 \ position after the last character read.
 
 	: READ-LINE ( c-addr u fd -- u2 flag ior )
-		false false 0 0 					( c-addr u fd -- c-addr u fd eof? eol? ior num )
-		{: buf max fd eof? eol? ior num :}	( c-addr u fd eof? eol? ior num -- )
+		true true 0 0 								( c-addr u fd -- c-addr u fd not-eof not-eol ior num )
+		{: buf max fd not-eof not-eol ior num :}	( c-addr u fd not-eof not-eol ior num -- )
 
 		begin
 			num max <					( -- f1 )
 			ior 0=						( f1 -- f1 f2 )
-			eof? 0=						( f1 f2 -- f1 f2 f3 )
-			eol? 0=						( f1 f2 f3 -- f1 f2 f3 f4 )
+			not-eof						( f1 f2 -- f1 f2 f3 )
+			not-eol						( f1 f2 f3 -- f1 f2 f3 f4 )
 			and and and					( f1 f2 f3 f4 -- f )
 		while							( f -- )
 			buf 1 fd read-file			( -- u ior )
 
 			\ ior <> 0
-			0<> if
+			0<> if						( u ior -- u )
 				drop					( u -- )
 				-1 to ior
 			else
 				\ u == 0? (eof)
 				0= if					( u -- )
-					true to eof?
+					false to not-eof
 				else
 					buf c@ dup			( -- char char )
 
 					#10 = if			( char char -- char )
 						drop			( char -- )
-						true to eol?
+						false to not-eol
 					else
 						#13 <> if		( char -- )
 							\ increment count & buf pos
 							num 1+ to num
 							buf 1+ to buf
-						else
+						then
 					then
 				then
 			then
 		repeat
 
-		num eof? ior						( -- u2 flag ior )
+		num						( -- u2 )
+		not-eof 0=				( u2 -- u2 eof? )
+		num 0=					( u2 eof? -- u2 eof? n=0? )
+		and	0=					( u2 eof? n=0? -- u2 flag ) \ f = not (eof & n=0)
+		ior						( u2 flag -- u2 flag ior )
 	;
