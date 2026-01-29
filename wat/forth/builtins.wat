@@ -223,28 +223,6 @@
 		(call $__stack_dat_push (local.get $qhi))
 	)
 
-	;; ;; https://forth-standard.org/standard/core/UMTimes
-	;; ;; ( x y -- lo hi )
-	;; (elem (i32.const 11) $__forth_fn_um_mul)
-	;; (func $__forth_fn_um_mul (type $TypeForthFn)
-	;; 	(call $__stack_dat_2push
-	;; 		(call $__um_mul (call $__stack_dat_2pop)))
-	;; )
-
-	;; ;; https://forth-standard.org/standard/core/UMDivMOD
-	;; ;; ( lo hi div -- r q )
-	;; (elem (i32.const 12) $__forth_fn_um_divmod)
-	;; (func $__forth_fn_um_divmod (type $TypeForthFn)
-	;; 	(local $div i32)
-
-	;; 	(local.set $div (call $__stack_dat_pop))
-
-	;; 	(call $__stack_dat_2push
-	;; 		(call $__um_mod
-	;; 			(call $__stack_dat_2pop)
-	;; 			(local.get $div)))
-	;; )
-
 	;; https://forth-standard.org/standard/core/AND
 	;; ( x1 x2 -- x3 )
 	(elem (i32.const 13) $__forth_fn_and)
