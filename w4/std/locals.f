@@ -129,13 +129,19 @@ m4_require_w4(`std/string-utils.f')
 		r> or
 	;
 
+	: (local-parse-next) ( n c-addr u -- c-addr u n' c-addr1 u1 )
+		>r swap		( n c-addr u -- c-addr n ) ( r: -- u )
+		r> swap 	( c-addr n -- c-addr u n ) ( r: u -- )
+		1+			( c-addr u n -- c-addr u n' )	\ n = n + 1
+		parse-name	( c-addr u n' -- c-addr u n c-addr1 u1 )
+	;
+
 	: (local-scan-args) ( 0 c-addr1 u1 -- c-addr1 u1 ... c-addrn un n c-addrn+1 un+1 )
 		begin
 			2dup s" |" (local-match-or-end?) 0= while
 			2dup s" --" (local-match-or-end?) 0= while
 			2dup s" :}" (local-match-or-end?) 0= while
-
-			rot 1+ parse-name
+			(local-parse-next)
 		again then then then
 	;
 
@@ -146,8 +152,7 @@ m4_require_w4(`std/string-utils.f')
 		begin
 			2dup s" --" (local-match-or-end?) 0= while
 			2dup s" :}" (local-match-or-end?) 0= while
-
-			rot 1+ parse-name
+			(local-parse-next)
 
 			postpone (local-undefined-value)
 		again then then
