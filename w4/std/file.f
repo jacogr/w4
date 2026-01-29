@@ -140,22 +140,20 @@ m4_require_w4(`ext/wasi.f')
 \ position after the last character read.
 
 	: READ-LINE ( c-addr u fd -- u2 flag ior )
-		true true 0 0 								( c-addr u fd -- c-addr u fd not-eof not-eol ior num )
-		{: buf max fd not-eof not-eol ior num :}	( c-addr u fd not-eof not-eol ior num -- )
+		true true true 0 								( c-addr u fd -- c-addr u fd not-eof not-eol not-err num )
+		{: buf max fd not-eof not-eol not-err num :}	( c-addr u fd not-eof not-eol not-err num -- )
 
 		begin
 			num max <					( -- f1 )
-			ior 0=						( f1 -- f1 f2 )
-			not-eof						( f1 f2 -- f1 f2 f3 )
-			not-eol						( f1 f2 f3 -- f1 f2 f3 f4 )
-			and and and					( f1 f2 f3 f4 -- f )
+			not-eof not-eol not-err		( f1 -- f1 not-eof not-eol not-err )
+			and and and					( f1 not-eof not-eol not-err -- f )
 		while							( f -- )
 			buf 1 fd read-file			( -- u ior )
 
 			\ ior <> 0
 			0<> if						( u ior -- u )
 				drop					( u -- )
-				-1 to ior
+				false to not-err
 			else
 				\ u == 0? (eof)
 				0= if					( u -- )
@@ -181,5 +179,5 @@ m4_require_w4(`ext/wasi.f')
 		not-eof 0=				( u2 -- u2 eof? )
 		num 0=					( u2 eof? -- u2 eof? n=0? )
 		and	0=					( u2 eof? n=0? -- u2 flag ) \ f = not (eof & n=0)
-		ior						( u2 flag -- u2 flag ior )
+		not-err	0=				( u2 flag -- u2 flag ior )
 	;
