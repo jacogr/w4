@@ -1,7 +1,7 @@
 m4_require_w4(`std/control.f')
 m4_require_w4(`std/parse.f')
 m4_require_w4(`std/stack.f')
-m4_require_w4(`std/stack.control.f')
+m4_require_w4(`std/stack-control.f')
 
 \ https://forth-standard.org/standard/core/BL
 \

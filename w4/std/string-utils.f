@@ -1,8 +1,8 @@
-m4_require_w4(`std/logic.number.f')
+m4_require_w4(`std/logic-number.f')
 m4_require_w4(`std/control.f')
 m4_require_w4(`std/memory.f')
 m4_require_w4(`std/stack.f')
-m4_require_w4(`std/stack.control.f')
+m4_require_w4(`std/stack-control.f')
 
 \ convert a character to lowercase
 

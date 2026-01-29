@@ -72,7 +72,7 @@
 
 \ mid-point include, we need the sp-n@ versions for <
 
-m4_require_w4(`std/stack.ptr.f')
+m4_require_w4(`std/stack-ptr.f')
 
 \ https://forth-standard.org/standard/core/less
 \

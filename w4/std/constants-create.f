@@ -1,4 +1,4 @@
-m4_require_w4(`std/constants.structs.f')
+m4_require_w4(`std/constants-structs.f')
 
 \ Helper for allot & aligned that checks and writes to the
 \ underlying here pointer location to adavance here

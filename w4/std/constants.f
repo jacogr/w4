@@ -9,8 +9,8 @@
 
 	: HERE ( -- a-addr ) (here^) @ ;
 
-m4_require_w4(`std/constants.create.f')
-m4_require_w4(`std/constants.structs.f')
+m4_require_w4(`std/constants-create.f')
+m4_require_w4(`std/constants-structs.f')
 
 \ builtin flags for the environment
 

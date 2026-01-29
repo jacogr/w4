@@ -1,11 +1,11 @@
 m4_require_w4(`std/compile.f')
 m4_require_w4(`std/constants.f')
-m4_require_w4(`std/logic.number.f')
+m4_require_w4(`std/logic-number.f')
 m4_require_w4(`std/math.f')
 m4_require_w4(`std/memory.f')
 m4_require_w4(`std/parse.f')
 m4_require_w4(`std/stack.f')
-m4_require_w4(`std/stack.control.f')
+m4_require_w4(`std/stack-control.f')
 m4_require_w4(`std/stdio.f')
 m4_require_w4(`std/string.f')
 

@@ -50,7 +50,7 @@ m4_require_w4(`std/stack.f')
 
 \ mid-point include - *, /, & /mod is built on top of double operations
 
-m4_require_w4(`std/math.double.f')
+m4_require_w4(`std/math-double.f')
 
 \ https://forth-standard.org/standard/core/Times
 \
