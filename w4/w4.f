@@ -3,7 +3,11 @@ m4_include(`preclude.m4')
 
 m4_include_w4(`preamble.f')
 
+m4_require_w4(`std/loops.f')
+
 m4_require_w4(`std/constants.f')
+m4_require_w4(`std/constants.create.f')
+m4_require_w4(`std/constants.structs.f')
 m4_require_w4(`std/compile.f')
 m4_require_w4(`std/dictionary.f')
 m4_require_w4(`std/environment.f')

@@ -1,4 +1,5 @@
 m4_require_w4(`std/compile.f')
+m4_require_w4(`std/constants.f')
 m4_require_w4(`std/logic.f')
 m4_require_w4(`std/stack.f')
 
