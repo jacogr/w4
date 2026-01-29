@@ -9,7 +9,7 @@ import nodeWasi from 'node:wasi';
 
 (async () => {
 	// arguments
-	const cmd = nodePath.basename(nodeProcess.argv[1] || 'w4.js');
+	const cmd = nodePath.basename(import.meta.filename);
 	const argv = nodeProcess.argv.slice(2);
 
 	// exposed forward
