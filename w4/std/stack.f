@@ -165,9 +165,9 @@ m4_require_w4(`std/stack-ptr.f')
 	;
 
 	: 2>R ( x1 x2 -- ) ( R: -- x1 x2 )
-		swap r@ swap	( x1 x2 -- x2 ret x1 ) ( r: ret -- ret )
-		r! swap			( x2 ret x1 -- ret x2 ) ( r: ret -- x1 )
-		(2>radd)
+		swap r@			( x1 x2 -- x2 x1 ret ) ( r: ret -- ret )
+		swap r!			( x2 x1 ret -- x2 ret ) ( r: ret -- x1 )
+		swap (2>radd)	( x2 ret -- )
 	;
 
 \ https://forth-standard.org/proposals/standardize-the-well-known-rdrop#contribution-417
