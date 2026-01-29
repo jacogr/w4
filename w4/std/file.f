@@ -1,4 +1,7 @@
 m4_require_w4(`std/constants.f')
+m4_require_w4(`std/loop.f')
+m4_require_w4(`std/locals.f')
+m4_require_w4(`std/value.f')
 
 m4_require_w4(`ext/wasi.f')
 
@@ -136,52 +139,43 @@ m4_require_w4(`ext/wasi.f')
 \ At the conclusion of the operation, FILE-POSITION returns the next file
 \ position after the last character read.
 
-	$1 cells buffer: (file-line-buf)
-
 	: READ-LINE ( c-addr u fd -- u2 flag ior )
-		0 true 2>r 0 >r						( r: -- ior ok? num )
-		true								( c-addr u fd -- c-addr u fd f )
+		false false 0 0 					( c-addr u fd -- c-addr u fd eof? eol? ior num )
+		{: buf max fd eof? eol? ior num :}	( c-addr u fd eof? eol? ior num -- )
 
 		begin
-			r-0@ sp-2@ <					( c-addr u fd f -- c-addr u fd f f1 )	\ f1 = num < u?
-			and								( c-addr u fd f f1 -- c-addr u fd f' )	\ f' = f & f1
-			r-1@ and						( c-addr u fd f -- c-addr u fd f' )		\ f' = f & ok?
-			dup 							( c-addr u fd f -- c-addr u fd f f )
-		while								( c-addr u fd f f -- c-addr u fd f )
-			\ setup and read a single character
-			(file-line-buf) 1 sp-3@			( c-addr u fd f -- c-addr u fd f buf 1 fd )
-			read-file						( c-addr u fd f buf 1 fd -- c-addr u fd f u2 ior )
+			num max <					( -- f1 )
+			ior 0=						( f1 -- f1 f2 )
+			eof? 0=						( f1 f2 -- f1 f2 f3 )
+			eol? 0=						( f1 f2 f3 -- f1 f2 f3 f4 )
+			and and and					( f1 f2 f3 f4 -- f )
+		while							( f -- )
+			buf 1 fd read-file			( -- u ior )
 
-			\ store ior for return
-			dup r-2!						( c-addr u fd f u2 err -- c-addr u fd f u2 ior ) ( r: ior ok? num -- ior' ok? num )
-
-			\ ior <> 0?
-			0<> if							( c-addr u fd f u2 ior -- c-addr u fd f u2 )
-				drop						( c-addr u fd f u2 -- c-addr u fd f )
-				false r-1!					( r: ok? num -- false num )
+			\ ior <> 0
+			0<> if
+				drop					( u -- )
+				-1 to ior
 			else
-				\ u2 == 0? (eof)
-				0= if
-					false r-1!				( r: ior ok? num -- ior false num )
+				\ u == 0? (eof)
+				0= if					( u -- )
+					true to eof?
 				else
-					\ retrieve first char
-					(file-line-buf) c@		( c-addr u fd f u2 -- c-addr u fd f u2 char )
+					buf c@ dup			( -- char char )
 
-					\ char == 10? (lf)
-					dup 10 = if				( c-addr u fd f u2 char -- c-addr u fd f u2 char )
-						3drop false 		( c-addr u fd f u2 char -- c-addr u fd false )
+					#10 = if			( char char -- char )
+						drop			( char -- )
+						true to eol?
 					else
-						\ char <> 13? (cr)
-						dup 13 <> if		( c-addr u fd f u2 char -- c-addr u fd f u2 char )
-							sp-5@ r@ + c!	( c-addr u fd f u2 char -- c-addr u fd f u2 )
-							r> + >r			( c-addr u fd f u2 -- c-addr u fd f ) ( r: ior ok? num -- ior ok? num' ) \ num' = num + u2
-						then
+						#13 <> if		( char -- )
+							\ increment count & buf pos
+							num 1+ to num
+							buf 1+ to buf
+						else
 					then
 				then
 			then
 		repeat
 
-		4drop		( c-addr u fd f -- )
-		r> 2r>		( -- num ior ok? ) ( r: ior ok? num -- )
-		0<>	swap	( num ior ok? -- num f ior )
+		num eof? ior						( -- u2 flag ior )
 	;

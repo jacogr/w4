@@ -7,6 +7,31 @@ m4_require_w4(`std/string.f')
 m4_require_w4(`ext/hash.f')
 m4_require_w4(`ext/list.f')
 
+\ https://forth-standard.org/standard/file/INCLUDE-FILE
+\
+\ Remove fileid from the stack. Save the current input source specification,
+\ including the current value of SOURCE-ID. Store fileid in SOURCE-ID. Make
+\ the file specified by fileid the input source. Store zero in BLK. Other
+\ stack effects are due to the words included.
+\
+\ Repeat until end of file: read a line from the file, fill the input buffer
+\ from the contents of that line, set >IN to zero, and interpret.
+\
+\ Text interpretation begins at the file position where the next file read
+\ would occur.
+\
+\ When the end of the file is reached, close the file and restore the input
+\ source specification to its saved value.
+\
+\ An ambiguous condition exists if fileid is invalid, if there is an I/O
+\ exception reading fileid, or if an I/O exception occurs while closing fileid
+\  When an ambiguous condition exists, the status (open or closed) of any
+\ files that were being interpreted is implementation-defined.
+
+	: INCLUDE-FILE ( i * x fileid -- j * x )
+		-1 throw
+	;
+
 \ https://forth-standard.org/standard/file/INCLUDED
 \
 \ Remove c-addr u from the stack. Save the current input source specification,
@@ -40,7 +65,7 @@ m4_require_w4(`ext/list.f')
 		0= if
 			(included-wid)				( c-addr u -- c-addr u wid )
 			(lookup-string-append)		( c-addr u wid -- a-addr )
-			drop true					( a-addr -- c-addr u f )
+			drop true					( a-addr -- f )
 		else 2drop false then			( c-addr u -- f )
 	;
 
