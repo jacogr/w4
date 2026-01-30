@@ -161,7 +161,6 @@ m4_require_w4(`ext/wasi.f')
 				0= if						( u -- )
 					false to not-eof
 				else
-					fid (fid>col#++)
 					buf c@ dup				( -- char char )
 
 					#10 = if				( char char -- char )
@@ -174,6 +173,7 @@ m4_require_w4(`ext/wasi.f')
 							\ increment count & buf pos
 							num 1+ to num
 							buf 1+ to buf
+							fid (fid>col#++)
 						then
 					then
 				then
