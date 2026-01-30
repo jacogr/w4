@@ -5,6 +5,18 @@ m4_require_w4(`std/value.f')
 
 m4_require_w4(`ext/wasi.f')
 
+\ structure for fileid
+
+	\ path: path for the file (cell 0 & 1 layout shared with xt)
+	\  len: path length for the file
+	\   fd: external file descriptor
+	$3 cells constant (sizeof-fid)
+
+	: (fid>path+len@) ( fid -- c-addr u ) (xt>str+len@) ;
+	: (fid>path+len!) ( c-addr len fid -- ) (xt>str+len!) ;
+	: (fid>fd^) ( fid -- ) $2 cells + ;
+	: (fid>fd@) ( fid -- fd ) $2 cells + @ ;
+
 \ https://forth-standard.org/standard/file/RDivO
 \
 \ fam is the implementation-defined value for selecting the "read only"
@@ -32,13 +44,6 @@ m4_require_w4(`ext/wasi.f')
 \
 \	$00000000 constant R/W
 
-\ https://forth-standard.org/standard/file/CLOSE-FILE
-\
-\ Close the file identified by fileid. ior is the implementation-defined
-\ I/O result code.
-
-	: CLOSE-FILE ( fd -- ior ) wasi::fd_close 0<> ;
-
 \ https://forth-standard.org/standard/file/OPEN-FILE
 \
 \ Open the file named in the character string specified by c-addr u, with
@@ -51,29 +56,28 @@ m4_require_w4(`ext/wasi.f')
 \ Otherwise, ior is the implementation-defined I/O result code and fileid
 \ is undefined.
 
-	$1 cells buffer: (opened-fd)
-
 	: OPEN-FILE ( c-addr u fam -- fileid ior )
-		{: path len rb :}	( c-addr u fam -- )
+		here (sizeof-fid) allot		( c-addr u fam -- c-addr-u fam fid ) \ fid = here^
+		{: path len rb fid :}		( c-addr u fam fid -- )
+		path len strdup				( -- c-addr u )
+		fid (fid>path+len!)			( c-addr u -- )
 
 		\ currently we only open from cwd, preopened as dir_fd = 3
-		3 0					( -- dir_fd dir_flags )
+		3 0							( -- dir_fd dir_flags )
 
 		\ path & len, output flags (no create/trunc)
-		path len 0			( dir_fd dir_flags -- dir_fd dir_flags c-addr u of )
+		path len 0					( dir_fd dir_flags -- dir_fd dir_flags c-addr u of )
 
 		\ rights (base = fam, inherit = 0), file flags & pointer
-		rb 0				( dir_fd dir_flags c-addr u of -- dir_fd dir_flags c-addr u of rb ri )
-		0 (opened-fd)		( dir_fd dir_flags c-addr u of rb ri -- dir_fd dir_flags c-addr u of rb ri fd_flags fd )
+		rb 0						( dir_fd dir_flags c-addr u of -- dir_fd dir_flags c-addr u of rb ri )
+		0 fid (fid>fd^)				( dir_fd dir_flags c-addr u of rb ri -- dir_fd dir_flags c-addr u of rb ri fd_flags fd )
 
 		\ call into host
-		wasi::path_open		( dir_fd ... fd -- err )
-		dup 0= if
-			(opened-fd) @	( err -- err fileid )
-		else 0 then			( err -- err fileid )
+		wasi::path_open				( dir_fd ... fd -- err )
+		dup 0= if fid else 0 then	( err -- err fileid )
 
 		\ ior = 0 on success, -1 on failure
-		swap 0<>			( err fileid -- fileid ior )
+		swap 0<>					( err fileid -- fileid ior )
 	;
 
 \ https://forth-standard.org/standard/file/READ-FILE
@@ -103,12 +107,19 @@ m4_require_w4(`ext/wasi.f')
 \ At the conclusion of the operation, FILE-POSITION returns the next file
 \ position after the last character read.
 
-	: READ-FILE ( c-addr u fd -- u2 ior )
-		iov<fd?		( c-addr u fd -- err nread )
+	: READ-FILE ( c-addr u fileid -- u2 ior )
+		(fid>fd@) iov<fd?	( c-addr u fileid --  err nread )
 
 		\ ior = 0 on success, -1 on failure
-		swap 0<>	( err nread -- nread ior )
+		swap 0<>			( err nread -- nread ior )
 	;
+
+\ https://forth-standard.org/standard/file/CLOSE-FILE
+\
+\ Close the file identified by fileid. ior is the implementation-defined
+\ I/O result code.
+
+	: CLOSE-FILE ( fileid -- ior ) (fid>fd@) wasi::fd_close 0<> ;
 
 \ https://forth-standard.org/standard/file/READ-LINE
 \
@@ -137,16 +148,16 @@ m4_require_w4(`ext/wasi.f')
 \ At the conclusion of the operation, FILE-POSITION returns the next file
 \ position after the last character read.
 
-	: READ-LINE ( c-addr u fd -- u2 flag ior )
-		true true true 0 								( c-addr u fd -- c-addr u fd not-eof not-eol not-err num )
-		{: buf max fd not-eof not-eol not-err num :}	( c-addr u fd not-eof not-eol not-err num -- )
+	: READ-LINE ( c-addr u fid -- u2 flag ior )
+		true true true 0 								( c-addr u fid -- c-addr u fid not-eof not-eol not-err num )
+		{: buf max fid not-eof not-eol not-err num :}	( c-addr u fid not-eof not-eol not-err num -- )
 
 		begin
 			num max <					( -- f1 )
 			not-eof not-eol not-err		( f1 -- f1 not-eof not-eol not-err )
 			and and and					( f1 not-eof not-eol not-err -- f )
 		while							( f -- )
-			buf 1 fd read-file			( -- u ior )
+			buf 1 fid read-file			( -- u ior )
 
 			\ ior <> 0
 			0<> if						( u ior -- u )
