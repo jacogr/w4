@@ -1,4 +1,4 @@
-m4_require_w4(`std/stack.f')
+m4_require_w4(`std/stack-base.f')
 m4_require_w4(`std/string-format.f')
 
 \ creates a stub for a function, when executed shows a message

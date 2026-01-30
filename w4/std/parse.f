@@ -2,7 +2,9 @@ m4_require_w4(`std/compile.f')
 m4_require_w4(`std/constants.f')
 m4_require_w4(`std/logic.f')
 m4_require_w4(`std/control.f')
-m4_require_w4(`std/stack.f')
+m4_require_w4(`std/stack-base.f')
+m4_require_w4(`std/stack-ptr.f')
+m4_require_w4(`std/stack-rs.f')
 m4_require_w4(`std/string.f')
 
 \ https://forth-standard.org/standard/core/SOURCE
