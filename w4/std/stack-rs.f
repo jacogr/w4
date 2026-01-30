@@ -1,3 +1,4 @@
+m4_require_w4(`std/logic-number.f')
 m4_require_w4(`std/stack-ptr.f')
 
 \ unconditional branch to destination
