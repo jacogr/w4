@@ -109,13 +109,13 @@ m4_require_w4(`ext/is.f')
 \ applied to newname.
 
 	: SYNONYM ( "newname" "oldname" -- )
-		create immediate
+		create
 			hide ' , reveal
 		does>
 			@ state @ 0= over is-xt-immediate? or
 			['] execute ['] compile,
 			select
-	;
+	; immediate
 
 \ https://forth-standard.org/standard/core/IS
 \
