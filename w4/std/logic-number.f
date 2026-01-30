@@ -1,5 +1,5 @@
 m4_require_w4(`std/logic.f')
-m4_require_w4(`std/stack.f')
+m4_require_w4(`std/stack-rs.f')
 
 \ https://forth-standard.org/standard/core/WITHIN
 \

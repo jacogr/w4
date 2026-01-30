@@ -1,7 +1,7 @@
 m4_require_w4(`std/file.f')
 m4_require_w4(`std/control.f')
 m4_require_w4(`std/parse.f')
-m4_require_w4(`std/stack.f')
+m4_require_w4(`std/stack-ptr.f')
 m4_require_w4(`std/string.f')
 
 m4_require_w4(`ext/hash.f')
