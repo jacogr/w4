@@ -91,6 +91,33 @@
 	: (idx>mask@) ( a-addr -- u ) $1 cells + @ ;
 	: (idx>mask!) ( u a-addr -- ) $1 cells + ! ;
 
+\ layouts for fileid
+
+	\ 	path: path for the file (cell 0 & 1 layout shared with xt)
+	\  	 len: path length for the file
+	\ 	  fd: external file descriptor
+	\ 	type: 1 = file
+	\ 	row#: rows read
+	\ 	col#: cols read
+	: (sizeof-fid) ( -- u ) $6 cells ;
+
+	: (fid>path+len@) ( fid -- c-addr u ) (xt>str+len@) ;
+	: (fid>path+len!) ( c-addr len fid -- ) (xt>str+len!) ;
+
+	: (fid>fd^) ( fid -- a-addr ) $2 cells + ;
+	: (fid>fd@) ( fid -- fd ) $2 cells + @ ;
+
+	: (fid>type@) ( fid -- u ) $3 cells + @ ;
+	: (fid>type!) ( u fid -- ) $3 cells + ! ;
+
+	: (fid>row#^) ( fid -- a-addr ) $4 cells + ;
+	: (fid>row#@) ( fid -- u ) $4 cells + @ ;
+	: (fid>row#!) ( u fid -- ) $4 cells + ! ;
+
+	: (fid>col#^) ( fid -- a-addr ) $5 cells + ;
+	: (fid>col#@) ( fid -- u ) $5 cells + @ ;
+	: (fid>col#!) ( u fid -- ) $5 cells + ! ;
+
 \ latest
 
 	: (latest>value) latest >value @ ;
