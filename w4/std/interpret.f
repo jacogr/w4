@@ -56,15 +56,15 @@ m4_require_w4(`std/memory.f')
 		\ extract negative/base char
 		str c@								( -- char )
 
-		dup '-' = if
+		dup '-' = if						( char -- char )
 			drop							( char -- )
 			-1 to mul
 			len 1- to len
 			str 1+ to str
 		else
 			\ try to extract the base
-			dup '$' <> if
-				dup '#' <> if
+			dup '$' <> if					( char -- char )
+				dup '#' <> if				( char -- char )
 					'%' = if #02 to nbase then
 				else drop $0a to nbase then
 			else drop $10 to nbase then
