@@ -7,7 +7,6 @@ m4_require_w4(`std/parse.f')
 m4_require_w4(`std/stack.f')
 m4_require_w4(`std/stack-control.f')
 m4_require_w4(`std/stdio.f')
-m4_require_w4(`std/string.f')
 
 \ https://forth-standard.org/standard/core/DECIMAL
 \

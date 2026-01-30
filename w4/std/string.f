@@ -197,3 +197,7 @@ m4_require_w4(`std/stack-control.f')
 		loop
 		over -
 	;
+
+m4_require_w4(`std/string-format.f')
+m4_require_w4(`std/string-search.f')
+m4_require_w4(`std/string-utils.f')
