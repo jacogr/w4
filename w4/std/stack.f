@@ -1,25 +1,8 @@
 m4_require_w4(`std/stack-base.f')
-m4_require_w4(`std/stack-ptr.f')
+m4_require_w4(`std/stack-control.f')
 m4_require_w4(`std/stack-cs.f')
 m4_require_w4(`std/stack-rs.f')
-
-\ https://forth-standard.org/standard/core/ROT
-\
-\ Rotate the top three stack entries. (-rot is the reverse, or rot rot)
-
-	: ROT ( x y z -- y z x )
-		3dup
-		sp-4!	( x y z x y z -- x z z x y )
-		sp-4!	( x z z x y -- y z z x )
-		sp-1!	( y z z x -- y z x )
-	;
-
-	: -ROT ( x y z -- z x y )
-		3dup
-		sp-5!	( x y z x y z -- x z z x y )
-		sp-2!	( x z z x y -- y z z x )
-		sp-2!	( y z z x -- y z x )
-	;
+m4_require_w4(`std/stack-ptr.f')
 
 \ https://forth-standard.org/standard/core-ext/TwoROT
 \
