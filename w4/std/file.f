@@ -176,6 +176,6 @@ m4_require_w4(`ext/wasi.f')
 		num						( -- u2 )
 		not-eof 0=				( u2 -- u2 eof? )
 		num 0=					( u2 eof? -- u2 eof? n=0? )
-		and	0=					( u2 eof? n=0? -- u2 flag ) \ f = not (eof & n=0)
+		and						( u2 eof? n=0? -- u2 flag ) \ f = eof & n=0
 		not-err	0=				( u2 flag -- u2 flag ior )
 	;
