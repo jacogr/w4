@@ -72,6 +72,7 @@
 
 \ mid-point include, we need the sp-n@ versions for <
 
+m4_require_w4(`std/stack-base.f')
 m4_require_w4(`std/stack-ptr.f')
 
 \ https://forth-standard.org/standard/core/less
@@ -79,20 +80,18 @@ m4_require_w4(`std/stack-ptr.f')
 \ flag is true if and only if n1 is less than n2.
 
 	: < ( n m -- flag )
-		over over		\ n m n m
-		xor 0<			\ n m diff			\ diff = signs differ?
-		sp-2@ 0<		\ n m diff sn		\ sn = n 0<
-		sp-3@ sp-3@		\ n m diff sn n m	\ 2over
-		- 0<			\ n m diff sn sd	\ sd = (n-m) 0<
+		2dup			( n m -- n m n m )
+		xor 0<			( n m n m -- n m diff )					\ diff = signs differ?
+		sp-2@ 0<		( n m diff -- n m diff sn )				\ sn = n 0<
+		2over			( n m diff sn -- n m diff sn n m )
+		- 0<			( n m diff sn n m -- n m diff sn sd	)	\ sd = (n-m) 0<
 
-		swap			\ n m diff sd sn
-		over xor		\ n m diff sd (sd^sn)
-		sp-2@ and		\ n m diff sd ((sd^sn)&diff)
-		xor				\ n m diff result	\ sd^((sd^sn)&diff)
+		swap			( n m diff sn sd -- n m diff sd sn )
+		over xor		( n m diff sd sn -- n m diff sd f1 )	\ f1 = (sd^sn)
+		sp-2@ and		( n m diff sd f1 -- n m diff sd f2 )	\ f2 = f1 & diff
+		xor				( n m diff sd f2 -- n m diff f	)		\ f = f2 ^ sd
 
-		swap drop		\ n m result
-		swap drop		\ n result
-		swap drop		\ result
+		3nip			( n m diff f -- f )
 	;
 
 \ https://forth-standard.org/standard/core/more
