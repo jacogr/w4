@@ -1,8 +1,8 @@
 m4_require_w4(`std/constants.f')
 m4_require_w4(`std/control.f')
 m4_require_w4(`std/stack.f')
+m4_require_w4(`std/string-format.f')
 m4_require_w4(`std/string-utils.f')
-m4_require_w4(`std/text.f')
 
 m4_require_w4(`ext/hash.f')
 m4_require_w4(`ext/is.f')

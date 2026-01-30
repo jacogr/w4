@@ -1,6 +1,5 @@
 m4_require_w4(`std/compile.f')
 m4_require_w4(`std/control.f')
-m4_require_w4(`std/stack.f')
 
 \ https://forth-standard.org/standard/core/qDUP
 \
