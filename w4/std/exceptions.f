@@ -1,6 +1,6 @@
 m4_require_w4(`std/compile.f')
 m4_require_w4(`std/control.f')
-m4_require_w4(`std/text.f')
+m4_require_w4(`std/string-format.f')
 
 \ https://forth-standard.org/standard/exception/CATCH
 \ https://forth-standard.org/standard/implement#imp:exception:CATCH
