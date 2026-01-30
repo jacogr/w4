@@ -99,7 +99,7 @@
 	\ 	type: 1 = file
 	\ 	row#: rows read
 	\ 	col#: cols read
-	: (sizeof-fid) ( -- u ) $6 cells ;
+	: (sizeof-fid) ( -- u ) $8 cells ;
 
 	: (fid>path+len@) ( fid -- c-addr u ) (xt>str+len@) ;
 	: (fid>path+len!) ( c-addr len fid -- ) (xt>str+len!) ;
@@ -110,13 +110,20 @@
 	: (fid>type@) ( fid -- u ) $3 cells + @ ;
 	: (fid>type!) ( u fid -- ) $3 cells + ! ;
 
-	: (fid>row#^) ( fid -- a-addr ) $4 cells + ;
-	: (fid>row#@) ( fid -- u ) $4 cells + @ ;
-	: (fid>row#!) ( u fid -- ) $4 cells + ! ;
+	: (fid>buf^) ( fid -- a-addr ) $4 cells + @ ;
+	: (fid>buf^!) ( a-addr fid -- ) $4 cells + ! ;
 
-	: (fid>col#^) ( fid -- a-addr ) $5 cells + ;
-	: (fid>col#@) ( fid -- u ) $5 cells + @ ;
-	: (fid>col#!) ( u fid -- ) $5 cells + ! ;
+	: (fid>nbuf^) ( fid -- u ) $5 cells + ;
+	: (fid>nbuf@) ( fid -- u ) $5 cells + @ ;
+	: (fid>nbuf!) ( u fid -- ) $5 cells + ! ;
+
+	: (fid>row#^) ( fid -- a-addr ) $6 cells + ;
+	: (fid>row#@) ( fid -- u ) $6 cells + @ ;
+	: (fid>row#!) ( u fid -- ) $6 cells + ! ;
+
+	: (fid>col#^) ( fid -- a-addr ) $7 cells + ;
+	: (fid>col#@) ( fid -- u ) $7 cells + @ ;
+	: (fid>col#!) ( u fid -- ) $7 cells + ! ;
 
 \ latest
 

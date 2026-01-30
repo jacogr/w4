@@ -1,6 +1,7 @@
 m4_require_w4(`std/constants.f')
 m4_require_w4(`std/control.f')
 m4_require_w4(`std/locals.f')
+m4_require_w4(`std/stack.f')
 m4_require_w4(`std/value.f')
 
 m4_require_w4(`ext/wasi.f')
@@ -44,12 +45,18 @@ m4_require_w4(`ext/wasi.f')
 \ Otherwise, ior is the implementation-defined I/O result code and fileid
 \ is undefined.
 
+	: (new-fileid) ( c-addr u -- a-addr )
+		here (sizeof-fid) allot		( c-addr u -- c-addr u a-addr )
+		here string-max 1+ allot	( c-addr u a-addr -- c-addr u a-addr here )
+		over (fid>buf^!)			( c-addr u a-addr here -- c-addr u a-addr )
+		-rot strdup					( c-addr u a-addr -- a-addr c-addr' u' )
+		sp-2@ (fid>path+len!)		( a-addr c-addr u -- a-addr )
+		1 over (fid>type!)			\ type = file
+	;
+
 	: OPEN-FILE ( c-addr u fam -- fileid ior )
-		here (sizeof-fid) allot		( c-addr u fam -- c-addr-u fam fid ) \ fid = here^
+		sp-2@ sp-2@ (new-fileid)	( c-addr u fam -- c-addr-u fam fid ) \ fid = here^
 		{: path len rb fid :}		( c-addr u fam fid -- )
-		path len strdup				( -- c-addr u )
-		fid (fid>path+len!)			( c-addr u -- )
-		1 fid (fid>type!)			\ set file type
 
 		\ currently we only open from cwd, preopened as dir_fd = 3
 		3 0							( -- dir_fd dir_flags )
