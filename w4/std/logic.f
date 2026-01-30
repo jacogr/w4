@@ -1,77 +1,4 @@
-\ https://forth-standard.org/standard/core/FALSE
-\
-\ Return a false flag.
-
-	: FALSE ( -- false ) 0 ;
-
-\ https://forth-standard.org/standard/core/TRUE
-\
-\ Return a true flag, a single-cell value with all bits set.
-
-	: TRUE ( -- true ) 0 0= ;
-
-\ https://forth-standard.org/standard/core/OneMinus
-\
-\ Subtract one (1) from n1 | u1 giving the difference n2 | u2.
-
-	: 1- ( n1 | u1 -- n2 | u2 ) 1 - ;
-
-\ https://forth-standard.org/standard/core/OnePlus
-\
-\ Add one (1) to n1 | u1 giving the sum n2 | u2.
-
-	: 1+ ( n1 | u1 -- n2 | u2 ) 1 + ;
-
-\ https://forth-standard.org/standard/core/INVERT
-\
-\ Invert all bits of x1, giving its logical inverse x2.
-
-	: INVERT ( x -- !x ) -1 xor ;
-
-\ https://forth-standard.org/standard/core/NEGATE
-\
-\ Negate n1, giving its arithmetic inverse n2.
-
-	: NEGATE ( x -- -x ) invert 1+ ;
-
-\ https://forth-standard.org/standard/core/Zerone
-\
-\ lag is true if and only if x is not equal to zero.
-
-	: 0<> ( n -- flag ) 0= invert ;
-
-\ https://forth-standard.org/standard/core/Zeroless
-\
-\ lag is true if and only if n is less than zero.
-
-	-1 1 rshift invert constant MSB
-
-	: 0< ( n -- flag ) msb and 0<> ;
-
-\ https://forth-standard.org/standard/core/Zeromore
-\
-\ flag is true if and only if n is greater than zero.
-
-	: 0> ( n -- flag )
-		dup 0=
-		swap 0<
-		or invert
-	;
-
-\ https://forth-standard.org/standard/core/Equal
-\
-\ flag is true if and only if x1 is bit-for-bit the same as x2.
-
-	: = ( x y -- flag ) xor 0= ;
-
-\ https://forth-standard.org/standard/core/ne
-\
-\ lag is true if and only if x1 is not bit-for-bit the same as x2.
-
-	: <> ( x y -- flag ) = invert ;
-
-\ mid-point include, we need the sp-n@ versions for <
-
+m4_require_w4(`std/logic-base.f')
 m4_require_w4(`std/stack-base.f')
 m4_require_w4(`std/stack-ptr.f')
 
@@ -115,3 +42,16 @@ m4_require_w4(`std/stack-ptr.f')
 \ flag is true if and only if u1 is greater than u2.
 
 	: U>  ( u1 u2 -- flag ) swap u< ;
+
+m4_require_w4(`std/stack-rs.f')
+
+\ https://forth-standard.org/standard/core/WITHIN
+\
+\ Perform a comparison of a test value n1 | u1 with a lower limit n2 | u2 and
+\ an upper limit n3 | u3, returning true if either (n2 | u2 < n3 | u3 and
+\ (n2 | u2 <= n1 | u1 and n1 | u1 < n3 | u3)) or (n2 | u2 > n3 | u3 and
+\ (n2 | u2 <= n1 | u1 or n1 | u1 < n3 | u3)) is true, returning false
+\ otherwise. An ambiguous condition exists n1 | u1, n2 | u2, and n3 | u3 are
+\ not all the same type.
+
+	: WITHIN ( test low high -- flag ) over - >r - r> u< ;

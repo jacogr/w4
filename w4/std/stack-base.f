@@ -1,5 +1,5 @@
 m4_require_w4(`std/constants.f')
-m4_require_w4(`std/logic.f')
+m4_require_w4(`std/logic-base.f')
 m4_require_w4(`std/stack-ptr.f')
 
 \ https://forth-standard.org/standard/core/NIP
