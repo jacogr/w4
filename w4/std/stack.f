@@ -2,14 +2,6 @@ m4_require_w4(`std/constants.f')
 m4_require_w4(`std/logic.f')
 m4_require_w4(`std/stack-ptr.f')
 
-\ https://forth-standard.org/standard/core/CELLPlus
-\
-\ Add the size in address units of a cell to a-addr1, giving a-addr2.
-
-	1 cells constant CELL
-
-	: CELL+ ( a-addr -- a-addr' ) cell + ;
-
 \ https://forth-standard.org/standard/core/NIP
 \
 \ Drop the first item below the top of stack.

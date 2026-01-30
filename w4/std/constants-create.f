@@ -1,18 +1,5 @@
 m4_require_w4(`std/constants-structs.f')
 
-\ Helper for allot & aligned that checks and writes to the
-\ underlying here pointer location to adavance here
-
-	: (here!)	( a-addr -- )
-		dup (here-max) - 	\ subtract from maxiumum memory position
-		$80000000 and 0=	\ signed bit should not be set
-
-		\ -23 address alignment exception
-		#-23 and throw 		\ if negative, throw error
-
-		(here^) !			\ update address, underlying here pointer
-	;
-
 \ https://forth-standard.org/standard/core/ALLOT
 \
 \ NOTE: As mentioned a number of times below, here is not yet available,
@@ -162,3 +149,11 @@ m4_require_w4(`std/constants-structs.f')
 \ NOTE: create uses build, internally, so contents are aligned
 
 	: BUFFER: ( u "<name>" -- addr ) create allot ;
+
+\ https://forth-standard.org/standard/core/CELLPlus
+\
+\ Add the size in address units of a cell to a-addr1, giving a-addr2.
+
+	1 cells constant CELL
+
+	: CELL+ ( a-addr -- a-addr' ) cell + ;

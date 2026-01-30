@@ -9,6 +9,19 @@
 
 	: HERE ( -- a-addr ) (here^) @ ;
 
+\ Helper for allot & aligned that checks and writes to the
+\ underlying here pointer location to adavance here
+
+	: (here!)	( a-addr -- )
+		dup (here-max) - 	\ subtract from maxiumum memory position
+		$80000000 and 0=	\ signed bit should not be set
+
+		\ negative address? -23 address alignment exception
+		#-23 and throw
+
+		(here^) !			\ update address, underlying here pointer
+	;
+
 m4_require_w4(`std/constants-create.f')
 m4_require_w4(`std/constants-structs.f')
 
