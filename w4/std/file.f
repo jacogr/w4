@@ -152,15 +152,10 @@ m4_require_w4(`ext/wasi.f')
 		while								( f -- )
 			buf 1 fid read-file				( -- u ior )
 
-			\ ior <> 0
-			0<> if							( u ior -- u )
-				drop						( u -- )
-				false to not-err
-			else
-				\ u == 0? (eof)
-				0= if						( u -- )
-					false to not-eof
-				else
+			\ ior == 0, success
+			0= if							( u ior -- u )
+				\ u <> 0, not eof
+				0<> if						( u -- )
 					buf c@ dup				( -- char char )
 
 					#10 = if				( char char -- char )
@@ -176,8 +171,8 @@ m4_require_w4(`ext/wasi.f')
 							fid (fid>col#++)
 						then
 					then
-				then
-			then
+				else false to not-eof then	( -- )
+			else drop false to not-err then	( u -- )
 		repeat
 
 		num						( -- u2 )
