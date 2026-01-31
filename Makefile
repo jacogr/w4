@@ -79,4 +79,3 @@ check-std: $(FTH_GEN) $(WASM_GEN_OPT) $(TEST_STD)
 	$(NODE_EXE) $(TEST_STD) <test/forth2012-test-input.txt
 
 check: check-lib check-std
-
