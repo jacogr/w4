@@ -10,7 +10,7 @@ m4_require_w4(`std/stack-ptr.f')
 \
 \ Move x to the return stack.
 
-	: >R ( x -- r:x )
+	: >R ( x -- r: x )
 		r@ swap		\ Swap the input & address
 		r!			\ Write input to location
 		branch
@@ -26,7 +26,7 @@ m4_require_w4(`std/stack-ptr.f')
 		branch
 	;
 
-	: 2>R ( x1 x2 -- ) ( R: -- x1 x2 )
+	: 2>R ( x1 x2 -- ) ( r: -- x1 x2 )
 		swap r@			( x1 x2 -- x2 x1 ret ) ( r: ret -- ret )
 		swap r!			( x2 x1 ret -- x2 ret ) ( r: ret -- x1 )
 		swap (2>radd)	( x2 ret -- )
@@ -50,7 +50,7 @@ m4_require_w4(`std/stack-ptr.f')
 \
 \ Move x from the return stack to the data stack.
 
-	: R> ( R:x -- x )
+	: R> ( r: x -- x )
 		r-1@		\ fetch value under caller’s return-to
 		(r-drop)
 	;
@@ -68,7 +68,7 @@ m4_require_w4(`std/stack-ptr.f')
 		r-depth 3 - (rs^) !			\ drop two slots under it
 	;
 
-	: 2R> ( -- x1 x2 ) ( R: x1 x2 -- )
+	: 2R> ( -- x1 x2 ) ( r: x1 x2 -- )
 		r-2@ r-1@
 		(r-2drop)
 	;
@@ -78,6 +78,6 @@ m4_require_w4(`std/stack-ptr.f')
 \ Copy cell pair x1 x2 from the return stack. Semantically
 \ equivalent to R> R> 2DUP >R >R SWAP.
 
-	: 2R@ ( r: x y ) ( -- x y )
+	: 2R@ ( -- x y ) ( r: x y -- x y )
 		r-2@ r-1@
 	;
