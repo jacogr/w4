@@ -2,6 +2,7 @@ m4_require_w4(`std/constants.f')
 m4_require_w4(`std/control.f')
 m4_require_w4(`std/locals.f')
 m4_require_w4(`std/stack.f')
+m4_require_w4(`std/string-search.f')
 m4_require_w4(`std/value.f')
 
 m4_require_w4(`ext/wasi.f')
@@ -45,13 +46,19 @@ m4_require_w4(`ext/wasi.f')
 \ Otherwise, ior is the implementation-defined I/O result code and fileid
 \ is undefined.
 
-	: (new-fileid) ( c-addr u -- a-addr )
-		here (sizeof-fid) allot		( c-addr u -- c-addr u a-addr )
-		here string-max 1+ allot	( c-addr u a-addr -- c-addr u a-addr here )
-		over (fid>buf^!)			( c-addr u a-addr here -- c-addr u a-addr )
-		-rot strdup					( c-addr u a-addr -- a-addr c-addr' u' )
-		sp-2@ (fid>path+len!)		( a-addr c-addr u -- a-addr )
-		1 over (fid>type!)			\ type = file
+	: (new-fileid) ( c-addr u -- fid )
+		\ allocate, set path + hash
+		align here (sizeof-fid) allot	( c-addr u -- c-addr u a-addr )
+		-rot strdup						( c-addr u a-addr -- a-addr c-addr' u' )
+		sp-2@ (xt>str+len+hash!)		( a-addr c-addr u -- a-addr )
+
+		\ set buffer
+		here string-max 1+ allot		( a-addr -- a-addr here )
+		over (fid>buf^!)				( a-addr here -- a-addr )
+
+		\ set flags
+		(flg-is-vis) (flg-is-var) or	( a-addr -- a-addr flags )	\ flags = var = file
+		over (fid>flags!)				( a-addr -- fid )
 	;
 
 	: OPEN-FILE ( c-addr u fam -- fileid ior )

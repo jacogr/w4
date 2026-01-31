@@ -114,7 +114,7 @@ m4_require_w4(`ext/is.f')
 		cells +				 	( buckets off -- bucket )
 	;
 
-	: (lookup-append) 				( a-addr xt -- nt )
+	: (lookup-append) ( list xt -- nt )
 		\ add the entry to the linked list
 		over swap					( list xt -- list list xt )
 		(list-append)				( list list xt -- list nt )

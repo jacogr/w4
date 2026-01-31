@@ -93,37 +93,43 @@
 
 \ layouts for fileid
 
-	\ 	path: path for the file (cell 0 & 1 layout shared with xt)
-	\  	 len: path length for the file
-	\ 	  fd: external file descriptor
-	\ 	type: 1 = file
-	\ 	row#: rows read
-	\ 	col#: cols read
-	: (sizeof-fid) ( -- u ) $8 cells ;
+	\ 	 path: path for the file (cell 0 & 1 layout shared with xt)
+	\  	  len: path length for the file
+	\	 hash: path hash (lookups)
+	\ 	flags: 1 = file
+	\ 	   fd: external file descriptor
+	\	  buf: line buffer
+	\	 nbuf: line buffer counter
+	\ 	 row#: rows read
+	\ 	 col#: cols read
+	: (sizeof-fid) ( -- u ) $9 cells ;
 
 	: (fid>path+len@) ( fid -- c-addr u ) (xt>str+len@) ;
 	: (fid>path+len!) ( c-addr len fid -- ) (xt>str+len!) ;
 
-	: (fid>fd^) ( fid -- a-addr ) $2 cells + ;
-	: (fid>fd@) ( fid -- fd ) $2 cells + @ ;
+	: (fid>hash@) ( a-addr -- u ) $2 cells + @ ;
+	: (fid>hash!) ( u a-addr -- ) $2 cells + ! ;
 
-	: (fid>type@) ( fid -- u ) $3 cells + @ ;
-	: (fid>type!) ( u fid -- ) $3 cells + ! ;
+	: (fid>flags@) ( a-addr -- u ) >flags @ ;
+	: (fid>flags!) ( u a-addr -- ) >flags ! ;
 
-	: (fid>buf^) ( fid -- a-addr ) $4 cells + @ ;
-	: (fid>buf^!) ( a-addr fid -- ) $4 cells + ! ;
+	: (fid>fd^) ( fid -- a-addr ) $4 cells + ;
+	: (fid>fd@) ( fid -- fd ) $4 cells + @ ;
 
-	: (fid>nbuf^) ( fid -- u ) $5 cells + ;
-	: (fid>nbuf@) ( fid -- u ) $5 cells + @ ;
-	: (fid>nbuf!) ( u fid -- ) $5 cells + ! ;
+	: (fid>buf^) ( fid -- a-addr ) $5 cells + @ ;
+	: (fid>buf^!) ( a-addr fid -- ) $5 cells + ! ;
 
-	: (fid>row#^) ( fid -- a-addr ) $6 cells + ;
-	: (fid>row#@) ( fid -- u ) $6 cells + @ ;
-	: (fid>row#!) ( u fid -- ) $6 cells + ! ;
+	: (fid>nbuf^) ( fid -- u ) $6 cells + ;
+	: (fid>nbuf@) ( fid -- u ) $6 cells + @ ;
+	: (fid>nbuf!) ( u fid -- ) $6 cells + ! ;
 
-	: (fid>col#^) ( fid -- a-addr ) $7 cells + ;
-	: (fid>col#@) ( fid -- u ) $7 cells + @ ;
-	: (fid>col#!) ( u fid -- ) $7 cells + ! ;
+	: (fid>row#^) ( fid -- a-addr ) $7 cells + ;
+	: (fid>row#@) ( fid -- u ) $7 cells + @ ;
+	: (fid>row#!) ( u fid -- ) $7 cells + ! ;
+
+	: (fid>col#^) ( fid -- a-addr ) $8 cells + ;
+	: (fid>col#@) ( fid -- u ) $8 cells + @ ;
+	: (fid>col#!) ( u fid -- ) $8 cells + ! ;
 
 \ latest
 
