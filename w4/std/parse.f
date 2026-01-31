@@ -44,11 +44,11 @@ m4_require_w4(`std/string.f')
 		repeat
 
 		swap					( ch -1|0 start cur rem -- ch -1|0 start rem cur )
-		sp-2@ -					( ch -1|0 start rem curr -- ch -1|0 start rem u ) ( r: in0 ) \ u = cur - start
+		sp-2@ -					( ch -1|0 start rem curr -- ch -1|0 start rem u ) ( r: in0 -- in0 ) \ u = cur - start
 
 		over 0<> negate			( ch -1|0 start rem u -- ch -1|0 start rem u 1|0 ) \ found = (rem != 0) ? 1 : 0
 		over +					( ch -1|0 start rem u 1|0 -- ch -1|0 start rem u u' ) \ u' = 1|0 + u
-		r@ +					( ch -1|0 start rem u u' -- ch -1|0 start cur rem u newin ) ( r: in0 ) \ newin = u' + in0
+		r@ +					( ch -1|0 start rem u u' -- ch -1|0 start cur rem u newin ) ( r: in0 -- in0 ) \ newin = u' + in0
 
 		>in !					( ch -1|0 start rem u newin -- ch -1|0 start cur rem u )
 
@@ -73,9 +73,9 @@ m4_require_w4(`std/string.f')
 	\ Stops when delim is found. If REFILL fails before delim, throws -14 (yours).
 	: (parse-multi) ( ch xt -- )
 		begin
-			source nip >in @ - >r		( ch xt ) ( r: -- rem )
+			source nip >in @ - >r		( ch xt -- ch xt ) ( r: -- rem )
 			sp-1@ parse					( ch xt -- ch xt c-addr u )
-			dup r> < 0=	>r				( ch xt c-addr u ) ( r: rem -- more? ) \ more? = (u < rem) == 0
+			dup r> < 0=	>r				( ch xt c-addr u - ... ) ( r: rem -- more? ) \ more? = (u < rem) == 0
 			sp-2@ execute				( ch xt c-addr u -- ch xt )
 			r> 							( ch xt -- ch xt more? )
 		while
@@ -85,7 +85,7 @@ m4_require_w4(`std/string.f')
 		2drop							( ch xt -- )
 	;
 
-	: ( ( -- ) ')' ['] 2drop (parse-multi) ; immediate
+	: ( ')' ['] 2drop (parse-multi) ; immediate
 
 (
 	At this point in time we should have multi-line comments available

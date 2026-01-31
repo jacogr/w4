@@ -45,11 +45,11 @@ m4_require_w4(`std/memory.f')
 
 	\ handle prefixes and prostfixes
 	: (interpret-number-prefix) ( c-addr u -- c-addr' u' isd? mul nbase )
-		false 1 0
-		{: isd? mul nbase :}
+		false 1 0								( c-addr u -- c-addr u isd? mul nbase )
+		{: isd? mul nbase :}					( c-addr u isd? mul nbase -- c-addr u )
 
 		\ extract last char (double indicator)
-		2dup 1- + c@						( c-addr u -- c-addr u char )
+		2dup 1- + c@							( c-addr u -- c-addr u char )
 
 		\ char = '.'? (double value)
 		'.' = if
@@ -58,17 +58,17 @@ m4_require_w4(`std/memory.f')
 		then
 
 		\ extract negative/base char
-		over c@								( c-addr u -- c-addr u char )
+		over c@										( c-addr u -- c-addr u char )
 
 		\ char == '-', negative
-		dup '-' = if						( c-addr u char -- c-addr u char )
-			drop							( c-addr u char -- c-addr u )
+		dup '-' = if								( c-addr u char -- c-addr u char )
+			drop									( c-addr u char -- c-addr u )
 			(interpret-skip-char)
 			-1 to mul
 		else
 			\ try to extract the base
-			dup '$' <> if					( c-addr u char -- c-addr u char )
-				dup '#' <> if				( c-addr u char -- c-addr u char )
+			dup '$' <> if							( c-addr u char -- c-addr u char )
+				dup '#' <> if						( c-addr u char -- c-addr u char )
 					'%' = if $02 to nbase then
 				else drop $0a to nbase then
 			else drop $10 to nbase then
@@ -76,10 +76,10 @@ m4_require_w4(`std/memory.f')
 			\ have a base?
 			nbase if
 				(interpret-skip-char)
-				over c@							( c-addr u -- c-addr u char )
+				over c@								( c-addr u -- c-addr u char )
 
 				\ char == '-', negative
-				'-' = if						( c-addr u char -- c-addr u )
+				'-' = if							( c-addr u char -- c-addr u )
 					(interpret-skip-char)
 					-1 to mul
 				then
@@ -87,13 +87,13 @@ m4_require_w4(`std/memory.f')
 		then
 
 		\ result
-		isd? mul nbase							( c-addr u -- c-addr' u' isd? mul nbase )
+		isd? mul nbase								( c-addr u -- c-addr' u' isd? mul nbase )
 	;
 
 	\ try and convert the number
 	: (interpret-number-conv) ( c-addr u -- n f )
-		(interpret-number-prefix) base @
-		{: str len isd? mul nbase obase :}
+		(interpret-number-prefix) base @			( c-addr u -- c-addr' u' isd? mul nbase obase )
+		{: str len isd? mul nbase obase :}			( c-addr u isd? mul nbase obase -- )
 
 		\ ensure valid length
 		len 0> if
@@ -105,34 +105,34 @@ m4_require_w4(`std/memory.f')
 			else 0 to nbase then
 
 			\ convert
-			0 0 str len >number					( -- lo hi c-addr u )
+			0 0 str len >number						( -- lo hi c-addr u )
 
 			\ reset base
 			nbase if obase base ! then
 
-			nip 0= if							( lo hi c-addr u -- lo hi )
-				0= if							( lo hi -- lo )
-					mul *						( lo -- n )
-					isd? if -1 else 1 then 		( n -- n f )
-				else drop 0 0 then				( lo -- 0 0 )
-			else 2drop 0 0 then					( lo hi -- 0 0 )
-		else 0 0 then							( -- 0 0 )
+			nip 0= if								( lo hi c-addr u -- lo hi )
+				0= if								( lo hi -- lo )
+					mul *							( lo -- n )
+					isd? if -1 else 1 then 			( n -- n f )
+				else drop 0 0 then					( lo -- 0 0 )
+			else 2drop 0 0 then						( lo hi -- 0 0 )
+		else 0 0 then								( -- 0 0 )
 	;
 
 	: (interpret-number) ( c-addr u -- )
-		(interpret-number-conv)					( c-addr u -- n f )
+		(interpret-number-conv)						( c-addr u -- n f )
 
 		\ f <> 0? (number converted)
 		dup if
-			\ compiling?						( n f -- n f )
+			\ compiling?							( n f -- n f )
 			state @ if
-				(flg-xt-lit) swap				( nf -- n xtf f )
+				(flg-xt-lit) swap					( nf -- n xtf f )
 
-				-1 = if (flg-is-var) or then	( n xtf -- n xtf' )
+				-1 = if (flg-is-var) or then		( n xtf -- n xtf' )
 
-				(new-xt)						( n xtf -- xt )
-				compile,						( xt -- )
-			else -1 = if 0 then then			( n f -- n ) \ hi = 0 if double
+				(new-xt)							( n xtf -- xt )
+				compile,							( xt -- )
+			else -1 = if 0 then then				( n f -- n ) \ hi = 0 if double
 		else #-13 and throw then
 	;
 

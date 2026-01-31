@@ -167,14 +167,14 @@ m4_require_w4(`std/stack-ptr.f')
 \ n | u is a copy of the current (innermost) loop index. An ambiguous condition
 \ exists if the loop control parameters are unavailable.
 
-	: I ( -- i ) ( r: u i ret ) r-1@ ;
+	: I ( -- i ) ( r: u i ret -- ... ) r-1@ ;
 
 \ https://forth-standard.org/standard/core/J
 \
 \ n | u is a copy of the next-outer loop index. An ambiguous condition exists if
 \ the loop control parameters of the next-outer loop, loop-sys1, are unavailable.
 
-	: J ( -- j ) ( r: exit-j u' j exit-i u i ret ) r-4@ ;
+	: J ( -- j ) ( r: exit-j u' j exit-i u i ret -- ... ) r-4@ ;
 
 \ https://forth-standard.org/standard/core/LEAVE
 \
@@ -277,8 +277,8 @@ m4_require_w4(`std/stack-ptr.f')
 \ loop limit, discard the loop parameters and continue execution immediately
 \ following the loop. Otherwise continue execution at the beginning of the loop.
 
-	: (loop) ( -- done? ) ( r: exit-dst u i ret )
-		r-1@ 1+ dup		( -- i+1 1+1 ) ( r: exit-dst u i ret )
+	: (loop) ( -- done? ) ( r: exit-dst u i ret -- ... )
+		r-1@ 1+ dup		( -- i+1 1+1 ) ( r: exit-dst u i ret -- ... )
 		r-1!			( i+1 i+1 -- ) ( r: exit-dst u i ret -- exit-dst u i+1 ret )
 		r-2@ =			( i+1 -- done? ) \ i == u
 	;
@@ -301,7 +301,7 @@ m4_require_w4(`std/stack-ptr.f')
 \ execution at the beginning of the loop. Otherwise, discard the current loop
 \ control parameters and continue execution immediately following the loop.
 
-	: (+loop) ( n -- done? ) ( r: u i ret )
+	: (+loop) ( n -- done? ) ( r: u i ret -- ... )
 		dup 0= if
 			drop false			( n -- done? )
 			exit
@@ -323,7 +323,7 @@ m4_require_w4(`std/stack-ptr.f')
 		else
 			\ n > 0
 			0< 0=				( d newt -- d f1 ) 		\ (newt < 0) = 0; newt >= 0
-			swap 0<				( d f1  -- f1 f2) 		\ d < 0
+			swap 0<				( d f1 -- f1 f2 ) 		\ d < 0
 			and					\ done? = (newt >= 0) AND (d < 0)
 		then
 	;

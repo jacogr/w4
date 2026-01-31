@@ -35,7 +35,7 @@ m4_require_w4(`std/logic-base.f')
 
 \ As per the above, a version for the control stack
 
-	: CS-DEPTH ( r:... - u ) (cs^) @ ;
+	: CS-DEPTH ( c: ... - u ) (cs^) @ ;
 
 \ As per the (ds^-n) versions
 
@@ -69,7 +69,7 @@ m4_require_w4(`std/logic-base.f')
 
 \ As per the above, a version for the return stack
 
-	: R-DEPTH ( r:... - u ) (rs^) @	1- ; \ remove this return
+	: R-DEPTH ( r: ... - u ) (rs^) @	1- ; \ remove this return
 
 \ As per the sp@ version, same style, this on return stack
 \ (w/ additional cell removed for call into these)

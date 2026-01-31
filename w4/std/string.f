@@ -41,9 +41,9 @@ m4_require_w4(`std/stack-control.f')
 		\ for use at runtime
 		dup >r 			( c-addr u -- c-addr u ) ( r: -- u )
 		here >r 		( c-addr u -- c-addr u ) ( r: u -- u dst )
-		dup allot 		( c-addr u -- c-addr u ) ( r: u dst )		\ reserve u bytes, keep u for copy
-		r@ swap 		( c-addr u -- c-addr dst u ) ( r: u dst )
-		cmove			( c-addr dst u -- ) ( r: u dst ) \ copy u bytes: (src dst u)
+		dup allot 		( c-addr u -- c-addr u ) ( r: u dst -- ... )	\ reserve u bytes, keep u for copy
+		r@ swap 		( c-addr u -- c-addr dst u ) ( r: u dst -- ... )
+		cmove			( c-addr dst u -- ) ( r: u dst -- ... )			\ copy u bytes: (src dst u)
 		r> lit,			( -- ) ( r: u dst -- u )
 		r> lit,			( -- ) ( r: u -- )
 	;

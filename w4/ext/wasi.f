@@ -23,13 +23,13 @@ m4_require_w4(`std/stack-base.f')
 
 	: IOV! ( c-addr u a-iov -- )
 		>r 				( c-addr u a-iov -- c-addr u ) ( r: -- a-iov )
-		r@ 1 cells + !	( c-addr u -- c-addr ) ( r: a-iov ) \ store u at [a-iov + 1 cell]
+		r@ 1 cells + !	( c-addr u -- c-addr ) ( r: a-iov -- a-iov ) \ store u at [a-iov + 1 cell]
 		r> ! 			( c-addr -- )                       \ store c-addr at [a-iov + 0]
 	;
 
 	: IOV<FD? ( c-addr u fd --  err nread )
 		>r 					( c-addr u fd -- c-addr u ) ( r: -- fd )
-		(iov-tmp-in) iov! 	( c-addr u -- ) ( r: fd )
+		(iov-tmp-in) iov! 	( c-addr u -- ) ( r: fd -- fd )
 		r> 					( -- fd )							\ restore fd
 		(iov-tmp-in) 		( fd -- fd iovs_ptr )				\ iovs_ptr
 		1 					( ... -- fd iovs_ptr iovs_len )		\ iovs_len = 1

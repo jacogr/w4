@@ -102,7 +102,7 @@ m4_require_w4(`std/math-double.f')
 \ result returned will be the same as that returned by either the phrase
 \ >R S>D R> FM/MOD SWAP DROP or the phrase >R S>D R> SM/REM SWAP DROP.
 
-	: / ( q r - r ) /mod nip ;
+	: / ( q r -- r ) /mod nip ;
 
 	: U/ u/mod nip ;
 
@@ -115,4 +115,4 @@ m4_require_w4(`std/math-double.f')
 \ result returned will be the same as that returned by either the phrase
 \ >R S>D R> FM/MOD DROP or the phrase >R S>D R> SM/REM DROP.
 
-	: MOD ( q r - q ) /mod drop ;
+	: MOD ( q r -- q ) /mod drop ;

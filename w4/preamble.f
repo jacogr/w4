@@ -171,7 +171,7 @@
 \ we have more functions available to us, including loops and proper stack
 \ operations.
 
-	: ( \ ( -- )
+	: (
 		')' parse-token		\ ( -- c-addr u )
 
 		\ -14 interpreting a compile-only word
