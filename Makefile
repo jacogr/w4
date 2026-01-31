@@ -32,6 +32,12 @@ M4_FLAGS       = -P -DRELEASE
 WASMOPT_FLAGS  = -O4 --enable-multivalue --enable-bulk-memory-opt --converge
 endif
 
+ifeq ($(DEBUG),1)
+FTH_FILTER = cat
+else
+FTH_FILTER = sed -E -f minify.sed
+endif
+
 NODE_FLAGS     = --disable-warning=ExperimentalWarning
 WAT2WASM_FLAGS =
 
@@ -41,7 +47,6 @@ M4_EXE         = m4 $(M4_FLAGS)
 NODE_EXE       = node $(NODE_FLAGS) w4.js
 OPT_EXE        = wasm-opt $(WASMOPT_FLAGS)
 WAT_EXE        = wat2wasm $(WAT2WASM_FLAGS)
-
 
 # targets
 
@@ -53,7 +58,7 @@ $(BUILD_DIR):
 
 # forth m4 expand
 $(FTH_GEN): $(FTH_SRC) | $(BUILD_DIR)
-	$(M4_EXE) -I$(FTH_DIR) $(FTH_ENTRY) > $@
+	$(M4_EXE) -I$(FTH_DIR) $(FTH_ENTRY) | $(FTH_FILTER) > $@
 
 # wat m4 expand
 $(WAT_GEN): $(WAT_SRC) | $(BUILD_DIR)

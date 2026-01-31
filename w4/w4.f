@@ -1,7 +1,7 @@
 
 m4_include(`preclude.m4')
 
-m4_include_w4(`preamble.f')
+m4_include(`preamble.f')
 
 m4_require_w4(`std/compile.f')
 m4_require_w4(`std/constants.f')

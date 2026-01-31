@@ -35,7 +35,7 @@ m4_require_w4(`std/logic-base.f')
 
 \ As per the above, a version for the control stack
 
-	: CS-DEPTH ( c: ... - u ) (cs^) @ ;
+	: CS-DEPTH ( c: ... -- u ) (cs^) @ ;
 
 \ As per the (ds^-n) versions
 

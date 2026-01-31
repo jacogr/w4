@@ -75,7 +75,7 @@ m4_require_w4(`std/string.f')
 		begin
 			source nip >in @ - >r		( ch xt -- ch xt ) ( r: -- rem )
 			sp-1@ parse					( ch xt -- ch xt c-addr u )
-			dup r> < 0=	>r				( ch xt c-addr u - ... ) ( r: rem -- more? ) \ more? = (u < rem) == 0
+			dup r> < 0=	>r				( ch xt c-addr u -- ... ) ( r: rem -- more? ) \ more? = (u < rem) == 0
 			sp-2@ execute				( ch xt c-addr u -- ch xt )
 			r> 							( ch xt -- ch xt more? )
 		while

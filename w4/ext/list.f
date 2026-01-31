@@ -149,7 +149,7 @@ m4_require_w4(`ext/is.f')
 
 			\ visible?
 			(flg-is-vis) is-flag? if	( nt flags -- nt )
-				r-1@ execute			( nt -- f ) ( r: cb nt )
+				r-1@ execute			( nt -- f ) ( r: cb nt -- cb nt )
 			else drop true then			( nt -- f )
 
 			\ restore from stack

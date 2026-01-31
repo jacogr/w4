@@ -288,22 +288,22 @@ m4_require_w4(`std/stdio.f')
 			#10 + \ convert 'a'-'z'
 		then
 
-		dup base @ < dup 0= if nip then ( +n true | false ) \ reject beyond base
+		dup base @ < dup 0= if nip then ( ... -- +n true | false ) \ reject beyond base
 	;
 
 	: >NUMBER ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 ) \ "to-number"
 		2swap 2>r
 
-		begin ( c-addr u ) ( R: ud.accum )
+		begin ( ud1 c-addr1 u1 -- c-addr u ) ( r: -- ud.accum )
 			dup while \ character left to inspect
 				over c@ >digit
 			while \ digit parsed within base
-				2r> base @ 1 m*/ ( c-addr u n.digit ud.accum ) \ scale accum by base
+				2r> base @ 1 m*/ ( c-addr u -- c-addr u n.digit ud.accum ) \ scale accum by base
 				rot m+ 2>r \ add current digit to accum
-				1 /string ( c-addr1+1 u1-1 )
+				1 /string ( c-addr u -- c-addr1+1 u1-1 )
 		repeat then
 
-		2r> 2swap ( ud2 c-addr2 u2 )
+		2r> 2swap ( c-addr2 u2 -- ud2 c-addr2 u2 ) ( r: ud2 -- )
 	;
 
 \ https://forth-standard.org/standard/core/Seq
