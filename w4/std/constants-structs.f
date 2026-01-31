@@ -100,9 +100,8 @@
 	\ 	   fd: external file descriptor
 	\	  buf: line buffer
 	\	 nbuf: line buffer counter
-	\ 	 row#: rows read
-	\ 	 col#: cols read
-	: (sizeof-fid) ( -- u ) $9 cells ;
+	\  rowcol: rows & cols read
+	: (sizeof-fid) ( -- u ) $8 cells ;
 
 	: (fid>path+len@) ( fid -- c-addr u ) (xt>str+len@) ;
 	: (fid>path+len!) ( c-addr len fid -- ) (xt>str+len!) ;
@@ -123,13 +122,8 @@
 	: (fid>nbuf@) ( fid -- u ) $6 cells + @ ;
 	: (fid>nbuf!) ( u fid -- ) $6 cells + ! ;
 
-	: (fid>row#^) ( fid -- a-addr ) $7 cells + ;
-	: (fid>row#@) ( fid -- u ) $7 cells + @ ;
-	: (fid>row#!) ( u fid -- ) $7 cells + ! ;
-
-	: (fid>col#^) ( fid -- a-addr ) $8 cells + ;
-	: (fid>col#@) ( fid -- u ) $8 cells + @ ;
-	: (fid>col#!) ( u fid -- ) $8 cells + ! ;
+	: (fid>rowcol@) ( fid -- u ) $7 cells + @ ;
+	: (fid>rowcol!) ( u fid -- ) $7 cells + ! ;
 
 \ latest
 

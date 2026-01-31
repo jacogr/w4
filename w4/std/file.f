@@ -151,9 +151,18 @@ m4_require_w4(`ext/wasi.f')
 \ At the conclusion of the operation, FILE-POSITION returns the next file
 \ position after the last character read.
 
-	: (fid>--++) ( a-addr -- ) dup @ 1+ swap ! ;
-	: (fid>row#++) ( fid -- ) (fid>row#^) (fid>--++) ;
-	: (fid>col#++) ( fid -- ) (fid>col#^) (fid>--++) ;
+	: (fid>row#++) ( fid -- )
+		dup (fid>rowcol@)		( fid -- fid rowcol )
+		#16 rshift 1+			( fid rowcol -- fid row' )	\ row = row + 1
+		#16 lshift				( fid row -- fid rowcol )	\ col = 0
+		swap (fid>rowcol!)		( fid rowcol -- )
+	;
+	: (fid>col#++) ( fid -- )
+		dup (fid>rowcol@)		( fid -- fid rowcol )
+		dup $ffff0000 and		( fid -- fid rowcol row" )				\ row" = row << 16
+		swap $ffff and 1+		( fid rowcol row" -- fid row" col' )	\ col' = col + 1
+		or swap (fid>rowcol!)	( fid rowcol' -- )						\ rowcol = row<<16 + col'
+	;
 
 	: READ-LINE ( c-addr u fid -- u2 flag ior )
 		true true true 0 								( c-addr u fid -- c-addr u fid not-eof not-eol not-err num )
@@ -175,7 +184,6 @@ m4_require_w4(`ext/wasi.f')
 					#10 = if				( char char -- char )
 						drop				( char -- )
 						fid (fid>row#++)
-						0 fid (fid>col#!)
 						false to not-eol
 					else
 						#13 <> if			( char -- )
