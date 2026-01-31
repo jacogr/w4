@@ -1,31 +1,23 @@
-# tools
-
-M4        = m4
-WAT2WASM  = wat2wasm
-WASMOPT   = wasm-opt
-NODE      = node
-
-
 # paths
 
-BUILD_DIR    = build
-FTH_DIR      = w4
-WAT_DIR      = wat
-TEST_DIR     = test
+BUILD_DIR      = build
+FTH_DIR        = w4
+WAT_DIR        = wat
+TEST_DIR       = test
 
-FTH_ENTRY    = $(FTH_DIR)/w4.f
-FTH_GEN      = $(BUILD_DIR)/w4.f
-FTH_SRC     := $(shell find $(FTH_DIR) -type f -name '*.f' -print)
+FTH_ENTRY      = $(FTH_DIR)/w4.f
+FTH_GEN        = $(BUILD_DIR)/w4.f
+FTH_SRC       := $(shell find $(FTH_DIR) -type f -name '*.f' -print)
 
-WAT_ENTRY    = $(WAT_DIR)/main.wat
-WAT_GEN      = $(BUILD_DIR)/w4.wat
-WAT_SRC     := $(shell find $(WAT_DIR) -type f -name '*.wat' -print)
+WAT_ENTRY      = $(WAT_DIR)/main.wat
+WAT_GEN        = $(BUILD_DIR)/w4.wat
+WAT_SRC       := $(shell find $(WAT_DIR) -type f -name '*.wat' -print)
 
-WASM_GEN     = $(BUILD_DIR)/w4.wasm
-WASM_GEN_OPT = $(BUILD_DIR)/w4-opt.wasm
+WASM_GEN       = $(BUILD_DIR)/w4.wasm
+WASM_GEN_OPT   = $(BUILD_DIR)/w4-opt.wasm
 
-TEST_STD     = $(TEST_DIR)/forth2012-test-suite.f
-TEST_W4      = $(TEST_DIR)/w4-test-suite.f
+TEST_STD       = $(TEST_DIR)/forth2012-test-suite.f
+TEST_LIB       = $(TEST_DIR)/w4-test-suite.f
 
 
 # flags
@@ -33,14 +25,22 @@ TEST_W4      = $(TEST_DIR)/w4-test-suite.f
 DEBUG ?= 0
 
 ifeq ($(DEBUG),1)
-M4_FLAGS      = -P -DDEBUG
-WASMOPT_FLAGS = -O0 --enable-multivalue --enable-bulk-memory-opt
+M4_FLAGS       = -P -DDEBUG
+WASMOPT_FLAGS  = -O0 --enable-multivalue --enable-bulk-memory-opt
 else
-M4_FLAGS      = -P -DRELEASE
-WASMOPT_FLAGS = -O4 --enable-multivalue --enable-bulk-memory-opt --converge
+M4_FLAGS       = -P -DRELEASE
+WASMOPT_FLAGS  = -O4 --enable-multivalue --enable-bulk-memory-opt --converge
 endif
 
-NODE_FLAGS = --disable-warning=ExperimentalWarning
+NODE_FLAGS     = --disable-warning=ExperimentalWarning
+WAT2WASM_FLAGS =
+
+# tools w/ flags
+
+M4_EXE         = m4 $(M4_FLAGS)
+NODE_EXE       = node $(NODE_FLAGS) w4.js
+OPT_EXE        = wasm-opt $(WASMOPT_FLAGS)
+WAT_EXE        = wat2wasm $(WAT2WASM_FLAGS)
 
 
 # targets
@@ -53,25 +53,30 @@ $(BUILD_DIR):
 
 # forth m4 expand
 $(FTH_GEN): $(FTH_SRC) | $(BUILD_DIR)
-	$(M4) $(M4_FLAGS) -I$(FTH_DIR) $(FTH_ENTRY) > $@
+	$(M4_EXE) -I$(FTH_DIR) $(FTH_ENTRY) > $@
 
 # wat m4 expand
 $(WAT_GEN): $(WAT_SRC) | $(BUILD_DIR)
-	$(M4) $(M4_FLAGS) -I$(WAT_DIR) $(WAT_ENTRY) > $@
+	$(M4_EXE) -I$(WAT_DIR) $(WAT_ENTRY) > $@
 
 # wat -> wasm
 $(WASM_GEN): $(WAT_GEN)
-	$(WAT2WASM) $< -o $@
+	$(WAT_EXE) $< -o $@
 
 # optimize
 $(WASM_GEN_OPT): $(WASM_GEN)
-	$(WASMOPT) $(WASMOPT_FLAGS) $< -o $@
+	$(OPT_EXE) $< -o $@
 
 # cleanup build
 clean:
 	rm -rf $(BUILD_DIR)
 
 # run tests
-check: $(FTH_GEN) $(WASM_GEN_OPT) $(TEST_STD)
-	$(NODE) $(NODE_FLAGS) w4.js $(TEST_W4)
-	$(NODE) $(NODE_FLAGS) w4.js $(TEST_STD) <test/forth2012-test-input.txt
+check-lib: $(FTH_GEN) $(WASM_GEN_OPT) $(TEST_LIB)
+	$(NODE_EXE) $(TEST_LIB)
+
+check-std: $(FTH_GEN) $(WASM_GEN_OPT) $(TEST_STD)
+	$(NODE_EXE) $(TEST_STD) <test/forth2012-test-input.txt
+
+check: check-lib check-std
+
