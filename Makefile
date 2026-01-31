@@ -30,7 +30,7 @@ FTH_FILTER     = cat
 WASMOPT_FLAGS  = -O0 --enable-multivalue --enable-bulk-memory-opt
 else
 M4_FLAGS       = -P -DRELEASE
-FTH_FILTER     = sed -E -f minify.sed | awk -f minify.awk
+FTH_FILTER     = awk -f minify-filter.awk | awk -f minify-collapse.awk
 WASMOPT_FLAGS  = -O4 --enable-multivalue --enable-bulk-memory-opt --converge
 endif
 
