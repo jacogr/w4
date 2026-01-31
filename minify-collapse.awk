@@ -15,7 +15,7 @@ function trim(s) {
 }
 
 # Return 1 if line ends the current colon definition (based on tokens on THIS line)
-function line_ends_def(line,    n) {
+function line_ends_def(line, n) {
 	# Special-case: defining the word named ';'
 	# Only end on a "standalone" terminator line: ';' or '; immediate'
 	if (def_name == ";") {
@@ -67,67 +67,69 @@ function is_block_start(line) {
 		# create_block state
 		# -------------------------
 		if (mode == 2) {
-		# If we hit the next block start, flush create block and re-handle this line
-		if (is_block_start(line)) {
-			mode = 0
-			flush()
-			reprocess = 1
-			continue
-		}
+			# If we hit the next block start, flush create block and re-handle this line
+			if (is_block_start(line)) {
+				mode = 0
+				flush()
+				reprocess = 1
+				continue
+			}
 
-		# Otherwise keep appending into the create block
-		buf = buf " " line
-		next
+			# Otherwise keep appending into the create block
+			buf = buf " " line
+			next
 		}
 
 		# -------------------------
 		# normal state
 		# -------------------------
 		if (mode == 0) {
-		# Start a colon definition
-		if (is_colon_start(line)) {
-			mode = 1
-			buf = line
+			# Start a colon definition
+			if (is_colon_start(line)) {
+				mode = 1
+				buf = line
 
-			# Extract def name: first token after ':'
-			tmp = line
-			sub(/^:[[:space:]]*/, "", tmp)
-			split(tmp, a, /[[:space:]]+/)
-			def_name = a[1]  # can be ';'
+				# Extract def name: first token after ':'
+				tmp = line
+				sub(/^:[[:space:]]*/, "", tmp)
+				split(tmp, a, /[[:space:]]+/)
+				def_name = a[1]  # can be ';'
 
-			# Single-line def ends immediately
-			if (line_ends_def(line)) {
-			mode = 0
-			def_name = ""
-			flush()
+				# Single-line def ends immediately
+				if (line_ends_def(line)) {
+					mode = 0
+					def_name = ""
+					flush()
+				}
+
+				next
 			}
-			next
-		}
 
-		# Start a create block
-		if (is_create_start(line)) {
-			mode = 2
-			buf = line
-			next
-		}
+			# Start a create block
+			if (is_create_start(line)) {
+				mode = 2
+				buf = line
+				next
+			}
 
-		# Pass through other lines unchanged
-		print line
-		next
+			# Pass through other lines unchanged
+			print line
+			next
 		}
 
 		# -------------------------
 		# colon_def state
 		# -------------------------
 		if (mode == 1) {
-		buf = buf " " line
+			buf = buf " " line
 
-		if (line_ends_def(line)) {
-			mode = 0
-			def_name = ""
-			flush()
-		}
-		next
+			if (line_ends_def(line)) {
+				mode = 0
+				def_name = ""
+				flush()
+			}
+
+			next
 		}
 	}
 }
