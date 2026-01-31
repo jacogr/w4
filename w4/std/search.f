@@ -54,7 +54,7 @@ m4_require_w4(`ext/list.f')
 \ The minimum search order shall include the words FORTH-WORDLIST and
 \ SET-ORDER. A system shall allow n to be at least eight.
 
-	: SET-ORDER ( wid1 ... widn n -0 )
+	: SET-ORDER ( ... -- wid1 ... widn n -0 )
 		dup -1 = if
 			drop
 			forth-wordlist 1 recurse
@@ -230,14 +230,14 @@ m4_require_w4(`ext/list.f')
 \ this doesn't actually add any new functionality.
 
 	: FIND ( c-addr -- c-addr 0 | xt 1 | xt -1 )
-		0								( c-addr 0 )
+		0								( c-addr -- c-addr 0 )
 
 		\ search locals word list (if available)
 		(locals-wid) ?dup if
 			over count rot				( c-addr 0 wid -- c-addr 0 c-addr' u wid )
-			search-wordlist				( c-addr 0; 0 | w 1 | q -1 )
+			search-wordlist				( ... -- c-addr 0; 0 | w 1 | q -1 )
 
-			?dup if						( c-addr 0; w 1 | w -1 )
+			?dup if						( ... -- c-addr 0; w 1 | w -1 )
 				2swap 2drop
 				exit
 			then
@@ -245,16 +245,16 @@ m4_require_w4(`ext/list.f')
 
 		\ search all available wordlists
 		(wid-count) 0 ?do
-			over count					( c-addr 0 c-addr' u )
+			over count					( ... -- c-addr 0 c-addr' u )
 			i cells
-			(wid-list) + @				( c-addr 0 c-addr' u wid )
-			search-wordlist				( c-addr 0; 0 | w 1 | q -1 )
+			(wid-list) + @				( ... -- c-addr 0 c-addr' u wid )
+			search-wordlist				( ... -- c-addr 0; 0 | w 1 | q -1 )
 
-			?dup if						( c-addr 0; w 1 | w -1 )
+			?dup if						( ... -- c-addr 0; w 1 | w -1 )
 				2swap 2drop
-				leave					( w 1 | w -1 )
-			then						( c-addr 0 )
-		loop							( c-addr 0 | w 1 | w -1 )
+				leave					( ... -- w 1 | w -1 )
+			then						( ... -- c-addr 0 )
+		loop							( ... -- c-addr 0 | w 1 | w -1 )
 	;
 
 \ setup, make it usable via the standard init string
