@@ -41,7 +41,7 @@ m4_require_w4(`std/memory.f')
 \ If unsuccessful, an ambiguous condition exists (see 3.4.4).
 
 	: (interpret-number-conv) ( c-addr u -- n f )
-		false 1 base 0
+		false 1 base @ 0
 		{: str len isd? mul obase nbase :}	( c-addr u -- )
 
 		\ extract last char (double indicator)
@@ -56,6 +56,7 @@ m4_require_w4(`std/memory.f')
 		\ extract negative/base char
 		str c@								( -- char )
 
+		\ char == '-', negative
 		dup '-' = if						( char -- char )
 			drop							( char -- )
 			-1 to mul
@@ -65,19 +66,19 @@ m4_require_w4(`std/memory.f')
 			\ try to extract the base
 			dup '$' <> if					( char -- char )
 				dup '#' <> if				( char -- char )
-					'%' = if #02 to nbase then
+					'%' = if $02 to nbase then
 				else drop $0a to nbase then
 			else drop $10 to nbase then
 
-			\ have a new base?
+			\ have a base?
 			nbase if
 				len 1- to len
 				str 1+ to str
 
 				str c@							( -- char )
 
-				\ handle negative case
-				'-' if
+				\ char == '-', negative
+				'-' = if						( char -- )
 					-1 to mul
 					len 1- to len
 					str 1+ to str
@@ -87,8 +88,12 @@ m4_require_w4(`std/memory.f')
 
 		\ ensure valid length
 		len 0> if
-			\ set base
-			nbase if nbase base ! then
+			\ set base, nbase <> 0 & nbase <> obase
+			nbase 0<>
+			nbase obase <>
+			and if
+				nbase base !
+			else 0 to nbase then
 
 			\ convert
 			0 0 str len >number					( -- lo hi c-addr u )
@@ -108,7 +113,7 @@ m4_require_w4(`std/memory.f')
 	: (interpret-number) ( c-addr u -- )
 		(interpret-number-conv)					( c-addr u -- n f )
 
-		\ f <> 1? (number converted)
+		\ f <> 0? (number converted)
 		dup if
 			\ compiling?						( n f -- n f )
 			state @ if
