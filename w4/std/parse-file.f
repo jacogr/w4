@@ -67,7 +67,7 @@ m4_require_w4(`ext/list.f')
 		else							( c-addr u nt -- c-addr u )
 			\ open file
 			r/o open-file				( c-addr u -- fid ior )
-			0= #-37 and throw			( fileid ior -- fileid )
+			0<> #-38 and throw			( fileid ior -- fileid )
 
 			\ append
 			(included-wid)				( fileid -- fileid wid )

@@ -8,10 +8,6 @@ import nodeProcess from 'node:process';
 import nodeWasi from 'node:wasi';
 
 (async () => {
-	// arguments
-	const cmd = nodePath.basename(import.meta.filename);
-	const argv = nodeProcess.argv.slice(2);
-
 	// exposed forward
 	let /** @type {WasmExports | null} */ exposed = null
 	let /** @type {DataView | null} */ memview = null;
@@ -45,15 +41,25 @@ import nodeWasi from 'node:wasi';
 		}
 	}
 
-	// ensure we have a source file
-	if (!argv.length || !argv[0]) {
-		console.log(`Usage: ${cmd} <file.f>`);
-		nodeProcess.exit(-1);
-	}
-
 	// start the timers for ok/err
 	console.time('ok');
 	console.time('err');
+
+	// arguments
+	const argv = nodeProcess.argv.slice(2);
+	const cmdFile = nodePath.basename(import.meta.filename);
+
+	// ensure we have a source file
+	if (!argv.length || !argv[0]) {
+		console.log(`Usage: ${cmdFile} <file.f>`);
+		nodeProcess.exit(-1);
+	}
+
+	// get path & file
+	const usrFull = nodePath.join(nodeProcess.cwd(), argv[0]);
+	const usrPath = nodePath.dirname(usrFull);
+	const usrFile = nodePath.basename(usrFull);
+	const libPath = nodePath.join(import.meta.dirname, 'build');
 
 	try {
 		// instantiate WASM, including getting a memory view
@@ -62,15 +68,15 @@ import nodeWasi from 'node:wasi';
   			env: nodeProcess.env,
 			preopens: {
 				// user location first, default for includes/requires
-				/* fd:3 */ '/app': nodeProcess.cwd(),
-				/* fd:4 */ '/lib': nodePath.join(import.meta.dirname, 'build'),
+				/* fd:3 */ '/usr': usrPath,
+				/* fd:4 */ '/lib': libPath,
 			},
 			stdin: nodeProcess.stdin.fd,
   			stdout: nodeProcess.stdout.fd,
   			stderr: nodeProcess.stderr.fd,
 			version: 'preview1'
 		});
-		const wasm = await WebAssembly.compile(nodeFs.readFileSync('build/w4-opt.wasm'));
+		const wasm = await WebAssembly.compile(nodeFs.readFileSync(nodePath.join(libPath, 'w4-opt.wasm')));
 		const instance = await WebAssembly.instantiate(wasm, { ...wasi.getImportObject() });
 
 		// store exposed interface
@@ -80,7 +86,7 @@ import nodeWasi from 'node:wasi';
 		// initialize the engine (underlying it calls the _start export)
 		wasi.start(instance);
 
-		evaluateFile(argv[0]);
+		evaluateFile(usrFile);
 
 		logEnd('ok');
 	} catch (e) {

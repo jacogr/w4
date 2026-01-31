@@ -25,7 +25,7 @@ WASM_GEN     = $(BUILD_DIR)/w4.wasm
 WASM_GEN_OPT = $(BUILD_DIR)/w4-opt.wasm
 
 TEST_STD     = $(TEST_DIR)/forth2012-test-suite.f
-TEST_W4      = $(TEST_DIR)/w4.f
+TEST_W4      = $(TEST_DIR)/library-test-suite.f
 
 
 # flags

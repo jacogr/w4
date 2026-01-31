@@ -4,7 +4,7 @@ testing OPEN-FILE, READ-LINE, CLOSE-FILE
 
 variable this-id
 
-T{ s" test/w4/file.f" r/o open-file swap dup this-id ! 0<> -> 0 true }T
+T{ s" w4/file.f" r/o open-file swap dup this-id ! 0<> -> 0 true }T
 
 $ff buffer: line-buf
 
