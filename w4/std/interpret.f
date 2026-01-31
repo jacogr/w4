@@ -40,51 +40,60 @@ m4_require_w4(`std/memory.f')
 \
 \ If unsuccessful, an ambiguous condition exists (see 3.4.4).
 
-	: (interpret-number-conv) ( c-addr u -- n f )
-		false 1 base @ 0
-		{: str len isd? mul obase nbase :}	( c-addr u -- )
+	\ advance character
+	: (interpret-skip-char) ( c-addr u -- c-addr' u' ) 1- swap 1+ swap ;
+
+	\ handle prefixes and prostfixes
+	: (interpret-number-prefix) ( c-addr u -- c-addr' u' isd? mul nbase )
+		false 1 0
+		{: isd? mul nbase :}
 
 		\ extract last char (double indicator)
-		len 1- str + c@						( -- char )
+		2dup 1- + c@						( c-addr u -- c-addr u char )
 
 		\ char = '.'? (double value)
 		'.' = if
 			true to isd?
-			len 1- to len					\ len = len -1
+			1-
 		then
 
 		\ extract negative/base char
-		str c@								( -- char )
+		over c@								( c-addr u -- c-addr u char )
 
 		\ char == '-', negative
-		dup '-' = if						( char -- char )
-			drop							( char -- )
+		dup '-' = if						( c-addr u char -- c-addr u char )
+			drop							( c-addr u char -- c-addr u )
+			(interpret-skip-char)
 			-1 to mul
-			len 1- to len
-			str 1+ to str
 		else
 			\ try to extract the base
-			dup '$' <> if					( char -- char )
-				dup '#' <> if				( char -- char )
+			dup '$' <> if					( c-addr u char -- c-addr u char )
+				dup '#' <> if				( c-addr u char -- c-addr u char )
 					'%' = if $02 to nbase then
 				else drop $0a to nbase then
 			else drop $10 to nbase then
 
 			\ have a base?
 			nbase if
-				len 1- to len
-				str 1+ to str
-
-				str c@							( -- char )
+				(interpret-skip-char)
+				over c@							( c-addr u -- c-addr u char )
 
 				\ char == '-', negative
-				'-' = if						( char -- )
+				'-' = if						( c-addr u char -- c-addr u )
+					(interpret-skip-char)
 					-1 to mul
-					len 1- to len
-					str 1+ to str
 				then
 			then
 		then
+
+		\ result
+		isd? mul nbase							( c-addr u -- c-addr' u' isd? mul nbase )
+	;
+
+	\ try and convert the number
+	: (interpret-number-conv) ( c-addr u -- n f )
+		(interpret-number-prefix) base @
+		{: str len isd? mul nbase obase :}
 
 		\ ensure valid length
 		len 0> if
