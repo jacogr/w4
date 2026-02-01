@@ -4,7 +4,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-MEM_TOP = 0xA0000  # top-of-memory for embedding
+MEM_TOP = 0x00100000  # top-of-memory for embedding
 
 
 def wat_escape_bytes(b: bytes) -> str:
