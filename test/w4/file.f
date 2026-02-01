@@ -37,8 +37,6 @@ $ff buffer: line-buf
 ;
 
 \ here we test the number of lines in the file
-T{ print-this -> 44 }T
-
-testing
+T{ print-this -> 42 }T
 
 T{ this-id @ close-file 0= -> true }T

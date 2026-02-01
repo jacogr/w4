@@ -78,7 +78,7 @@ m4_require_w4(`std/constants-structs.f')
 \
 \ Identifies the input source as follows: -1 (string), 0 (io), fileid
 
-	$0110 (mmio@) SOURCE-ID
+	$0110 (mmio@) SOURCE-ID : (source-id!) $0110 ! ;
 
 \ https://forth-standard.org/standard/core/SOURCE
 \
