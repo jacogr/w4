@@ -37,9 +37,12 @@
 			(then (call $__file_read_line (local.get $s)))
 
 			;; memory
-			(else (call $__mem_read_line (local.get $s)))) (if (result i32)
+			(else (call $__mem_read_line (local.get $s))))
 
-			;; success: shared tail
+		;; shared tail
+		(if (result i32)
+
+			;; success
 			(then
 				;; row++
 				(call $__src_set_row
