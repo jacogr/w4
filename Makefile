@@ -11,6 +11,7 @@ FTH_SRC       := $(shell find $(FTH_DIR) -type f -name '*.f' -print)
 
 WAT_ENTRY      = $(WAT_DIR)/main.wat
 WAT_GEN        = $(BUILD_DIR)/w4.wat
+WAT_FTH_GEN    = $(BUILD_DIR)/w4-forth.wat
 WAT_SRC       := $(shell find $(WAT_DIR) -type f -name '*.wat' -print)
 
 WASM_GEN       = $(BUILD_DIR)/w4.wasm
@@ -56,8 +57,12 @@ $(BUILD_DIR):
 $(FTH_GEN): $(FTH_SRC) | $(BUILD_DIR)
 	$(M4_EXE) -I$(FTH_DIR) $(FTH_ENTRY) | $(FTH_FILTER) > $@
 
+# forth -> wat
+$(WAT_FTH_GEN): $(FTH_GEN)
+	python3 wat-forth.py $(FTH_GEN) $@
+
 # wat m4 expand
-$(WAT_GEN): $(WAT_SRC) | $(BUILD_DIR)
+$(WAT_GEN): $(WAT_FTH_GEN) $(WAT_SRC) | $(BUILD_DIR)
 	$(M4_EXE) -I$(WAT_DIR) $(WAT_ENTRY) > $@
 
 # wat -> wasm

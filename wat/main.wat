@@ -69,7 +69,7 @@
 
 		;; set the alloc start/end for checks
 		(i32.store (global.get $PTR_ALLOC_MIN) (i32.load (global.get $PTR_ALLOC)))
-		(i32.store (global.get $PTR_ALLOC_MAX) (global.get $SIZEOF_MEMORY_MAX))
+		(i32.store (global.get $PTR_ALLOC_MAX) (global.get $w4_forth_start))
 
 		;; save the exit pointer for token lists
 		(global.set $dict_exit_ptr (call $__val_get_value (call $__list_get_head (i32.load (global.get $PTR_WID_CURR)))))
@@ -98,4 +98,6 @@
 		(call $__DEBUG_emit_dict)
 	')
 	)
+
+	m4_include(`build/w4-forth.wat')
 )
