@@ -659,8 +659,8 @@
 		(local.get $caller_s) (if
 			(then
 				(call $__line_set
-				(call $__src_get_ln_iov (local.get $caller_s))
-				(call $__src_get_ln_off_ptr (local.get $caller_s))))
+					(call $__src_get_ln_iov (local.get $caller_s))
+					(call $__src_get_ln_off_ptr (local.get $caller_s))))
 			(else))
 	)
 
