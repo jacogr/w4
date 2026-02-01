@@ -74,6 +74,9 @@
 		;; save the exit pointer for token lists
 		(global.set $dict_exit_ptr (call $__val_get_value (call $__list_get_head (i32.load (global.get $PTR_WID_CURR)))))
 
+		;; execute embedded
+		;; (call $__internal_evaluate (global.get $w4_forth_start) (global.get $w4_forth_size))
+
 		;; excute all bundled files
 		(local.set $str (global.get $PTR_W4_FILES))
 
