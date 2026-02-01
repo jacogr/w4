@@ -657,10 +657,14 @@
 
 		;; re-bind caller SOURCE so we do NOT trigger a refill
 		(local.get $caller_s) (if
+
+			;; rebind
 			(then
 				(call $__line_set
 					(call $__src_get_ln_iov (local.get $caller_s))
 					(call $__src_get_ln_off_ptr (local.get $caller_s))))
+
+			;; no caller, skip
 			(else))
 	)
 

@@ -172,6 +172,6 @@
 	(func $__assert_ptr (param $ptr i32)
 		;; check address, -9 invalid memory address
 		(call $__assert
-			(i32.le_u (local.get $ptr) (i32.load (global.get $PTR_ALLOC)))
+			(i32.le_u (local.get $ptr) (global.get $SIZEOF_MEMORY_MAX))
 			(i32.const -9))
 	)

@@ -39,12 +39,6 @@
 
 ;)
 
-	;; files to execute at startup
-	(data (i32.const 960)
-		(; 0 ;) "w4.f" "\00"
-		(; z ;)
-	)
-
 	;;
 	;; Initializes the process with all initial allocations. Additionally
 	;; execute all base/embedded forth sources before the user code is
@@ -75,26 +69,7 @@
 		(global.set $dict_exit_ptr (call $__val_get_value (call $__list_get_head (i32.load (global.get $PTR_WID_CURR)))))
 
 		;; execute embedded
-		;; (call $__internal_evaluate (global.get $w4_forth_start) (global.get $w4_forth_size))
-
-		;; excute all bundled files
-		(local.set $str (global.get $PTR_W4_FILES))
-
-		;; loop through all, requiring
-		(block $exit (loop $loop
-
-			;; break on zero length
-			(br_if $exit
-				(i32.eqz (local.tee $len (call $__strlen_z (local.get $str)))))
-
-			;; include it
-			(call $__internal_included (local.get $str) (local.get $len))
-
-			;; move to next (taking \0 into account)
-			(local.set $str (i32.add (local.get $str) (i32.add (local.get $len) (i32.const 1))))
-
-			;; continue with next
-			(br $loop)))
+		(call $__internal_evaluate (global.get $w4_forth_start) (global.get $w4_forth_size))
 
 	m4_ifdef(`DEBUG', `
 		;; DERUG, emit dictionary
