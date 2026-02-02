@@ -42,25 +42,23 @@ m4_require_w4(`std/constants.f')
 	: (source-curr-fid) ( -- fid ) (source-curr-fid^) @ ;
 	: (source-curr-fid!) ( fid -- ) (source-curr-fid^) ! ;
 
+	\ set cource-id, source & in^
 	: (source-global-set) ( fid -- )
-		dup (fid>ln-pos^)	( fid -- fid in^ )
-		(>in^) !			( fid in^ -- fid )
-		dup (fid>ln-iov^)	( fid -- fid source^ )
-		(source^) !			( fid source^ -- fid )
-		(source-id!)		( fid -- )
+		dup (source-curr-fid!)	( fid -- fid )
+		dup (fid>ln-pos^)		( fid -- fid in^ )
+		(>in^) !				( fid in^ -- fid )
+		dup (fid>ln-iov^)		( fid -- fid source^ )
+		(source^) !				( fid source^ -- fid )
+		(source-id!)			( fid -- )
 	;
 
 	: (source-get-prev) ( -- f )
 		(source-count) if
-			(source-pop) dup		( -- fid fid )
-			(source-curr-fid!)		( fid fid -- fid )
+			(source-pop)		( -- fid )
+			(source-global-set)	( fid -- )
 
-			\ setup >in & source
-			dup (fid>ln-pos@)		( fid -- fid in )
-			(source-global-set)		( fid in -- )
-
-			true					( -- f )
-		else false then				( -- f )
+			true				( -- f )
+		else false then			( -- f )
 	;
 
 	: (source-set-next) ( fid -- )
@@ -69,9 +67,5 @@ m4_require_w4(`std/constants.f')
 			(source-push)			( fid curr -- fid )
 		then
 
-		\ set input as current
-		dup (source-curr-fid!)		( fid -- fid )
-
-		\ set source & in^
 		(source-global-set)			( fid -- )
 	;
