@@ -63,13 +63,13 @@
 
 		;; set the alloc start/end for checks
 		(i32.store (global.get $PTR_ALLOC_MIN) (i32.load (global.get $PTR_ALLOC)))
-		(i32.store (global.get $PTR_ALLOC_MAX) (global.get $w4_forth_start))
+		(i32.store (global.get $PTR_ALLOC_MAX) (global.get $W4_FORTH_START))
 
 		;; save the exit pointer for token lists
 		(global.set $dict_exit_ptr (call $__val_get_value (call $__list_get_head (i32.load (global.get $PTR_WID_CURR)))))
 
 		;; execute embedded
-		(call $__internal_evaluate (global.get $w4_forth_start) (global.get $w4_forth_size))
+		(call $__internal_evaluate (global.get $W4_FORTH_START) (global.get $W4_FORTH_SIZE))
 
 	m4_ifdef(`DEBUG', `
 		;; DERUG, emit dictionary

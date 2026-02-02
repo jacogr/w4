@@ -71,8 +71,8 @@ def main() -> int:
         f";; start = 0x{start:08x} (MEM_TOP=0x{MEM_TOP:08x} - size)"
     )
     lines_out.append("")
-    lines_out.append(f"(global $w4_forth_start (mut i32) (i32.const {start}))")
-    lines_out.append(f"(global $w4_forth_size  (mut i32) (i32.const {payload_size}))")
+    lines_out.append(f"(global $W4_FORTH_START (mut i32) (i32.const {start}))")
+    lines_out.append(f"(global $W4_FORTH_SIZE  (mut i32) (i32.const {payload_size}))")
     lines_out.append("")
     lines_out.append(f"(data (i32.const {start})")
     for s in wat_strings:

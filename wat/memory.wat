@@ -50,10 +50,9 @@
 	(global $PTR_PRI_EMIT_RES i32 (i32.const 0x0240)) ;; scratch for emit result, 64 total
 	(global $PTR_PRI_IN       i32 (i32.const 0x0280)) ;; scatch for in values, 64 total
 	(global $PTR_PRI_IOV      i32 (i32.const 0x02c0)) ;; 256 total
-	;; next layout at 960 (0x03c0), memory in-between is sparse for future usage
+	;; next layout at 980 (0x03d4), memory in-between is sparse for future usage
 
 	;; text definitions as used
-	(global $PTR_W4_FILES     i32 (i32.const  960)) ;; files to execute at startup
 	(global $PTR_DO_MARK_TEXT i32 (i32.const  980))
 	(global $PTR_DO_EXEC_TEXT i32 (i32.const  990)) ;; location of the jump string
 	(global $PTR_NATIVE_TEXT  i32 (i32.const 1000)) ;; location of the first native, "exit" (1000)
