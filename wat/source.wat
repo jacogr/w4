@@ -17,11 +17,13 @@
 	;; 		f/m 12: flags - memory (= 0) or file
 	;; 		f   16: fd - file descriptor
 	;; 		f/m 20: row - current source row
-	;; 		f/m 24: ln_iov - pointer to line buffer
-	;; 		f/m 28: ln_off - offset in the line buffer
-	;; 		f   32: in_iov - pointer to file read buffer
-	;; 		f   36: in_off - offset in the file read buffer
-	;; 		f   40: is_eof - eof reached
+	;; 		f/m 24: ln_ptr - pointer to line buffer
+	;; 		f/m 28: ln_len - length of line buffer data
+	;; 		f/m 32: ln_pos - offset in the line buffer
+	;; 		f   36: in_ptr - pointer to file read buffer
+	;; 		f   40: in_len - length of read buffer data
+	;; 		f   44: in_pos - offset in the file read buffer
+	;; 		f   48: is_eof - eof reached
 	(global $IDX_SRC_PTR    i32 (i32.const 0))
 	(global $IDX_SRC_LEN    i32 (i32.const 4))
 	(global $IDX_SRC_HASH   i32 (i32.const 8))
