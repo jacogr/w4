@@ -67,9 +67,7 @@ import nodeWasi from 'node:wasi';
 			args: nodeProcess.argv,
   			env: nodeProcess.env,
 			preopens: {
-				// user location first, default for includes/requires
-				/* fd:3 */ '/usr': usrPath,
-				/* fd:4 */ '/lib': libPath,
+				/* fd:3 */ '/usr': usrPath
 			},
 			stdin: nodeProcess.stdin.fd,
   			stdout: nodeProcess.stdout.fd,

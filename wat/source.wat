@@ -20,8 +20,7 @@
 	;; 		f   24: in_iov - pointer to file read buffer
 	;; 		f   28: in_off - offset in the file read buffer
 	;; 		f   32: is_eof - eof reached
-	;; 		f   36: pd - path descriptor
-	;; 		f   40: fd - file descriptor
+	;; 		f   36: fd - file descriptor
 	(global $SRC_KIND_MEM   i32 (i32.const 0))
 	(global $SRC_KIND_FIL   i32 (i32.const 1))
 	(global $IDX_SRC_KIND   i32 (i32.const 0))
@@ -33,9 +32,8 @@
 	(global $IDX_SRC_IN_IOV i32 (i32.const 24))
 	(global $IDX_SRC_IN_OFF i32 (i32.const 28))
 	(global $IDX_SRC_IS_EOF i32 (i32.const 32))
-	(global $IDX_SRC_PD     i32 (i32.const 36))
-	(global $IDX_SRC_FD     i32 (i32.const 40))
-	(global $SIZEOF_SRC     i32 (i32.const 44))
+	(global $IDX_SRC_FD     i32 (i32.const 36))
+	(global $SIZEOF_SRC     i32 (i32.const 40))
 	(global $SIZEOF_SRC_IN  i32 (i32.const 256)) ;; file read buffer size
 	(global $SIZEOF_SRC_LN  i32 (i32.const 1024)) ;; line buffer size
 
@@ -112,24 +110,17 @@
 	;; Push a frame to the stack
 	;;
 	(func $__src_push_frame (param $s i32)
-		(local $fd i32)
-		(local $pd i32)
-
 		;; kind?
 		(call $__src_get_kind (local.get $s)) (if
 
 			;; file, open it
 			(then
-				;; open the file
-				(call $__file_open
-					(call $__iov_get_str_len
-						(call $__src_get_ptr (local.get $s))))
-				local.set $fd
-				local.set $pd
-
-				;; store path & file descriptors
-				(call $__src_set_fd (local.get $s) (local.get $fd))
-				(call $__src_set_pd (local.get $s) (local.get $pd)))
+				;; store file descriptor
+				(call $__src_set_fd
+					(local.get $s)
+					(call $__file_open
+						(call $__iov_get_str_len
+							(call $__src_get_ptr (local.get $s))))))
 
 			;; memory, nothing to do
 			(else))
@@ -248,12 +239,6 @@
 
 	(func $__src_set_fd (param $s i32) (param $v i32)
 		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_FD)) (local.get $v)))
-
-	(func $__src_get_pd (param $s i32) (result i32)
-		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_PD))))
-
-	(func $__src_set_pd (param $s i32) (param $v i32)
-		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_PD)) (local.get $v)))
 
 	;;
 	;; Helpers for PTR_PTR_LINE_OFF = >IN and PTR_LINE_IOV = SOURCE

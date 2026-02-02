@@ -18,7 +18,7 @@
 	;; returning the path_fd and file_fd, or exception if we
 	;; cannot open the file
 	;;
-	(func $__file_open (param $path i32) (param $path_len i32) (result i32 i32)
+	(func $__file_open (param $path i32) (param $path_len i32) (result i32)
 		(local $err i32)
 		(local $fd i32)
 		(local $pd i32)
@@ -27,47 +27,35 @@
 		;; start with $pd=3 (user location)
 		(local.set $pd (i32.const 3))
 
-		(block $exit (loop $loop
-			;; $pd <= 4 else -38 non-existent file
-			(call $__assert (i32.le_u (local.get $pd) (i32.const 4)) (i32.const -38))
+		;; attempt to open the file, check errorno != 0 for error
+		(local.tee $err
+			(call $__wasi::path_open
+				(local.get $pd)               ;; dirfd (preopened)
+				(i32.const 0)                 ;; dirflags
+				(local.get $path)             ;; path_ptr
+				(local.get $path_len)         ;; path_len
+				(i32.const 0)                 ;; oflags (0 = no create/trunc
+				(global.get $FILE_FLAGS_RO)
+				(i64.const 0)                 ;; rights_inheriting
+				(i32.const 0)                 ;; fdflags
+				(global.get $PTR_PRI_IN))) (if
 
-			;; attempt to open the file, check errorno != 0 for error
-			(local.tee $err
-				(call $__wasi::path_open
-					(local.get $pd)               ;; dirfd (preopened)
-					(i32.const 0)                 ;; dirflags
-					(local.get $path)             ;; path_ptr
-					(local.get $path_len)         ;; path_len
-					(i32.const 0)                 ;; oflags (0 = no create/trunc
-					(global.get $FILE_FLAGS_RO)
-					(i64.const 0)                 ;; rights_inheriting
-					(i32.const 0)                 ;; fdflags
-					(global.get $PTR_PRI_IN))) (if
+				;; non-zero errno, examine further
+				(then
+					 (call $__assert
+					 	(i32.const 0)
+						(select
+							;; not found
+							(i32.const -38)
+							;; other error
+							(i32.const -37)
+							;; not found?
+							(i32.eq (local.get $err) (i32.const 44)))))
 
-					;; non-zero errno, examine further
-					(then
-						;; 44, not found?
-						(i32.eq (local.get $err) (i32.const 44)) (if
+				;; no error, get fd
+				(else (local.set $fd (i32.load (global.get $PTR_PRI_IN)))))
 
-							;; not found, try next directory
-							(then (local.set $pd (i32.add (local.get $pd) (i32.const 1))))
-
-							;; other errors, -37 file I/O exception
-							(else (call $__assert (i32.const 0) (i32.const -37)))))
-
-					;; no error, get fd, break to return
-					(else
-						(local.set $fd (i32.load (global.get $PTR_PRI_IN)))
-						(br $exit)))
-
-			;; loop next
-			(br $loop)))
-
-		;; ensure that we have a valid fd
-		(call $__assert (local.get $fd) (i32.const -38))
-
-		;; return (pd, fd)
-		local.get $pd
+		;; return fd
 		local.get $fd
 	)
 
