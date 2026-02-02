@@ -76,8 +76,8 @@
 						;; PTR_SRC_ID = -1
 						(i32.store (global.get $PTR_SRC_ID) (i32.const -1))
 						(global.set $parse_code_idx (call $__src_get_in_off (local.get $s)))
-						(global.set $parse_code_ptr (call $__src_get_ptr (local.get $s)))
-    					(global.set $parse_code_len (call $__src_get_len (local.get $s))))))
+						(global.set $parse_code_ptr (call $__src_get_in_ptr (local.get $s)))
+    					(global.set $parse_code_len (call $__src_get_in_len (local.get $s))))))
 
 			;; zero source, clear all
 			(else
@@ -192,17 +192,20 @@
 	(func $__src_set_kind (param $s i32) (param $v i32)
 		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_KIND)) (local.get $v)))
 
-	(func $__src_get_len (param $s i32) (result i32)
-		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_LEN))))
-
-	(func $__src_set_len (param $s i32) (param $v i32)
-		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_LEN)) (local.get $v)))
-
 	(func $__src_get_in_iov (param $s i32) (result i32)
 		(i32.add (local.get $s) (global.get $IDX_SRC_IN_PTR)))
 
+	(func $__src_get_in_ptr (param $s i32) (result i32)
+		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_IN_PTR))))
+
 	(func $__src_set_in_ptr (param $s i32) (param $v i32)
 		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_IN_PTR)) (local.get $v)))
+
+	(func $__src_get_in_len (param $s i32) (result i32)
+		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_IN_LEN))))
+
+	(func $__src_set_in_len (param $s i32) (param $v i32)
+		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_IN_LEN)) (local.get $v)))
 
 	(func $__src_get_in_off (param $s i32) (result i32)
 		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_IN_POS))))
@@ -212,6 +215,9 @@
 
 	(func $__src_get_ln_iov (param $s i32) (result i32)
 		(i32.add (local.get $s) (global.get $IDX_SRC_LN_PTR)))
+
+	(func $__src_get_ln_ptr (param $s i32) (result i32)
+		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_LN_PTR))))
 
 	(func $__src_set_ln_ptr (param $s i32) (param $v i32)
 		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_LN_PTR)) (local.get $v)))
@@ -224,12 +230,6 @@
 
 	(func $__src_set_ln_off (param $s i32) (param $v i32)
 		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_LN_POS)) (local.get $v)))
-
-	(func $__src_get_ptr (param $s i32) (result i32)
-		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_PTR))))
-
-	(func $__src_set_ptr (param $s i32) (param $v i32)
-		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_PTR)) (local.get $v)))
 
 	(func $__src_get_row (param $s i32) (result i32)
 		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_ROW))))

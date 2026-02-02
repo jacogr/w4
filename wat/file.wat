@@ -219,8 +219,8 @@
 			(else))
 
 		;; load source buffer + cursor
-		(local.set $ptr     (call $__src_get_ptr (local.get $s)))
-		(local.set $buf_len (call $__src_get_len (local.get $s)))
+		(local.set $ptr     (call $__src_get_in_ptr (local.get $s)))
+		(local.set $buf_len (call $__src_get_in_len (local.get $s)))
 		(local.set $off     (call $__src_get_in_off (local.get $s)))
 
 		;; EOF before starting?
