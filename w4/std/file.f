@@ -157,11 +157,23 @@ m4_require_w4(`ext/wasi.f')
 		#16 lshift				( fid row -- fid rowcol )	\ col = 0
 		swap (fid>rowcol!)		( fid rowcol -- )
 	;
+
 	: (fid>col#++) ( fid -- )
 		dup (fid>rowcol@)		( fid -- fid rowcol )
 		dup $ffff0000 and		( fid -- fid rowcol row" )				\ row" = row << 16
 		swap $ffff and 1+		( fid rowcol row" -- fid row" col' )	\ col' = col + 1
 		or swap (fid>rowcol!)	( fid rowcol' -- )						\ rowcol = row<<16 + col'
+	;
+
+	\ TODO Don't read char-by-char via read-file, fill a buffer with characters,
+	\ read char-by-char from buffer in this function, refill. Calling into the
+	\ wasi layer is expensive
+
+	: (read-char) ( buf fid -- no-eof no-err )
+		1 swap 		( buf fid -- buf 1 fid )
+		read-file 	( buf 1 fid -- u ior )
+		0= swap		( u ior -- no-err u )			\ no-err = iof == 0
+		0<> swap 	( no-err u -- no-eof no-err )	\ no-eof = u <> 0
 	;
 
 	: READ-LINE ( c-addr u fid -- u2 flag ior )
@@ -173,15 +185,15 @@ m4_require_w4(`ext/wasi.f')
 			not-eof not-eol not-err			( f1 -- f1 not-eof not-eol not-err )
 			and and and						( f1 not-eof not-eol not-err -- f )
 		while								( f -- )
-			buf 1 fid read-file				( -- u ior )
+			buf fid (read-char)				( -- no-eof no-err )
 
-			\ ior == 0, success
-			0= if							( u ior -- u )
-				\ u <> 0, not eof
-				0<> if						( u -- )
-					buf c@ dup				( -- char char )
+			\ no err?
+			if								( no-eof no-err -- no-eof )
+				\ no eof?
+				if							( no-eof -- )
+					buf c@					( -- char )
 
-					#10 = if				( char char -- char )
+					dup #10 = if			( char -- char )
 						drop				( char -- )
 						fid (fid>row#++)
 						false to not-eol
@@ -194,7 +206,7 @@ m4_require_w4(`ext/wasi.f')
 						then
 					then
 				else false to not-eof then	( -- )
-			else drop false to not-err then	( u -- )
+			else drop false to not-err then	( no-err -- )
 		repeat
 
 		num						( -- u2 )
