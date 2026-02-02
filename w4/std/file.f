@@ -54,7 +54,7 @@ m4_require_w4(`ext/wasi.f')
 
 		\ set buffer
 		here string-max 1+ allot		( a-addr -- a-addr here )
-		over (fid>buf^!)				( a-addr here -- a-addr )
+		over (fid>ln-ptr!)				( a-addr here -- a-addr )
 
 		\ set flags
 		(flg-is-vis) (flg-is-var) or	( a-addr -- a-addr flags )	\ flags = var = file
@@ -151,19 +151,7 @@ m4_require_w4(`ext/wasi.f')
 \ At the conclusion of the operation, FILE-POSITION returns the next file
 \ position after the last character read.
 
-	: (fid>row#++) ( fid -- )
-		dup (fid>rowcol@)		( fid -- fid rowcol )
-		#16 rshift 1+			( fid rowcol -- fid row' )	\ row = row + 1
-		#16 lshift				( fid row -- fid rowcol )	\ col = 0
-		swap (fid>rowcol!)		( fid rowcol -- )
-	;
-
-	: (fid>col#++) ( fid -- )
-		dup (fid>rowcol@)		( fid -- fid rowcol )
-		dup $ffff0000 and		( fid -- fid rowcol row" )				\ row" = row << 16
-		swap $ffff and 1+		( fid rowcol row" -- fid row" col' )	\ col' = col + 1
-		or swap (fid>rowcol!)	( fid rowcol' -- )						\ rowcol = row<<16 + col'
-	;
+	: (fid>row++) ( fid -- ) dup (fid>row@) 1+ swap (fid>row!) ;
 
 	\ TODO Don't read char-by-char via read-file, fill a buffer with characters,
 	\ read char-by-char from buffer in this function, refill. Calling into the
@@ -195,18 +183,23 @@ m4_require_w4(`ext/wasi.f')
 
 					dup #10 = if			( char -- char )
 						drop				( char -- )
-						fid (fid>row#++)
+						fid (fid>row++)
 						false to not-eol
 					else
 						#13 <> if			( char -- )
 							\ increment count & buf pos
 							num 1+ to num
 							buf 1+ to buf
-							fid (fid>col#++)
 						then
 					then
-				else false to not-eof then	( -- )
-			else drop false to not-err then	( no-err -- )
+				else
+					false to not-eof		( -- )
+					true fid (fid>is-eof!)
+				then
+			else
+				drop 						( no-err -- )
+				false to not-err
+			then
 		repeat
 
 		num						( -- u2 )

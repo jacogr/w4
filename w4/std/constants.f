@@ -84,7 +84,8 @@ m4_require_w4(`std/constants-structs.f')
 \
 \ iov that wraps the source, >str+len for source c-addr u
 
-	$0118 (mmio@) (lniov^)
+	$0114 (mmio:) (>in^)
+	$0118 (mmio@) (source^)
 
 \ latest executing token (latest definition already defined)
 

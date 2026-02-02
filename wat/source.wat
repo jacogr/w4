@@ -24,19 +24,19 @@
 	;; 		f   40: in_len - length of read buffer data
 	;; 		f   44: in_pos - offset in the file read buffer
 	;; 		f   48: is_eof - eof reached
-	(global $IDX_SRC_PTR    i32 (i32.const 0))
-	(global $IDX_SRC_LEN    i32 (i32.const 4))
-	(global $IDX_SRC_HASH   i32 (i32.const 8))
-	(global $IDX_SRC_KIND   i32 (i32.const 12))
-	(global $IDX_SRC_FD     i32 (i32.const 16))
-	(global $IDX_SRC_ROW    i32 (i32.const 20))
-	(global $IDX_SRC_LN_PTR i32 (i32.const 24))
-	(global $IDX_SRC_LN_LEN i32 (i32.const 28))
-	(global $IDX_SRC_LN_POS i32 (i32.const 32))
-	(global $IDX_SRC_IN_PTR i32 (i32.const 36))
-	(global $IDX_SRC_IN_LEN i32 (i32.const 40))
-	(global $IDX_SRC_IN_POS i32 (i32.const 44))
-	(global $IDX_SRC_IS_EOF i32 (i32.const 48))
+	(global $IDX_SRC_PTR    i32 (i32.const 0))  ;; 0, iov
+	(global $IDX_SRC_LEN    i32 (i32.const 4))  ;; 1, iov
+	(global $IDX_SRC_HASH   i32 (i32.const 8))  ;; 2, iov
+	(global $IDX_SRC_KIND   i32 (i32.const 12)) ;; 3, flags
+	(global $IDX_SRC_FD     i32 (i32.const 16)) ;; 4
+	(global $IDX_SRC_ROW    i32 (i32.const 20)) ;; 5
+	(global $IDX_SRC_LN_PTR i32 (i32.const 24)) ;; 6
+	(global $IDX_SRC_LN_LEN i32 (i32.const 28)) ;; 7
+	(global $IDX_SRC_LN_POS i32 (i32.const 32)) ;; 8
+	(global $IDX_SRC_IN_PTR i32 (i32.const 36)) ;; 9
+	(global $IDX_SRC_IN_LEN i32 (i32.const 40)) ;; a
+	(global $IDX_SRC_IN_POS i32 (i32.const 44)) ;; b
+	(global $IDX_SRC_IS_EOF i32 (i32.const 48)) ;; c
 	(global $SIZEOF_SRC     i32 (i32.const 52))
 	(global $SIZEOF_SRC_IN  i32 (i32.const 256)) ;; file read buffer size
 	(global $SIZEOF_SRC_LN  i32 (i32.const 1024)) ;; line buffer size

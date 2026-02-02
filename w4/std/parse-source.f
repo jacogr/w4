@@ -42,10 +42,11 @@ m4_require_w4(`std/constants.f')
 	: (source-curr-fid) ( -- fid ) (source-curr-fid^) @ ;
 	: (source-curr-fid!) ( fid -- ) (source-curr-fid^) ! ;
 
-	: (source-global-set) ( fid in -- )
-		>in !				( fid in -- fid )
-		dup (fid>source)	( fid -- fid source^ )
-		(lniov^) !			( fid source^ -- fid )
+	: (source-global-set) ( fid -- )
+		dup (fid>ln-pos^)	( fid -- fid in^ )
+		(>in^) !			( fid in^ -- fid )
+		dup (fid>ln-iov^)	( fid -- fid source^ )
+		(source^) !			( fid source^ -- fid )
 		(source-id!)		( fid -- )
 	;
 
@@ -55,7 +56,7 @@ m4_require_w4(`std/constants.f')
 			(source-curr-fid!)		( fid fid -- fid )
 
 			\ setup >in & source
-			dup (fid>in@)			( fid -- fid in )
+			dup (fid>ln-pos@)		( fid -- fid in )
 			(source-global-set)		( fid in -- )
 
 			true					( -- f )
@@ -65,14 +66,12 @@ m4_require_w4(`std/constants.f')
 	: (source-set-next) ( fid -- )
 		\ store current if set
 		(source-curr-fid) ?dup if
-			>in 					( fid curr -- fid curr in )
-			over (fid>in!)			( fid curr in -- fid curr )	\ >in into curr
 			(source-push)			( fid curr -- fid )
 		then
 
 		\ set input as current
 		dup (source-curr-fid!)		( fid -- fid )
 
-		\ clear in, set source
-		0 (source-global-set)		( fid -- )
+		\ set source & in^
+		(source-global-set)			( fid -- )
 	;

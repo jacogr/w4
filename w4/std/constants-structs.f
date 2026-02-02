@@ -98,11 +98,15 @@
 	\	 hash: path hash (lookups)
 	\ 	flags: 1 = file
 	\ 	   fd: external file descriptor
-	\	  buf: line buffer
-	\	 nbuf: line buffer counter
-	\	   in: stored >in
-	\  rowcol: rows & cols read
-	: (sizeof-fid) ( -- u ) $9 cells ;
+	\     row: rows read
+	\	lnptr: line buffer
+	\	lnlen: line length
+	\	lnpos: line position, stored >in
+	\	inptr: source input buffer
+	\	inlen: source length
+	\	inpos: source position
+	\	iseof: eof reached
+	: (sizeof-fid) ( -- u ) $d cells ;
 
 	: (fid>path+len@) ( fid -- c-addr u ) (xt>str+len@) ;
 	: (fid>path+len!) ( c-addr len fid -- ) (xt>str+len!) ;
@@ -116,19 +120,31 @@
 	: (fid>fd^) ( fid -- a-addr ) $4 cells + ;
 	: (fid>fd@) ( fid -- fd ) $4 cells + @ ;
 
-	: (fid>source) ( fid -- a-addr ) $5 cells + ;
-	: (fid>buf^) ( fid -- a-addr ) $5 cells + @ ;
-	: (fid>buf^!) ( a-addr fid -- ) $5 cells + ! ;
+	: (fid>row@) ( fid -- u ) $5 cells + @ ;
+	: (fid>row!) ( u fid -- ) $5 cells + ! ;
 
-	: (fid>nbuf^) ( fid -- u ) $6 cells + ;
-	: (fid>nbuf@) ( fid -- u ) $6 cells + @ ;
-	: (fid>nbuf!) ( u fid -- ) $6 cells + ! ;
+	: (fid>ln-iov^) ( fid -- a-addr ) $6 cells + ;
+	: (fid>ln-ptr@) ( fid -- a-addr ) $6 cells + @ ;
+	: (fid>ln-ptr!) ( a-addr fid -- ) $6 cells + ! ;
 
-	: (fid>in@) ( a-addr -- u ) $7 cells + @ ;
-	: (fid>in!) ( u a-addr -- ) $7 cells + ! ;
+	: (fid>ln-len@) ( fid -- u ) $7 cells + @ ;
+	: (fid>ln-len!) ( u fid -- ) $7 cells + ! ;
 
-	: (fid>rowcol@) ( fid -- u ) $8 cells + @ ;
-	: (fid>rowcol!) ( u fid -- ) $8 cells + ! ;
+	: (fid>ln-pos^) ( a-addr -- u ) $8 cells + ;
+	: (fid>ln-pos@) ( a-addr -- u ) $8 cells + @ ;
+	: (fid>ln-pos!) ( u a-addr -- ) $8 cells + ! ;
+
+	: (fid>in-ptr@) ( fid -- a-addr ) $9 cells + @ ;
+	: (fid>in-ptr!) ( a-addr fid -- ) $9 cells + ! ;
+
+	: (fid>in-len@) ( fid -- u ) $a cells + @ ;
+	: (fid>in-len!) ( u fid -- ) $a cells + ! ;
+
+	: (fid>in-pos@) ( a-addr -- u ) $b cells + @ ;
+	: (fid>in-pos!) ( u a-addr -- ) $b cells + ! ;
+
+	: (fid>is-eof@) ( a-addr -- u ) $c cells + @ ;
+	: (fid>is-eof!) ( u a-addr -- ) $c cells + ! ;
 
 \ latest
 
