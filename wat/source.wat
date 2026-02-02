@@ -11,29 +11,29 @@
 
 	;; unified structure for sources
 	;;
-	;; 		f/m  0: kind - memory or file
-	;; 		f/m  4: ptr - pointer to file definition or full code (for memory)
-	;; 		  m  8: len - length of the full code
-	;; 		f/m 12: row - current source row
-	;; 		f/m 16: ln_iov - pointer to line buffer
-	;; 		f/m 20: ln_off - offset in the line buffer
-	;; 		f   24: in_iov - pointer to file read buffer
-	;; 		f   28: in_off - offset in the file read buffer
-	;; 		f   32: is_eof - eof reached
-	;; 		f   36: fd - file descriptor
-	(global $SRC_KIND_MEM   i32 (i32.const 0))
-	(global $SRC_KIND_FIL   i32 (i32.const 1))
-	(global $IDX_SRC_KIND   i32 (i32.const 0))
-	(global $IDX_SRC_PTR    i32 (i32.const 4))
-	(global $IDX_SRC_LEN    i32 (i32.const 8))
-	(global $IDX_SRC_ROW    i32 (i32.const 12))
-	(global $IDX_SRC_LN_IOV i32 (i32.const 16))
-	(global $IDX_SRC_LN_OFF i32 (i32.const 20))
-	(global $IDX_SRC_IN_IOV i32 (i32.const 24))
-	(global $IDX_SRC_IN_OFF i32 (i32.const 28))
-	(global $IDX_SRC_IS_EOF i32 (i32.const 32))
-	(global $IDX_SRC_FD     i32 (i32.const 36))
-	(global $SIZEOF_SRC     i32 (i32.const 40))
+	;; 		f/m  0: ptr - pointer to file path or full code (for memory)
+	;; 		f/m  4: len - length of the path or full code
+	;;		f    8: hash - hash of the filename (lookup)
+	;; 		f/m 12: flags - memory (= 0) or file
+	;; 		f   16: fd - file descriptor
+	;; 		f/m 20: row - current source row
+	;; 		f/m 24: ln_iov - pointer to line buffer
+	;; 		f/m 28: ln_off - offset in the line buffer
+	;; 		f   32: in_iov - pointer to file read buffer
+	;; 		f   36: in_off - offset in the file read buffer
+	;; 		f   40: is_eof - eof reached
+	(global $IDX_SRC_PTR    i32 (i32.const 0))
+	(global $IDX_SRC_LEN    i32 (i32.const 4))
+	(global $IDX_SRC_HASH   i32 (i32.const 8))
+	(global $IDX_SRC_KIND   i32 (i32.const 12))
+	(global $IDX_SRC_FD     i32 (i32.const 16))
+	(global $IDX_SRC_ROW    i32 (i32.const 20))
+	(global $IDX_SRC_LN_IOV i32 (i32.const 24))
+	(global $IDX_SRC_LN_OFF i32 (i32.const 28))
+	(global $IDX_SRC_IN_IOV i32 (i32.const 32))
+	(global $IDX_SRC_IN_OFF i32 (i32.const 36))
+	(global $IDX_SRC_IS_EOF i32 (i32.const 40))
+	(global $SIZEOF_SRC     i32 (i32.const 44))
 	(global $SIZEOF_SRC_IN  i32 (i32.const 256)) ;; file read buffer size
 	(global $SIZEOF_SRC_LN  i32 (i32.const 1024)) ;; line buffer size
 
@@ -119,8 +119,7 @@
 				(call $__src_set_fd
 					(local.get $s)
 					(call $__file_open
-						(call $__iov_get_str_len
-							(call $__src_get_ptr (local.get $s))))))
+						(call $__iov_get_str_len (local.get $s)))))
 
 			;; memory, nothing to do
 			(else))

@@ -77,7 +77,6 @@
 		(local $f i32)
 		(local $s i32)
 		(local $p i32)
-		(local $hash i32)
 		(local $rel_str i32)
 		(local $rel_len i32)
 
@@ -96,8 +95,7 @@
 					(then
 						;; create relative
 						(call $__file_relative
-							(call $__iov_get_str_len
-								(call $__src_get_ptr (local.get $p)))
+							(call $__iov_get_str_len (local.get $p))
 							(local.get $str)
 							(local.get $len))
 						local.set $len
@@ -109,21 +107,15 @@
 			;; none, no adjustments
 			(else))
 
-		;; create hash on adjusted values
-		(local.set $hash (call $__hash (local.get $str) (local.get $len)))
-
 		;; add the file
-		(local.set $f
-			(call $__val_new
+		(local.set $s
+			(call $__sized_val_new
+				(global.get $SIZEOF_SRC)
 				(call $__strdup_n (local.get $str) (local.get $len))
 				(local.get $len)
-				(local.get $hash)
-				(local.tee $s (call $__alloc (global.get $SIZEOF_SRC)))
+				(call $__hash (local.get $str) (local.get $len))
+				(i32.const 0)
 				(global.get $FLG_VISIBLE)))
-
-		;; store base info
-		(call $__src_set_kind (local.get $s) (global.get $SRC_KIND_FIL))
-		(call $__src_set_ptr (local.get $s) (local.get $f))
 
 		;; create iovs for input & line
 		(call $__src_set_in_iov

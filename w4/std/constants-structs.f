@@ -93,8 +93,8 @@
 
 \ layouts for fileid
 
-	\ 	 path: path for the file (cell 0 & 1 layout shared with xt)
-	\  	  len: path length for the file
+	\ 	 path: path/code for the source (cell 0 & 1 layout shared with xt)
+	\  	  len: path/code length for the source
 	\	 hash: path hash (lookups)
 	\ 	flags: 1 = file
 	\ 	   fd: external file descriptor

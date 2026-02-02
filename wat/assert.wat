@@ -47,7 +47,7 @@
 				(call $__src_get_kind (local.get $s)) (if
 
 					;; file, extract name
-					(then (local.set $line_fil (call $__src_get_ptr (local.get $s))))
+					(then (local.set $line_fil (local.get $s)))
 
 					;; memory, ignore
 					(else))
@@ -136,7 +136,7 @@
 
 						;; file, emit name row:col
 						(then
-							(call $__iov_emit_stderr (call $__src_get_ptr (local.get $s)))
+							(call $__iov_emit_stderr (local.get $s))
 							(call $__iov_emit_chr_stderr (i32.const 32))
 							(call $__iov_emit_num_stderr (call $__src_get_row (local.get $s)))
 							(call $__iov_emit_chr_stderr (i32.const 58)) ;; ':'

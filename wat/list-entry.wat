@@ -69,12 +69,24 @@
 	;; Create a list value (don't add as of yet)
 	;;
 	(func $__val_new (param $str i32) (param $len i32) (param $hash i32) (param $val i32) (param $flags i32) (result i32)
+		(call $__sized_val_new
+			(global.get $SIZEOF_VAL)
+			(local.get $str)
+			(local.get $len)
+			(local.get $hash)
+			(local.get $val)
+			(local.get $flags)))
+
+	;;
+	;; Creates a sized list value
+	;;
+	(func $__sized_val_new (param $size i32) (param $str i32) (param $len i32) (param $hash i32) (param $val i32) (param $flags i32) (result i32)
 		(local $ptr i32)
 
 		;; store item details, value & flags
 		(call $__val_fill
 			;; use __alloc since __val_fill sets flags
-			(local.tee $ptr (call $__alloc (global.get $SIZEOF_VAL)))
+			(local.tee $ptr (call $__alloc (local.get $size)))
 			(local.get $str)
 			(local.get $len)
 			(local.get $hash)
