@@ -611,7 +611,6 @@
 		;; store base info
 		(call $__src_set_ptr (local.get $s) (local.get $code_ptr))
 		(call $__src_set_len (local.get $s) (local.get $code_len))
-		(call $__src_set_ln_iov (local.get $s) (call $__alloc (global.get $SIZEOF_IOV)))
 
 		;; evaluate the source
 		(call $__internal_evaluate_frame (local.get $s))

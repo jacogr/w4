@@ -118,20 +118,8 @@
 				(global.get $FLG_VISIBLE)))
 
 		;; create iovs for input & line
-		(call $__src_set_in_iov
-			(local.get $s)
-			(call $__iov_fill
-				(call $__alloc (global.get $SIZEOF_IOV))
-				(call $__alloc (global.get $SIZEOF_SRC_IN))
-				(i32.const 0)
-				(i32.const 0)))
-		(call $__src_set_ln_iov
-			(local.get $s)
-			(call $__iov_fill
-				(call $__alloc (global.get $SIZEOF_IOV))
-				(call $__alloc (global.get $SIZEOF_SRC_LN))
-				(i32.const 0)
-				(i32.const 0)))
+		(call $__src_set_in_ptr (local.get $s) (call $__alloc (global.get $SIZEOF_SRC_IN)))
+		(call $__src_set_ln_ptr (local.get $s) (call $__alloc (global.get $SIZEOF_SRC_LN)))
 
 		;; add and evaluate
 		(call $__internal_evaluate_frame (local.get $s))

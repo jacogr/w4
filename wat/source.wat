@@ -28,12 +28,14 @@
 	(global $IDX_SRC_KIND   i32 (i32.const 12))
 	(global $IDX_SRC_FD     i32 (i32.const 16))
 	(global $IDX_SRC_ROW    i32 (i32.const 20))
-	(global $IDX_SRC_LN_IOV i32 (i32.const 24))
-	(global $IDX_SRC_LN_OFF i32 (i32.const 28))
-	(global $IDX_SRC_IN_IOV i32 (i32.const 32))
-	(global $IDX_SRC_IN_OFF i32 (i32.const 36))
-	(global $IDX_SRC_IS_EOF i32 (i32.const 40))
-	(global $SIZEOF_SRC     i32 (i32.const 44))
+	(global $IDX_SRC_LN_PTR i32 (i32.const 24))
+	(global $IDX_SRC_LN_LEN i32 (i32.const 28))
+	(global $IDX_SRC_LN_POS i32 (i32.const 32))
+	(global $IDX_SRC_IN_PTR i32 (i32.const 36))
+	(global $IDX_SRC_IN_LEN i32 (i32.const 40))
+	(global $IDX_SRC_IN_POS i32 (i32.const 44))
+	(global $IDX_SRC_IS_EOF i32 (i32.const 48))
+	(global $SIZEOF_SRC     i32 (i32.const 52))
 	(global $SIZEOF_SRC_IN  i32 (i32.const 256)) ;; file read buffer size
 	(global $SIZEOF_SRC_LN  i32 (i32.const 1024)) ;; line buffer size
 
@@ -195,31 +197,31 @@
 		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_LEN)) (local.get $v)))
 
 	(func $__src_get_in_iov (param $s i32) (result i32)
-		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_IN_IOV))))
+		(i32.add (local.get $s) (global.get $IDX_SRC_IN_PTR)))
 
-	(func $__src_set_in_iov (param $s i32) (param $v i32)
-		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_IN_IOV)) (local.get $v)))
+	(func $__src_set_in_ptr (param $s i32) (param $v i32)
+		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_IN_PTR)) (local.get $v)))
 
 	(func $__src_get_in_off (param $s i32) (result i32)
-		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_IN_OFF))))
+		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_IN_POS))))
 
 	(func $__src_set_in_off (param $s i32) (param $v i32)
-		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_IN_OFF)) (local.get $v)))
+		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_IN_POS)) (local.get $v)))
 
 	(func $__src_get_ln_iov (param $s i32) (result i32)
-		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_LN_IOV))))
+		(i32.add (local.get $s) (global.get $IDX_SRC_LN_PTR)))
 
-	(func $__src_set_ln_iov (param $s i32) (param $v i32)
-		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_LN_IOV)) (local.get $v)))
+	(func $__src_set_ln_ptr (param $s i32) (param $v i32)
+		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_LN_PTR)) (local.get $v)))
 
 	(func $__src_get_ln_off_ptr (param $s i32) (result i32)
-		(i32.add (local.get $s) (global.get $IDX_SRC_LN_OFF)))
+		(i32.add (local.get $s) (global.get $IDX_SRC_LN_POS)))
 
 	(func $__src_get_ln_off (param $s i32) (result i32)
-		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_LN_OFF))))
+		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_LN_POS))))
 
 	(func $__src_set_ln_off (param $s i32) (param $v i32)
-		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_LN_OFF)) (local.get $v)))
+		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_LN_POS)) (local.get $v)))
 
 	(func $__src_get_ptr (param $s i32) (result i32)
 		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_PTR))))
