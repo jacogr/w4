@@ -3,6 +3,7 @@
 BUILD_DIR      = build
 FTH_DIR        = w4
 WAT_DIR        = wat
+SCRIPT_DIR     = scripts
 TEST_DIR       = test
 
 FTH_ENTRY      = $(FTH_DIR)/w4.f
@@ -31,7 +32,7 @@ FTH_FILTER     = cat
 WASMOPT_FLAGS  = -O0 --enable-multivalue --enable-bulk-memory-opt
 else
 M4_FLAGS       = -P -DRELEASE
-FTH_FILTER     = awk -f minify-filter.awk | awk -f minify-collapse.awk
+FTH_FILTER     = awk -f $(SCRIPT_DIR)/minify-filter.awk | awk -f $(SCRIPT_DIR)/minify-collapse.awk
 WASMOPT_FLAGS  = -O4 --enable-multivalue --enable-bulk-memory-opt --converge
 endif
 
@@ -59,7 +60,7 @@ $(FTH_GEN): $(FTH_SRC) | $(BUILD_DIR)
 
 # forth -> wat
 $(WAT_FTH_GEN): $(FTH_GEN)
-	python3 wat-forth.py $(FTH_GEN) $@
+	python3 $(SCRIPT_DIR)/embed-forth.py $(FTH_GEN) $@
 
 # wat m4 expand
 $(WAT_GEN): $(WAT_FTH_GEN) $(WAT_SRC) | $(BUILD_DIR)

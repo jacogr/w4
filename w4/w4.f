@@ -1,5 +1,5 @@
 
-m4_include(`preclude.m4')
+m4_include(`scripts/preclude.m4')
 
 m4_include(`preamble.f')
 
