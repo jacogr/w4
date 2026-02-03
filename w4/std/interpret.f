@@ -52,9 +52,9 @@ m4_require_w4(`std/memory.f')
 		2dup 1- + c@							( c-addr u -- c-addr u char )
 
 		\ char = '.'? (double value)
-		'.' = if
+		'.' = if								( c-addr u char - ca-addr u )
 			true to isd?
-			1-
+			1-									( c-addr u -- c-addr u' )
 		then
 
 		\ extract negative/base char
@@ -126,7 +126,7 @@ m4_require_w4(`std/memory.f')
 		dup if
 			\ compiling?							( n f -- n f )
 			state @ if
-				(flg-xt-lit) swap					( nf -- n xtf f )
+				(flg-xt-lit) swap					( n f -- n xtf f )
 
 				-1 = if (flg-is-var) or then		( n xtf -- n xtf' )
 

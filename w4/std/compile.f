@@ -132,8 +132,6 @@ m4_require_w4(`std/stack-rs.f')
 \ and j * x represent arguments to and results from xt, respectively.
 
 	parse-name :NONAME build,	\ create :noname (same structure as :)
-		]						\ compile
-		0 0 build, 				\ no name
-		latest					\ put latest on the stack
-		]						\ enter compilation, rest follows
+		] 0 0 build, 			\ compile, no name available
+		latest ]				\ latest, enter compile
 	;
