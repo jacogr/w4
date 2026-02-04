@@ -22,7 +22,7 @@
 		(call $__line_clear)
 
 		;; current frame?
-		(local.tee $s (global.get $parse_frame)) (if
+		(local.tee $s (call $__src_frame_peek)) (if
 
 			;; have a frame, continue below
 			(then)

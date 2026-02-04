@@ -9,9 +9,6 @@
 
 ;)
 
-	;; parsing variables
-	(global $parse_frame	(mut i32) (i32.const 0))
-
 	;; execution & compilation variables
 	(global $exec_list      (mut i32) (i32.const 0))
 	(global $exec_next      (mut i32) (i32.const 0))
@@ -34,6 +31,7 @@
 	;;
 	(func $__internal_builds (param $name i32) (param $len i32)
 		(local $hash i32)
+		(local $s i32)
 
 		;; -19 definition name too long
 		(call $__assert (i32.le_u (local.get $len) (i32.const 48)) (i32.const -19))
@@ -64,10 +62,11 @@
 					(global.get $FLG_TKN))))
 
 		;; set the row/col value
+		(local.set $s (call $__src_frame_peek))
 		(call $__list_set_file
 			(global.get $list_toks)
-			(global.get $parse_frame)
-			(call $__src_get_row (global.get $parse_frame))
+			(local.get $s)
+			(call $__src_get_row (local.get $s))
 			(i32.sub (call $__line_get_off) (local.get $len)))
 
 		;; set the owner for the list
@@ -618,7 +617,7 @@
 		(local $caller_s i32)
 
 		;; save caller frame pointer (0 if none)
-		(local.set $caller_s (global.get $parse_frame))
+		(local.set $caller_s (call $__src_frame_peek))
 
 		;; enter frame
 		(call $__src_push_frame (local.get $s))

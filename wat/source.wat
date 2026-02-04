@@ -48,9 +48,6 @@
 		;; clear global state (to be set in refill)
 		(call $__line_clear)
 
-		;; set current frame
-		(global.set $parse_frame (local.get $s))
-
 		;; s == 0 => clear parse state
 		(local.get $s) (if
 
