@@ -4,14 +4,19 @@ m4_require_w4(`std/constants.f')
 \ source stack
 
 	$20 constant (source-max#) \ 32 cells
-	(source-max#) 1+ cells buffer: (source-stack^)
+	\ (source-max#) 1+ cells buffer: (source-stack^)
 
 \ helpers to push/pop from stack
 
 	: (source-count) ( -- u ) (source-stack^) @ ;
 	: (source-count!) ( u -- ) (source-stack^) ! ;
 	: (source-cell!) ( fid idx -- ) cells (source-stack^) + ! ;
-	: (source-cell@) ( idx -- fid ) cells (source-stack^) + @ ;
+	: (source-cell@) ( idx -- fid ) dup if cells (source-stack^) + @ then ;
+
+	: (source-current) ( -- fid ) ( s: ... fid -- ... )
+		(source-count)			( -- count )
+		(source-cell@)			( count -- fid )
+	;
 
 	: (source-push) ( fid -- ) ( s: ... -- ... fid )
 		(source-count) 1+					( fid -- fid count' )
@@ -24,26 +29,15 @@ m4_require_w4(`std/constants.f')
 		(source-cell!)						( fid count -- )
 	;
 
-	: (source-get-at) ( count -- fid )
-		?dup if					( count -- count )
-			(source-cell@)		( count -- fid )
-		else 0 then				( -- 0 )
-	;
-
-	: (source-current) ( -- fid ) ( s: ... fid -- ... )
-		(source-count)			( -- count )
-		(source-get-at)			( count -- fid )
-	;
-
 	: (source-pop) ( -- fid ) ( s: ... fid -- ... )
 		(source-count)			( -- count )
 
-		?dup if
+		dup if
 			\ decrement count, get top
 			1- dup					( count -- count' count' )
 			(source-count!)			( count count -- count )
-			(source-get-at)			( count -- fid )
-		else 0 then					( -- fid )
+			(source-cell@)			( count -- fid )
+		then
 	;
 
 \ manage the current fid, source & >in

@@ -109,6 +109,10 @@ m4_require_w4(`std/constants-structs.f')
 
 	$0134 (mmio:) BASE
 
+\ source stack
+
+	$0148 (mmio@) (source-stack^)
+
 \ https://forth-standard.org/standard/search/FORTH-WORDLIST
 \
 \ Return wid, the identifier of the word list that includes all standard words
