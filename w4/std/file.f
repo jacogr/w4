@@ -47,8 +47,8 @@ m4_require_w4(`ext/wasi.f')
 \ is undefined.
 
 	\ aligned with wasm
-	#256 1+ constant (sizeof-fid-in)
-	#1024 1+ constant (sizeof-fid-ln)
+	$100 constant (sizeof-fid-in)	\ 256
+	$400 constant (sizeof-fid-ln)	\ 1024
 
 	: (new-fileid) ( c-addr u -- fid )
 		\ allocate, set path + hash
@@ -57,11 +57,11 @@ m4_require_w4(`ext/wasi.f')
 		sp-2@ (xt>str+len+hash!)		( a-addr c-addr u -- a-addr )
 
 		\ set line buffer
-		here (sizeof-fid-ln) allot		( a-addr -- a-addr here )
+		here (sizeof-fid-ln) 1+ allot	( a-addr -- a-addr here )
 		over (fid>ln-ptr!)				( a-addr here -- a-addr )
 
 		\ set input buffer
-		here (sizeof-fid-in) allot		( a-addr -- a-addr here )
+		here (sizeof-fid-in) 1+ allot	( a-addr -- a-addr here )
 		over (fid>in-ptr!)				( a-addr here -- a-addr )
 
 		\ set flags
