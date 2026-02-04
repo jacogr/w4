@@ -45,15 +45,7 @@
 			;; success
 			(then
 				;; row++
-				(call $__src_set_row
-					(local.get $s)
-					(i32.add
-						(call $__src_get_row (local.get $s))
-						(i32.const 1)))
-
-				;; mirror for diagnostics / errors
-				(global.set $parse_code_row
-					(call $__src_get_row (local.get $s)))
+				(call $__src_inc_row (local.get $s))
 
 				;; SOURCE + >IN
 				(call $__line_set

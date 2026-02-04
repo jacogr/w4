@@ -56,38 +56,23 @@
 
 			;; we have a valid source
 			(then
-				;; parse_iov_ptr from frame
-				(global.set $parse_iov_ptr (call $__src_get_ln_iov (local.get $s)))
-				(global.set $parse_code_row (call $__src_get_row (local.get $s)))
-
 				;; kind?
 				(call $__src_get_kind (local.get $s)) (if
 
 					;; file
 					(then
 						;; PTR_SRC_ID = frame ptr (or 0)
-						(i32.store (global.get $PTR_SRC_ID) (local.get $s))
-						(global.set $parse_code_idx (call $__src_get_ln_off (local.get $s)))
-						(global.set $parse_code_ptr (i32.const 0))
-						(global.set $parse_code_len (i32.const 0)))
+						(i32.store (global.get $PTR_SRC_ID) (local.get $s)))
 
 					;; memory
 					(else
 						;; PTR_SRC_ID = -1
-						(i32.store (global.get $PTR_SRC_ID) (i32.const -1))
-						(global.set $parse_code_idx (call $__src_get_in_off (local.get $s)))
-						(global.set $parse_code_ptr (call $__src_get_in_ptr (local.get $s)))
-    					(global.set $parse_code_len (call $__src_get_in_len (local.get $s))))))
+						(i32.store (global.get $PTR_SRC_ID) (i32.const -1)))))
 
 			;; zero source, clear all
 			(else
 				;; PTR_SRC_ID = 0
-				(i32.store (global.get $PTR_SRC_ID) (i32.const 0))
-				(global.set $parse_iov_ptr  (i32.const 0))
-				(global.set $parse_code_ptr (i32.const 0))
-				(global.set $parse_code_len (i32.const 0))
-				(global.set $parse_code_idx (i32.const 0))
-				(global.set $parse_code_row (i32.const 0))))
+				(i32.store (global.get $PTR_SRC_ID) (i32.const 0))))
 	)
 
 	;;
@@ -236,6 +221,9 @@
 
 	(func $__src_set_row (param $s i32) (param $v i32)
 		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_ROW)) (local.get $v)))
+
+	(func $__src_inc_row (param $s i32)
+		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_ROW)) (i32.add (i32.const 1) (call $__src_get_row (local.get $s)))))
 
 	(func $__src_get_fd (param $s i32) (result i32)
 		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_FD))))

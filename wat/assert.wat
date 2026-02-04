@@ -20,6 +20,7 @@
 		(local $line_iov i32)
 		(local $line_off i32)
 		(local $line_fil i32)
+		(local $line_row i32)
 		(local $sid i32)
 		(local $n i32)
 
@@ -42,6 +43,7 @@
 			(then
 				(local.set $line_iov (call $__src_get_ln_iov (local.get $s)))
 				(local.set $line_off (call $__src_get_ln_off (local.get $s)))
+				(local.set $line_row (call $__src_get_row (local.get $s)))
 
 				;; frame?
 				(call $__src_get_kind (local.get $s)) (if
@@ -95,7 +97,7 @@
 			;; no file, skip
 			(else))
 
-		(call $__iov_emit_num_stderr (global.get $parse_code_row))
+		(call $__iov_emit_num_stderr (local.get $line_row))
 		(call $__iov_emit_chr_stderr (i32.const 58)) ;; ':'
 		(call $__iov_emit_num_stderr (local.get $line_off))
 

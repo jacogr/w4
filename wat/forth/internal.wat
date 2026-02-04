@@ -10,12 +10,7 @@
 ;)
 
 	;; parsing variables
-	(global $parse_code_ptr (mut i32) (i32.const 0))
-	(global $parse_code_len (mut i32) (i32.const 0))
-	(global $parse_code_idx (mut i32) (i32.const 0))
-	(global $parse_code_row (mut i32) (i32.const 0))
 	(global $parse_frame	(mut i32) (i32.const 0))
-	(global $parse_iov_ptr  (mut i32) (i32.const 0))
 
 	;; execution & compilation variables
 	(global $exec_list      (mut i32) (i32.const 0))
@@ -72,7 +67,7 @@
 		(call $__list_set_file
 			(global.get $list_toks)
 			(global.get $parse_frame)
-			(global.get $parse_code_row)
+			(call $__src_get_row (global.get $parse_frame))
 			(i32.sub (call $__line_get_off) (local.get $len)))
 
 		;; set the owner for the list
@@ -636,7 +631,7 @@
 				(i32.ne (call $__line_get_iov) (i32.const 0))
 				(i32.lt_u
 					(call $__line_get_off)
-					(call $__iov_get_len (global.get $parse_iov_ptr)))) (if
+					(call $__iov_get_len (call $__src_get_ln_iov (local.get $s))))) (if
 
 				;; valid, interpret below
 				(then)
