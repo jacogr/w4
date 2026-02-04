@@ -607,17 +607,17 @@
 		(call $__src_set_in_len (local.get $s) (local.get $code_len))
 
 		;; evaluate the source
-		(call $__internal_evaluate_frame (local.get $s))
+		(call $__internal_include_file (local.get $s))
 	)
 
 	;;
 	;; Runs the evaulation loop over a source
 	;;
-	(func $__internal_evaluate_frame (param $s i32)
-		(local $caller_s i32)
+	(func $__internal_include_file (param $s i32)
+		(local $orig_s i32)
 
 		;; save caller frame pointer (0 if none)
-		(local.set $caller_s (call $__src_frame_peek))
+		(local.set $orig_s (call $__src_frame_peek))
 
 		;; enter frame
 		(call $__src_push_frame (local.get $s))
@@ -648,13 +648,13 @@
 		(call $__src_pop_frame)
 
 		;; re-bind caller SOURCE so we do NOT trigger a refill
-		(local.get $caller_s) (if
+		(local.get $orig_s) (if
 
 			;; rebind
 			(then
 				(call $__line_set
-					(call $__src_get_ln_iov (local.get $caller_s))
-					(call $__src_get_ln_off_ptr (local.get $caller_s))))
+					(call $__src_get_ln_iov (local.get $orig_s))
+					(call $__src_get_ln_off_ptr (local.get $orig_s))))
 
 			;; no caller, skip
 			(else))

@@ -114,5 +114,5 @@
 		(call $__src_set_ln_ptr (local.get $s) (call $__alloc (global.get $SIZEOF_SRC_LN)))
 
 		;; add and evaluate
-		(call $__internal_evaluate_frame (local.get $s))
+		(call $__internal_include_file (local.get $s))
 	)

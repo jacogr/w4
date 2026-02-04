@@ -28,9 +28,9 @@ m4_require_w4(`ext/list.f')
 \  When an ambiguous condition exists, the status (open or closed) of any
 \ files that were being interpreted is implementation-defined.
 
-	: INCLUDE-FILE ( i * x fileid -- j * x )
-		-1 throw
-	;
+	\ : INCLUDE-FILE ( i * x fileid -- j * x )
+	\ 	-1 throw
+	\ ;
 
 \ https://forth-standard.org/standard/file/INCLUDED
 \
@@ -67,11 +67,11 @@ m4_require_w4(`ext/list.f')
 		else							( c-addr u nt -- c-addr u )
 			\ open file
 			r/o open-file				( c-addr u -- fid ior )
-			0<> #-38 and throw			( fileid ior -- fileid )
+			0<> #-38 and throw			( fid ior -- fid )
 
 			\ append
-			(included-wid)				( fileid -- fileid wid )
-			swap (lookup-append)		( fileid wid -- nt )
+			(included-wid)				( fid -- fid wid )
+			swap (lookup-append)		( fid wid -- nt )
 			true						( nt -- nt true )
 		then
 
@@ -80,8 +80,8 @@ m4_require_w4(`ext/list.f')
 	;
 
 	: INCLUDED ( i * x c-addr u -- j * x )
-		2dup (if-not-included-add)		( c-addr u -- c-addr u fid f )
-		2drop included					( c-addr u fid f -- )
+		(if-not-included-add)			( c-addr u -- fid f )
+		drop include-file				( fid f -- )
 	;
 
 \ https://forth-standard.org/standard/file/INCLUDE
@@ -113,11 +113,10 @@ m4_require_w4(`ext/list.f')
 \ ( i * x -- i * x ).
 
 	: REQUIRED ( i * x c-addr u -- i * x )
-		2dup (if-not-included-add)		( c-addr u -- c-addr u fid flag )
-		if								( c-addr u fid flag -- c-addr u fid )
-			drop						( c-addr u fid -- c-addr u )
-			included					( c-addr u -- )
-		else 3drop then					( c-addr u fid -- )
+		(if-not-included-add)			( c-addr u -- fid f )
+		if								( fid f -- fid )
+			include-file				( fid -- )
+		else drop then					( fid -- )
 	;
 
 \ https://forth-standard.org/standard/file/REQUIRE

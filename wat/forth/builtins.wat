@@ -42,7 +42,7 @@
 		(; 19 ;) "evaluate"				"\00\00"
 		(; 20 ;) "execute"				"\00\00"
 		(; 21 ;) "compile,"				"\00\00"
-		(; 22 ;) "included"				"\00\00"
+		(; 22 ;) "include-file"			"\00\00"
 		(; 23 ;) "throw"				"\00\00"
 		(; 24 ;) "wasi::fd_write"		"\00\00"
 		(; 25 ;) "wasi::fd_read"		"\00\00"
@@ -302,11 +302,11 @@
 		(call $__internal_compile (call $__stack_dat_pop))
 	)
 
-	;; https://forth-standard.org/standard/file/INCLUDED
-	;; ( i * x c-add u -- j * x )
-	(elem (i32.const 22) $__forth_fn_included)
-	(func $__forth_fn_included (type $TypeForthFn)
-		(call $__internal_included (call $__stack_dat_2pop))
+	;; https://forth-standard.org/standard/file/INCLUDE-FILE
+	;; ( i * x fileid -- j * x )
+	(elem (i32.const 22) $__forth_fn_include_file)
+	(func $__forth_fn_include_file (type $TypeForthFn)
+		(call $__internal_include_file (call $__stack_dat_pop))
 	)
 
 	;; https://forth-standard.org/standard/exception/THROW

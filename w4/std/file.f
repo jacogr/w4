@@ -46,15 +46,23 @@ m4_require_w4(`ext/wasi.f')
 \ Otherwise, ior is the implementation-defined I/O result code and fileid
 \ is undefined.
 
+	\ aligned with wasm
+	#256 1+ constant (sizeof-fid-in)
+	#1024 1+ constant (sizeof-fid-ln)
+
 	: (new-fileid) ( c-addr u -- fid )
 		\ allocate, set path + hash
 		align here (sizeof-fid) allot	( c-addr u -- c-addr u a-addr )
 		-rot strdup						( c-addr u a-addr -- a-addr c-addr' u' )
 		sp-2@ (xt>str+len+hash!)		( a-addr c-addr u -- a-addr )
 
-		\ set buffer
-		here string-max 1+ allot		( a-addr -- a-addr here )
+		\ set line buffer
+		here (sizeof-fid-ln) allot		( a-addr -- a-addr here )
 		over (fid>ln-ptr!)				( a-addr here -- a-addr )
+
+		\ set input buffer
+		here (sizeof-fid-in) allot		( a-addr -- a-addr here )
+		over (fid>in-ptr!)				( a-addr here -- a-addr )
 
 		\ set flags
 		(flg-is-vis)					( a-addr -- a-addr flags )	\ flags = visible
