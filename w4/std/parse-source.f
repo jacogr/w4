@@ -24,27 +24,32 @@ m4_require_w4(`std/constants.f')
 		(source-cell!)						( fid count -- )
 	;
 
+	: (source-get-at) ( count -- fid )
+		?dup if					( count -- count )
+			(source-cell@)		( count -- fid )
+		else 0 then				( -- 0 )
+	;
+
+	: (source-current) ( -- fid ) ( s: ... fid -- ... )
+		(source-count)			( -- count )
+		(source-get-at)			( count -- fid )
+	;
+
 	: (source-pop) ( -- fid ) ( s: ... fid -- ... )
-		(source-count)					( -- count )
+		(source-count)			( -- count )
 
-		\ check for underflow, -35 invalid block number
-		dup 0= #-35 and throw			( count -- count )
-
-		\ retrieve cell, decrement count
-		dup (source-cell@)				( count -- count fid )
-		swap 1-	(source-count!)			( count fid -- fid )
+		?dup if
+			\ decrement count, get top
+			1- dup					( count -- count' count' )
+			(source-count!)			( count count -- count )
+			(source-get-at)			( count -- fid )
+		else 0 then					( -- fid )
 	;
 
 \ manage the current fid, source & >in
 
-	variable (source-curr-fid^)
-
-	: (source-curr-fid) ( -- fid ) (source-curr-fid^) @ ;
-	: (source-curr-fid!) ( fid -- ) (source-curr-fid^) ! ;
-
 	\ set cource-id, source & in^
 	: (source-global-set) ( fid -- )
-		dup (source-curr-fid!)	( fid -- fid )
 		dup (fid>ln-pos^)		( fid -- fid in^ )
 		(>in^) !				( fid in^ -- fid )
 		dup (fid>ln-iov^)		( fid -- fid source^ )
@@ -52,20 +57,12 @@ m4_require_w4(`std/constants.f')
 		(source-id!)			( fid -- )
 	;
 
-	: (source-get-prev) ( -- f )
-		(source-count) if
-			(source-pop)		( -- fid )
-			(source-global-set)	( fid -- )
-
-			true				( -- f )
-		else false then			( -- f )
+	: (source-get-prev) ( -- fid|0 )
+		(source-pop)			( -- fid )
+		dup (source-global-set)	( fid -- fid )
 	;
 
 	: (source-set-next) ( fid -- )
-		\ store current if set
-		(source-curr-fid) ?dup if
-			(source-push)			( fid curr -- fid )
-		then
-
-		(source-global-set)			( fid -- )
+		dup (source-push)		( fid -- fid )
+		(source-global-set)		( fid -- )
 	;

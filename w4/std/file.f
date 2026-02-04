@@ -57,7 +57,7 @@ m4_require_w4(`ext/wasi.f')
 		over (fid>ln-ptr!)				( a-addr here -- a-addr )
 
 		\ set flags
-		(flg-is-vis) (flg-is-var) or	( a-addr -- a-addr flags )	\ flags = var = file
+		(flg-is-vis)					( a-addr -- a-addr flags )	\ flags = visible
 		over (fid>flags!)				( a-addr -- fid )
 	;
 
