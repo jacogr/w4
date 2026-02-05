@@ -161,15 +161,46 @@ m4_require_w4(`ext/wasi.f')
 
 	: (fid>row++) ( fid -- ) dup (fid>row@) 1+ swap (fid>row!) ;
 
-	\ TODO Don't read char-by-char via read-file, fill a buffer with characters,
-	\ read char-by-char from buffer in this function, refill. Calling into the
-	\ wasi layer is expensive
-
 	: (read-char) ( buf fid -- no-eof no-err )
-		1 swap 		( buf fid -- buf 1 fid )
-		read-file 	( buf 1 fid -- u ior )
-		0= swap		( u ior -- no-err u )			\ no-err = iof == 0
-		0<> swap 	( no-err u -- no-eof no-err )	\ no-eof = u <> 0
+		true true
+		{: buf fid not-eof not-err :}
+
+		fid (fid>is-eof@) if
+			false to not-eof
+		else
+			fid (fid>in-pos@)	( -- pos )
+			1+ dup				( pos -- pos' pos' )
+
+			\ pos < len?
+			fid (fid>in-len@) < if
+				fid (fid>in-pos!)
+			else
+				drop				( pos -- )
+				fid (fid>in-ptr@)	( -- buf )
+				(sizeof-fid-in)		( buf -- buf u )
+				fid read-file		( buf u -- u ior )
+				0= to not-err		( u ior -- u )	\ not-err = ior == 0
+
+				\ not eof? (u <> 0)
+				?dup if
+					fid (fid>in-len!)
+					0 fid (fid>in-pos!)
+				else
+					false to not-eof
+					false fid (fid>is-eof!)
+				then
+			then
+		then
+
+		\ not eof and not err?
+		not-eof not-err and if
+			\ populate buf with char
+			fid (fid>in-ptr@)
+			fid (fid>in-pos@)
+			+ c@ buf c!
+		then
+
+		not-eof not-err
 	;
 
 	: READ-LINE ( c-addr u fid -- u2 flag ior )
@@ -202,7 +233,6 @@ m4_require_w4(`ext/wasi.f')
 					then
 				else
 					false to not-eof		( -- )
-					true fid (fid>is-eof!)
 				then
 			else
 				drop 						( no-err -- )
