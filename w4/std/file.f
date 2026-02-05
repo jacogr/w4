@@ -162,33 +162,29 @@ m4_require_w4(`ext/wasi.f')
 	: (fid>row++) ( fid -- ) dup (fid>row@) 1+ swap (fid>row!) ;
 
 	: (read-char) ( buf fid -- no-eof no-err )
-		true true
+		true true \ only called by read-line, which already did eof check
 		{: buf fid not-eof not-err :}
 
-		fid (fid>is-eof@) if
-			false to not-eof
+		fid (fid>in-pos@)	( -- pos )
+		1+ dup				( pos -- pos' pos' )
+
+		\ pos < len?
+		fid (fid>in-len@) < if
+			fid (fid>in-pos!)
 		else
-			fid (fid>in-pos@)	( -- pos )
-			1+ dup				( pos -- pos' pos' )
+			drop				( pos -- )
+			fid (fid>in-ptr@)	( -- buf )
+			(sizeof-fid-in)		( buf -- buf u )
+			fid read-file		( buf u -- u ior )
+			0= to not-err		( u ior -- u )	\ not-err = ior == 0
 
-			\ pos < len?
-			fid (fid>in-len@) < if
-				fid (fid>in-pos!)
+			\ not eof? (u <> 0)
+			?dup if
+				fid (fid>in-len!)
+				0 fid (fid>in-pos!)
 			else
-				drop				( pos -- )
-				fid (fid>in-ptr@)	( -- buf )
-				(sizeof-fid-in)		( buf -- buf u )
-				fid read-file		( buf u -- u ior )
-				0= to not-err		( u ior -- u )	\ not-err = ior == 0
-
-				\ not eof? (u <> 0)
-				?dup if
-					fid (fid>in-len!)
-					0 fid (fid>in-pos!)
-				else
-					false to not-eof
-					false fid (fid>is-eof!)
-				then
+				false to not-eof
+				false fid (fid>is-eof!)
 			then
 		then
 
@@ -204,7 +200,7 @@ m4_require_w4(`ext/wasi.f')
 	;
 
 	: READ-LINE ( c-addr u fid -- u2 flag ior )
-		true true true 0 								( c-addr u fid -- c-addr u fid not-eof not-eol not-err num )
+		dup (fid>is-eof@) 0= true true 0 				( c-addr u fid -- c-addr u fid not-eof not-eol not-err num )
 		{: buf max fid not-eof not-eol not-err num :}	( c-addr u fid not-eof not-eol not-err num -- )
 
 		begin
@@ -235,7 +231,7 @@ m4_require_w4(`ext/wasi.f')
 					false to not-eof		( -- )
 				then
 			else
-				drop 						( no-err -- )
+				drop 						( no-eof -- )
 				false to not-err
 			then
 		repeat
