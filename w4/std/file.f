@@ -160,6 +160,7 @@ m4_require_w4(`ext/wasi.f')
 \ position after the last character read.
 
 	: (fid>row++) ( fid -- ) dup (fid>row@) 1+ swap (fid>row!) ;
+	: (fid>idx++) ( fid -- ) dup (fid>in-pos@) 1+ swap (fid>in-pos!) ;
 
 	: (read-char) ( buf fid -- no-eof no-err )
 		true true \ only called by read-line, which already did eof check
@@ -192,8 +193,7 @@ m4_require_w4(`ext/wasi.f')
 			+ c@ buf c!
 
 			\ increment for next
-			fid (fid>in-pos@) 1+
-			fid (fid>in-pos!)
+			fid (fid>idx++)
 		then
 
 		not-eof not-err
