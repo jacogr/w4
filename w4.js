@@ -1,6 +1,6 @@
 'use strict';
 
-/** @typedef {{ memory: WebAssembly.Memory, alloc: (len: number) => number, evaluate: (code: number, len: number) => void, evaluate_file: (str: number, len: number) => void } & WebAssembly.Exports} WasmExports */
+/** @typedef {{ memory: WebAssembly.Memory, alloc: (len: number) => number, evaluate: (ptr: number, len: number) => void } & WebAssembly.Exports} WasmExports */
 
 import nodeFs from 'node:fs';
 import nodePath from 'node:path';
@@ -13,19 +13,19 @@ import nodeWasi from 'node:wasi';
 	let /** @type {DataView | null} */ memview = null;
 
 	/** @returns {void} */
-	function evaluateFile (/** @type {string} */ file) {
+	function evaluate (/** @type {string} */ code) {
 		if (!exposed || !memview) {
 			throw new Error('Invalid exposed object');
 		}
 
-		const len = file.length;
+		const len = code.length;
 		const ptr = exposed.alloc(len + 1);
 
 		for (let i = 0; i < len; i++) {
-			memview.setUint8(ptr + i, file.charCodeAt(i));
+			memview.setUint8(ptr + i, code.charCodeAt(i));
 		}
 
-		exposed.evaluate_file(ptr, len);
+		exposed.evaluate(ptr, len);
 	}
 
 	/** @returns {void} */
@@ -84,7 +84,7 @@ import nodeWasi from 'node:wasi';
 		// initialize the engine (underlying it calls the _start export)
 		wasi.start(instance);
 
-		evaluateFile(usrFile);
+		evaluate(`s" ${usrFile}" included`);
 
 		logEnd('ok');
 	} catch (e) {
