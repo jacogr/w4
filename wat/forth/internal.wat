@@ -603,8 +603,8 @@
 		(local.set $s (call $__alloc (global.get $SIZEOF_SRC)))
 
 		;; store base info
-		(call $__src_set_in_ptr (local.get $s) (local.get $code_ptr))
-		(call $__src_set_in_len (local.get $s) (local.get $code_len))
+		(call $__src_set_ln_ptr (local.get $s) (local.get $code_ptr))
+		(call $__src_set_ln_len (local.get $s) (local.get $code_len))
 
 		;; evaluate the source
 		(call $__internal_include_file (local.get $s))
@@ -621,6 +621,7 @@
 
 		;; enter frame
 		(call $__src_push_frame (local.get $s))
+		(call $__line_set (local.get $s))
 
 		;; loop while we have source
 		(block $exit (loop $loop
@@ -651,10 +652,7 @@
 		(local.get $orig_s) (if
 
 			;; rebind
-			(then
-				(call $__line_set
-					(call $__src_get_ln_iov (local.get $orig_s))
-					(call $__src_get_ln_off_ptr (local.get $orig_s))))
+			(then (call $__line_set (local.get $orig_s)))
 
 			;; no caller, skip
 			(else))

@@ -204,6 +204,9 @@
 	(func $__src_set_ln_ptr (param $s i32) (param $v i32)
 		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_LN_PTR)) (local.get $v)))
 
+	(func $__src_set_ln_len (param $s i32) (param $v i32)
+		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_LN_LEN)) (local.get $v)))
+
 	(func $__src_get_ln_off_ptr (param $s i32) (result i32)
 		(i32.add (local.get $s) (global.get $IDX_SRC_LN_POS)))
 
@@ -237,9 +240,9 @@
 		(call $__line_set_iov__ (i32.const 0))
 	)
 
-	(func $__line_set (param $iov i32) (param $off_ptr i32)
-		(call $__line_set_off_ptr__ (local.get $off_ptr))
-		(call $__line_set_iov__ (local.get $iov))
+	(func $__line_set (param $s i32)
+		(call $__line_set_off_ptr__ (call $__src_get_ln_off_ptr (local.get $s)))
+		(call $__line_set_iov__ (call $__src_get_ln_iov (local.get $s)))
 	)
 
 	(func $__line_set_off (param $v i32)

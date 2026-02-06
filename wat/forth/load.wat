@@ -16,39 +16,23 @@
 	(func $__internal_refill (result i32)
 		(local $s i32)
 
-		;; reset >IN and SOURCE
-		(call $__line_clear)
-
 		;; current frame?
-		(local.tee $s (call $__src_frame_peek)) (if
-
-			;; have a frame, continue below
-			(then)
-
-			;; no source frame, exit
-			(else (return (i32.const 0))))
-
-		;; read next line (file/mem), returns success flag
-		(call $__src_get_kind (local.get $s)) (if (result i32)
+		(call $__src_get_kind (local.tee $s (call $__src_frame_peek))) (if (result i32)
 
 			;; file
 			(then (call $__file_read_line (local.get $s)))
 
 			;; memory
-			(else (call $__mem_read_line (local.get $s))))
+			(else (i32.const 0)))
 
 		;; shared tail
 		(if (result i32)
 
 			;; success
 			(then
-				;; row++
+				;; row++, SOURCE + >IN
 				(call $__src_inc_row (local.get $s))
-
-				;; SOURCE + >IN
-				(call $__line_set
-					(call $__src_get_ln_iov (local.get $s))
-					(call $__src_get_ln_off_ptr (local.get $s)))
+				(call $__line_set (local.get $s))
 
 				;; success, we have a line
 				(i32.const 1))
