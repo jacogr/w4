@@ -73,18 +73,15 @@ m4_require_w4(`ext/wasi.f')
 		sp-2@ sp-2@ (new-fileid)	( c-addr u fam -- c-addr-u fam fid ) \ fid = here^
 		{: path len rb fid :}		( c-addr u fam fid -- )
 
-		\ currently we only open from cwd, preopened as dir_fd = 3
-		3 0							( -- dir_fd dir_flags )
+		\ dir fd (cwd = 3) & flags, path & len
+		3 0 path len				( -- dir_fd dir_f c-addr u )
 
-		\ path & len, output flags (no create/trunc)
-		path len 0					( dir_fd dir_flags -- dir_fd dir_flags c-addr u of )
-
-		\ rights (base = fam, inherit = 0), file flags & pointer
-		rb 0						( dir_fd dir_flags c-addr u of -- dir_fd dir_flags c-addr u of rb ri )
-		0 fid (fid>fd^)				( dir_fd dir_flags c-addr u of rb ri -- dir_fd dir_flags c-addr u of rb ri fd_flags fd )
+		\ of (no create/trunc), rights (base = fam, inherit = 0), file flags & fd
+		0 rb 0 0					( dir_fd dir_f c-addr u -- dir_fd dir_f c-addr u of rb ri fd_f )
+		fid (fid>fd^)				( dir_fd dir_f c-addr u of rb ri fd_f -- dir_fd dir_flags c-addr u of rb ri fd_f fd^ )
 
 		\ call into host
-		wasi::path_open				( dir_fd ... fd -- err )
+		wasi::path_open				( dir_fd ... fd^ -- err )
 		dup 0= if fid else 0 then	( err -- err fileid )
 
 		\ ior = 0 on success, -1 on failure
