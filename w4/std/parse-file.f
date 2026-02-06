@@ -1,11 +1,55 @@
 m4_require_w4(`std/file.f')
 m4_require_w4(`std/control.f')
 m4_require_w4(`std/parse.f')
+m4_require_w4(`std/parse-source.f')
 m4_require_w4(`std/stack-ptr.f')
 m4_require_w4(`std/string.f')
 
 m4_require_w4(`ext/hash.f')
 m4_require_w4(`ext/list.f')
+
+\ https://forth-standard.org/standard/core/REFILL
+\ https://forth-standard.org/standard/file/REFILL
+\
+\ Attempt to fill the input buffer from the input source, returning a true
+\ flag if successful.
+\
+\ When the input source is the user input device, attempt to receive input
+\ into the terminal input buffer. If successful, make the result the input
+\ buffer, set >IN to zero, and return true. Receipt of a line containing no
+\ characters is considered successful. If there is no input available from
+\ the current input source, return false.
+\
+\ When the input source is a string from EVALUATE, return false and perform
+\ no other action.
+\
+\ When the input source is a text file, attempt to read the next line from
+\ the text-input file. If successful, make the result the current input
+\ buffer, set >IN to zero, and return true. Otherwise return false.
+
+	: REFILL ( -- f )
+		(source-current) dup		( -- fid )
+		{: fid :}
+
+		\ we need an fid
+		if
+			\ non-zero flags? (file source)
+			fid (fid>flags@) if
+				fid (fid>ln-ptr@)		( -- c-addr )
+				(sizeof-fid-ln)			( c-addr -- c-addr u )
+				fid read-file			( c-addr u -- u2 ior )
+
+				\ success = ior == 0
+				nip 0=					( u2 ior -- f )
+
+				\ success? zero pos
+				dup if
+					0 fid (fid>ln-pos!)
+				then
+			else false then
+		else false then
+	;
+
 
 \ https://forth-standard.org/standard/file/INCLUDE-FILE
 \
@@ -25,7 +69,7 @@ m4_require_w4(`ext/list.f')
 \
 \ An ambiguous condition exists if fileid is invalid, if there is an I/O
 \ exception reading fileid, or if an I/O exception occurs while closing fileid
-\  When an ambiguous condition exists, the status (open or closed) of any
+\ When an ambiguous condition exists, the status (open or closed) of any
 \ files that were being interpreted is implementation-defined.
 
 	\ : INCLUDE-FILE ( i * x fileid -- j * x )

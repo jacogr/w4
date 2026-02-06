@@ -166,18 +166,19 @@ m4_require_w4(`ext/wasi.f')
 		true true \ only called by read-line, which already did eof check
 		{: buf fid not-eof not-err :}
 
+		fid (fid>in-pos@)			( -- pos )
+		fid (fid>in-len@)			( pos -- pos len )
+
 		\ (pos < len) == 0? (pos >= len?)
-		fid (fid>in-pos@)
-		fid (fid>in-len@)
 		< 0= if
-			fid (fid>in-ptr@)	( -- buf )
-			(sizeof-fid-in)		( buf -- buf u )
-			fid read-file		( buf u -- u ior )
-			0= to not-err		( u ior -- u )	\ not-err = ior == 0
+			fid (fid>in-ptr@)		( -- buf )
+			(sizeof-fid-in)			( buf -- buf u )
+			fid read-file			( buf u -- u ior )
+			0= to not-err			( u ior -- u )	\ not-err = ior == 0
 
 			\ not eof? (u <> 0)
 			?dup if
-				fid (fid>in-len!)
+				fid (fid>in-len!)	( u -- )
 				0 fid (fid>in-pos!)
 			else
 				false to not-eof
@@ -188,8 +189,8 @@ m4_require_w4(`ext/wasi.f')
 		\ not eof and not err?
 		not-eof not-err and if
 			\ populate buf with char
-			fid (fid>in-ptr@)
-			fid (fid>in-pos@)
+			fid (fid>in-ptr@)		( -- c-addr )
+			fid (fid>in-pos@)		( c-addr -- c-addr u )
 			+ c@ buf c!
 
 			\ increment for next

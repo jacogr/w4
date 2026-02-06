@@ -30,9 +30,9 @@ m4_require_w4(`std/constants.f')
 	;
 
 	: (source-pop) ( -- fid ) ( s: ... fid -- ... )
-		(source-count)			( -- count )
+		(source-count)				( -- count )
 
-		dup if
+		dup if						( count -- count|0 )
 			\ decrement count, get top
 			1- dup					( count -- count' count' )
 			(source-count!)			( count count -- count )
@@ -42,13 +42,11 @@ m4_require_w4(`std/constants.f')
 
 \ manage the current fid, source & >in
 
-	\ set cource-id, source & in^
+	\ set cource-id, source & >in
 	: (source-global-set) ( fid -- )
-		dup (fid>ln-pos^)		( fid -- fid in^ )
-		(>in^) !				( fid in^ -- fid )
-		dup (fid>ln-iov^)		( fid -- fid source^ )
-		(source^) !				( fid source^ -- fid )
-		(source-id!)			( fid -- )
+		dup (fid>ln-pos^) (>in^) !		( fid -- fid )
+		dup (fid>ln-iov^) (source^) !	( fid -- fid )
+		(source-id!)					( fid -- )
 	;
 
 	: (source-get-prev) ( -- fid|0 )
