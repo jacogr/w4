@@ -152,6 +152,22 @@ m4_require_w4(`std/memory.f')
 		else #-13 and throw then
 	;
 
+	\ FIXME The idea is good, but it certainly doesn't work here
+	\ as an $__internal_run replacement - the setting of the next^
+	\ is referring to the value _inside_ this function, not that of
+	\ the extrenal. As such it is broken as-is
+	: (interpret-loop)
+		begin
+			(next^) (nt>value@)				( -- xt )
+			dup								( xt -- xt f )
+		while								( xt f -- xt )
+			(next^) (nt>next@) (next^!)		( xt -- xt )
+			execute							( xt -- )
+		repeat
+
+		drop								( xt -- )
+	;
+
 	: (interpret-token)
 		2dup {: str len :}							( c-addr u -- c-addr u )
 		find-name									( c-addr u -- 0 | nt )
@@ -160,22 +176,21 @@ m4_require_w4(`std/memory.f')
 		?dup if										( 0 | nt -- nt )
 			\ compiling?
 			state @ if
-				name>compile						( nt -- xt action-xt )
-			else name>interpret then				( nt -- xt )
-
-			\ execute action
-			execute									( xt -- )
+				name>compile 						( nt -- xt action-xt )
+				execute								( xt action-xt -- )
+			else
+				name>interpret						( nt -- xt )
+				execute								( xt -- )
+				\ (interpret-loop)
+			then
 		else str len (interpret-number) then		( -- )
 	;
-
-	: (interpret-loop) ;
 
 	: INTERPRET ( -- )
 		begin
 			parse-name dup		( -- c-addr u u )
 		while					( c-addr u u -- c-addr u )
 			(interpret-token)	( c-addr u -- )
-			(interpret-loop)	( -- )
 		repeat
 
 		2drop					( c- addr u -- )
