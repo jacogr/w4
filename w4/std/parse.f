@@ -12,7 +12,7 @@ m4_require_w4(`std/string.f')
 \ c-addr is the address of, and u is the number of characters in
 \ the input buffer.
 
-	: SOURCE (source^) >str+len ;
+	: SOURCE (source^) @ >str+len ;
 
 \ https://forth-standard.org/standard/core/PARSE
 \
