@@ -40,14 +40,12 @@ m4_require_w4(`ext/list.f')
 				(sizeof-fid-ln)				( c-addr -- c-addr u )
 				fid read-line				( c-addr u -- u2 ior )
 
-				\ success = ior == 0
-				0=							( u2 ior -- u2 f )
-
 				\ success? zero pos & set len
-				dup if						( u2 f -- u2 f )
+				0= if						( u2 ior -- u2 )
 					0 fid (fid>ln-pos!)
-					swap fid (fid>ln-len!)	( u2 f -- f )
-				else nip then				( u2 f -- f )
+					fid (fid>ln-len!)		( u2 -- )
+					true
+				else drop false then		( u2 -- f )
 			else false then
 		else false then
 	;
