@@ -1,5 +1,6 @@
-m4_require_w4(`std/file.f')
 m4_require_w4(`std/control.f')
+m4_require_w4(`std/file.f')
+m4_require_w4(`std/interpret.f')
 m4_require_w4(`std/parse.f')
 m4_require_w4(`std/parse-source.f')
 m4_require_w4(`std/stack-ptr.f')
@@ -28,24 +29,25 @@ m4_require_w4(`ext/list.f')
 \ buffer, set >IN to zero, and return true. Otherwise return false.
 
 	: REFILL ( -- f )
-		(source-current) dup		( -- fid )
+		(source-current) dup				( -- fid )
 		{: fid :}
 
 		\ we need an fid
-		if
+		if									( fid -- )
 			\ non-zero flags? (file source)
 			fid (fid>flags@) if
-				fid (fid>ln-ptr@)		( -- c-addr )
-				(sizeof-fid-ln)			( c-addr -- c-addr u )
-				fid read-file			( c-addr u -- u2 ior )
+				fid (fid>ln-ptr@)			( -- c-addr )
+				(sizeof-fid-ln)				( c-addr -- c-addr u )
+				fid read-line				( c-addr u -- u2 ior )
 
 				\ success = ior == 0
-				nip 0=					( u2 ior -- f )
+				0=							( u2 ior -- u2 f )
 
-				\ success? zero pos
-				dup if
+				\ success? zero pos & set len
+				dup if						( u2 f -- u2 f )
 					0 fid (fid>ln-pos!)
-				then
+					swap fid (fid>ln-len!)	( u2 f -- f )
+				else nip then				( u2 f -- f )
 			else false then
 		else false then
 	;
@@ -72,9 +74,27 @@ m4_require_w4(`ext/list.f')
 \ When an ambiguous condition exists, the status (open or closed) of any
 \ files that were being interpreted is implementation-defined.
 
-	\ : INCLUDE-FILE ( i * x fileid -- j * x )
-	\ 	-1 throw
-	\ ;
+	: -INCLUDE-FILE ( i * x fileid -- j * x )
+		dup (source-set-next)		( fid -- fid )
+		true						( fid -- fid not-done )
+		{: fid not-done :}
+
+		begin
+			fid (fid>is-eof@) 0=
+			not-done
+			and
+		while
+			fid (fid>ln-pos@)		( -- pos )
+			fid (fid>ln-len@)		( pos -- pos len )
+
+			\ pos < len?
+			< if
+				interpret
+			else refill	to not-done	then
+		repeat
+
+		(source-set-prev)
+	;
 
 \ https://forth-standard.org/standard/file/INCLUDED
 \
