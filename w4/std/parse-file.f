@@ -186,3 +186,16 @@ m4_require_w4(`ext/list.f')
 \ perform the function of REQUIRED.
 
  	: REQUIRE ( i * x "name" -- j * x ) parse-name required ;
+
+\ https://forth-standard.org/standard/core/EVALUATE
+\
+\ Save the current input source specification. Store minus-one (-1) in
+\ SOURCE-ID if it is present. Make the string described by c-addr and u both
+\ the input source and input buffer, set >IN to zero, and interpret. When the
+\ parse area is empty, restore the prior input source specification. Other
+\ stack effects are due to the words EVALUATEd.
+
+	: EVALUATE ( c-addr u -- )
+		(new-mem-src)	( c-addr u -- fid )
+		include-file
+	;

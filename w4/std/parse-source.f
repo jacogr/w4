@@ -6,6 +6,37 @@ m4_require_w4(`std/constants.f')
 	$20 constant (source-max#) \ 32 cells
 	\ (source-max#) 1+ cells buffer: (source-stack^)
 
+\ aligned with wasm
+
+	$100 constant (sizeof-fid-in)	\ 256
+	$400 constant (sizeof-fid-ln)	\ 1024
+
+	: (new-mem-src) ( c-addr u -- fid )
+		align here (sizeof-fid) allot	( c-addr u -- c-addr u a-addr )
+		-rot							( c-addr u a-addr -- a-addr c-addr u )
+		sp-2@ (fid>ln-len!)				( a-addr c-addr u -- a-addr c-addr )
+		over (fid>ln-ptr!)				( a-addr c-addr -- a-addr )
+	;
+
+	: (new-file-src) ( c-addr u -- fid )
+		\ allocate, set path + hash
+		align here (sizeof-fid) allot	( c-addr u -- c-addr u a-addr )
+		-rot strdup						( c-addr u a-addr -- a-addr c-addr' u' )
+		sp-2@ (xt>str+len+hash!)		( a-addr c-addr u -- a-addr )
+
+		\ set line buffer
+		here (sizeof-fid-ln) 1+ allot	( a-addr -- a-addr here )
+		over (fid>ln-ptr!)				( a-addr here -- a-addr )
+
+		\ set input buffer
+		here (sizeof-fid-in) 1+ allot	( a-addr -- a-addr here )
+		over (fid>in-ptr!)				( a-addr here -- a-addr )
+
+		\ set flags
+		(flg-is-vis)					( a-addr -- a-addr flags )	\ flags = visible
+		over (fid>flags!)				( a-addr flags -- fid )
+	;
+
 \ helpers to push/pop from stack
 
 	: (source-count) ( -- u ) (source-stack^) @ ;

@@ -1,6 +1,7 @@
 m4_require_w4(`std/constants.f')
 m4_require_w4(`std/control.f')
 m4_require_w4(`std/locals.f')
+m4_require_w4(`std/parse-source.f')
 m4_require_w4(`std/stack.f')
 m4_require_w4(`std/string-search.f')
 m4_require_w4(`std/value.f')
@@ -46,31 +47,8 @@ m4_require_w4(`ext/wasi.f')
 \ Otherwise, ior is the implementation-defined I/O result code and fileid
 \ is undefined.
 
-	\ aligned with wasm
-	$100 constant (sizeof-fid-in)	\ 256
-	$400 constant (sizeof-fid-ln)	\ 1024
-
-	: (new-fileid) ( c-addr u -- fid )
-		\ allocate, set path + hash
-		align here (sizeof-fid) allot	( c-addr u -- c-addr u a-addr )
-		-rot strdup						( c-addr u a-addr -- a-addr c-addr' u' )
-		sp-2@ (xt>str+len+hash!)		( a-addr c-addr u -- a-addr )
-
-		\ set line buffer
-		here (sizeof-fid-ln) 1+ allot	( a-addr -- a-addr here )
-		over (fid>ln-ptr!)				( a-addr here -- a-addr )
-
-		\ set input buffer
-		here (sizeof-fid-in) 1+ allot	( a-addr -- a-addr here )
-		over (fid>in-ptr!)				( a-addr here -- a-addr )
-
-		\ set flags
-		(flg-is-vis)					( a-addr -- a-addr flags )	\ flags = visible
-		over (fid>flags!)				( a-addr -- fid )
-	;
-
 	: OPEN-FILE ( c-addr u fam -- fileid ior )
-		sp-2@ sp-2@ (new-fileid)	( c-addr u fam -- c-addr-u fam fid ) \ fid = here^
+		sp-2@ sp-2@ (new-file-src)	( c-addr u fam -- c-addr-u fam fid ) \ fid = here^
 		{: path len rb fid :}		( c-addr u fam fid -- )
 
 		\ dir fd (cwd = 3) & flags, path & len
