@@ -25,10 +25,10 @@ $ff buffer: line-buf
 			true to done?
 		else
 			flag if
-				true to done?
-			else
 				line-buf line-len type
 				lines 1+ to lines
+			else
+				true to done?
 			then
 		then
 	repeat

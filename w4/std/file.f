@@ -167,7 +167,7 @@ m4_require_w4(`ext/wasi.f')
 		fid (fid>in-len@)			( pos -- pos len )
 
 		\ (pos < len) == 0? (pos >= len?)
-		< 0= if
+		u< 0= if
 			fid (fid>in-ptr@)		( -- buf )
 			(sizeof-fid-in)			( buf -- buf u )
 			fid read-file			( buf u -- u ior )
