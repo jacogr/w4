@@ -38,10 +38,10 @@ m4_require_w4(`ext/list.f')
 			fid (fid>flags@) if
 				fid (fid>ln-ptr@)			( -- c-addr )
 				(sizeof-fid-ln)				( c-addr -- c-addr u )
-				fid read-line				( c-addr u -- u2 ior )
+				fid read-line				( c-addr u -- u2 flag ior )
 
 				\ success? zero pos & set len
-				0= if						( u2 ior -- u2 )
+				0= and if					( u2 flag ior -- u2 )
 					0 fid (fid>ln-pos!)
 					fid (fid>ln-len!)		( u2 -- )
 					true
@@ -86,7 +86,7 @@ m4_require_w4(`ext/list.f')
 			fid (fid>ln-len@)		( pos -- pos len )
 
 			\ pos < len?
-			< if
+			u< if
 				interpret
 			else refill	to not-done	then
 		repeat
