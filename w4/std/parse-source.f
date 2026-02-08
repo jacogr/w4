@@ -42,19 +42,12 @@ m4_require_w4(`std/constants.f')
 
 \ manage the current fid, source & >in
 
-	\ set cource-id, source & >in
+	\ set source-id, source & >in
 	: (source-global-set) ( fid -- )
 		dup (fid>ln-pos^) (>in^) !		( fid -- fid )
 		dup (fid>ln-iov^) (source^) !	( fid -- fid )
 		(source-id!)					( fid -- )
 	;
 
-	: (source-get-prev) ( -- fid|0 )
-		(source-pop)			( -- fid )
-		dup (source-global-set)	( fid -- fid )
-	;
-
-	: (source-set-next) ( fid -- )
-		dup (source-push)		( fid -- fid )
-		(source-global-set)		( fid -- )
-	;
+	: (source-set-prev) (source-pop) (source-global-set) ;
+	: (source-set-next) dup (source-push) (source-global-set) ;
