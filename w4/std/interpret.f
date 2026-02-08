@@ -197,6 +197,19 @@ m4_require_w4(`std/memory.f')
 \ the text-input file. If successful, make the result the current input
 \ buffer, set >IN to zero, and return true. Otherwise return false.
 
+	: (refill-file) ( fid -- f )
+		dup (fid>ln-ptr@)			( fid -- fid c-addr )
+		(sizeof-fid-ln)				( fid c-addr -- fid c-addr u )
+		sp-2@ read-line				( fid c-addr u -- fid u2 flag ior )
+
+		\ success? zero pos & set len
+		0= and if					( fid u2 flag ior -- fid u2 )
+			0 sp-2@ (fid>ln-pos!)
+			swap (fid>ln-len!)		( fid u2 -- )
+			true
+		else 2drop false then		( fid u2 -- f )
+	;
+
 	: REFILL ( -- f )
 		(source-current)					( -- fid )
 
@@ -204,17 +217,8 @@ m4_require_w4(`std/memory.f')
 		?dup if								( fid -- fid )
 			\ non-zero flags? (file source)
 			dup (fid>flags@) if				( fid -- fid )
-				dup (fid>ln-ptr@)			( fid -- fid c-addr )
-				(sizeof-fid-ln)				( fid c-addr -- fid c-addr u )
-				sp-2@ read-line				( fid c-addr u -- fid u2 flag ior )
-
-				\ success? zero pos & set len
-				0= and if					( fid u2 flag ior -- fid u2 )
-					0 sp-2@ (fid>ln-pos!)
-					swap (fid>ln-len!)		( fid u2 -- )
-					true
-				else 2drop false then		( fid u2 -- f )
-			else drop false then
+				(refill-file)				( fid -- f )
+			else drop false then			( fid -- f )
 		else false then
 	;
 
