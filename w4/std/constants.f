@@ -90,6 +90,7 @@ m4_require_w4(`std/constants-structs.f')
 \ latest executing token (latest definition already defined)
 
 	$0124 (mmio@) (exec^)
+	$0128 (mmio@) (next^) : (next^!) $0128 ! ;
 
 \ https://forth-standard.org/standard/core/STATE
 \

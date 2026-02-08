@@ -168,11 +168,14 @@ m4_require_w4(`std/memory.f')
 		else str len (interpret-number) then		( -- )
 	;
 
+	: (interpret-loop) ;
+
 	: INTERPRET ( -- )
 		begin
 			parse-name dup		( -- c-addr u u )
 		while					( c-addr u u -- c-addr u )
 			(interpret-token)	( c-addr u -- )
+			(interpret-loop)	( -- )
 		repeat
 
 		2drop					( c- addr u -- )

@@ -11,7 +11,6 @@
 
 	;; execution & compilation variables
 	(global $exec_list      (mut i32) (i32.const 0))
-	(global $exec_next      (mut i32) (i32.const 0))
 	(global $dict_exit_ptr  (mut i32) (i32.const 0))
 	(global $xt_comp		(mut i32) (i32.const 0)) ;; PTR_PTR_TOK_CMP
 	(global $xt_exec		(mut i32) (i32.const 0)) ;; PTR_PTR_TOK_EXE
@@ -146,7 +145,7 @@
 		;; (global.set $exec_next (call $__stack_ret_pop))
 
 		;; set instruction pointer
-		(global.set $exec_next
+		(i32.store (global.get $PTR_PTR_TOK_NXT)
 
 			;; value on return stack?
 			(call $__stack_ret_count) (if (result i32)
@@ -164,13 +163,15 @@
 	;; Call to a new execution location
 	;;
 	(func $__internal_call (param $ptr_to i32)
+		(local $exec_next i32)
+
 		;; global next available?
-		(global.get $exec_next) (if
+		(local.tee $exec_next (i32.load (global.get $PTR_PTR_TOK_NXT))) (if
 
 			;; global next available
 			(then
 				;; store return location
-				(call $__stack_ret_push (global.get $exec_next)))
+				(call $__stack_ret_push (local.get $exec_next)))
 
 			(else))
 
@@ -183,7 +184,7 @@
 	;;
 	(func $__internal_jump (param $ptr_to i32)
 		;; set jump location
-		(global.set $exec_next (local.get $ptr_to))
+		(i32.store (global.get $PTR_PTR_TOK_NXT) (local.get $ptr_to))
 	)
 
 	;;
@@ -236,7 +237,7 @@
 					(global.get $FLG_DO_EXEC))
 
 				;; skip remainder, no return
-				(global.set $exec_next (i32.const 0))))
+				(i32.store (global.get $PTR_PTR_TOK_NXT) (i32.const 0))))
 	)
 
 	(func $__internal_execute_literal (param $val i32) (param $flg i32)
@@ -417,10 +418,10 @@
 			;; exit if we don't have a next xt
 			(br_if $exit
 				(i32.eqz (local.tee $ptr_xt
-					(call $__val_get_value (global.get $exec_next)))))
+					(call $__val_get_value (i32.load (global.get $PTR_PTR_TOK_NXT))))))
 
 			;; set next instruction pointer
-			(global.set $exec_next (call $__ent_get_next (global.get $exec_next)))
+			(i32.store (global.get $PTR_PTR_TOK_NXT) (call $__ent_get_next (i32.load (global.get $PTR_PTR_TOK_NXT))))
 
 			;; execute current
 			(call $__internal_execute (local.get $ptr_xt))
