@@ -107,7 +107,7 @@ m4_require_w4(`std/memory.f')
 		{: str len isc? isd? mul nbase obase isc? :}	( c-addr u isd? mul nbase obase -- )
 
 		isc? if
-			str 1+ c@ 1
+			str 1+ c@ 1									( -- ch 1 )
 		else
 			\ ensure valid length
 			len 0> if
@@ -127,7 +127,7 @@ m4_require_w4(`std/memory.f')
 				nip 0= if								( lo hi c-addr u -- lo hi )
 					0= if								( lo hi -- lo )
 						mul *							( lo -- n )
-						isd? if -1 else 1 then 			( n -- n f )
+						isd? if -1 else 1 then 			( n -- n -1|1 )
 					else drop 0 0 then					( lo -- 0 0 )
 				else 2drop 0 0 then						( lo hi -- 0 0 )
 			else 0 0 then								( -- 0 0 )

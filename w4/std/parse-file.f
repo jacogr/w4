@@ -29,27 +29,25 @@ m4_require_w4(`ext/list.f')
 \ buffer, set >IN to zero, and return true. Otherwise return false.
 
 	: REFILL ( -- f )
-		(source-current) dup				( -- fid )
-		{: fid :}
+		(source-current)					( -- fid )
 
 		\ we need an fid
-		if									( fid -- )
+		?dup if								( fid -- fid )
 			\ non-zero flags? (file source)
-			fid (fid>flags@) if
-				fid (fid>ln-ptr@)			( -- c-addr )
-				(sizeof-fid-ln)				( c-addr -- c-addr u )
-				fid read-line				( c-addr u -- u2 flag ior )
+			dup (fid>flags@) if				( fid -- fid )
+				dup (fid>ln-ptr@)			( fid -- fid c-addr )
+				(sizeof-fid-ln)				( fid c-addr -- fid c-addr u )
+				sp-2@ read-line				( fid c-addr u -- fid u2 flag ior )
 
 				\ success? zero pos & set len
-				0= and if					( u2 flag ior -- u2 )
-					0 fid (fid>ln-pos!)
-					fid (fid>ln-len!)		( u2 -- )
+				0= and if					( fid u2 flag ior -- fid u2 )
+					0 sp-2@ (fid>ln-pos!)
+					swap (fid>ln-len!)		( fid u2 -- )
 					true
-				else drop false then		( u2 -- f )
-			else false then
+				else 2drop false then		( fid u2 -- f )
+			else drop false then
 		else false then
 	;
-
 
 \ https://forth-standard.org/standard/file/INCLUDE-FILE
 \
