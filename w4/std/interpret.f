@@ -44,79 +44,94 @@ m4_require_w4(`std/memory.f')
 	: (interpret-skip-char) ( c-addr u -- c-addr' u' ) 1- swap 1+ swap ;
 
 	\ handle prefixes and prostfixes
-	: (interpret-number-prefix) ( c-addr u -- c-addr' u' isd? mul nbase )
-		false 1 0								( c-addr u -- c-addr u isd? mul nbase )
-		{: isd? mul nbase :}					( c-addr u isd? mul nbase -- c-addr u )
+	: (interpret-number-prefix) ( c-addr u -- c-addr' u' isc? isd? mul nbase )
+		false false 1 0								( c-addr u -- c-addr u isd? mul nbase )
+		{: isc? isd? mul nbase :}					( c-addr u isc? isd? mul nbase -- c-addr u )
 
-		\ extract last char (double indicator)
-		2dup 1- + c@							( c-addr u -- c-addr u char )
-
-		\ char = '.'? (double value)
-		'.' = if								( c-addr u char - ca-addr u )
-			true to isd?
-			1-									( c-addr u -- c-addr u' )
+		\ test for char
+		dup 3 = if
+			over c@ ''' = if
+				over 2 + c@ ''' = if
+					true to isc?
+				then
+			then
 		then
 
-		\ extract negative/base char
-		over c@										( c-addr u -- c-addr u char )
+		isc? 0= if
+			\ extract last char (double indicator)
+			2dup 1- + c@							( c-addr u -- c-addr u char )
 
-		\ char == '-', negative
-		dup '-' = if								( c-addr u char -- c-addr u char )
-			drop									( c-addr u char -- c-addr u )
-			(interpret-skip-char)
-			-1 to mul
-		else
-			\ try to extract the base
-			dup '$' <> if							( c-addr u char -- c-addr u char )
-				dup '#' <> if						( c-addr u char -- c-addr u char )
-					'%' = if $02 to nbase then
-				else drop $0a to nbase then
-			else drop $10 to nbase then
+			\ char = '.'? (double value)
+			'.' = if								( c-addr u char - ca-addr u )
+				true to isd?
+				1-									( c-addr u -- c-addr u' )
+			then
 
-			\ have a base?
-			nbase if
+			\ extract negative/base char
+			over c@										( c-addr u -- c-addr u char )
+
+			\ char == '-', negative
+			dup '-' = if								( c-addr u char -- c-addr u char )
+				drop									( c-addr u char -- c-addr u )
 				(interpret-skip-char)
-				over c@								( c-addr u -- c-addr u char )
+				-1 to mul
+			else
+				\ try to extract the base
+				dup '$' <> if							( c-addr u char -- c-addr u char )
+					dup '#' <> if						( c-addr u char -- c-addr u char )
+						'%' = if $02 to nbase then
+					else drop $0a to nbase then
+				else drop $10 to nbase then
 
-				\ char == '-', negative
-				'-' = if							( c-addr u char -- c-addr u )
+				\ have a base?
+				nbase if
 					(interpret-skip-char)
-					-1 to mul
+					over c@								( c-addr u -- c-addr u char )
+
+					\ char == '-', negative
+					'-' = if							( c-addr u char -- c-addr u )
+						(interpret-skip-char)
+						-1 to mul
+					then
 				then
 			then
 		then
 
 		\ result
-		isd? mul nbase								( c-addr u -- c-addr' u' isd? mul nbase )
+		isc? isd? mul nbase								( c-addr u -- c-addr' u' isc? isd? mul nbase )
 	;
 
 	\ try and convert the number
 	: (interpret-number-conv) ( c-addr u -- n f )
-		(interpret-number-prefix) base @			( c-addr u -- c-addr' u' isd? mul nbase obase )
-		{: str len isd? mul nbase obase :}			( c-addr u isd? mul nbase obase -- )
+		(interpret-number-prefix) base @ false			( c-addr u -- c-addr' u' isc? isd? mul nbase obase )
+		{: str len isc? isd? mul nbase obase isc? :}	( c-addr u isd? mul nbase obase -- )
 
-		\ ensure valid length
-		len 0> if
-			\ set base, nbase <> 0 & nbase <> obase
-			nbase 0<>
-			nbase obase <>
-			and if
-				nbase base !
-			else 0 to nbase then
+		isc? if
+			str 1+ c@ 1
+		else
+			\ ensure valid length
+			len 0> if
+				\ set base, nbase <> 0 & nbase <> obase
+				nbase 0<>
+				nbase obase <>
+				and if
+					nbase base !
+				else 0 to nbase then
 
-			\ convert
-			0 0 str len >number						( -- lo hi c-addr u )
+				\ convert
+				0 0 str len >number						( -- lo hi c-addr u )
 
-			\ reset base
-			nbase if obase base ! then
+				\ reset base
+				nbase if obase base ! then
 
-			nip 0= if								( lo hi c-addr u -- lo hi )
-				0= if								( lo hi -- lo )
-					mul *							( lo -- n )
-					isd? if -1 else 1 then 			( n -- n f )
-				else drop 0 0 then					( lo -- 0 0 )
-			else 2drop 0 0 then						( lo hi -- 0 0 )
-		else 0 0 then								( -- 0 0 )
+				nip 0= if								( lo hi c-addr u -- lo hi )
+					0= if								( lo hi -- lo )
+						mul *							( lo -- n )
+						isd? if -1 else 1 then 			( n -- n f )
+					else drop 0 0 then					( lo -- 0 0 )
+				else 2drop 0 0 then						( lo hi -- 0 0 )
+			else 0 0 then								( -- 0 0 )
+		then
 	;
 
 	: (interpret-number) ( c-addr u -- )
