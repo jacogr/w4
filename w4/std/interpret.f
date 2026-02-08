@@ -1,5 +1,6 @@
 m4_require_w4(`std/compile.f')
 m4_require_w4(`std/control.f')
+m4_require_w4(`std/file.f')
 m4_require_w4(`std/locals.f')
 m4_require_w4(`std/memory.f')
 
@@ -176,3 +177,75 @@ m4_require_w4(`std/memory.f')
 
 		2drop					( c- addr u -- )
 	;
+
+\ https://forth-standard.org/standard/core/REFILL
+\ https://forth-standard.org/standard/file/REFILL
+\
+\ Attempt to fill the input buffer from the input source, returning a true
+\ flag if successful.
+\
+\ When the input source is the user input device, attempt to receive input
+\ into the terminal input buffer. If successful, make the result the input
+\ buffer, set >IN to zero, and return true. Receipt of a line containing no
+\ characters is considered successful. If there is no input available from
+\ the current input source, return false.
+\
+\ When the input source is a string from EVALUATE, return false and perform
+\ no other action.
+\
+\ When the input source is a text file, attempt to read the next line from
+\ the text-input file. If successful, make the result the current input
+\ buffer, set >IN to zero, and return true. Otherwise return false.
+
+	: REFILL ( -- f )
+		(source-current)					( -- fid )
+
+		\ we need an fid
+		?dup if								( fid -- fid )
+			\ non-zero flags? (file source)
+			dup (fid>flags@) if				( fid -- fid )
+				dup (fid>ln-ptr@)			( fid -- fid c-addr )
+				(sizeof-fid-ln)				( fid c-addr -- fid c-addr u )
+				sp-2@ read-line				( fid c-addr u -- fid u2 flag ior )
+
+				\ success? zero pos & set len
+				0= and if					( fid u2 flag ior -- fid u2 )
+					0 sp-2@ (fid>ln-pos!)
+					swap (fid>ln-len!)		( fid u2 -- )
+					true
+				else 2drop false then		( fid u2 -- f )
+			else drop false then
+		else false then
+	;
+
+\ https://forth-standard.org/standard/core/EVALUATE
+\
+\ Save the current input source specification. Store minus-one (-1) in
+\ SOURCE-ID if it is present. Make the string described by c-addr and u both
+\ the input source and input buffer, set >IN to zero, and interpret. When the
+\ parse area is empty, restore the prior input source specification. Other
+\ stack effects are due to the words EVALUATEd.
+
+	: (evaluate-source) ( fid -- )
+		dup (source-set-next)		( fid -- fid )
+		true						( fid -- fid not-done )
+		{: fid not-done :}
+
+		begin
+			fid (fid>is-eof@) 0=
+			not-done
+			and
+		while
+			fid (fid>ln-pos@)		( -- pos )
+			fid (fid>ln-len@)		( pos -- pos len )
+
+			\ pos < len?
+			u< if
+				interpret
+			else refill	to not-done	then
+		repeat
+
+		(source-set-prev)
+	;
+
+	: EVALUATE ( c-addr u -- ) (new-mem-src) (evaluate-source) ;

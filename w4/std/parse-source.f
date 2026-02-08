@@ -77,7 +77,10 @@ m4_require_w4(`std/constants.f')
 	: (source-global-set) ( fid -- )
 		dup (fid>ln-pos^) (>in^) !		( fid -- fid )
 		dup (fid>ln-iov^) (source^) !	( fid -- fid )
-		(source-id!)					( fid -- )
+
+		\ set the new source-id
+		dup (fid>flags@) 0= if drop -1 then
+		(source-id!)
 	;
 
 	: (source-set-prev) (source-pop) (source-global-set) ;
