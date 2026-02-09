@@ -63,7 +63,7 @@ m4_require_w4(`std/memory.f')
 			2dup 1- + c@							( c-addr u -- c-addr u char )
 
 			\ char = '.'? (double value)
-			'.' = if								( c-addr u char - ca-addr u )
+			'.' = if								( c-addr u char -- c-addr u )
 				true to isd?
 				1-									( c-addr u -- c-addr u' )
 			then
