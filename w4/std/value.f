@@ -67,7 +67,7 @@ m4_require_w4(`ext/is.f')
 				lit, lit,			\ compile a-addr, xt (runtime: xt, a-addr )
 				postpone execute
 			else swap execute then
-		else
+		then
 	; immediate
 
 \ https://forth-standard.org/standard/core/DEFER
