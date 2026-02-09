@@ -151,11 +151,11 @@ m4_require_w4(`std/memory.f')
 
 				(new-xt) compile,					( n xtf -- )
 			else
-				-1 = if
-					dup 0< if -1 else 0	then
+				-1 = if								( n xtf -- n )
+					dup 0< if -1 else 0	then		( lo -- lo hi )
 				then
 			then
-		else #-13 throw then
+		else drop #-13 throw then					( n -- )
 	;
 
 	: (interpret-token)
@@ -164,14 +164,14 @@ m4_require_w4(`std/memory.f')
 
 		\ nt <> 0? (found)
 		?dup if										( 0 | nt -- nt )
+			(nt>value@)								( nt -- xt )
+
 			\ compiling?
 			state @ if
-				name>compile 						( nt -- xt action-xt )
-			else
-				name>interpret						( nt -- xt )
-			then
-
-			execute									( xt -- )
+				dup is-xt-immediate? if				( xt -- xt )
+					execute							( xt -- )
+				else compile, then					( xt -- )
+			else execute then						( xt -- )
 		else str len (interpret-number) then		( -- )
 	;
 
