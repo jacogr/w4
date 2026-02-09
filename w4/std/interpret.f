@@ -121,11 +121,12 @@ m4_require_w4(`std/memory.f')
 
 				\ convert
 				0 0 str len >number						( -- lo hi c-addr u )
+				nip 									( lo hi c-addr u -- lo hi u )
 
 				\ reset base
 				nbase if obase base ! then
 
-				nip 0= if								( lo hi c-addr u -- lo hi )
+				0= if									( lo hi u -- lo hi )
 					0= if								( lo hi -- lo )
 						mul *							( lo -- n )
 						isd? if -1 else 1 then 			( n -- n -1|1 )
@@ -139,25 +140,22 @@ m4_require_w4(`std/memory.f')
 		(interpret-number-conv)						( c-addr u -- n f )
 
 		\ f <> 0? (number converted)
-		dup if
+		?dup if
 			\ compiling?							( n f -- n f )
 			state @ if
 				(flg-xt-lit) swap					( n f -- n xtf f )
 
-				-1 = if (flg-is-var) or then		( n xtf -- n xtf' )
+				-1 = if
+					(flg-is-var) or					( n xtf -- n xtf' )
+				then
 
-				(new-xt)							( n xtf -- xt )
-				compile,							( xt -- )
+				(new-xt) compile,					( n xtf -- )
 			else
 				-1 = if
-					dup 0< if
-						-1							( n -- n -1 )
-					else
-						0							( n -- n 0 )
-					then
+					dup 0< if -1 else 0	then
 				then
 			then
-		else #-13 and throw then
+		else #-13 throw then
 	;
 
 	: (interpret-token)
