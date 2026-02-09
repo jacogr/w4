@@ -148,7 +148,15 @@ m4_require_w4(`std/memory.f')
 
 				(new-xt)							( n xtf -- xt )
 				compile,							( xt -- )
-			else -1 = if 0 then then				( n f -- n ) \ hi = 0 if double
+			else
+				-1 = if
+					dup 0< if
+						-1							( n -- n -1 )
+					else
+						0							( n -- n 0 )
+					then
+				then
+			then
 		else #-13 and throw then
 	;
 
