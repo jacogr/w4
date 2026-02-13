@@ -304,39 +304,6 @@
 		(local.set $val (call $__val_get_value (local.get $ptr_xt)))
 		(local.set $flg (call $__val_get_flags (local.get $ptr_xt)))
 
-		;; (call $__iov_emit_chr_stdout (i32.const 32)) ;; ' '
-		;; (call $__iov_emit_chr_stdout (i32.const 88)) ;; 'X'
-		;; (call $__iov_emit_chr_stdout (i32.const 32)) ;; ' '
-		;; (call $__iov_emit_stdout (local.get $ptr_xt))
-
-		;; (call $__iov_emit_chr_stdout (i32.const 32)) ;; ' '
-		;; (call $__DEBUG_emit_num (i32.load (global.get $PTR_STATE)) (i32.const 10))
-
-		;; (call $__iov_emit_chr_stdout (i32.const 32)) ;; ' '
-		;; (call $__DEBUG_emit_num (local.get $ptr_xt) (i32.const 16))
-		;; (call $__iov_emit_chr_stdout (i32.const 32)) ;; ' '
-		;; (call $__DEBUG_emit_num (local.get $flg) (i32.const 16))
-		;; (call $__iov_emit_chr_stdout (i32.const 32)) ;; ' '
-		;; (call $__DEBUG_emit_num (local.get $val) (i32.const 16))
-		;; (call $__iov_emit_chr_stdout (i32.const 32)) ;; ' '
-
-		;; (i32.and
-		;; 	(call $__has_flag
-		;; 		(local.get $flg)
-		;; 		(global.get $FLG_ASM))
-		;; 	(i32.eqz (local.get $val))) (if
-
-		;; 	;; exit, show stack before as-is
-		;; 	(then
-		;; 		(call $__iov_emit_chr_stderr (i32.const 10)) ;; \n
-		;; 		(call $__DEBUG_emit_stack (global.get $stack_dat))
-		;; 		(call $__iov_emit_chr_stderr (i32.const 10)) ;; \n
-		;; 		(call $__DEBUG_emit_stack (global.get $stack_ret))
-		;; 		;; (call $__iov_emit_chr_stderr (i32.const 10)) ;; \n
-		;; 		;; (call $__DEBUG_emit_stack (global.get $stack_ctl))
-		;; 		;; (call $__iov_emit_chr_stderr (i32.const 10)) ;; \n
-		;; 	))
-
 		;; check for native functions
 		(call $__has_flag
 			(local.get $flg)
@@ -404,11 +371,6 @@
 				(call $__val_get_flags (local.get $ptr_xt))
 				(global.get $FLG_ANY))
 			(i32.const -13))
-
-		;; (call $__iov_emit_chr_stdout (i32.const 32)) ;; ' '
-		;; (call $__iov_emit_chr_stdout (i32.const 67)) ;; 'C'
-		;; (call $__iov_emit_chr_stdout (i32.const 32)) ;; ' '
-		;; (call $__iov_emit_stdout (local.get $ptr_xt))
 
 		;; compile it, adding it to the current list
 		(call $__toks_insert (local.get $ptr_xt))
