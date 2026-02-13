@@ -214,6 +214,7 @@
 
 	(func $__internal_execute_does (param $val i32) (param $flg i32)
 		(local $rep i32)
+		(local $next i32)
 
 		;; exec?
 		(call $__has_flag
@@ -236,16 +237,16 @@
 					(local.get $val)
 					(global.get $FLG_DO_EXEC))
 
-				;; FIXME Originally we set this to (i32.const 0) here, but while working in
-				;; native mode, it has issues when running in a Forth interpreter. Pointing to
-				;; exit here however makes the weird does and does test fail, but... makes the
-				;; Forth version continue down the line.
-				;;
-				;; With the weird test, we don't have a relaible eixt token since the does does
-				;; provide an override. Needs a solution.
-				;;
-				;; skip remainder, jump to final token (return)
-				(i32.store (global.get $PTR_PTR_TOK_NXT) (call $__list_get_tail (global.get $exec_list)))))
+				;; Find the real exit - since we override the end token list
+				;; via does, we cannot just grab the last
+				(block $exit (loop $loop
+					(br_if $exit
+						(i32.eqz (local.tee $next (call $__ent_get_next (local.get $val)))))
+
+					(local.set $val (local.get $next))
+					(br $loop)))
+
+				(i32.store (global.get $PTR_PTR_TOK_NXT) (local.get $val))))
 	)
 
 	(func $__internal_execute_literal (param $val i32) (param $flg i32)
