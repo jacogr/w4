@@ -236,8 +236,16 @@
 					(local.get $val)
 					(global.get $FLG_DO_EXEC))
 
-				;; skip remainder, no return
-				(i32.store (global.get $PTR_PTR_TOK_NXT) (i32.const 0))))
+				;; FIXME Originally we set this to (i32.const 0) here, but while working in
+				;; native mode, it has issues when running in a Forth interpreter. Pointing to
+				;; exit here however makes the weird does and does test fail, but... makes the
+				;; Forth version continue down the line.
+				;;
+				;; With the weird test, we don't have a relaible eixt token since the does does
+				;; provide an override. Needs a solution.
+				;;
+				;; skip remainder, jump to final token (return)
+				(i32.store (global.get $PTR_PTR_TOK_NXT) (call $__list_get_tail (global.get $exec_list)))))
 	)
 
 	(func $__internal_execute_literal (param $val i32) (param $flg i32)
