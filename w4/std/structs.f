@@ -12,10 +12,9 @@ m4_require_w4(`std/memory.f')
 \ structure. An ambiguous condition exists if name is executed prior to the
 \ associated END-STRUCTURE being executed.
 
-	: BEGIN-STRUCTURE  \ -- addr 0   ; exec: -- +n
-		create
-			here 0 0 ,     \ mark stack, lay dummy
-		does> @          \ -- size
+	: BEGIN-STRUCTURE  ( -- addr 0 ) ( exec: -- +n )
+		create here 0 0 ,
+		does> @
 	;
 
 \ https://forth-standard.org/standard/facility/END-STRUCTURE
@@ -32,7 +31,7 @@ m4_require_w4(`std/memory.f')
 \ executes, and n2 is the size of the data to be added to the data structure.
 \ n1 and n2 are in address units.
 
-	: +FIELD  \ n <"name"> -- ; Exec: addr -- 'addr
+	: +FIELD  ( n <"name"> -- ) ( exec: addr -- 'addr )
 		create over , +
 		does> @ +
 	;
