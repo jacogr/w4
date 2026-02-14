@@ -41,12 +41,11 @@
 		(; 18 ;) "evaluate"				"\00\00"
 		(; 19 ;) "execute"				"\00\00"
 		(; 20 ;) "compile,"				"\00\00"
-		(; 21 ;) "include-file"			"\00\00"
-		(; 22 ;) "throw"				"\00\00"
-		(; 23 ;) "wasi::fd_write"		"\00\00"
-		(; 24 ;) "wasi::fd_read"		"\00\00"
-		(; 25 ;) "wasi::fd_close"		"\00\00"
-		(; 26 ;) "wasi::path_open"		"\00\00"
+		(; 21 ;) "throw"				"\00\00"
+		(; 22 ;) "wasi::fd_write"		"\00\00"
+		(; 23 ;) "wasi::fd_read"		"\00\00"
+		(; 24 ;) "wasi::fd_close"		"\00\00"
+		(; 25 ;) "wasi::path_open"		"\00\00"
 		(;  z ;)
 	)
 
@@ -294,15 +293,8 @@
 		(call $__internal_compile (call $__stack_dat_pop))
 	)
 
-	;; https://forth-standard.org/standard/file/INCLUDE-FILE
-	;; ( i * x fileid -- j * x )
-	(elem (i32.const 21) $__forth_fn_include_file)
-	(func $__forth_fn_include_file (type $TypeForthFn)
-		(call $__internal_include_file (call $__stack_dat_pop))
-	)
-
 	;; https://forth-standard.org/standard/exception/THROW
-	(elem (i32.const 22) $__forth_fn_throw)
+	(elem (i32.const 21) $__forth_fn_throw)
 	(func $__forth_fn_throw (type $TypeForthFn)
 		(local $err i32)
 
@@ -314,7 +306,7 @@
 	;; Expose wasmi function for writing to file
 	;;
 	;; (fd:i32, iovs_ptr:i32, iovs_len:i32, nwritten_ptr:i32) -> errno:i32
-	(elem (i32.const 23) $__forth_fn_wasi_fd_write)
+	(elem (i32.const 22) $__forth_fn_wasi_fd_write)
 	(func $__forth_fn_wasi_fd_write (type $TypeForthFn)
 		(local $iovs i32)
 		(local $iovs_len i32)
@@ -335,7 +327,7 @@
 	;; Expose wasmi for reading from file
 	;;
 	;; (fd:i32, iovs_ptr:i32, iovs_len:i32, nread_ptr:i32) -> errno:i32
-	(elem (i32.const 24) $__forth_fn_wasi_fd_read)
+	(elem (i32.const 23) $__forth_fn_wasi_fd_read)
 	(func $__forth_fn_wasi_fd_read (type $TypeForthFn)
 		(local $iovs i32)
 		(local $iovs_len i32)
@@ -356,7 +348,7 @@
 	;; Expose wasmi for closing a file
 	;;
 	;; (fd:i32) -> errno:i32
-	(elem (i32.const 25) $__forth_fn_wasi_fd_close)
+	(elem (i32.const 24) $__forth_fn_wasi_fd_close)
 	(func $__forth_fn_wasi_fd_close (type $TypeForthFn)
 		(call $__stack_dat_push
 			(call $__wasi::fd_close
@@ -368,7 +360,7 @@
 	;; (dirfd:i32, dirflags:i32, path_ptr:i32, path_len:i32,
 	;;  oflags:i32, fs_rights_base:i64, fs_rights_inheriting:i64,
 	;;  fdflags:i32, opened_fd_ptr:i32) -> errno:i32
-	(elem (i32.const 26) $__forth_fn_wasi_path_open)
+	(elem (i32.const 25) $__forth_fn_wasi_path_open)
 	(func $__forth_fn_wasi_path_open (type $TypeForthFn)
 		(local $opened_fd_ptr i32)
 		(local $fdflags i32)
