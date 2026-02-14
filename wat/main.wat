@@ -11,7 +11,6 @@
 	m4_include(`forth/builtins.wat')
 	m4_include(`forth/exceptions.wat')
 	m4_include(`forth/internal.wat')
-	m4_include(`forth/load.wat')
 	m4_include(`forth/math.wat')
 
 	m4_include(`assert.wat')

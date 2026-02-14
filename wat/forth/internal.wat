@@ -608,10 +608,8 @@
 				;; valid, interpret below
 				(then)
 
-				;; no iov, try refill
-				(else
-					(br_if $exit
-						(i32.eqz (call $__internal_refill)))))
+				;; no iov, no refill
+				(else (br $exit)))
 
 			;; interpret & continue with loop
 			(call $__internal_interpret)
