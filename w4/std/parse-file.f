@@ -30,7 +30,7 @@ m4_require_w4(`ext/list.f')
 \ When an ambiguous condition exists, the status (open or closed) of any
 \ files that were being interpreted is implementation-defined.
 
-	: -INCLUDE-FILE ( i * x fileid -- j * x ) (evaluate-source) ;
+	: INCLUDE-FILE ( i * x fileid -- j * x ) (evaluate-source) ;
 
 \ https://forth-standard.org/standard/file/INCLUDED
 \

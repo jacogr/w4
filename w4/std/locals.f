@@ -109,7 +109,7 @@ m4_require_w4(`ext/list.f')
 
 			\ locals started?
 			(locals-wid) 0<> if			( -- )
-				(locals#) @		( -- n )
+				(locals#) @				( -- n )
 				(locals-compile-prologue)
 			then
 		then
@@ -212,6 +212,8 @@ m4_require_w4(`ext/list.f')
 \ not aligned, reserve enough data space to align it.
 
 	: ; ( -- )
+		\ Overrides for when we have locals. At the end of the function
+		\ we should exit the actual local stack
 		(locals-wid) 0<> if
 			\ clear local usage
 			0 (locals-wid!)
@@ -225,6 +227,26 @@ m4_require_w4(`ext/list.f')
 			postpone locals-exit
 		then
 
-		\ execute original colon (also immediate)
+		\ execute original (also immediate)
 		postpone ;
+	; immediate
+
+\ https://forth-standard.org/standard/core/DOES
+\
+\ Append the run-time semantics below to the current definition. Whether or
+\ not the current definition is rendered findable in the dictionary by the
+\ compilation of DOES> is implementation defined. Consume colon-sys1 and
+\ produce colon-sys2. Append the initiation semantics given below to the
+\ current definition.
+
+	: DOES> ( -- )
+		\ Overrides for when we have locals. When does> is executed, it
+		\ will apply a mark, however at this point we need to exit since mark
+		\ move over to exit as well
+		(locals-wid) 0<> if
+			postpone locals-exit
+		then
+
+		\ execute original (also immediate)
+		postpone does>
 	; immediate
