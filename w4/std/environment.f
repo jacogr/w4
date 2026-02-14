@@ -5,6 +5,7 @@ m4_require_w4(`std/file.f')
 m4_require_w4(`std/logic.f')
 m4_require_w4(`std/parse.f')
 m4_require_w4(`std/stack-base.f')
+m4_require_w4(`std/stack-control.f')
 m4_require_w4(`std/string-format.f')
 m4_require_w4(`std/string-utils.f')
 
