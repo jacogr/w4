@@ -1,4 +1,5 @@
 m4_require_w4(`std/control.f')
+m4_require_w4(`std/math.f')
 m4_require_w4(`std/stack-control.f')
 m4_require_w4(`std/string-utils.f')
 

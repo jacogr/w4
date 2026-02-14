@@ -218,3 +218,37 @@ m4_require_w4(`ext/wasi.f')
 		and	0=					( u2 eof? n=0? -- u2 flag ) \ f = eof & n=0
 		not-err	0=				( u2 flag -- u2 flag ior )
 	;
+
+\ https://forth-standard.org/standard/core/p
+\
+\ Parse ccc delimited by ) (right parenthesis). ( is an immediate word.
+\
+\ The number of characters in ccc may be zero to the number of characters in
+\ the parse area.
+\
+\ NOTE: This is the later, multi-line version of our ( ... ) implementation
+
+	\ (parse-multi) ( delim xt -- )
+	\ Calls xt as ( c-addr u -- ) for each chunk.
+	\ Stops when delim is found. If REFILL fails before delim, throws -14 (yours).
+	: (parse-multi) ( ch xt -- )
+		begin
+			source nip >in @ - >r		( ch xt -- ch xt ) ( r: -- rem )
+			sp-1@ parse					( ch xt -- ch xt c-addr u )
+			dup r> < 0=	>r				( ch xt c-addr u -- ... ) ( r: rem -- more? ) \ more? = (u < rem) == 0
+			sp-2@ execute				( ch xt c-addr u -- ch xt )
+			r> 							( ch xt -- ch xt more? )
+		while
+			\ -14 interpreting a compile-only word
+			refill 0= #-14 and throw
+		repeat
+		2drop							( ch xt -- )
+	;
+
+	: ( ')' ['] 2drop (parse-multi) ; immediate
+
+(
+	At this point in time we should have multi-line comments available
+	to us. If things break at this point in the code, then... guess what,
+	the above functions are not doing what they are supposed to do.
+)
