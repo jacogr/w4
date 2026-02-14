@@ -1,6 +1,6 @@
 m4_require_w4(`std/logic-base.f')
 m4_require_w4(`std/logic-number.f')
-m4_require_w4(`std/stack-rs.f')
+m4_require_w4(`std/stack-base.f')
 
 \ https://forth-standard.org/standard/core/WITHIN
 \
@@ -11,4 +11,4 @@ m4_require_w4(`std/stack-rs.f')
 \ otherwise. An ambiguous condition exists n1 | u1, n2 | u2, and n3 | u3 are
 \ not all the same type.
 
-	: WITHIN ( test low high -- flag ) over - >r - r> u< ;
+	: WITHIN ( test low high -- flag ) over - rot rot - u> ;
