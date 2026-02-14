@@ -42,3 +42,14 @@ m4_require_w4(`std/stack-ptr.f')
 \ flag is true if and only if u1 is greater than u2.
 
 	: U>  ( u1 u2 -- flag ) swap u< ;
+
+\ https://forth-standard.org/standard/core/WITHIN
+\
+\ Perform a comparison of a test value n1 | u1 with a lower limit n2 | u2 and
+\ an upper limit n3 | u3, returning true if either (n2 | u2 < n3 | u3 and
+\ (n2 | u2 <= n1 | u1 and n1 | u1 < n3 | u3)) or (n2 | u2 > n3 | u3 and
+\ (n2 | u2 <= n1 | u1 or n1 | u1 < n3 | u3)) is true, returning false
+\ otherwise. An ambiguous condition exists n1 | u1, n2 | u2, and n3 | u3 are
+\ not all the same type.
+
+	: WITHIN ( test low high -- flag ) over - rot rot - u> ;
