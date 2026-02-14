@@ -219,6 +219,50 @@ m4_require_w4(`ext/wasi.f')
 		not-err	0=				( u2 flag -- u2 flag ior )
 	;
 
+\ https://forth-standard.org/standard/core/REFILL
+\ https://forth-standard.org/standard/file/REFILL
+\
+\ Attempt to fill the input buffer from the input source, returning a true
+\ flag if successful.
+\
+\ When the input source is the user input device, attempt to receive input
+\ into the terminal input buffer. If successful, make the result the input
+\ buffer, set >IN to zero, and return true. Receipt of a line containing no
+\ characters is considered successful. If there is no input available from
+\ the current input source, return false.
+\
+\ When the input source is a string from EVALUATE, return false and perform
+\ no other action.
+\
+\ When the input source is a text file, attempt to read the next line from
+\ the text-input file. If successful, make the result the current input
+\ buffer, set >IN to zero, and return true. Otherwise return false.
+
+	: (refill-file) ( fid -- f )
+		dup (fid>ln-ptr@)			( fid -- fid c-addr )
+		(sizeof-fid-ln)				( fid c-addr -- fid c-addr u )
+		sp-2@ read-line				( fid c-addr u -- fid u2 flag ior )
+
+		\ success? zero pos & set len
+		0= and if					( fid u2 flag ior -- fid u2 )
+			0 sp-2@ (fid>ln-pos!)
+			swap (fid>ln-len!)		( fid u2 -- )
+			true
+		else 2drop false then		( fid u2 -- f )
+	;
+
+	: REFILL ( -- f )
+		(source-current)					( -- fid )
+
+		\ we need an fid
+		?dup if								( fid -- fid )
+			\ non-zero flags? (file source)
+			dup (fid>flags@) if				( fid -- fid )
+				(refill-file)				( fid -- f )
+			else drop false then			( fid -- f )
+		else false then
+	;
+
 \ https://forth-standard.org/standard/core/p
 \
 \ Parse ccc delimited by ) (right parenthesis). ( is an immediate word.
