@@ -253,7 +253,7 @@ m4_require_w4(`std/memory.f')
 			\ pos < len?
 			u< if
 				interpret
-			else refill	to not-done	then
+			else refill to not-done then
 		repeat
 
 		(source-set-prev)
