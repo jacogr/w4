@@ -204,6 +204,9 @@
 	(func $__src_set_ln_ptr (param $s i32) (param $v i32)
 		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_LN_PTR)) (local.get $v)))
 
+	(func $__src_get_ln_len (param $s i32) (result i32)
+		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_LN_LEN))))
+
 	(func $__src_set_ln_len (param $s i32) (param $v i32)
 		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_LN_LEN)) (local.get $v)))
 

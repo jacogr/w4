@@ -17,8 +17,10 @@
 	(func $__assert (param $val i32) (param $err_code i32)
 		(local $err_str i32)
 		(local $s i32)
-		(local $line_iov i32)
+		(local $line_ptr i32)
 		(local $line_off i32)
+		(local $line_len i32)
+		(local $line_len2 i32)
 		(local $line_fil i32)
 		(local $line_row i32)
 		(local $sid i32)
@@ -41,8 +43,9 @@
 
 			;; valid frame
 			(then
-				(local.set $line_iov (call $__src_get_ln_iov (local.get $s)))
+				(local.set $line_ptr (call $__src_get_ln_ptr (local.get $s)))
 				(local.set $line_off (call $__src_get_ln_off (local.get $s)))
+				(local.set $line_len (call $__src_get_ln_len (local.get $s)))
 				(local.set $line_row (call $__src_get_row (local.get $s)))
 
 				;; frame?
@@ -55,12 +58,41 @@
 					(else))
 
 				;; line available?
-				(local.get $line_iov) (if
+				(local.get $line_ptr) (if
 
 					;; line available, emit it
 					(then
+						(local.set $line_ptr (i32.add (local.get $line_ptr) (local.get $line_off)))
+
+						(block $exit_a (loop $loop_a
+							(br_if $exit_a
+								(i32.eqz (local.get $line_off)))
+
+							(br_if $exit_a
+								(i32.eq
+									(i32.const 10)
+									(i32.load8_u (i32.sub (local.get $line_ptr) (i32.const 1)))))
+
+							(local.set $line_ptr (i32.sub (local.get $line_ptr) (i32.const 1)))
+							(local.set $line_off (i32.sub (local.get $line_off) (i32.const 1)))
+
+							(br $loop_a)))
+
+						(block $exit_b (loop $loop_b
+							(br_if $exit_b
+								(i32.eq (local.get $line_off) (local.get $line_len)))
+
+							(br_if $exit_b
+								(i32.eq
+									(i32.const 10)
+									(i32.load8_u (i32.add (local.get $line_ptr) (local.get $line_len2)))))
+
+							(local.set $line_len2 (i32.add (local.get $line_len2) (i32.const 1)))
+
+							(br $loop_b)))
+
 						(call $__iov_emit_chr_stderr (i32.const 10)) ;; \n
-						(call $__iov_emit_stderr (local.get $line_iov)))
+						(call $__iov_emit_str_stderr (local.get $line_ptr) (local.get $line_len2)))
 
 					;; no line, ignore
 					(else)))
