@@ -1,5 +1,6 @@
 m4_require_w4(`std/compile.f')
 m4_require_w4(`std/constants.f')
+m4_require_w4(`std/exceptions.f')
 m4_require_w4(`std/memory.f')
 m4_require_w4(`std/parse.f')
 
