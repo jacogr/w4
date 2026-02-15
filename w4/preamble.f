@@ -13,7 +13,6 @@
 	: DROP depth dup 0= #-4 and throw $1 - (ds^) ! ;
 	: OVER sp@ $1 cells - @ ;
 	: SWAP over over sp@ $3 cells - ! sp@ $1 cells - ! ;
-	: OR over over xor sp@ $2 cells - @ sp@ $2 cells - @ and + sp@ $2 cells - ! drop ;
 
 	: >STR+LEN dup @ swap $1 cells + @ ;
 	: >FLAGS $3 cells + ;

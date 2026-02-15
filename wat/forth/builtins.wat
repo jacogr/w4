@@ -35,15 +35,16 @@
 		(; 12 ;) "m*/mod"				"\00\00"
 		(; 13 ;) "and"					"\00\00"
 		(; 14 ;) "xor"					"\00\00"
-		(; 15 ;) "find-name"			"\00\00"
-		(; 16 ;) "parse-token"			"\00\00"
-		(; 17 ;) "(execute)"			"\00\00"
-		(; 18 ;) "(compile,)"			"\00\00"
-		(; 19 ;) "throw"				"\00\00"
-		(; 20 ;) "wasi::fd_write"		"\00\00"
-		(; 21 ;) "wasi::fd_read"		"\00\00"
-		(; 22 ;) "wasi::fd_close"		"\00\00"
-		(; 23 ;) "wasi::path_open"		"\00\00"
+		(; 15 ;) "or"					"\00\00"
+		(; 16 ;) "find-name"			"\00\00"
+		(; 17 ;) "parse-token"			"\00\00"
+		(; 18 ;) "(execute)"			"\00\00"
+		(; 19 ;) "(compile,)"			"\00\00"
+		(; 20 ;) "throw"				"\00\00"
+		(; 21 ;) "wasi::fd_write"		"\00\00"
+		(; 22 ;) "wasi::fd_read"		"\00\00"
+		(; 23 ;) "wasi::fd_close"		"\00\00"
+		(; 24 ;) "wasi::path_open"		"\00\00"
 		(;  z ;)
 	)
 
@@ -137,8 +138,8 @@
 
 	;; https://forth-standard.org/standard/core/Plus
 	;; ( x y -- n )
-	(elem (i32.const  9) $__forth_fn_append)
-	(func $__forth_fn_append (type $TypeForthFn)
+	(elem (i32.const  9) $__forth_fn_add)
+	(func $__forth_fn_add (type $TypeForthFn)
 		(call $__stack_dat_push
 			(i32.add (call $__stack_dat_2pop)))
 	)
@@ -235,9 +236,17 @@
 			(i32.xor (call $__stack_dat_2pop)))
 	)
 
+	;; https://forth-standard.org/standard/core/OR
+	;; ( x y -- x|y )
+	(elem (i32.const 15) $__forth_fn_or)
+	(func $__forth_fn_or (type $TypeForthFn)
+		(call $__stack_dat_push
+			(i32.or (call $__stack_dat_2pop)))
+	)
+
 	;; https://forth-standard.org/proposals/find-name
 	;; ( c-addr u -- xt | 0 )
-	(elem (i32.const 15) $__forth_fn_find_name)
+	(elem (i32.const 16) $__forth_fn_find_name)
 	(func $__forth_fn_find_name (type $TypeForthFn)
 		(local $len i32)
 		(local $str i32)
@@ -256,7 +265,7 @@
 
 	;; https://forth-standard.org/standard/core/PARSE
 	;; ( char "ccc<char>" -- c-addr u )
-	(elem (i32.const 16) $__forth_fn_parse)
+	(elem (i32.const 17) $__forth_fn_parse)
 	(func $__forth_fn_parse (type $TypeForthFn)
 		(call $__stack_dat_2push
 			(call $__internal_parse (call $__stack_dat_pop)))
@@ -264,20 +273,20 @@
 
 	;; https://forth-standard.org/standard/core/EXECUTE
 	;; ( i * x xt -- j * x )
-	(elem (i32.const 17) $__forth_fn_execute)
+	(elem (i32.const 18) $__forth_fn_execute)
 	(func $__forth_fn_execute (type $TypeForthFn)
 		(call $__internal_execute (call $__stack_dat_pop))
 	)
 
 	;; https://forth-standard.org/standard/core/COMPILEComma
 	;; ( xt -- )
-	(elem (i32.const 18) $__forth_fn_compile)
+	(elem (i32.const 19) $__forth_fn_compile)
 	(func $__forth_fn_compile (type $TypeForthFn)
 		(call $__internal_compile (call $__stack_dat_pop))
 	)
 
 	;; https://forth-standard.org/standard/exception/THROW
-	(elem (i32.const 19) $__forth_fn_throw)
+	(elem (i32.const 20) $__forth_fn_throw)
 	(func $__forth_fn_throw (type $TypeForthFn)
 		(local $err i32)
 
@@ -289,7 +298,7 @@
 	;; Expose wasmi function for writing to file
 	;;
 	;; (fd:i32, iovs_ptr:i32, iovs_len:i32, nwritten_ptr:i32) -> errno:i32
-	(elem (i32.const 20) $__forth_fn_wasi_fd_write)
+	(elem (i32.const 21) $__forth_fn_wasi_fd_write)
 	(func $__forth_fn_wasi_fd_write (type $TypeForthFn)
 		(local $iovs i32)
 		(local $iovs_len i32)
@@ -310,7 +319,7 @@
 	;; Expose wasmi for reading from file
 	;;
 	;; (fd:i32, iovs_ptr:i32, iovs_len:i32, nread_ptr:i32) -> errno:i32
-	(elem (i32.const 21) $__forth_fn_wasi_fd_read)
+	(elem (i32.const 22) $__forth_fn_wasi_fd_read)
 	(func $__forth_fn_wasi_fd_read (type $TypeForthFn)
 		(local $iovs i32)
 		(local $iovs_len i32)
@@ -331,7 +340,7 @@
 	;; Expose wasmi for closing a file
 	;;
 	;; (fd:i32) -> errno:i32
-	(elem (i32.const 22) $__forth_fn_wasi_fd_close)
+	(elem (i32.const 23) $__forth_fn_wasi_fd_close)
 	(func $__forth_fn_wasi_fd_close (type $TypeForthFn)
 		(call $__stack_dat_push
 			(call $__wasi::fd_close
@@ -343,7 +352,7 @@
 	;; (dirfd:i32, dirflags:i32, path_ptr:i32, path_len:i32,
 	;;  oflags:i32, fs_rights_base:i64, fs_rights_inheriting:i64,
 	;;  fdflags:i32, opened_fd_ptr:i32) -> errno:i32
-	(elem (i32.const 23) $__forth_fn_wasi_path_open)
+	(elem (i32.const 24) $__forth_fn_wasi_path_open)
 	(func $__forth_fn_wasi_path_open (type $TypeForthFn)
 		(local $opened_fd_ptr i32)
 		(local $fdflags i32)
