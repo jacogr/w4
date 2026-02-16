@@ -116,6 +116,22 @@ m4_require_w4(`std/constants-structs.f')
 		(create)
 	;
 
+\ https://forth-standard.org/standard/core/DOES
+\
+\ Append the run-time semantics below to the current definition. Whether
+\ or not the current definition is rendered findable in the dictionary by
+\ the compilation of DOES> is implementation defined. Consume colon-sys1
+\ and produce colon-sys2. Append the initiation semantics given below to the
+\ current definition.
+\
+\ At runtime: Replace the execution semantics of the most recent definition,
+\ referred to as name, with the name execution semantics given below. Return
+\ control to the calling definition specified by nest-sys1. An ambiguous
+\ condition exists if name was not defined with CREATE or a user-defined word
+\ that calls CREATE.
+
+	: DOES> (does>) ; immediate
+
 \ https://forth-standard.org/standard/core/toBODY
 \
 \ a-addr is the data-field address corresponding to xt. An ambiguous condition

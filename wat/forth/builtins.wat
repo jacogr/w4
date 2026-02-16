@@ -23,23 +23,23 @@
 		(;  0 ;) "exit"					"\00\00"
 		(;  1 ;) "build,"				"\00\00"
 		(;  2 ;) ";"					"\00\ff"
-		(;  3 ;) "does>"				"\00\ff"
-		(;  4 ;) "@"					"\00\00"
-		(;  5 ;) "!"					"\00\00"
-		(;  6 ;) "0="					"\00\00"
-		(;  7 ;) "lshift"				"\00\00"
-		(;  8 ;) "rshift"				"\00\00"
-		(;  9 ;) "+"					"\00\00"
-		(; 10 ;) "-"					"\00\00"
-		(; 11 ;) "um*/mod"				"\00\00"
-		(; 12 ;) "m*/mod"				"\00\00"
-		(; 13 ;) "and"					"\00\00"
-		(; 14 ;) "xor"					"\00\00"
-		(; 15 ;) "or"					"\00\00"
-		(; 16 ;) "find-name"			"\00\00"
-		(; 17 ;) "parse-token"			"\00\00"
-		(; 18 ;) "(execute)"			"\00\00"
-		(; 19 ;) "(compile,)"			"\00\00"
+		(;  3 ;) "@"					"\00\00"
+		(;  4 ;) "!"					"\00\00"
+		(;  5 ;) "0="					"\00\00"
+		(;  6 ;) "lshift"				"\00\00"
+		(;  7 ;) "rshift"				"\00\00"
+		(;  8 ;) "+"					"\00\00"
+		(;  9 ;) "-"					"\00\00"
+		(; 10 ;) "um*/mod"				"\00\00"
+		(; 11 ;) "m*/mod"				"\00\00"
+		(; 12 ;) "and"					"\00\00"
+		(; 13 ;) "xor"					"\00\00"
+		(; 14 ;) "or"					"\00\00"
+		(; 15 ;) "find-name"			"\00\00"
+		(; 16 ;) "parse-token"			"\00\00"
+		(; 17 ;) "(execute)"			"\00\00"
+		(; 18 ;) "(compile,)"			"\00\00"
+		(; 19 ;) "(does>)"				"\00\00"
 		(; 20 ;) "throw"				"\00\00"
 		(; 21 ;) "wasi::fd_write"		"\00\00"
 		(; 22 ;) "wasi::fd_read"		"\00\00"
@@ -69,16 +69,9 @@
 		(call $__internal_compile_end)
 	)
 
-	;; https://forth-standard.org/standard/core/DOES
-	;; ( -- )
-	(elem (i32.const  3) $__forth_fn_does)
-	(func $__forth_fn_does (type $TypeForthFn)
-		(call $__internal_does)
-	)
-
 	;; https://forth-standard.org/standard/core/Fetch
 	;; ( a-addr -- x )
-	(elem (i32.const  4) $__forth_fn_fetch)
+	(elem (i32.const  3) $__forth_fn_fetch)
 	(func $__forth_fn_fetch (type $TypeForthFn)
 		(local $addr i32)
 
@@ -88,7 +81,7 @@
 
 	;; https://forth-standard.org/standard/core/Store
 	;; ( x a-addr -- )
-	(elem (i32.const  5) $__forth_fn_store)
+	(elem (i32.const  4) $__forth_fn_store)
 	(func $__forth_fn_store (type $TypeForthFn)
 		(local $addr i32)
 
@@ -108,7 +101,7 @@
 
 	;; https://forth-standard.org/standard/core/ZeroEqual
 	;; ( x -- flag )
-	(elem (i32.const  6) $__forth_fn_eqz)
+	(elem (i32.const  5) $__forth_fn_eqz)
 	(func $__forth_fn_eqz (type $TypeForthFn)
 		(call $__stack_dat_push
 			(select
@@ -122,7 +115,7 @@
 
 	;; https://forth-standard.org/standard/core/LSHIFT
 	;; ( x y -- n )
-	(elem (i32.const  7) $__forth_fn_lshift)
+	(elem (i32.const  6) $__forth_fn_lshift)
 	(func $__forth_fn_lshift (type $TypeForthFn)
 		(call $__stack_dat_push
 			(i32.shl (call $__stack_dat_2pop)))
@@ -130,7 +123,7 @@
 
 	;; https://forth-standard.org/standard/core/RSHIFT
 	;; ( x y -- n )
-	(elem (i32.const  8) $__forth_fn_rshift)
+	(elem (i32.const  7) $__forth_fn_rshift)
 	(func $__forth_fn_rshift (type $TypeForthFn)
 		(call $__stack_dat_push
 			(i32.shr_u (call $__stack_dat_2pop)))
@@ -138,7 +131,7 @@
 
 	;; https://forth-standard.org/standard/core/Plus
 	;; ( x y -- n )
-	(elem (i32.const  9) $__forth_fn_add)
+	(elem (i32.const  8) $__forth_fn_add)
 	(func $__forth_fn_add (type $TypeForthFn)
 		(call $__stack_dat_push
 			(i32.add (call $__stack_dat_2pop)))
@@ -146,14 +139,14 @@
 
 	;; https://forth-standard.org/standard/core/Minus
 	;; ( x y -- z )
-	(elem (i32.const 10) $__forth_fn_sub)
+	(elem (i32.const  9) $__forth_fn_sub)
 	(func $__forth_fn_sub (type $TypeForthFn)
 		(call $__stack_dat_push
 			(i32.sub (call $__stack_dat_2pop)))
 	)
 
 	;; non-standard toolbox for unsigned math
-	(elem (i32.const 11) $__forth_fn_um_star_slash_mod)
+	(elem (i32.const 10) $__forth_fn_um_star_slash_mod)
 	(func $__forth_fn_um_star_slash_mod (type $TypeForthFn)
 		(local $lo i32)
 		(local $hi i32)
@@ -187,7 +180,7 @@
 	)
 
 	;; non-standard toolbox for signed math
-	(elem (i32.const 12) $__forth_fn_m_star_slash_mod)
+	(elem (i32.const 11) $__forth_fn_m_star_slash_mod)
 	(func $__forth_fn_m_star_slash_mod (type $TypeForthFn)
 		(local $lo i32)
 		(local $hi i32)
@@ -222,7 +215,7 @@
 
 	;; https://forth-standard.org/standard/core/AND
 	;; ( x1 x2 -- x3 )
-	(elem (i32.const 13) $__forth_fn_and)
+	(elem (i32.const 12) $__forth_fn_and)
 	(func $__forth_fn_and (type $TypeForthFn)
 		(call $__stack_dat_push
 			(i32.and (call $__stack_dat_2pop)))
@@ -230,7 +223,7 @@
 
 	;; https://forth-standard.org/standard/core/XOR
 	;; ( x y -- x^y )
-	(elem (i32.const 14) $__forth_fn_xor)
+	(elem (i32.const 13) $__forth_fn_xor)
 	(func $__forth_fn_xor (type $TypeForthFn)
 		(call $__stack_dat_push
 			(i32.xor (call $__stack_dat_2pop)))
@@ -238,7 +231,7 @@
 
 	;; https://forth-standard.org/standard/core/OR
 	;; ( x y -- x|y )
-	(elem (i32.const 15) $__forth_fn_or)
+	(elem (i32.const 14) $__forth_fn_or)
 	(func $__forth_fn_or (type $TypeForthFn)
 		(call $__stack_dat_push
 			(i32.or (call $__stack_dat_2pop)))
@@ -246,7 +239,7 @@
 
 	;; https://forth-standard.org/proposals/find-name
 	;; ( c-addr u -- xt | 0 )
-	(elem (i32.const 16) $__forth_fn_find_name)
+	(elem (i32.const 15) $__forth_fn_find_name)
 	(func $__forth_fn_find_name (type $TypeForthFn)
 		(local $len i32)
 		(local $str i32)
@@ -265,7 +258,7 @@
 
 	;; https://forth-standard.org/standard/core/PARSE
 	;; ( char "ccc<char>" -- c-addr u )
-	(elem (i32.const 17) $__forth_fn_parse)
+	(elem (i32.const 16) $__forth_fn_parse)
 	(func $__forth_fn_parse (type $TypeForthFn)
 		(call $__stack_dat_2push
 			(call $__internal_parse (call $__stack_dat_pop)))
@@ -273,16 +266,23 @@
 
 	;; https://forth-standard.org/standard/core/EXECUTE
 	;; ( i * x xt -- j * x )
-	(elem (i32.const 18) $__forth_fn_execute)
+	(elem (i32.const 17) $__forth_fn_execute)
 	(func $__forth_fn_execute (type $TypeForthFn)
 		(call $__internal_execute (call $__stack_dat_pop))
 	)
 
 	;; https://forth-standard.org/standard/core/COMPILEComma
 	;; ( xt -- )
-	(elem (i32.const 19) $__forth_fn_compile)
+	(elem (i32.const 18) $__forth_fn_compile)
 	(func $__forth_fn_compile (type $TypeForthFn)
 		(call $__internal_compile (call $__stack_dat_pop))
+	)
+
+	;; https://forth-standard.org/standard/core/DOES
+	;; ( -- )
+	(elem (i32.const 19) $__forth_fn_does)
+	(func $__forth_fn_does (type $TypeForthFn)
+		(call $__internal_does)
 	)
 
 	;; https://forth-standard.org/standard/exception/THROW
