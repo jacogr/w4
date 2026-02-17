@@ -165,5 +165,3 @@
 	; immediate
 
 ( here we now have these comments, although they are not multi-line )
-
-\ *** end-of std/preamble.f

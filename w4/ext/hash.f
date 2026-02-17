@@ -56,4 +56,3 @@ m4_require_w4(`std/string-utils.f')
 			fnv1a-i fmix32
 		else drop 0 then
 	;
-

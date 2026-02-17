@@ -100,7 +100,7 @@ m4_require_w4(`std/string-format.f')
 
 	;
 
-\ run tests (usefule for std test execution)
+\ run tests (useful for std test execution)
 
 	: TESTING \ ( -- ) TALKING COMMENT.
 		source							( -- c-addr u )

@@ -78,4 +78,3 @@ m4_require_w4(`std/control.f')
 		drop                       \ N -- ; R: x1 .. xn --
 		r> swap >r >r
 	;
-
