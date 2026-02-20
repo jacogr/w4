@@ -31,9 +31,11 @@ m4_require_w4(`std/stack-rs.f')
 \ Skip leading space delimiters. Parse name delimited by a space. Find name
 \ and return xt, the execution token for name.
 
-	: ?PARSE-NAME ( "name" -- c-addr u ) parse-name dup 0= #-16 and throw ;
+	: FIND-NAME (find-name) ;
 
 	: ?FIND-NAME ( c-addr u -- nt ) find-name dup 0= #-13 and throw ;
+
+	: ?PARSE-NAME ( "name" -- c-addr u ) parse-name dup 0= #-16 and throw ;
 
 	: ' ( "name" -- xt ) ?parse-name ?find-name (nt>value@) ;
 

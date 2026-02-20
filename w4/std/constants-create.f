@@ -85,7 +85,7 @@ m4_require_w4(`std/constants-structs.f')
 \ u is its length in characters. If the parse area is empty or contains only
 \ white space, the resulting string has length zero.
 
-	: PARSE-NAME ( -- c-addr u ) #32 parse-token ;
+	: PARSE-NAME ( -- c-addr u ) #32 (parse-token) ;
 
 \ https://forth-standard.org/standard/core/CREATE
 \

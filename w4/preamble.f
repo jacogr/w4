@@ -1,12 +1,11 @@
 
-	#32 parse-token ] build, 1 $0130 ! 1 $0130 ! ;
-	#32 parse-token : build, ] #32 parse-token build, ] ;
-
-	: CELLS $2 lshift ;
+	#32 (parse-token) ] build, 1 $0130 ! 1 $0130 ! ;
+	#32 (parse-token) : build, ] #32 (parse-token) build, ] ;
 
 	: (ds^) $0140 @ ;
 	: (rs^) $0144 @ ;
 
+	: CELLS $2 lshift ;
 	: DEPTH (ds^) @ ;
 	: SP@ depth cells (ds^) + ;
 	: DUP sp@ @ ;
@@ -156,7 +155,7 @@
 \ operations.
 
 	: (
-		')' parse-token		\ ( -- c-addr u )
+		')' (parse-token)	\ ( -- c-addr u )
 
 		\ -14 interpreting a compile-only word
 		0= #-14 and throw	\ ( c-addr u -- c-addr )
