@@ -1,5 +1,6 @@
 
 m4_require_w4(`std/constants.f')
+m4_require_w4(`std/locals.f')
 m4_require_w4(`std/string-format.f')
 
 m4_require_w4(`ext/is.f')
@@ -19,7 +20,6 @@ m4_require_w4(`ext/is.f')
 
 	: (.r-tab) ( u -- ) #12 .r ;
 
-	\ hack blank with actual offsets inside the buffer (one past .)
 	: (see-text-skip) space s"             " type ;
 	: (see-text-imm.) space ." [imm.] " ;
 
@@ -60,9 +60,18 @@ m4_require_w4(`ext/is.f')
 	: (see-nt) ( a-addr -- ) (nt>value@) (see-xt) ;
 
 	: SEE ( "name" -- )
-		base @ hex						( -- base )
-		parse-name find-name 			( base -- base nt )
-		(nt>value@)					( base nt -- base xt )
+		parse-name 						( -- c-addr u )
+		2dup find-name 					( c-addr u -- c-addr u nt )
+
+		dup 0= if						( c-addr u nt -- c-addr u nt )
+			drop						( c-addr u nt -- c-addr u )
+			cr type						( c-addr u -- )
+			space ." not found " cr
+			exit
+		else 2nip then					( c-addr u nt -- nt )
+
+		base @ swap hex					( nt -- base nt )
+		(nt>value@)						( base nt -- base xt )
 
 		cr (see-text-skip)
 		dup (see-xt)					( base xt -- base xt )
@@ -142,34 +151,27 @@ m4_require_w4(`ext/is.f')
 \
 \ List the definition names in the first word list of the search order.
 \ The format of the display is implementation-dependent.
-\
-\ TODO
-\	- remove (words-count) when we have actual locals
-
-	variable (words-count)
 
 	: (words-nt-shown?) ( nt -- f )
 		(nt>value@)					( nt -- xt )
 		dup (nt>flags@)				( xt -- xt flags )
 
 		\ visible?
-		(flg-is-vis) is-flag? if 		( xt flags -- xt )
-			>str+len						( xt -- c-addr u )
-			sp-1@ c@ '('  =				( c-addr u -- c-addr u f1 )		\ f1 = startsWith (
-			-rot						( c-addr u f1 -- f1 c-addr u )
-			1- + c@ ')' =				( f1 c-addr u -- f1 f2 )		\ f2 = endsWith )
-			and	0=						( f2 f1 -- f )					\ f = (f1 & f2) == 0
+		(flg-is-vis) is-flag? if 	( xt flags -- xt )
+			>str+len				( xt -- c-addr u )
+			sp-1@ c@ '('  =			( c-addr u -- c-addr u f1 )		\ f1 = startsWith (
+			-rot					( c-addr u f1 -- f1 c-addr u )
+			1- + c@ ')' =			( f1 c-addr u -- f1 f2 )		\ f2 = endsWith )
+			and	0=					( f2 f1 -- f )					\ f = (f1 & f2) == 0
 		else
-			drop false					( xt -- false )
+			drop false				( xt -- false )
 		then
 	;
 
 	: WORDS ( -- )
+		0 {: total :}
 		base @ hex
 		cr
-
-		\ init counter, set list start
-		0 (words-count) !
 
 		\ TODO Iterate through all wids, as per lookup
 		(wid-curr) (lst>head@)
@@ -179,7 +181,7 @@ m4_require_w4(`ext/is.f')
 			dup (words-nt-shown?) if		( nt -- nt )
 
 				\ increment count
-				1 (words-count) +!
+				total 1+ to total
 
 				\ get xt
 				dup (nt>value@)				( nt -- nt xt )
@@ -204,7 +206,7 @@ m4_require_w4(`ext/is.f')
 
 		decimal
 		cr cr ." words: "
-		base @ decimal (words-count) @ . base !
+		base @ decimal total . base !
 		cr cr
 		base !
 	;
