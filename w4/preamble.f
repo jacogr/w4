@@ -5,6 +5,7 @@
 	: (ds^) $0140 @ ;
 	: (rs^) $0144 @ ;
 
+	: THROW (throw) ;
 	: CELLS $2 lshift ;
 	: DEPTH (ds^) @ ;
 	: SP@ depth cells (ds^) + ;
