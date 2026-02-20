@@ -1,7 +1,7 @@
-m4_require_w4(`std/control.f')
-m4_require_w4(`std/math.f')
-m4_require_w4(`std/stack-control.f')
-m4_require_w4(`std/string-utils.f')
+m4_require(`std/control.f')
+m4_require(`std/math.f')
+m4_require(`std/stack-control.f')
+m4_require(`std/string-utils.f')
 
 \ djb2a hash
 \ loops: ((hash << 5) + hash) ^ ch

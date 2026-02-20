@@ -1,5 +1,5 @@
-m4_require_w4(`std/logic-number.f')
-m4_require_w4(`std/stack-ptr.f')
+m4_require(`std/logic-number.f')
+m4_require(`std/stack-ptr.f')
 
 \ unconditional branch to destination
 \ (Standard in older versions of ANS Forth, not in 2012)

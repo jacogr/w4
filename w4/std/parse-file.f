@@ -1,13 +1,13 @@
-m4_require_w4(`std/control.f')
-m4_require_w4(`std/file.f')
-m4_require_w4(`std/interpret.f')
-m4_require_w4(`std/parse.f')
-m4_require_w4(`std/parse-source.f')
-m4_require_w4(`std/stack-ptr.f')
-m4_require_w4(`std/string.f')
+m4_require(`std/control.f')
+m4_require(`std/file.f')
+m4_require(`std/interpret.f')
+m4_require(`std/parse.f')
+m4_require(`std/parse-source.f')
+m4_require(`std/stack-ptr.f')
+m4_require(`std/string.f')
 
-m4_require_w4(`ext/hash.f')
-m4_require_w4(`ext/list.f')
+m4_require(`ext/hash.f')
+m4_require(`ext/list.f')
 
 \ https://forth-standard.org/standard/file/INCLUDE-FILE
 \

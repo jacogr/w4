@@ -1,12 +1,12 @@
-m4_require_w4(`std/compile.f')
-m4_require_w4(`std/constants.f')
-m4_require_w4(`std/logic-number.f')
-m4_require_w4(`std/math.f')
-m4_require_w4(`std/memory.f')
-m4_require_w4(`std/parse.f')
-m4_require_w4(`std/stack.f')
-m4_require_w4(`std/stack-control.f')
-m4_require_w4(`std/stdio.f')
+m4_require(`std/compile.f')
+m4_require(`std/constants.f')
+m4_require(`std/logic-number.f')
+m4_require(`std/math.f')
+m4_require(`std/memory.f')
+m4_require(`std/parse.f')
+m4_require(`std/stack.f')
+m4_require(`std/stack-control.f')
+m4_require(`std/stdio.f')
 
 \ https://forth-standard.org/standard/core/DECIMAL
 \

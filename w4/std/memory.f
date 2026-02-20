@@ -1,5 +1,5 @@
-m4_require_w4(`std/constants.f')
-m4_require_w4(`std/stack.f')
+m4_require(`std/constants.f')
+m4_require(`std/stack.f')
 
 \ https://forth-standard.org/standard/core/UNUSED
 \
@@ -79,7 +79,7 @@ m4_require_w4(`std/stack.f')
 
 \ mid-point include since the remainder rely on looping being available
 
-m4_require_w4(`std/control.f')
+m4_require(`std/control.f')
 
 \ https://forth-standard.org/standard/string/CMOVE
 \

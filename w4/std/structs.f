@@ -1,5 +1,5 @@
-m4_require_w4(`std/control.f')
-m4_require_w4(`std/memory.f')
+m4_require(`std/control.f')
+m4_require(`std/memory.f')
 
 \ https://forth-standard.org/standard/facility/BEGIN-STRUCTURE
 \

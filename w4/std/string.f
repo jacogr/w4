@@ -1,7 +1,7 @@
-m4_require_w4(`std/control.f')
-m4_require_w4(`std/parse.f')
-m4_require_w4(`std/stack.f')
-m4_require_w4(`std/stack-control.f')
+m4_require(`std/control.f')
+m4_require(`std/parse.f')
+m4_require(`std/stack.f')
+m4_require(`std/stack-control.f')
 
 \ https://forth-standard.org/standard/core/BL
 \
@@ -198,6 +198,6 @@ m4_require_w4(`std/stack-control.f')
 		over -
 	;
 
-m4_require_w4(`std/string-format.f')
-m4_require_w4(`std/string-search.f')
-m4_require_w4(`std/string-utils.f')
+m4_require(`std/string-format.f')
+m4_require(`std/string-search.f')
+m4_require(`std/string-utils.f')

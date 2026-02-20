@@ -1,13 +1,13 @@
-m4_require_w4(`std/constants.f')
-m4_require_w4(`std/control.f')
-m4_require_w4(`std/compile.f')
-m4_require_w4(`std/file.f')
-m4_require_w4(`std/logic.f')
-m4_require_w4(`std/parse.f')
-m4_require_w4(`std/stack-base.f')
-m4_require_w4(`std/stack-control.f')
-m4_require_w4(`std/string-format.f')
-m4_require_w4(`std/string-utils.f')
+m4_require(`std/constants.f')
+m4_require(`std/control.f')
+m4_require(`std/compile.f')
+m4_require(`std/file.f')
+m4_require(`std/logic.f')
+m4_require(`std/parse.f')
+m4_require(`std/stack-base.f')
+m4_require(`std/stack-control.f')
+m4_require(`std/string-format.f')
+m4_require(`std/string-utils.f')
 
 \ https://forth-standard.org/standard/core/ENVIRONMENTq
 \

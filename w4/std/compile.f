@@ -1,6 +1,6 @@
-m4_require_w4(`std/constants.f')
-m4_require_w4(`std/logic-base.f')
-m4_require_w4(`std/stack-rs.f')
+m4_require(`std/constants.f')
+m4_require(`std/logic-base.f')
+m4_require(`std/stack-rs.f')
 
 \ Non-standard, but well-known
 

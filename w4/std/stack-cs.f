@@ -1,4 +1,4 @@
-m4_require_w4(`std/stack-ptr.f')
+m4_require(`std/stack-ptr.f')
 
 \ Drop a values from the control stack
 
