@@ -132,8 +132,7 @@ m4_require(`std/stack-rs.f')
 \
 \ At runtime: Execute the definition specified by xt. The stack effects i * x
 \ and j * x represent arguments to and results from xt, respectively.
+\
+\ NOTE :noname has the same structure as :, direct via build, & parse-name
 
-	parse-name :NONAME build,	\ create :noname (same structure as :)
-		] 0 0 build, 			\ compile, no name available
-		latest ]				\ latest, enter compile
-	;
+	parse-name :NONAME build, ] 0 0 build, latest ]	;
