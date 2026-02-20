@@ -22,9 +22,9 @@ There are a couple of tools needed to actually build and run the demos. There ce
 
 ## executing
 
-Currently only a Node wrapper is available to execute a single file. After building, you can do `node w4.js example.f` which will execute the code in `example.f`.
+Currently only a Node wrapper is available to execute a single file. After building, you can do `node w4.js <file.f>` which will execute the code in your `<file.f>`.
 
-Something useful in development has been `make clean && make && ls -al build && node w4.js example.f` (everything is still small enough that there is no major penalty to do _everything_ in the build)
+Something useful in development has been `make clean && make check && ls -al build` (everything is still small enough that there is no major penalty to do _everything_ in the build)
 
 
 ## testing
