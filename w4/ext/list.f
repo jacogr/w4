@@ -198,9 +198,8 @@ m4_require_w4(`ext/is.f')
 					>str+len			( hash c-addr u nt xt -- hash c-addr u nt c-addr1 u1 )
 
 					\ move check c-addr u to front
-					sp-4@ 				( hash c-addr u nt c-addr1 u1 -- hash c-addr u nt c-addr1 u1 c-addr )
-					sp-4@ 				( hash c-addr u nt c-addr1 u1 c-addr -- hash c-addr u nt c-addr1 u1 c-addr u )
-					streq-ni			( hash c-addr u nt c-addr1 u1 c-addr u --  hash c-addr u nt f )
+					sp-4@ sp-4@ 		( hash c-addr u nt c-addr1 u1 -- hash c-addr u nt c-addr1 u1 c-addr u )
+					streq-ni			( hash c-addr u nt c-addr1 u1 c-addr u -- hash c-addr u nt f )
 				else drop 0 then 		( hash c-addr u nt xt -- hash c-addr u nt 0 )
 			else drop 0 then
 
@@ -214,6 +213,8 @@ m4_require_w4(`ext/is.f')
 		3nip						( hash c-addr u nt -- nt )
 	;
 
+	: (lookup-find-xt) ( wid c-addr u hash -- xt|0 ) (lookup-find) (nt>value@) ;
+
 \ Like lookup-find, however this version only takes the wid and
 \ the string + length, calculating a lowercase hash
 
@@ -221,9 +222,9 @@ m4_require_w4(`ext/is.f')
 		\ -18 parsed string overflow
 		over string-max > #-18 and throw
 
-		-rot						( src u wid -- wid src u )
-		2dup host::hash				( wid dst u -- wid dst u hash )
-		(lookup-find)				( wid dst u hash -- nt|0 )
+		-rot						( c-addr u wid -- wid c-addr u )
+		2dup host::hash				( wid c-addr u -- wid c-addr u hash )
+		(lookup-find)				( wid c-addr u hash -- nt|0 )
 	;
 
 	: (lookup-search-xt) ( c-addr u wid -- xt|0 ) (lookup-search) (nt>value@) ;
