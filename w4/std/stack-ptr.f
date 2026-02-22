@@ -69,7 +69,7 @@ m4_require(`std/logic-base.f')
 
 \ As per the above, a version for the return stack
 
-	: R-DEPTH ( r: ... -- u ) (rs^) @	1- ; \ remove this return
+	: R-DEPTH ( r: ... -- u ) (rs^) @ 1- ; \ remove this return
 
 \ As per the sp@ version, same style, this on return stack
 \ (w/ additional cell removed for call into these)
@@ -84,27 +84,26 @@ m4_require(`std/logic-base.f')
 
 \ https://forth-standard.org/standard/core/RFetch
 
-	: R@ ( -- x ) ( r: x -- x ) 1 (rs^-n) @ ;
+	: R-0@ ( -- x ) #1 (rs^-n) @ ;
+	: R-0! ( -- s ) #1 (rs^-n) ! ;
 
-	: R! ( -- x ) ( x -- r:x ) 1 (rs^-n) ! ;
+	: R-1@ ( -- x ) #2 (rs^-n) @ ;
+	: R-1! ( -- x ) #2 (rs^-n) ! ;
 
-	: R-0@ ( -- ) #1 (rs^-n) @ ;
-	: R-0! ( -- ) #1 (rs^-n) ! ;
+	: R-2@ ( -- x ) #3 (rs^-n) @ ;
+	: R-2! ( -- x ) #3 (rs^-n) ! ;
 
-	: R-1@ ( -- ) #2 (rs^-n) @ ;
-	: R-1! ( -- ) #2 (rs^-n) ! ;
+	: R-3@ ( -- x ) #4 (rs^-n) @ ;
+	: R-3! ( -- x ) #4 (rs^-n) ! ;
 
-	: R-2@ ( -- ) #3 (rs^-n) @ ;
-	: R-2! ( -- ) #3 (rs^-n) ! ;
+	: R-4@ ( -- x ) #5 (rs^-n) @ ;
+	: R-4! ( -- x ) #5 (rs^-n) ! ;
 
-	: R-3@ ( -- ) #4 (rs^-n) @ ;
-	: R-3! ( -- ) #4 (rs^-n) ! ;
+	: R-5@ ( -- x ) #6 (rs^-n) @ ;
+	: R-5! ( -- x ) #6 (rs^-n) ! ;
 
-	: R-4@ ( -- ) #5 (rs^-n) @ ;
-	: R-4! ( -- ) #5 (rs^-n) ! ;
+	: R-6@ ( -- x ) #7 (rs^-n) @ ;
+	: R-6! ( -- x ) #7 (rs^-n) ! ;
 
-	: R-5@ ( -- ) #6 (rs^-n) @ ;
-	: R-5! ( -- ) #6 (rs^-n) ! ;
-
-	: R-6@ ( -- ) #7 (rs^-n) @ ;
-	: R-6! ( -- ) #7 (rs^-n) ! ;
+	: R@ r-1@ ; \ -1, not -0, remove call into this
+	: R! r-1! ; \ -1, not -0, remove call into this

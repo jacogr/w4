@@ -1,10 +1,35 @@
 m4_require(`std/compile.f')
 m4_require(`std/constants.f')
-m4_require(`std/exceptions.f')
 m4_require(`std/memory.f')
 m4_require(`std/parse.f')
+m4_require(`std/string-format.f')
 
 m4_require(`ext/is.f')
+
+\ https://forth-standard.org/standard/core/ABORT
+\
+\ Empty the data stack and perform the function of QUIT, which includes
+\ emptying the return stack, without displaying a message.
+
+	: ABORT #-1 throw ;
+
+\ https://forth-standard.org/standard/exception/ABORTq
+\
+\ Parse ccc delimited by a " (double-quote). Append the run-time semantics
+\ given below to the current definition.
+\
+\ At runtime: Remove x1 from the stack. If any bit of x1 is not zero, perform
+\ the function of -2 THROW, displaying ccc if there is no exception frame on
+\ the exception stack.
+
+	: ABORT" ( "ccc<quote>" -- )
+		postpone if
+			postpone s"
+			postpone type
+			$-2 lit,
+			postpone throw
+		postpone then
+	; immediate
 
 \ https://forth-standard.org/standard/core/VALUE
 \
