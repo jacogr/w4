@@ -7,6 +7,7 @@
 
 	m4_include(`imports.wat')
 	m4_include(`memory.wat')
+	m4_include(`memory-alloc.wat')
 
 	m4_include(`forth/builtins.wat')
 	m4_include(`forth/exceptions.wat')
