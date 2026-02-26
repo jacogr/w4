@@ -148,69 +148,13 @@
 	;; non-standard toolbox for unsigned math
 	(elem (i32.const 10) $__forth_fn_um_star_slash_mod)
 	(func $__forth_fn_um_star_slash_mod (type $TypeForthFn)
-		(local $lo i32)
-		(local $hi i32)
-		(local $mul i32)
-		(local $div i32)
-		(local $qhi i32)
-		(local $qlo i32)
-		(local $rem i32)
-
-		(local.set $div (call $__stack_dat_pop))
-		(local.set $mul (call $__stack_dat_pop))
-		(local.set $hi (call $__stack_dat_pop))
-		(local.set $lo (call $__stack_dat_pop))
-
-		;; perform operation
-		(call $__um_star_slash_mod
-			(local.get $lo)
-			(local.get $hi)
-			(local.get $mul)
-			(local.get $div))
-
-		;; gather results
-		(local.set $qhi)
-		(local.set $qlo)
-		(local.set $rem)
-
-		;; push to stack
-		(call $__stack_dat_push (local.get $rem))
-		(call $__stack_dat_push (local.get $qlo))
-		(call $__stack_dat_push (local.get $qhi))
+		m4_include(`forth/builtins/builtins-um_star_slash_mod.wat')
 	)
 
 	;; non-standard toolbox for signed math
 	(elem (i32.const 11) $__forth_fn_m_star_slash_mod)
 	(func $__forth_fn_m_star_slash_mod (type $TypeForthFn)
-		(local $lo i32)
-		(local $hi i32)
-		(local $mul i32)
-		(local $div i32)
-		(local $qhi i32)
-		(local $qlo i32)
-		(local $rem i32)
-
-		(local.set $div (call $__stack_dat_pop))
-		(local.set $mul (call $__stack_dat_pop))
-		(local.set $hi (call $__stack_dat_pop))
-		(local.set $lo (call $__stack_dat_pop))
-
-		;; perform operation
-		(call $__m_star_slash_mod
-			(local.get $lo)
-			(local.get $hi)
-			(local.get $mul)
-			(local.get $div))
-
-		;; gather results
-		(local.set $qhi)
-		(local.set $qlo)
-		(local.set $rem)
-
-		;; push to stack
-		(call $__stack_dat_push (local.get $rem))
-		(call $__stack_dat_push (local.get $qlo))
-		(call $__stack_dat_push (local.get $qhi))
+		m4_include(`forth/builtins/builtins-m_star_slash_mod.wat')
 	)
 
 	;; https://forth-standard.org/standard/core/AND
@@ -300,20 +244,7 @@
 	;; (fd:i32, iovs_ptr:i32, iovs_len:i32, nwritten_ptr:i32) -> errno:i32
 	(elem (i32.const 21) $__forth_fn_wasi_fd_write)
 	(func $__forth_fn_wasi_fd_write (type $TypeForthFn)
-		(local $iovs i32)
-		(local $iovs_len i32)
-		(local $n_ptr i32)
-
-		(local.set $n_ptr (call $__stack_dat_pop))
-		(local.set $iovs_len (call $__stack_dat_pop))
-		(local.set $iovs (call $__stack_dat_pop))
-
-		(call $__stack_dat_push
-			(call $__wasi::fd_write
-				(call $__stack_dat_pop) ;; fd
-				(local.get $iovs)
-				(local.get $iovs_len)
-				(local.get $n_ptr)))
+		m4_include(`forth/builtins/builtins-wasi-fd_write.wat')
 	)
 
 	;; Expose wasmi for reading from file
@@ -321,20 +252,7 @@
 	;; (fd:i32, iovs_ptr:i32, iovs_len:i32, nread_ptr:i32) -> errno:i32
 	(elem (i32.const 22) $__forth_fn_wasi_fd_read)
 	(func $__forth_fn_wasi_fd_read (type $TypeForthFn)
-		(local $iovs i32)
-		(local $iovs_len i32)
-		(local $n_ptr i32)
-
-		(local.set $n_ptr (call $__stack_dat_pop))
-		(local.set $iovs_len (call $__stack_dat_pop))
-		(local.set $iovs (call $__stack_dat_pop))
-
-		(call $__stack_dat_push
-			(call $__wasi::fd_read
-				(call $__stack_dat_pop) ;; fd
-				(local.get $iovs)
-				(local.get $iovs_len)
-				(local.get $n_ptr)))
+		m4_include(`forth/builtins/builtins-wasi-fd_read.wat')
 	)
 
 	;; Expose wasmi for closing a file
@@ -342,9 +260,7 @@
 	;; (fd:i32) -> errno:i32
 	(elem (i32.const 23) $__forth_fn_wasi_fd_close)
 	(func $__forth_fn_wasi_fd_close (type $TypeForthFn)
-		(call $__stack_dat_push
-			(call $__wasi::fd_close
-				(call $__stack_dat_pop))) ;; fd
+		m4_include(`forth/builtins/builtins-wasi-fd_close.wat')
 	)
 
 	;; Expose wasmi for opening a path
@@ -354,42 +270,7 @@
 	;;  fdflags:i32, opened_fd_ptr:i32) -> errno:i32
 	(elem (i32.const 24) $__forth_fn_wasi_path_open)
 	(func $__forth_fn_wasi_path_open (type $TypeForthFn)
-		(local $opened_fd_ptr i32)
-		(local $fdflags i32)
-		(local $fs_rights_inheriting i64)
-		(local $fs_rights_base i64)
-		(local $oflags i32)
-		(local $path_len i32)
-		(local $path_ptr i32)
-		(local $dirflags i32)
-
-		(local.set $opened_fd_ptr (call $__stack_dat_pop))
-		(local.set $fdflags (call $__stack_dat_pop))
-
-		;; NOTE we assume (based on the available flags) that we don't
-		;; need the high bit flags for usage in our envionement at this point.
-		;; This is certainly the case, we only want "simple" reads/writes, not
-		;; yet any more exotic stuff. In the future, we may need to change this
-		;; interface if the need arrises
-		(local.set $fs_rights_inheriting (i64.extend_i32_u (call $__stack_dat_pop)))
-		(local.set $fs_rights_base (i64.extend_i32_u (call $__stack_dat_pop)))
-
-		(local.set $oflags (call $__stack_dat_pop))
-		(local.set $path_len (call $__stack_dat_pop))
-		(local.set $path_ptr (call $__stack_dat_pop))
-		(local.set $dirflags (call $__stack_dat_pop))
-
-		(call $__stack_dat_push
-			(call $__wasi::path_open
-				(call $__stack_dat_pop) ;; dir_fd
-				(local.get $dirflags)
-				(local.get $path_ptr)
-				(local.get $path_len)
-				(local.get $oflags)
-				(local.get $fs_rights_base)
-				(local.get $fs_rights_inheriting)
-				(local.get $fdflags)
-				(local.get $opened_fd_ptr)))
+		m4_include(`forth/builtins/builtins-wasi-fd_open.wat')
 	)
 
 	;;
