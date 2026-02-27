@@ -11,6 +11,7 @@ import nodeWasi from 'node:wasi';
 	// exposed forward
 	let /** @type {WasmExports | null} */ exposed = null
 	let /** @type {DataView | null} */ memview = null;
+	const start = nodeProcess.hrtime.bigint();
 
 	/** @returns {void} */
 	function evaluate (/** @type {string} */ code) {
@@ -30,20 +31,18 @@ import nodeWasi from 'node:wasi';
 
 	/** @returns {void} */
 	function logEnd (/** @type {string} */ label) {
-		console.log();
-		console.timeEnd(label);
+		const ms = Number(nodeProcess.hrtime.bigint() - start) / 1e6;
+
+		console.error();
+		console.error(`${label}: ${ms.toFixed(3)}ms`);
 
 		if (memview) {
 			const now = Math.ceil(memview.getUint32(0x0100, true) / 1024);
 			const max = Math.ceil(memview.getUint32(0x0108, true) / 1024);
 
-			console.log(`${now.toLocaleString()}kB used (${max.toLocaleString()}kB max)`);
+			console.error(`${now.toLocaleString()}kB used (${max.toLocaleString()}kB max)`);
 		}
 	}
-
-	// start the timers for ok/err
-	console.time('ok');
-	console.time('err');
 
 	// arguments
 	const argv = nodeProcess.argv.slice(2);
@@ -51,7 +50,7 @@ import nodeWasi from 'node:wasi';
 
 	// ensure we have a source file
 	if (!argv.length || !argv[0]) {
-		console.log(`Usage: ${cmdFile} <file.f>`);
+		console.error(`Usage: ${cmdFile} <file.f>`);
 		nodeProcess.exit(-1);
 	}
 
