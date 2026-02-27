@@ -41,7 +41,7 @@
 		(local $count i32)
 
 		;; check that we have enough space, -3 stack overflow (-5 return)
-		 (call $__assert
+		(call $__assert
 			(i32.lt_u
 				(local.tee $count (i32.add (i32.load (local.get $ptr)) (i32.const 1)))
 				(global.get $STACK_MAX))
@@ -104,9 +104,6 @@
 	;;
 
 	;; data
-
-	(func $__stack_new (result i32)
-		(call $__alloc (i32.mul (i32.add (global.get $STACK_MAX) (i32.const 1)) (i32.const 4))))
 
 	(func $__stack_dat_pop (result i32)
 		(call $__stack_pop (i32.const 0) (global.get $stack_dat)))
