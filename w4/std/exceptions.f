@@ -52,11 +52,11 @@ m4_require(`std/interpret.f')
 			\ handle catch
 			case
 				\ ok
-				 0 of state @ 0= if ." OK" then cr endof
+				$0 of state @ 0= if ." OK" then cr endof
 				\ abort
-				-1 of endof
+				$-1 of endof
 				\ abort w/ message
-				-2 of endof
+				$-2 of endof
 				\ exception
 				dup ." Exception # " .
 			endcase
