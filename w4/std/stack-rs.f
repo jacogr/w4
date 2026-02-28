@@ -38,10 +38,10 @@ m4_require(`std/stack-ptr.f')
 
 	: (r-drop) ( -- )
 		\ -6 return stack underflow
-		r-depth 3 < #-6 and throw	\ call into r-drop & this
+		r-depth #3 < #-6 and throw	\ call into r-drop & this
 
 		r-1@ r-2!					\ slide caller’s return-to down
-		r-depth 2 - (rs^) !			\ drop one slot under it
+		r-depth #2 - (rs^) !			\ drop one slot under it
 	;
 
 	: R-DROP ( -- ) (r-drop) ;
@@ -62,10 +62,10 @@ m4_require(`std/stack-ptr.f')
 
 	: (r-2drop) ( -- )
 		\ -6 return stack underflow
-		r-depth 4 < #-6 and throw	\ call into r-drop & this
+		r-depth #4 < #-6 and throw	\ call into r-drop & this
 
 		r-1@ r-3!					\ slide caller’s return-to down
-		r-depth 3 - (rs^) !			\ drop two slots under it
+		r-depth #3 - (rs^) !			\ drop two slots under it
 	;
 
 	: 2R> ( -- x1 x2 ) ( r: x1 x2 -- )
