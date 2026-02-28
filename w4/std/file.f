@@ -52,15 +52,15 @@ m4_require(`ext/wasi.f')
 		{: path len rb fid :}		( c-addr u fam fid -- )
 
 		\ dir fd (cwd = 3) & flags, path & len
-		3 0 path len				( -- dir_fd dir_f c-addr u )
+		$3 $0 path len				( -- dir_fd dir_f c-addr u )
 
 		\ of (no create/trunc), rights (base = fam, inherit = 0), file flags & fd
-		0 rb 0 0					( dir_fd dir_f c-addr u -- dir_fd dir_f c-addr u of rb ri fd_f )
+		$0 rb $0 $0					( dir_fd dir_f c-addr u -- dir_fd dir_f c-addr u of rb ri fd_f )
 		fid (fid>fd^)				( dir_fd dir_f c-addr u of rb ri fd_f -- dir_fd dir_flags c-addr u of rb ri fd_f fd^ )
 
 		\ call into host
 		wasi::path_open				( dir_fd ... fd^ -- err )
-		dup 0= if fid else 0 then	( err -- err fileid )
+		dup 0= if fid else $0 then	( err -- err fileid )
 
 		\ ior = 0 on success, -1 on failure
 		swap 0<>					( err fileid -- fileid ior )
@@ -154,7 +154,7 @@ m4_require(`ext/wasi.f')
 			\ not eof? (u <> 0)
 			?dup if
 				fid (fid>in-len!)	( u -- )
-				0 fid (fid>in-pos!)
+				$0 fid (fid>in-pos!)
 			else
 				false to not-eof
 				false fid (fid>is-eof!)
@@ -176,7 +176,7 @@ m4_require(`ext/wasi.f')
 	;
 
 	: READ-LINE ( c-addr u fid -- u2 flag ior )
-		dup (fid>is-eof@) 0= true true 0 				( c-addr u fid -- c-addr u fid not-eof not-eol not-err num )
+		dup (fid>is-eof@) 0= true true $0 				( c-addr u fid -- c-addr u fid not-eof not-eol not-err num )
 		{: buf max fid not-eof not-eol not-err num :}	( c-addr u fid not-eof not-eol not-err num -- )
 
 		begin
@@ -245,7 +245,7 @@ m4_require(`ext/wasi.f')
 
 		\ success? zero pos & set len
 		0= and if					( fid u2 flag ior -- fid u2 )
-			0 sp-2@ (fid>ln-pos!)
+			$0 sp-2@ (fid>ln-pos!)
 			swap (fid>ln-len!)		( fid u2 -- )
 			true
 		else 2drop false then		( fid u2 -- f )
