@@ -148,13 +148,13 @@
 	;; non-standard toolbox for unsigned math
 	(elem (i32.const 10) $__forth_fn_um_star_slash_mod)
 	(func $__forth_fn_um_star_slash_mod (type $TypeForthFn)
-		m4_include(`forth/builtins/builtins-um_star_slash_mod.wat')
+		m4_include(<!forth/builtins/builtins-um_star_slash_mod.wat!>)
 	)
 
 	;; non-standard toolbox for signed math
 	(elem (i32.const 11) $__forth_fn_m_star_slash_mod)
 	(func $__forth_fn_m_star_slash_mod (type $TypeForthFn)
-		m4_include(`forth/builtins/builtins-m_star_slash_mod.wat')
+		m4_include(<!forth/builtins/builtins-m_star_slash_mod.wat!>)
 	)
 
 	;; https://forth-standard.org/standard/core/AND
@@ -244,7 +244,7 @@
 	;; (fd:i32, iovs_ptr:i32, iovs_len:i32, nwritten_ptr:i32) -> errno:i32
 	(elem (i32.const 21) $__forth_fn_wasi_fd_write)
 	(func $__forth_fn_wasi_fd_write (type $TypeForthFn)
-		m4_include(`forth/builtins/builtins-wasi-fd_write.wat')
+		m4_include(<!forth/builtins/builtins-wasi-fd_write.wat!>)
 	)
 
 	;; Expose wasmi for reading from file
@@ -252,7 +252,7 @@
 	;; (fd:i32, iovs_ptr:i32, iovs_len:i32, nread_ptr:i32) -> errno:i32
 	(elem (i32.const 22) $__forth_fn_wasi_fd_read)
 	(func $__forth_fn_wasi_fd_read (type $TypeForthFn)
-		m4_include(`forth/builtins/builtins-wasi-fd_read.wat')
+		m4_include(<!forth/builtins/builtins-wasi-fd_read.wat!>)
 	)
 
 	;; Expose wasmi for closing a file
@@ -260,7 +260,7 @@
 	;; (fd:i32) -> errno:i32
 	(elem (i32.const 23) $__forth_fn_wasi_fd_close)
 	(func $__forth_fn_wasi_fd_close (type $TypeForthFn)
-		m4_include(`forth/builtins/builtins-wasi-fd_close.wat')
+		m4_include(<!forth/builtins/builtins-wasi-fd_close.wat!>)
 	)
 
 	;; Expose wasmi for opening a path
@@ -270,7 +270,7 @@
 	;;  fdflags:i32, opened_fd_ptr:i32) -> errno:i32
 	(elem (i32.const 24) $__forth_fn_wasi_path_open)
 	(func $__forth_fn_wasi_path_open (type $TypeForthFn)
-		m4_include(`forth/builtins/builtins-wasi-fd_open.wat')
+		m4_include(<!forth/builtins/builtins-wasi-fd_open.wat!>)
 	)
 
 	;;
