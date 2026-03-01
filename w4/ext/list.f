@@ -105,6 +105,34 @@ m4_require(<!ext/is.f!>)
 \ TODO: list "insert", aka place item before tail (useful for token lists where
 \ the exit token always appears as the last item in the list)
 
+	: (list-insert) ( a-addr xt -- nt )
+		\ flags can have variants in the lower 8 bits, e.g.
+		\ (flg-list) & (flg-is-var) for lookups, so compare with
+		\ and then =
+		over (lst>flags@)		( list xt -- list xt flags )
+		(flg-list) and			( list xt flags -- list xt f1 )	\ f1 = flg-list & flags
+		(flg-list) = 			( list xt f1 -- list xt f2 )	\ f2 = f1 == flg-list
+
+		\ -50 search-order underflow
+		0= #-50 and throw		\ ensure list
+
+		\ no tail yet? just append and return new entry
+		over (lst>tail@) dup 0= if
+			drop
+			(list-append)
+			exit
+		then
+
+		\ tail exists:
+		\ 1. append duplicate of current tail value
+		\ 2. overwrite previous tail value with incoming xt
+		>r
+		over r@ (nt>value@)		( list xt -- list xt list tail-value )
+		(list-append) drop		( list xt list tail-value -- list xt )
+		r@ swap (nt>value!)		( list xt tail -- list )
+		r> nip					( list tail -- tail )
+	;
+
 \ Appends an "xt" to a lookup. Here a-addr is the pointer to the list
 
 	: (lookup-bucket-calc) ( index hash -- bucket )
@@ -118,6 +146,23 @@ m4_require(<!ext/is.f!>)
 		\ add the entry to the linked list
 		over swap					( list xt -- list list xt )
 		(list-append)				( list list xt -- list nt )
+
+		\ get index bucket
+		swap (lst>owner@)			( list nt -- nt index )
+		over						( nt index -- nt index nt )
+		(nt>value@) (xt>hash@)		( nt index nt -- nt index hash )
+		(lookup-bucket-calc)		( nt index hash -- nt bucket )
+
+		\ current bucket head, store as link, update
+		2dup @ swap					( nt bucket -- nt bucket head nt )
+		(nt>link!)					( nt bucket head nt -- nt bucket )	\ write link
+			over swap !					( nt bucket -- nt )					\ write nt as head
+	;
+
+	: (lookup-insert) ( list xt -- nt )
+		\ add the entry to the linked list, before current tail
+		over swap					( list xt -- list list xt )
+		(list-insert)				( list list xt -- list nt )
 
 		\ get index bucket
 		swap (lst>owner@)			( list nt -- nt index )
