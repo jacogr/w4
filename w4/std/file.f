@@ -66,6 +66,16 @@ m4_require(`ext/wasi.f')
 		swap 0<>					( err fileid -- fileid ior )
 	;
 
+\ Non-standard helper for source->wat stdin mode.
+\ Creates a normal file-style fid and binds it to fd 0.
+
+	: OPEN-STDIN ( -- fileid ior )
+		$0 $0 (new-file-src)	( -- fid )
+		dup (fid>fd^)			( fid -- fid fd^ )
+		$0 swap !				( fid fd^ -- fid )
+		$0						( fid -- fid ior )
+	;
+
 \ https://forth-standard.org/standard/file/READ-FILE
 \
 \ Read u1 consecutive characters to c-addr from the current position of the
