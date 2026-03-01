@@ -22,7 +22,7 @@ m4_require(`std/stack-rs.f')
 
 	: 2/ ( x -- x' )
 		dup 0< msb and	\ n signbitmask (0 or msb)
-		swap 1 rshift	\ signbitmask (n>>1 logical)   (if your rshift is logical)
+		swap $1 rshift	\ signbitmask (n>>1 logical)   (if your rshift is logical)
 		or				\ arithmetic result
 	;
 

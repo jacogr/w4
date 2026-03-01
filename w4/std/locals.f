@@ -40,7 +40,7 @@ m4_require(`ext/list.f')
 	: locals-exit ( -- )
 		\ address before offset 0, previous base
 		(local-addr-0)			( -- a-addr )
-		1 cells -				( a-addr -- a-addr' )
+		$1 cells -				( a-addr -- a-addr' )
 
 		\ restore previous base addr
 		(locals-base^) !
@@ -66,7 +66,7 @@ m4_require(`ext/list.f')
 		dup lit,					( n -- n )
 		postpone locals-enter		( n -- n )
 
-		dup 0 ?do
+		dup $0 ?do
 			\ compile i (to-local), value expected at runtime
 			i lit,
 			postpone (to-local)
@@ -97,13 +97,13 @@ m4_require(`ext/list.f')
 				(new-lookup-tiny) (locals-wid!)
 
 				\ clear count
-				0 (locals#) !
+				$0 (locals#) !
 			then
 
 			\ define with index
 			(locals#) @
 			(local-define)				( c-addr u i -- )
-			1 (locals#) +!
+			$1 (locals#) +!
 		else							( c-addr -- c-addr )
 			drop						( c-addr -- )
 
@@ -170,16 +170,16 @@ m4_require(`ext/list.f')
 		dup (env-locals#) > #-8 and throw
 
 		\ add all locals
-		0 ?do (local) loop
-		0 0 (local)
+		$0 ?do (local) loop
+		$0 $0 (local)
 	;
 
 	: {: ( -- )
 		\ new index for this occurence (allows for nested, eg. does>)
-		0 (locals#) !
+		$0 (locals#) !
 
 		\ parse & define
-		0 parse-name				( -- 0 c-addr u )
+		$0 parse-name				( -- 0 c-addr u )
 		(local-scan-args) (local-scan-locals) (local-scan-end)
 		2drop (local-define-locals)
 	; immediate
@@ -216,7 +216,7 @@ m4_require(`ext/list.f')
 		\ we should exit the actual local stack
 		(locals-wid) 0<> if
 			\ clear local usage
-			0 (locals-wid!)
+			$0 (locals-wid!)
 
 			\ compile locals restore
 			\

@@ -26,7 +26,7 @@ m4_require(`std/stack.f')
 	: D+ ( lo1 hi1 lo2 hi2 -- lo3 hi3 )
 		>r swap >r	\ lo1 lo2 ( r: -- hi2 hi1 )
 		um+ 		\ lo3 carry-flag
-		1 and 		\ lo3 carry(0|1)
+		$1 and 		\ lo3 carry(0|1)
 		r> r> + 	\ lo3 carry hiSum ( r: hi2 hi1 -- )
 		swap + 		\ lo3 hi3
 	;
@@ -54,7 +54,7 @@ m4_require(`std/stack.f')
 	: D- ( lo1 hi1 lo2 hi2 -- lo3 hi3 )
 		>r swap >r 	( lo1 hi1 lo2 hi2 -- lo1 lo2 ) ( r: -- hi2 hi1 )
 		um- 		( lo1 lo2 -- lo3 borrow )
-		0<> 1 and 	( lo3 borrow -- lo3 borrow' )
+		0<> $1 and 	( lo3 borrow -- lo3 borrow' )
 		r> r> 		( lo3 borrow -- lo3 0|1 hi1 hi2 ) ( r: hi2 hi1 -- )
 		- 			( lo3 borrow -- lo3 borrow hiDiff ) \ hiDiff = hi1 - hi2
 		swap - 		( lo3 borrow hiDiff -- lo3 hi3 ) \ hi3 = hiDiff - borrow
@@ -123,7 +123,7 @@ m4_require(`std/stack.f')
 \ the quotient lies outside the range of a single-cell unsigned integer.
 
 	: UM/MOD  ( lo hi u -- rem quot )
-		1 swap 					( lo hi u -- lo hi 1 u )
+		$1 swap 				( lo hi u -- lo hi 1 u )
 		um*/mod 				( lo hi 1 u -- rem qlo qhi )
 
 		\ enforce standard um/mod quotient range: qhi must be 0, -11 result out of range
@@ -138,7 +138,7 @@ m4_require(`std/stack.f')
 \ arithmetic are unsigned.
 
 	: UM* ( u1 u2 -- ud )
-		0 swap 1	( u1 u2 -- lo 0 u2 1 )
+		$0 swap $1	( u1 u2 -- lo 0 u2 1 )
 		um*/mod		( lo 0 u2 1 -- rem qlo qhi )
 		rot drop	( rem qlo qhi -- qlo qhi )
 	;
@@ -151,7 +151,7 @@ m4_require(`std/stack.f')
 \ signed integer.
 
 	: SM/REM  ( lo hi n -- rem quot )
-		1 swap m*/mod			( lo hi n -- rem qlo qhi )
+		$1 swap m*/mod			( lo hi n -- rem qlo qhi )
 
 		\ range check: qhi must equal sign-extension of qlo
 		>r						( rem qlo qhi -- rem qlo ) ( r: -- qhi )
@@ -218,7 +218,7 @@ m4_require(`std/stack.f')
 	: M*  ( n1 n2 -- lo hi )
 		s>d 		( n1 n2 -- n1 lo hi )     \ d1 = n2 as double
 		rot			( n1 lo hi -- lo hi n1 )  \ mul = n1
-		1 m*/mod 	( lo hi n1 1 -- rem qlo qhi )
+		$1 m*/mod 	( lo hi n1 1 -- rem qlo qhi )
 		rot drop 	( rem qlo qhi -- qlo qhi )
 	;
 
@@ -239,16 +239,16 @@ m4_require(`std/stack.f')
 	: ARSHIFT1 ( n -- n' )
 		dup 0< msb 0	( n -- n flag msb 0 )
 		select 			( flag msb 0 -- n mask )
-		swap 1 rshift 	( n mask -- mask n>>1 )
+		swap $1 rshift 	( n mask -- mask n>>1 )
 		or				( mask n -- n' )
 	;
 
 	: D2/ ( lo hi -- lo' hi' )
-		dup 1 and 			\ lo hi hibit
+		dup $1 and 			\ lo hi hibit
 		>r
 		arshift1			\ lo hi'
-		swap 1 rshift		\ hi' lo>>1
-		r> 31 lshift or		\ hi' lo'
+		swap $1 rshift		\ hi' lo>>1
+		r> #31 lshift or	\ hi' lo'
 		swap				\ lo' hi'
 	;
 
@@ -272,7 +272,7 @@ m4_require(`std/stack.f')
 \ numbers, without restrictions
 
 	: U/MOD  ( u d -- urem uquot )
-		0 swap		( u d -- ulo 0 d )
+		$0 swap		( u d -- ulo 0 d )
 		um/mod		( ulo 0 d -- ur uq )
 	;
 
@@ -309,7 +309,7 @@ m4_require(`std/stack.f')
 \ name. A program is responsible for initializing the contents.
 
 	: 2VARIABLE ( "name" -- )
-		create  0 ,  0 ,	\ reserve 2 cells, init to 0. (lo=0 hi=0)
+		create $0 , $0 ,	\ reserve 2 cells, init to 0. (lo=0 hi=0)
   		does>
 	;
 

@@ -109,7 +109,7 @@ m4_require(`std/value.f')
 		{: str len isc? isd? mul nbase obase isc? :}	( c-addr u isd? mul nbase obase -- )
 
 		isc? if
-			str 1+ c@ 1									( -- ch 1 )
+			str 1+ c@ $1								( -- ch 1 )
 		else
 			\ ensure valid length
 			len 0> if
@@ -118,10 +118,10 @@ m4_require(`std/value.f')
 				nbase obase <>
 				and if
 					nbase base !
-				else 0 to nbase then
+				else $0 to nbase then
 
 				\ convert
-				0 0 str len >number						( -- lo hi c-addr u )
+				$0 $0 str len >number					( -- lo hi c-addr u )
 				nip 									( lo hi c-addr u -- lo hi u )
 
 				\ reset base
@@ -130,10 +130,10 @@ m4_require(`std/value.f')
 				0= if									( lo hi u -- lo hi )
 					0= if								( lo hi -- lo )
 						mul *							( lo -- n )
-						isd? if -1 else 1 then 			( n -- n -1|1 )
-					else drop 0 0 then					( lo -- 0 0 )
-				else 2drop 0 0 then						( lo hi -- 0 0 )
-			else 0 0 then								( -- 0 0 )
+						isd? if $-1 else $1 then 		( n -- n -1|1 )
+					else drop $0 $0 then				( lo -- 0 0 )
+				else 2drop $0 $0 then					( lo hi -- 0 0 )
+			else $0 $0 then								( -- 0 0 )
 		then
 	;
 
@@ -146,14 +146,14 @@ m4_require(`std/value.f')
 			state @ if
 				(flg-xt-lit) swap					( n f -- n xtf f )
 
-				-1 = if
+				$-1 = if
 					(flg-is-var) or					( n xtf -- n xtf' )
 				then
 
 				(new-xt) compile,					( n xtf -- )
 			else
-				-1 = if								( n xtf -- n )
-					dup 0< if -1 else 0	then		( lo -- lo hi )
+				$-1 = if							( n xtf -- n )
+					dup 0< if $-1 else $0 then		( lo -- lo hi )
 				then
 			then
 		else drop #-13 throw then					( n -- )
