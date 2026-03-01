@@ -86,10 +86,10 @@ m4_require(`std/stdio.f')
 	: (#len) ( -- n ) (#max-off) (#tmp-off) @ - ;
 
 	: (#pad) ( n ud -- ud' )
-		base @ #16 = if '$' hold else base @ #2 = if '%' hold then then
+		base @ #16 = if '$' hold else base @ $2 = if '%' hold then then
 		2>r
 		(#len) -
-		dup 0> if 0 do bl hold loop else drop then
+		dup 0> if $0 do bl hold loop else drop then
 		2r>
 	;
 
@@ -160,7 +160,7 @@ m4_require(`std/stdio.f')
 \
 \ Display u in free field format.
 
-	: U. ( u -- ) 0 u.r ;
+	: U. ( u -- ) $0 u.r ;
 
 \ https://forth-standard.org/standard/core/DotR
 \
@@ -189,7 +189,7 @@ m4_require(`std/stdio.f')
 \
 \ Display n in free field format.
 
-	: . ( n -- ) 0 .r ;
+	: . ( n -- ) $0 .r ;
 
 \ https://forth-standard.org/standard/double/DDotR
 \
@@ -210,7 +210,7 @@ m4_require(`std/stdio.f')
 \
 \ display d in free field format
 
-	: D. ( lo hi -- ) 0 d.r ;
+	: D. ( lo hi -- ) $0 d.r ;
 
 \ https://forth-standard.org/standard/core/Sq
 \
@@ -271,11 +271,11 @@ m4_require(`std/stdio.f')
 		dup [ '9' 1+ ] literal <
 
 		if '0' - \ convert '0'-'9'
-			dup 0< if drop 0 exit then \ reject < '0'
+			dup 0< if drop $0 exit then \ reject < '0'
 		else
 			bl or \ convert to lowercase, exploiting ASCII
 			'a' -
-			dup 0< if drop 0 exit then \ reject non-letter < 'a'
+			dup 0< if drop $0 exit then \ reject non-letter < 'a'
 			#10 + \ convert 'a'-'z'
 		then
 
@@ -289,9 +289,9 @@ m4_require(`std/stdio.f')
 			dup while \ character left to inspect
 				over c@ >digit
 			while \ digit parsed within base
-				2r> base @ 1 m*/ ( c-addr u -- c-addr u n.digit ud.accum ) \ scale accum by base
+				2r> base @ $1 m*/ ( c-addr u -- c-addr u n.digit ud.accum ) \ scale accum by base
 				rot m+ 2>r \ add current digit to accum
-				1 /string ( c-addr u -- c-addr1+1 u1-1 )
+				$1 /string ( c-addr u -- c-addr1+1 u1-1 )
 		repeat then
 
 		2r> 2swap ( c-addr2 u2 -- ud2 c-addr2 u2 ) ( r: ud2 -- )

@@ -7,7 +7,7 @@ m4_require(`std/stack-ptr.f')
 \ convert a character to lowercase
 
 	\ 'A' = 65, 'Z' + 1 = 91
-	: >LOWER-ASCII ( c -- c' ) dup #65 #91 within $20 and or ;
+	: >LOWER-ASCII ( c -- c' ) dup #65 #91 within #32 and or ;
 
 \ copy a string
 
@@ -30,7 +30,7 @@ m4_require(`std/stack-ptr.f')
 
 	: STRDUP ( c-addr u -- c-addr2 u )
 		\ len == 0?
-		?dup 0= if drop 0 0 exit then
+		?dup 0= if drop $0 $0 exit then
 
 		here swap			( src len -- src dst len )
 		dup allot			( src dst len -- src dst len )

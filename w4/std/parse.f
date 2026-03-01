@@ -36,7 +36,7 @@ m4_require(`std/string.f')
 			sp-5@ =				( ch -1 start cur rem ch-at -- ch -1 start cur rem f ) \ f = ch-at == ch
 
 			if
-				0 sp-4!			( ch -1 start cur rem -- ch 0 start cur rem )
+				$0 sp-4!		( ch -1 start cur rem -- ch 0 start cur rem )
 			else
 				1- swap			( ch -1 start cur rem -- ch -1 start rem' cur ) \ rem' = rem - 1
 				1+ swap 		( ch -1 start cur rem -- ch -1 start cur' rem' ) \ cur' = cur + 1
@@ -103,7 +103,7 @@ m4_require(`std/string.f')
 
 	: (find-flag-xt) ( xt -- xt f )
 		dup is-xt-immediate?	( xt -- xt f )
-		1 -1 select				\ -1 normal, 1 immediate
+		$1 $-1 select			\ -1 normal, 1 immediate
 	;
 
 	: FIND ( c-addr -- c-addr 0 | xt 1 | xt -1 )
@@ -112,7 +112,7 @@ m4_require(`std/string.f')
 
 		dup 0= if
 			drop				( 0 -- )
-			r> 0				( -- c-addr 0 )
+			r> $0				( -- c-addr 0 )
 		else
 			r> drop
 			(nt>value@)			( nt -- xt )
@@ -149,5 +149,5 @@ m4_require(`std/string.f')
 			else
 				>in ! false 	\ restore >in
 			then
-		else 0 ?do drop loop true then
+		else $0 ?do drop loop true then
 	;

@@ -18,7 +18,7 @@ m4_require(`std/stack-ptr.f')
 \ (mark) returns the address of the last compiled literal cell (the one to patch).
 
 	: (mark) ( c: -- orig )
-		-1 lit,			\ placeholder
+		$-1 lit,		\ placeholder
 		(latest>prev^) 	\ get placeholder address
 		>cs				( c: -- orig )
 	;
@@ -343,7 +343,7 @@ m4_require(`std/stack-ptr.f')
 \ At runtime: Continue execution.
 
 	: CASE ( c: -- 0 )
-		0 >cs
+		$0 >cs
 	; immediate
 
 \ https://forth-standard.org/standard/core/OF

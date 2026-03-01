@@ -69,7 +69,7 @@ m4_require(`std/string-format.f')
 		depth dup (test-depth) !
 
 		?dup if
-			0 do
+			$0 do
 				(test-results)
 				i cells + !
 			loop
@@ -81,7 +81,7 @@ m4_require(`std/string-format.f')
 	: }T ( ... -- )
 		depth (test-depth) @ = if
 			depth ?dup if
-				0 do
+				$0 do
 					(test-results) i cells + @
 					<> if
 						s" INCORRECT RESULT: " (test-error)

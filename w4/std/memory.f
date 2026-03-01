@@ -16,7 +16,7 @@ m4_require(`std/stack.f')
 
 	: , ( x -- )
 		here !
-		1 cells allot
+		$1 cells allot
 	;
 
 \ https://forth-standard.org/standard/core/CFetch
@@ -56,7 +56,7 @@ m4_require(`std/stack.f')
 
 	: C, ( c -- )
 		here c!
-		1 allot
+		$1 allot
 	;
 
 \ https://forth-standard.org/standard/core/TwoFetch
@@ -165,4 +165,4 @@ m4_require(`std/control.f')
 \ If u is greater than zero, clear all bits in each of u consecutive address units
 \ of memory beginning at addr.
 
-	: ERASE ( a-addr u -- ) 0 fill ;
+	: ERASE ( a-addr u -- ) $0 fill ;

@@ -70,7 +70,7 @@ m4_require(`std/string-format.f')
 
 	: (s"\-extractnum)
 		base @ >r  base !
-		0 0 2swap >number 2swap drop
+		$0 $0 2swap >number 2swap drop
 		r> base !
 	;
 
@@ -80,24 +80,24 @@ m4_require(`std/string-format.f')
 
 			\ octal?
 			over c@ '0' '8' within if \ '0' .. '7' + 1
-				8 (s"\-extractnum)
+				#8 (s"\-extractnum)
 				r> (s"\-addchar)
 			else
 				\ hex?
 				over c@ 'x' = if
-					1 /string
-					>r 2 #16 (s"\-extractnum) nip
-					r> 2 - swap
+					$1 /string
+					>r $2 #16 (s"\-extractnum) nip
+					r> $2 - swap
 					r> (s"\-addchar)
 				else
 					\ crlf?
 					over c@ 'm' = if
-						1 /string #13 r@ (s"\-addchar) #10
+						$1 /string #13 r@ (s"\-addchar) #10
 						r> (s"\-addchar)
 					else
 						\ crlf?
 						over c@ 'n' = if
-							1 /string (s"\-crlf) count
+							$1 /string (s"\-crlf) count
 							r> (s"\-append)
 						else
 							\ a..z?
@@ -109,7 +109,7 @@ m4_require(`std/string-format.f')
 
 							c@
 							r> (s"\-addchar)
-							1 /string
+							$1 /string
 						then
 					then
 				then
@@ -126,13 +126,13 @@ m4_require(`std/string-format.f')
 			over c@ '"' <>
 		while
 			over c@ '\' = if
-				#1 /string r@ (s"\-addescape)
+				$1 /string r@ (s"\-addescape)
 			else
-				over c@ r@ (s"\-addchar) #1 /string
+				over c@ r@ (s"\-addchar) $1 /string
 			then
 		repeat then
 
-		dup if #1 /string then
+		dup if $1 /string then
 		r> drop
 	;
 

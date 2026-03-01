@@ -41,7 +41,7 @@ m4_require(`std/constants-structs.f')
 
 \ environment constants
 
-	$ff 1 + constant STRING-MAX
+	$ff $1 + constant STRING-MAX
 
 	$10 constant (env-locals#)
 	$2f constant (env-stackmax#)
@@ -64,7 +64,7 @@ m4_require(`std/constants-structs.f')
 
 \ control stack
 
-	(env-stackmax#) 1 + cells buffer: (cs^)
+	(env-stackmax#) $1 + cells buffer: (cs^)
 
 \ Internal constant helpers for the exposed/host memory pointers
 

@@ -36,7 +36,7 @@ m4_require(`ext/list.f')
 \ searched last. The search order is unaffected.
 
 	: GET-ORDER ( -- wid1 ... widn n )
-		(wid-count) 0 ?do
+		(wid-count) $0 ?do
 			(wid-count) i -
 			1- cells
 			(wid-list) + @
@@ -55,7 +55,7 @@ m4_require(`ext/list.f')
 \ SET-ORDER. A system shall allow n to be at least eight.
 
 	: SET-ORDER ( ... -- wid1 ... widn n -0 )
-		dup -1 = if
+		dup $-1 = if
 			drop
 			forth-wordlist 1 recurse
         	exit
@@ -63,7 +63,7 @@ m4_require(`ext/list.f')
 
 		dup (wid-count!)
 
-		0 ?do
+		$0 ?do
 			i cells
 			(wid-list) + !
 		loop
@@ -88,7 +88,7 @@ m4_require(`ext/list.f')
 			(wid-count) i -
 			1- cells
 			(wid-list) + @
-			9 u.r
+			$9 u.r
 		loop
 
 		base !							( base -- )
@@ -126,7 +126,7 @@ m4_require(`ext/list.f')
 \ Set the search order to the implementation-defined minimum search order. The
 \ minimum search order shall include the words FORTH-WORDLIST and SET-ORDER.
 
-	: ONLY ( -- ) -1 set-order ;
+	: ONLY ( -- ) $-1 set-order ;
 
 \ https://forth-standard.org/standard/search/ALSO
 \
@@ -230,7 +230,7 @@ m4_require(`ext/list.f')
 \ this doesn't actually add any new functionality.
 
 	: FIND ( c-addr -- c-addr 0 | xt 1 | xt -1 )
-		0								( c-addr -- c-addr 0 )
+		$0								( c-addr -- c-addr 0 )
 
 		\ search locals word list (if available)
 		(locals-wid) ?dup if

@@ -13,7 +13,7 @@ m4_require(`std/memory.f')
 \ associated END-STRUCTURE being executed.
 
 	: BEGIN-STRUCTURE  ( -- addr 0 ) ( exec: -- +n )
-		create here 0 0 ,
+		create here $0 $0 ,
 		does> @
 	;
 
@@ -46,8 +46,8 @@ m4_require(`std/memory.f')
 \ At runtime: Add the offset calculated during the compile-time action to addr1
 \ giving the address addr2.
 
-	: FIELD: ( n1 "name" -- n2 ; addr1 -- addr2 ) aligned 1 cells +field ;
-    : CFIELD: ( n1 "name" -- n2 ; addr1 -- addr2 ) 1 chars +field ;
+	: FIELD: ( n1 "name" -- n2 ; addr1 -- addr2 ) aligned $1 cells +field ;
+    : CFIELD: ( n1 "name" -- n2 ; addr1 -- addr2 ) $1 chars +field ;
 
 	\ FUTURE If floats are available
 	\

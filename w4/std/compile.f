@@ -10,13 +10,13 @@ m4_require(`std/stack-rs.f')
 \
 \ Return control to the host operating system, if any.
 
-	: BYE ( -- ) 0 >r ;
+	: BYE ( -- ) $0 >r ;
 
 \ https://forth-standard.org/standard/core/Bracket
 \
 \ Enter interpretation state. [ is an immediate word.
 
-	: [ ( -- ) #0 state ! ; immediate \ interpret state
+	: [ ( -- ) $0 state ! ; immediate \ interpret state
 
 \ https://forth-standard.org/standard/core/LITERAL
 \
@@ -135,4 +135,4 @@ m4_require(`std/stack-rs.f')
 \
 \ NOTE :noname has the same structure as :, direct via build, & parse-name
 
-	parse-name :NONAME build, ] 0 0 build, latest ]	;
+	parse-name :NONAME build, ] $0 $0 build, latest ]	;

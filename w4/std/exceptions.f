@@ -26,7 +26,7 @@ m4_require(`std/interpret.f')
 		execute			( xt -- )		\ execute returns if no THROW
 		r> handler !	( -- )			\ restore previous handler
 		r> drop			( -- )			\ discard saved stack ptr
-		0				( -- 0 )		\ normal completion
+		$0				( -- 0 )		\ normal completion
 	;
 
 \ https://forth-standard.org/standard/core/QUIT

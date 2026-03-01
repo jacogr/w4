@@ -104,7 +104,7 @@ m4_require(`std/constants-structs.f')
 
 	: (create) ( c-addr u -- )
 		build,
-		-1 lit,                 \ store body address (does>)
+		$-1 lit,                 \ store body address (does>)
 		here (latest>body^) !
 		reveal
 	;
@@ -198,6 +198,6 @@ m4_require(`std/constants-structs.f')
 \
 \ Add the size in address units of a cell to a-addr1, giving a-addr2.
 
-	1 cells constant CELL
+	$1 cells constant CELL
 
 	: CELL+ ( a-addr -- a-addr' ) cell + ;

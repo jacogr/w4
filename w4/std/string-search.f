@@ -89,7 +89,7 @@ m4_require(`ext/is.f')
 	;
 
 	: (form-subst-name) ( c-addr u -- c-addr1 u1 c-addr2 u2 )
-		1 /string				( c-addr u -- c-addr' u' )
+		$1 /string				( c-addr u -- c-addr' u' )
 
 		2dup '%' scan			( c-addr u -- c-addr u c-addr' u' )
 		dup if					( c-addr u c-addr' u' u' -- c-addr u c-addr' u' )
@@ -122,17 +122,17 @@ m4_require(`ext/is.f')
 		2over 2over							( src slen dst dlen --  src slen dst dlen src slen dst dlen )
 		is-overlapped? if					( src slen dst dlen src slen dst dlen -- src slen dst dlen )
 			drop 2nip						( src slen dst dlen -- dst )
-			0 -1							( dst -- dst 0 -1 )
+			$0 $-1							( dst -- dst 0 -1 )
 			exit
 		then
 
 		\ setup buffers
 		(subst-dlen) !						( src slen dst dlen -- src slen dst )
-		0 (subst-dst+len) 2!				( src slen dst -- src slen )
-		0 (subst-err) !
+		$0 (subst-dst+len) 2!				( src slen dst -- src slen )
+		$0 (subst-err) !
 
 		\ add initial n = 0
-		0 -rot								( src slen -- n src slen )
+		$0 -rot								( src slen -- n src slen )
 
 		begin
 			dup 0>

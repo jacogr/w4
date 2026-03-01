@@ -171,7 +171,7 @@ m4_require(`std/stack-control.f')
 				true exit				\ found: return current c1 u1 -1
 			then
 
-			1 /string					\ advance 1 char in haystack
+			$1 /string					\ advance 1 char in haystack
 		repeat
 
 		\ not found: return original haystack

@@ -79,7 +79,7 @@ m4_require(`std/constants.f')
 		dup (fid>ln-iov^) (source^) !	( fid -- fid )
 
 		\ set the new source-id
-		dup (fid>flags@) 0= if drop -1 then
+		dup (fid>flags@) 0= if drop $-1 then
 		(source-id!)
 	;
 

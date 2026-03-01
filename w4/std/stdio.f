@@ -8,7 +8,7 @@ m4_require(`ext/wasi.f')
 \ c-addr and u. Characters are in the display range as per the runtime
 \ environment.
 
-	: TYPE ( c-addr u -- ) 1 iov>fd ; \ emit to stdout
+	: TYPE ( c-addr u -- ) $1 iov>fd ; \ emit to stdout
 
 \ https://forth-standard.org/standard/core/EMIT
 \
@@ -22,8 +22,8 @@ m4_require(`ext/wasi.f')
 
 	: EMIT ( x -- )
 		$ff and			( x -- ch )
-		sp@ 1			( ch -- ch c-addr 1 )
-		1 iov>fd		( ch c-addr 1 -- ch ) \ emit to stdout
+		sp@ $1			( ch -- ch c-addr 1 )
+		$1 iov>fd		( ch c-addr 1 -- ch ) \ emit to stdout
 		drop			( ch -- )
 	;
 
@@ -37,7 +37,7 @@ m4_require(`ext/wasi.f')
 \
 \ If n is greater than zero, display n spaces.
 
-	: SPACES ?dup if 0 do space loop then ;
+	: SPACES ?dup if $0 do space loop then ;
 
 \ https://forth-standard.org/standard/core/CR
 \
@@ -59,8 +59,8 @@ m4_require(`ext/wasi.f')
 
 	: KEY ( -- c )
 		begin
-			(key-buf) 1 0 iov<fd
-			1 =
+			(key-buf) $1 $0 iov<fd
+			$1 =
 		until
 		(key-buf) c@
 	;
@@ -79,13 +79,13 @@ m4_require(`ext/wasi.f')
 \ maintained in an implementation-defined way.
 
 	: ACCEPT ( c-addr u -- u2 )
-		0 					( c-addr u -- c-addr u count )
+		$0 					( c-addr u -- c-addr u count )
 		begin
 			2dup swap <		( c-addr u count -- c-addr u count flag )
 		while
 			key 			( c-addr u count -- c-addr u count ch )
-			dup 10 =		\ lf?
-			over 13 =		\ cr?
+			dup #10 =		\ lf?
+			over #13 =		\ cr?
 			or if 			\ lf or cr?
 				drop 2nip	( c-addr u count ch -- count )
 				exit
