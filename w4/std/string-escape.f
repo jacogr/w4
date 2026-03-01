@@ -102,7 +102,7 @@ m4_require(`std/string-format.f')
 						else
 							\ a..z?
 							over c@ 'a' '{' within if \ 'a' .. 'z' + 1
-								over c@ [char] a - (s"\-escapetable) +
+								over c@ 'a' - (s"\-escapetable) +
 							else
 								over
 							then
