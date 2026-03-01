@@ -87,9 +87,8 @@ m4_require(<!std/constants-structs.f!>)
 	$0114 (mmio:) (>in^)
 	$0118 (mmio:) (source^)
 
-\ latest executing token (latest definition already defined)
+\ latest/current executing token helpers
 
-	$0120 (mmio@) (comp^)
 	$0124 (mmio@) (exec^)
 	$0128 (mmio@) (next^) : (next^!) $0128 ! ;
 
