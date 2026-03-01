@@ -1,11 +1,11 @@
-m4_require(`std/constants.f')
-m4_require(`std/control.f')
-m4_require(`std/stack.f')
-m4_require(`std/string-format.f')
-m4_require(`std/string-utils.f')
+m4_require(<!std/constants.f!>)
+m4_require(<!std/control.f!>)
+m4_require(<!std/stack.f!>)
+m4_require(<!std/string-format.f!>)
+m4_require(<!std/string-utils.f!>)
 
-m4_require(`ext/hash.f')
-m4_require(`ext/is.f')
+m4_require(<!ext/hash.f!>)
+m4_require(<!ext/is.f!>)
 
 \ Non-standard, but needed for this environment. Create a new list.
 

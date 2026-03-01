@@ -1,4 +1,4 @@
-m4_require(`std/constants-structs.f')
+m4_require(<!std/constants-structs.f!>)
 
 \ https://forth-standard.org/standard/core/COMPILEComma
 \

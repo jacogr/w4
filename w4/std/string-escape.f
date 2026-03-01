@@ -1,10 +1,10 @@
-m4_require(`std/constants.f')
-m4_require(`std/file.f')
-m4_require(`std/logic.f')
-m4_require(`std/memory.f')
-m4_require(`std/parse.f')
-m4_require(`std/stack.f')
-m4_require(`std/string-format.f')
+m4_require(<!std/constants.f!>)
+m4_require(<!std/file.f!>)
+m4_require(<!std/logic.f!>)
+m4_require(<!std/memory.f!>)
+m4_require(<!std/parse.f!>)
+m4_require(<!std/stack.f!>)
+m4_require(<!std/string-format.f!>)
 
 \ https://forth-standard.org/standard/core/Dotp
 \

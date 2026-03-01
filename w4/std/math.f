@@ -1,6 +1,6 @@
-m4_require(`std/logic.f')
-m4_require(`std/control.f')
-m4_require(`std/stack-rs.f')
+m4_require(<!std/logic.f!>)
+m4_require(<!std/control.f!>)
+m4_require(<!std/stack-rs.f!>)
 
 \ https://forth-standard.org/standard/core/ABS
 \
@@ -50,7 +50,7 @@ m4_require(`std/stack-rs.f')
 
 \ mid-point include - *, /, & /mod is built on top of double operations
 
-m4_require(`std/math-double.f')
+m4_require(<!std/math-double.f!>)
 
 \ https://forth-standard.org/standard/core/Times
 \

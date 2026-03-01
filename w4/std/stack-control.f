@@ -1,5 +1,5 @@
-m4_require(`std/compile.f')
-m4_require(`std/control.f')
+m4_require(<!std/compile.f!>)
+m4_require(<!std/control.f!>)
 
 \ https://forth-standard.org/standard/core/qDUP
 \

@@ -1,10 +1,10 @@
-m4_require(`std/compile.f')
-m4_require(`std/constants.f')
-m4_require(`std/memory.f')
-m4_require(`std/parse.f')
-m4_require(`std/string-format.f')
+m4_require(<!std/compile.f!>)
+m4_require(<!std/constants.f!>)
+m4_require(<!std/memory.f!>)
+m4_require(<!std/parse.f!>)
+m4_require(<!std/string-format.f!>)
 
-m4_require(`ext/is.f')
+m4_require(<!ext/is.f!>)
 
 \ https://forth-standard.org/standard/core/ABORT
 \

@@ -1,5 +1,5 @@
-m4_require(`std/constants.f')
-m4_require(`std/logic-base.f')
+m4_require(<!std/constants.f!>)
+m4_require(<!std/logic-base.f!>)
 
 \ Returns the address of a specific stack pointer entry offset
 \ from the topmost entry. Passing 1 would return the address of

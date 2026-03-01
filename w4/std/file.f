@@ -1,12 +1,12 @@
-m4_require(`std/constants.f')
-m4_require(`std/control.f')
-m4_require(`std/locals.f')
-m4_require(`std/parse-source.f')
-m4_require(`std/stack.f')
-m4_require(`std/string-search.f')
-m4_require(`std/value.f')
+m4_require(<!std/constants.f!>)
+m4_require(<!std/control.f!>)
+m4_require(<!std/locals.f!>)
+m4_require(<!std/parse-source.f!>)
+m4_require(<!std/stack.f!>)
+m4_require(<!std/string-search.f!>)
+m4_require(<!std/value.f!>)
 
-m4_require(`ext/wasi.f')
+m4_require(<!ext/wasi.f!>)
 
 \ https://forth-standard.org/standard/file/RDivO
 \

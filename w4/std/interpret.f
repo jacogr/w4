@@ -1,9 +1,9 @@
-m4_require(`std/compile.f')
-m4_require(`std/control.f')
-m4_require(`std/file.f')
-m4_require(`std/locals.f')
-m4_require(`std/memory.f')
-m4_require(`std/value.f')
+m4_require(<!std/compile.f!>)
+m4_require(<!std/control.f!>)
+m4_require(<!std/file.f!>)
+m4_require(<!std/locals.f!>)
+m4_require(<!std/memory.f!>)
+m4_require(<!std/value.f!>)
 
 \ https://forth-standard.org/standard/core/QUIT
 \ https://forth-standard.org/standard/usage#usage:command

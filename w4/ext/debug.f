@@ -1,9 +1,9 @@
 
-m4_require(`std/constants.f')
-m4_require(`std/locals.f')
-m4_require(`std/string-format.f')
+m4_require(<!std/constants.f!>)
+m4_require(<!std/locals.f!>)
+m4_require(<!std/string-format.f!>)
 
-m4_require(`ext/is.f')
+m4_require(<!ext/is.f!>)
 
 \ https://forth-standard.org/standard/tools/SEE
 \

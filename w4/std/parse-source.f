@@ -1,5 +1,5 @@
-m4_require(`std/control.f')
-m4_require(`std/constants.f')
+m4_require(<!std/control.f!>)
+m4_require(<!std/constants.f!>)
 
 \ source stack
 

@@ -1,7 +1,7 @@
-m4_require(`std/compile.f')
-m4_require(`std/control.f')
-m4_require(`std/file.f')
-m4_require(`std/interpret.f')
+m4_require(<!std/compile.f!>)
+m4_require(<!std/control.f!>)
+m4_require(<!std/file.f!>)
+m4_require(<!std/interpret.f!>)
 
 \ https://forth-standard.org/standard/exception/CATCH
 \ https://forth-standard.org/standard/implement#imp:exception:CATCH

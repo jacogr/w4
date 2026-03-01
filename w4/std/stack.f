@@ -1,8 +1,8 @@
-m4_require(`std/stack-base.f')
-m4_require(`std/stack-control.f')
-m4_require(`std/stack-cs.f')
-m4_require(`std/stack-rs.f')
-m4_require(`std/stack-ptr.f')
+m4_require(<!std/stack-base.f!>)
+m4_require(<!std/stack-control.f!>)
+m4_require(<!std/stack-cs.f!>)
+m4_require(<!std/stack-rs.f!>)
+m4_require(<!std/stack-ptr.f!>)
 
 \ https://forth-standard.org/standard/core-ext/TwoROT
 \

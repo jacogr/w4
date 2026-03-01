@@ -22,8 +22,8 @@
 		(here^) !			\ update address, underlying here pointer
 	;
 
-m4_require(`std/constants-create.f')
-m4_require(`std/constants-structs.f')
+m4_require(<!std/constants-create.f!>)
+m4_require(<!std/constants-structs.f!>)
 
 \ builtin flags for the environment
 
