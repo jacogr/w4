@@ -33,6 +33,16 @@ T{ s" AbCDeF" strdup s" abcdef" streq-ni -> TRUE }T
 T{ 0 0 strdup -> 0 0 }T
 
 \ -------------------------------------------------------------
+testing STRLENZ
+
+16 buffer: zbuf
+
+T{ 0 zbuf c! zbuf strlenz -> 0 }T
+T{ 'a' zbuf c! 0 zbuf 1 + c! zbuf strlenz -> 1 }T
+T{ 'a' zbuf c! 'b' zbuf 1 + c! 'c' zbuf 2 + c! 0 zbuf 3 + c! zbuf strlenz -> 3 }T
+T{ 'x' zbuf c! 0 zbuf 1 + c! 'y' zbuf 2 + c! 0 zbuf 3 + c! zbuf strlenz -> 1 }T
+
+\ -------------------------------------------------------------
 testing SCAN
 
 \ found case: "%def" length = 4
@@ -41,4 +51,3 @@ T{ s" abc%def" '%' scan nip -> 4 }T
 T{ s" abc%def" '%' scan drop c@ -> '%' }T
 \ not found: length 0
 T{ s" abcdef" '%' scan nip -> 0 }T
-

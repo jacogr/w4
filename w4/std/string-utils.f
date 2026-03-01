@@ -9,6 +9,18 @@ m4_require(<!std/stack-ptr.f!>)
 	\ 'A' = 65, 'Z' + 1 = 91
 	: >LOWER-ASCII ( c -- c' ) dup #65 #91 within #32 and or ;
 
+\ length of a zero-terminated string
+
+	: STRLENZ ( c-addr -- u )
+		dup >r
+		begin
+			dup c@ 0<>
+		while
+			1+
+		repeat
+		r> -
+	;
+
 \ copy a string
 
 	: STRCPY ( src dst u -- dst u )
