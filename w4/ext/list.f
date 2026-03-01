@@ -106,31 +106,16 @@ m4_require(<!ext/is.f!>)
 \ the exit token always appears as the last item in the list)
 
 	: (list-insert) ( a-addr xt -- nt )
-		\ flags can have variants in the lower 8 bits, e.g.
-		\ (flg-list) & (flg-is-var) for lookups, so compare with
-		\ and then =
-		over (lst>flags@)		( list xt -- list xt flags )
-		(flg-list) and			( list xt flags -- list xt f1 )	\ f1 = flg-list & flags
-		(flg-list) = 			( list xt f1 -- list xt f2 )	\ f2 = f1 == flg-list
-
-		\ -50 search-order underflow
-		0= #-50 and throw		\ ensure list
-
-		\ no tail yet? just append and return new entry
-		over (lst>tail@) dup 0= if
-			drop
-			(list-append)
-			exit
-		then
-
-		\ tail exists:
-		\ 1. append duplicate of current tail value
-		\ 2. overwrite previous tail value with incoming xt
-		>r
-		over r@ (nt>value@)		( list xt -- list xt list tail-value )
-		(list-append) drop		( list xt list tail-value -- list xt )
-		r@ swap (nt>value!)		( list xt tail -- list )
-		r> nip					( list tail -- tail )
+		\ align with wat $__list_insert:
+		\ 1) xt must be valid
+		\ 2) list tail must already exist
+		\ 3) append duplicated tail value
+		\ 4) overwrite previous tail value with incoming xt
+		dup 0= #-9 and throw
+		over (lst>tail@) dup 0= #-9 and throw >r
+		over r@ (nt>value@) (list-append) drop
+		r@ swap (nt>value!)
+		r> nip
 	;
 
 \ Appends an "xt" to a lookup. Here a-addr is the pointer to the list
