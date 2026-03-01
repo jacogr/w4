@@ -166,6 +166,20 @@ m4_require(`std/constants-structs.f')
 
 	: CONSTANT create (latest>body^) ! ;
 
+\ Non-standard
+\
+\ Rebind an existing execution token to another one by copying the runtime
+\ dispatch fields (flags + value). Existing compiled references to old will
+\ then execute with new semantics.
+
+	variable (patch-old)
+
+	: PATCH ( old new -- )
+		swap (patch-old) !
+		dup (xt>flags@) (patch-old) @ (xt>flags!)
+		(xt>value@) (patch-old) @ (xt>value!)
+	;
+
 \ https://forth-standard.org/standard/core/BUFFERColon
 \
 \ Skip leading space delimiters. Parse name delimited by a space. Create a
