@@ -162,7 +162,7 @@
 					(local.set $s
 						(call $__stack_peek_at
 							(i32.const 0)
-							(global.get $stack_src)
+							(i32.load (global.get $PTR_PTR_STACK_SRC))
 							(local.get $n)))
 
 					;; file?

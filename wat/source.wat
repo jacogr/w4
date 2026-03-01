@@ -76,7 +76,7 @@
 	;; Frame count, aka stack size
 	;;
 	(func $__src_frame_count (result i32)
-		(i32.load (global.get $stack_src))
+		(i32.load (i32.load (global.get $PTR_PTR_STACK_SRC)))
 	)
 
 	;;
@@ -86,7 +86,7 @@
 		(call $__src_frame_count) (if (result i32)
 
 			;; retrieve top
-			(then (call $__stack_peek (i32.const 0) (global.get $stack_src)))
+			(then (call $__stack_peek (i32.const 0) (i32.load (global.get $PTR_PTR_STACK_SRC))))
 
 			;; 0 = “no frame”
 			(else (i32.const 0)))
@@ -111,7 +111,7 @@
 			(else))
 
 		;; store it on the stack, closed on pop
-		(call $__stack_push (i32.const 0) (global.get $stack_src) (local.get $s))
+		(call $__stack_push (i32.const 0) (i32.load (global.get $PTR_PTR_STACK_SRC)) (local.get $s))
 		(call $__src_restore (local.get $s))
 	)
 
@@ -123,7 +123,7 @@
 		(local $s i32)
 
 		;; valid source?
-		(local.tee $s (call $__stack_pop (i32.const 0) (global.get $stack_src))) (if
+		(local.tee $s (call $__stack_pop (i32.const 0) (i32.load (global.get $PTR_PTR_STACK_SRC)))) (if
 
 			;; we have a source
 			(then

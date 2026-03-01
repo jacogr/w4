@@ -106,7 +106,7 @@
 	;; data
 
 	(func $__stack_dat_pop (result i32)
-		(call $__stack_pop (i32.const 0) (global.get $stack_dat)))
+		(call $__stack_pop (i32.const 0) (i32.load (global.get $PTR_PTR_STACK_DAT))))
 
 	(func $__stack_dat_2pop (result i32 i32)
 		(local $top i32)
@@ -117,7 +117,7 @@
 		(local.get $top))
 
 	(func $__stack_dat_push (param $val i32)
-		(call $__stack_push  (i32.const 0) (global.get $stack_dat) (local.get $val)))
+		(call $__stack_push  (i32.const 0) (i32.load (global.get $PTR_PTR_STACK_DAT)) (local.get $val)))
 
 	(func $__stack_dat_2push (param $a i32) (param $b i32)
 		(call $__stack_dat_push (local.get $a))
@@ -126,19 +126,19 @@
 	;; return
 
 	(func $__stack_ret_count (result i32)
-		(i32.load (global.get $stack_ret)))
+		(i32.load (i32.load (global.get $PTR_PTR_STACK_RET))))
 
 	(func $__stack_ret_pop (result i32)
-		(call $__stack_pop (i32.const 2) (global.get $stack_ret)))
+		(call $__stack_pop (i32.const 2) (i32.load (global.get $PTR_PTR_STACK_RET))))
 
 	(func $__stack_ret_push (param $val i32)
-		(call $__stack_push (i32.const 2) (global.get $stack_ret) (local.get $val)))
+		(call $__stack_push (i32.const 2) (i32.load (global.get $PTR_PTR_STACK_RET)) (local.get $val)))
 
 	(func $__stack_ret_peek (result i32)
 		(call $__stack_ret_count) (if (result i32)
 
 			;; have a count, get top
-			(then (call $__stack_peek (i32.const 2) (global.get $stack_ret)))
+			(then (call $__stack_peek (i32.const 2) (i32.load (global.get $PTR_PTR_STACK_RET))))
 
 			;; no count, return -1
 			(else (i32.const -1))))

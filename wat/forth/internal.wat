@@ -14,9 +14,6 @@
 	(global $dict_exit_ptr  (mut i32) (i32.const 0))
 	(global $xt_comp		(mut i32) (i32.const 0)) ;; PTR_PTR_TOK_CMP
 	(global $xt_exec		(mut i32) (i32.const 0)) ;; PTR_PTR_TOK_EXE
-	(global $stack_dat		(mut i32) (i32.const 0))
-	(global $stack_ret		(mut i32) (i32.const 0))
-	(global $stack_src		(mut i32) (i32.const 0))
 	(global $list_toks      (mut i32) (i32.const 0))
 
 	;;
