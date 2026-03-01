@@ -63,6 +63,8 @@ m4_require(<!ext/is.f!>)
 \ Appends an "xt" to a list
 
 	: (list-append) ( a-addr xt -- nt )
+		dup 0= #-9 and throw
+
 		\ flags can have variants in the lower 8 bits, e.g.
 		\ (flg-list) & (flg-is-var) for lookups, so compare with
 		\ and then =
@@ -114,7 +116,7 @@ m4_require(<!ext/is.f!>)
 		dup 0= #-9 and throw
 		over (lst>tail@) dup 0= #-9 and throw >r
 		over r@ (nt>value@) (list-append) drop
-		r@ swap (nt>value!)
+		r@ (nt>value!)
 		r> nip
 	;
 
