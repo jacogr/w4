@@ -53,7 +53,7 @@
 					(local.get $name)
 					(local.get $len)
 					(local.get $hash)
-					(global.tee $list (call $__list_new))
+					(local.tee $list (call $__list_new))
 					(global.get $FLG_TKN))))
 
 		;; set the row/col value
