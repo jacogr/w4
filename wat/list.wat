@@ -111,7 +111,9 @@
 	;;
 
 	(func $__toks_insert (param $ptr i32)
-		(call $__list_insert (global.get $list_toks) (local.get $ptr))
+		(call $__list_insert
+			(call $__val_get_value (i32.load (global.get $PTR_PTR_TOK_CMP)))
+			(local.get $ptr))
 	)
 
 	;;

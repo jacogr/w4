@@ -14,7 +14,6 @@
 	(global $dict_exit_ptr  (mut i32) (i32.const 0))
 	(global $xt_comp		(mut i32) (i32.const 0)) ;; PTR_PTR_TOK_CMP
 	(global $xt_exec		(mut i32) (i32.const 0)) ;; PTR_PTR_TOK_EXE
-	(global $list_toks      (mut i32) (i32.const 0))
 
 	;;
 	;; Internal functions. These implement FORTH words, but do so on the
@@ -28,6 +27,7 @@
 	(func $__internal_builds (param $name i32) (param $len i32)
 		(local $hash i32)
 		(local $s i32)
+		(local $list i32)
 
 		;; -19 definition name too long
 		(call $__assert (i32.le_u (local.get $len) (i32.const 48)) (i32.const -19))
@@ -46,7 +46,6 @@
 				(local.set $hash (call $__hash (local.get $name) (local.get $len)))))
 
 		;; create a hidden definition for this word (w/ non-transient string)
-		(global.set $list_toks (call $__list_new))
 		(global.set $xt_comp
 			(call $__store
 				(global.get $PTR_PTR_TOK_CMP)
@@ -54,25 +53,25 @@
 					(local.get $name)
 					(local.get $len)
 					(local.get $hash)
-					(global.get $list_toks)
+					(global.tee $list (call $__list_new))
 					(global.get $FLG_TKN))))
 
 		;; set the row/col value
 		(local.set $s (call $__src_frame_peek))
 		(call $__list_set_file
-			(global.get $list_toks)
+			(local.get $list)
 			(local.get $s)
 			(call $__src_get_row (local.get $s))
 			(i32.sub (call $__line_get_off) (local.get $len)))
 
 		;; set the owner for the list
 		(call $__list_set_owner
-			(global.get $list_toks)
+			(local.get $list)
 			(global.get $xt_comp))
 
 		;; add an exit token
 		(call $__list_append
-			(global.get $list_toks)
+			(local.get $list)
 			(call $__val_dup (global.get $dict_exit_ptr)))
 
 		;; hash?
@@ -202,7 +201,9 @@
 				(call $__val_fill
 					(call $__val_get_value
 						(call $__ent_get_next
-							(call $__list_get_head (global.get $list_toks))))
+							(call $__list_get_head
+								(call $__val_get_value
+									(i32.load (global.get $PTR_PTR_TOK_CMP))))))
 					(global.get $PTR_DO_EXEC_TEXT)
 					(call $__strlen_z (global.get $PTR_DO_EXEC_TEXT))
 					(i32.const 0)
