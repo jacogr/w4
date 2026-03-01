@@ -186,6 +186,36 @@ m4_require(<!std/value.f!>)
 		2drop					( c- addr u -- )
 	;
 
+\ https://forth-standard.org/standard/core/COMPILEComma
+\
+\ Append the execution semantics of the definition represented by xt to
+\ the execution semantics of the current definition.
+\
+\ Rebind COMPILE, to strict token insertion path (no native compile fallback).
+
+	: (__compile,patched) ( xt -- )
+		\ mirror $__internal_compile:
+		\ 1) assert ptr_xt valid
+		\ 2) assert ptr_xt has FLG_ANY
+		\ 3) store current token for traceability
+		\ 4) insert into current token list
+		dup 0= #-9 and throw
+		dup (xt>flags@) (flg-is-any) and (flg-is-any) = 0= #-13 and throw
+		dup (exec^!)
+
+		latest (xt>value@)
+		dup (lst>flags@) (flg-list) and (flg-list) = 0= #-50 and throw
+		swap (list-insert) drop
+	;
+
+	: __PATCH-COMPILE ( -- )
+		s" COMPILE,"
+		s" (__compile,patched)"
+		PATCH-NAMED
+	;
+
+	__PATCH-COMPILE
+
 \ https://forth-standard.org/standard/core/EVALUATE
 \
 \ Save the current input source specification. Store minus-one (-1) in

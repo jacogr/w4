@@ -89,7 +89,7 @@ m4_require(<!std/constants-structs.f!>)
 
 \ latest/current executing token helpers
 
-	$0124 (mmio@) (exec^)
+	$0124 (mmio@) (exec^) : (exec^!) $0124 ! ;
 	$0128 (mmio@) (next^) : (next^!) $0128 ! ;
 
 \ https://forth-standard.org/standard/core/STATE

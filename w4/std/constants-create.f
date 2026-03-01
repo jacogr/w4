@@ -182,7 +182,15 @@ m4_require(<!std/constants-structs.f!>)
 
 	variable (patch-old)
 
-	: PATCH ( old new -- )
+	: (__patch-find-xt) ( c-addr u -- xt )
+		(find-name) dup 0= #-13 and throw
+		(nt>value@)
+	;
+
+	: PATCH-NAMED ( c-addr-old u-old c-addr-new u-new -- )
+		(__patch-find-xt) (patch-old) !
+		(__patch-find-xt)
+		(patch-old) @ swap
 		swap (patch-old) !
 		dup (xt>flags@) (patch-old) @ (xt>flags!)
 		(xt>value@) (patch-old) @ (xt>value!)
