@@ -184,31 +184,6 @@
 		(i32.store (global.get $PTR_PTR_TOK_NXT) (local.get $ptr_to))
 	)
 
-	;;
-	;; Handle does via storing the address for the specific location
-	;;
-	;; https://forth-standard.org/standard/core/DOES
-	;;
-	(func $__internal_does
-		(local $ptr_xt i32)
-
-		;; setup the jump location for inclusion (temp -1 value, replaced below)
-		(call $__toks_insert
-			(local.tee $ptr_xt
-				(call $__val_new
-					(global.get $PTR_DO_MARK_TEXT)
-					(call $__strlen_z (global.get $PTR_DO_MARK_TEXT))
-					(i32.const 0)
-					(i32.const -1)
-					(global.get $FLG_DO_MARK))))
-
-		;; update the address to inserted PTR_DO_MARK_TEXT (located at list tail)
-		(call $__val_set_value
-			(local.get $ptr_xt)
-			(call $__list_get_tail
-				(call $__val_get_value (global.get $xt_comp))))
-	)
-
 	(func $__internal_execute_does (param $val i32) (param $flg i32)
 		(local $rep i32)
 		(local $next i32)

@@ -132,7 +132,13 @@ m4_require(<!std/constants-structs.f!>)
 \ condition exists if name was not defined with CREATE or a user-defined word
 \ that calls CREATE.
 
-	: DOES> (does>) ; immediate
+	: DOES>
+		\ compile a does-marker token and point it to the just-appended tail
+		$-1 $c0de0080 (new-xt)		\ ( val flg -- xt ) ; flg == (flg-xt-does)
+		dup compile,
+		latest (xt>value@) (lst>tail@)
+		swap (xt>value!)
+	; immediate
 
 \ https://forth-standard.org/standard/core/toBODY
 \

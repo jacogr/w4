@@ -39,12 +39,11 @@
 		(; 16 ;) "(parse-token)"		"\00\00"
 		(; 17 ;) "(execute)"			"\00\00"
 		(; 18 ;) "(compile,)"			"\00\00"
-		(; 19 ;) "(does>)"				"\00\00"
-		(; 20 ;) "(throw)"				"\00\00"
-		(; 21 ;) "wasi::fd_write"		"\00\00"
-		(; 22 ;) "wasi::fd_read"		"\00\00"
-		(; 23 ;) "wasi::fd_close"		"\00\00"
-		(; 24 ;) "wasi::path_open"		"\00\00"
+		(; 19 ;) "(throw)"				"\00\00"
+		(; 20 ;) "wasi::fd_write"		"\00\00"
+		(; 21 ;) "wasi::fd_read"		"\00\00"
+		(; 22 ;) "wasi::fd_close"		"\00\00"
+		(; 23 ;) "wasi::path_open"		"\00\00"
 		(;  z ;)
 	)
 
@@ -222,15 +221,8 @@
 		(call $__internal_compile (call $__stack_dat_pop))
 	)
 
-	;; https://forth-standard.org/standard/core/DOES
-	;; ( -- )
-	(elem (i32.const 19) $__forth_fn_does)
-	(func $__forth_fn_does (type $TypeForthFn)
-		(call $__internal_does)
-	)
-
 	;; https://forth-standard.org/standard/exception/THROW
-	(elem (i32.const 20) $__forth_fn_throw)
+	(elem (i32.const 19) $__forth_fn_throw)
 	(func $__forth_fn_throw (type $TypeForthFn)
 		(local $err i32)
 
@@ -242,7 +234,7 @@
 	;; Expose wasmi function for writing to file
 	;;
 	;; (fd:i32, iovs_ptr:i32, iovs_len:i32, nwritten_ptr:i32) -> errno:i32
-	(elem (i32.const 21) $__forth_fn_wasi_fd_write)
+	(elem (i32.const 20) $__forth_fn_wasi_fd_write)
 	(func $__forth_fn_wasi_fd_write (type $TypeForthFn)
 		m4_include(<!forth/builtins/builtins-wasi-fd_write.wat!>)
 	)
@@ -250,7 +242,7 @@
 	;; Expose wasmi for reading from file
 	;;
 	;; (fd:i32, iovs_ptr:i32, iovs_len:i32, nread_ptr:i32) -> errno:i32
-	(elem (i32.const 22) $__forth_fn_wasi_fd_read)
+	(elem (i32.const 21) $__forth_fn_wasi_fd_read)
 	(func $__forth_fn_wasi_fd_read (type $TypeForthFn)
 		m4_include(<!forth/builtins/builtins-wasi-fd_read.wat!>)
 	)
@@ -258,7 +250,7 @@
 	;; Expose wasmi for closing a file
 	;;
 	;; (fd:i32) -> errno:i32
-	(elem (i32.const 23) $__forth_fn_wasi_fd_close)
+	(elem (i32.const 22) $__forth_fn_wasi_fd_close)
 	(func $__forth_fn_wasi_fd_close (type $TypeForthFn)
 		m4_include(<!forth/builtins/builtins-wasi-fd_close.wat!>)
 	)
@@ -268,7 +260,7 @@
 	;; (dirfd:i32, dirflags:i32, path_ptr:i32, path_len:i32,
 	;;  oflags:i32, fs_rights_base:i64, fs_rights_inheriting:i64,
 	;;  fdflags:i32, opened_fd_ptr:i32) -> errno:i32
-	(elem (i32.const 24) $__forth_fn_wasi_path_open)
+	(elem (i32.const 23) $__forth_fn_wasi_path_open)
 	(func $__forth_fn_wasi_path_open (type $TypeForthFn)
 		m4_include(<!forth/builtins/builtins-wasi-fd_open.wat!>)
 	)
