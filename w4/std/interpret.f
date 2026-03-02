@@ -5,6 +5,67 @@ m4_require(<!std/locals.f!>)
 m4_require(<!std/memory.f!>)
 m4_require(<!std/value.f!>)
 
+\ https://forth-standard.org/standard/core/COMPILEComma
+\
+\ Append the execution semantics of the definition represented by xt to
+\ the execution semantics of the current definition.
+\
+\ Rebind COMPILE, to strict token insertion path (no native compile fallback).
+
+	: (__compile,patched) ( xt -- )
+		\ mirror $__internal_compile:
+		\ 1) assert ptr_xt valid
+		\ 2) assert ptr_xt has FLG_ANY
+		\ 3) store current token for traceability
+		\ 4) insert into current token list
+		dup 0= #-9 and throw
+		dup (xt>flags@) (flg-is-any) and (flg-is-any) = 0= #-13 and throw
+		dup (exec^!)
+
+		latest (xt>value@)
+		dup (lst>flags@) (flg-list) and (flg-list) = 0= #-50 and throw
+		swap (list-insert) drop
+	;
+
+	: __PATCH-COMPILE ( -- )
+		s" COMPILE,"
+		s" (__compile,patched)"
+		PATCH-NAMED
+	;
+
+	__PATCH-COMPILE
+
+\ https://forth-standard.org/standard/core/Colon
+\
+\ Forth-side BUILD, replacement for native bootstrap word.
+\ Creates a hidden token definition with a fresh token list, sets list owner,
+\ appends EXIT token, and inserts into current wordlist.
+
+	: (__build,patched) ( c-addr u -- )
+		dup 0= #-16 and throw
+		(new-list) (flg-xt-tkn) (new-xt-full)	( c-addr u -- xt )
+		dup (comp^!)
+
+		\ set token-list owner to this xt
+		dup (xt>value@) over swap (lst>owner!)
+
+		\ append EXIT token to list
+		dup (xt>value@)
+		s" exit" ?find-name (nt>value@)
+		(list-append) drop
+
+		\ add hidden definition to current dictionary lookup
+		(wid-curr) swap (lookup-append) drop
+	;
+
+	: __PATCH-BUILD ( -- )
+		s" build,"
+		s" (__build,patched)"
+		PATCH-NAMED
+	;
+
+	__PATCH-BUILD
+
 \ https://forth-standard.org/standard/core/QUIT
 \ https://forth-standard.org/standard/usage#usage:command
 \
@@ -185,36 +246,6 @@ m4_require(<!std/value.f!>)
 
 		2drop					( c- addr u -- )
 	;
-
-\ https://forth-standard.org/standard/core/COMPILEComma
-\
-\ Append the execution semantics of the definition represented by xt to
-\ the execution semantics of the current definition.
-\
-\ Rebind COMPILE, to strict token insertion path (no native compile fallback).
-
-	: (__compile,patched) ( xt -- )
-		\ mirror $__internal_compile:
-		\ 1) assert ptr_xt valid
-		\ 2) assert ptr_xt has FLG_ANY
-		\ 3) store current token for traceability
-		\ 4) insert into current token list
-		dup 0= #-9 and throw
-		dup (xt>flags@) (flg-is-any) and (flg-is-any) = 0= #-13 and throw
-		dup (exec^!)
-
-		latest (xt>value@)
-		dup (lst>flags@) (flg-list) and (flg-list) = 0= #-50 and throw
-		swap (list-insert) drop
-	;
-
-	: __PATCH-COMPILE ( -- )
-		s" COMPILE,"
-		s" (__compile,patched)"
-		PATCH-NAMED
-	;
-
-	__PATCH-COMPILE
 
 \ https://forth-standard.org/standard/core/EVALUATE
 \
