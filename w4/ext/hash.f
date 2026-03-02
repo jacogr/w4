@@ -10,11 +10,11 @@ m4_require(<!std/string-utils.f!>)
 
 	: DJB2A-i ( c-addr u -- u )
 		$1505 swap				( c-addr u -- c-addr hash u -- )
-		0 ?do					( c-addr hash u 0 -- c-addr hash )
+		$0 ?do					( c-addr hash u 0 -- c-addr hash )
 			over i +			( c-addr hash -- c-addr hash ch-addr )
 			c@ >lower-ascii		( c-addr hash ch-addr -- c-addr hash ch )
 			swap dup			( c-addr hash ch -- c-addr ch hash hash )
-			5 lshift			( c-addr ch hash hash -- c-addr ch hash hash<<5 )
+			#5 lshift			( c-addr ch hash hash -- c-addr ch hash hash<<5 )
 			+ xor				( c-addr ch hash hash<<5 -- c-addr hash )	\ ((hash << 5) + hash) ^ ch
 		loop
 		nip						( c-addr hash -- hash )
@@ -27,7 +27,7 @@ m4_require(<!std/string-utils.f!>)
 
 	: FNV1A-i ( c-addr u -- u )
 		$811c9dc5 swap			( c-addr u -- c-addr hash u )
-		0 ?do					( c-addr hash u 0 -- c-addr hash )
+		$0 ?do					( c-addr hash u 0 -- c-addr hash )
 			over i +			( c-addr hash -- c-addr hash ch-addr )
 			c@ >lower-ascii		( c-addr hash ch-addr -- c-addr hash ch )
 			xor	$01000193 *		( c-addr hash ch -- c-addr hash' )
@@ -40,11 +40,11 @@ m4_require(<!std/string-utils.f!>)
 \ https://github.com/aappleby/smhasher/blob/master/src/MurmurHash3.cpp
 
 	: FMIX32 ( u -- u' )
-		dup 16 rshift xor		\ h ^= h >> 16
+		dup #16 rshift xor		\ h ^= h >> 16
 		$85ebca6b *				\ h *= 0x85ebca6b
-		dup 13 rshift xor		\ h ^= h >> 13
+		dup #13 rshift xor		\ h ^= h >> 13
 		$c2b2ae35 *				\ h *= 0xc2b2ae35
-		dup 16 rshift xor		\ h ^= h >> 16
+		dup #16 rshift xor		\ h ^= h >> 16
 	;
 
 \ host-compatible hash values for lookups, applies fmix32(fnv1a(value)), if
@@ -54,5 +54,5 @@ m4_require(<!std/string-utils.f!>)
 		\ len <> 0
 		?dup 0<> if
 			fnv1a-i fmix32
-		else drop 0 then
+		else drop $0 then
 	;

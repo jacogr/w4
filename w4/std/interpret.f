@@ -51,9 +51,9 @@ m4_require(<!std/value.f!>)
 		{: isc? isd? mul nbase :}					( c-addr u isc? isd? mul nbase -- c-addr u )
 
 		\ test for char
-		dup 3 = if
+		dup $3 = if
 			over c@ ''' = if
-				over 2 + c@ ''' = if
+				over $2 + c@ ''' = if
 					true to isc?
 				then
 			then

@@ -41,13 +41,13 @@ m4_require(<!std/string-format.f!>)
 		(test-depth) @ ?dup if
 			dup decimal . hex ':' emit space
 
-			dup 0 do				\ reverse results, keep size on top
+			dup $0 do				\ reverse results, keep size on top
 				(test-results)
 				i cells + @			( ... size --- ... size n )
 				swap				( ... size n --- ... n size )
 			loop
 
-			0 do . loop				\ display all cells
+			$0 do . loop			\ display all cells
 		else
 			." <empty stack>"
 		then
@@ -55,7 +55,7 @@ m4_require(<!std/string-format.f!>)
 		base !
 
 		true (test-is-error) !
-		1 (test-num-errors) +!
+		$1 (test-num-errors) +!
 		(test-empty-stack)
 	;
 
