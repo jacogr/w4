@@ -7,14 +7,14 @@
 
 ;)
 
-	;; 32 pages in size ... each page being 64k (0x10000)
-	;; total 2MB
-	(memory (export "memory") 32)
+	;; 64 pages in size ... each page being 64k (0x10000)
+	;; total 4MB
+	(memory (export "memory") 64 64)
 
 	;; first 256 bytes of memory intentionally left empty
 	;; $SIZEOF_MEMORY_RO (here) = $PTR_ALLOC (below)
 	(global $SIZEOF_MEMORY_RO  i32 (i32.const 0x00000100)) ;; first writable location
-	(global $SIZEOF_MEMORY_MAX i32 (i32.const 0x00200000)) ;; page count * 64k in bytes
+	(global $SIZEOF_MEMORY_MAX i32 (i32.const 0x00400000)) ;; page count * 64k in bytes
 
 	;; pointer area - all pointer offsets are stored here, as
 	;; constants and are accessible via memory location in the
