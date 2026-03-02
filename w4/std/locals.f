@@ -22,6 +22,7 @@ m4_require(<!ext/list.f!>)
 	: (local-addr-0) ( -- a-addr ) (locals-base^) @ dup @ cells - ;
 
 	: (to-local) ( n i -- ) cells (local-addr-0) + ! ;
+	: (from-local) ( i -- n ) cells (local-addr-0) + @ ;
 
 \ Enter & exit a locals definition
 

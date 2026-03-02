@@ -66,6 +66,61 @@ m4_require(<!std/value.f!>)
 
 	__PATCH-BUILD
 
+\ https://forth-standard.org/standard/core/EXECUTE
+\
+\ Forth-side EXECUTE replacement that mirrors $__internal_execute dispatch:
+\ asm -> native (execute)
+\ tkn -> native (execute)
+\ lit -> push literal (and sign-extend for double)
+\ does -> native (execute)
+\ local -> read locals slot
+\ else -> -12 argument type mismatch
+
+	: (__execute,patched) ( xt -- )
+		dup 0= #-9 and throw
+		dup (exec^!)
+		dup (xt>flags@) over (xt>value@)
+		{: xt flg val :}
+
+		flg (flg-xt-asm) is-flag? if
+			xt (execute)
+			exit
+		then
+
+		flg (flg-xt-tkn) is-flag? if
+			xt (execute)
+			exit
+		then
+
+		flg (flg-xt-lit) is-flag? if
+			val
+			flg (flg-is-var) is-flag? if
+				val 0< if -1 else 0 then
+			then
+			exit
+		then
+
+		flg (flg-xt-does) is-flag? if
+			xt (execute)
+			exit
+		then
+
+		flg (flg-xt-local) is-flag? if
+			val (from-local)
+			exit
+		then
+
+		#-12 throw
+	;
+
+	: __PATCH-EXECUTE ( -- )
+		s" EXECUTE"
+		s" (__execute,patched)"
+		PATCH-NAMED
+	;
+
+	__PATCH-EXECUTE
+
 \ https://forth-standard.org/standard/core/QUIT
 \ https://forth-standard.org/standard/usage#usage:command
 \
