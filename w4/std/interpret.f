@@ -12,7 +12,7 @@ m4_require(<!std/value.f!>)
 \
 \ Rebind COMPILE, to strict token insertion path (no native compile fallback).
 
-	: (__compile,patched) ( xt -- )
+	: (compile,patched) ( xt -- )
 		\ mirror $__internal_compile:
 		\ 1) assert ptr_xt valid
 		\ 2) assert ptr_xt has FLG_ANY
@@ -27,13 +27,13 @@ m4_require(<!std/value.f!>)
 		swap (list-insert) drop
 	;
 
-	: __PATCH-COMPILE ( -- )
+	: (patch-compile) ( -- )
 		s" COMPILE,"
-		s" (__compile,patched)"
+		s" (compile,patched)"
 		PATCH-NAMED
 	;
 
-	__PATCH-COMPILE
+	(patch-compile)
 
 \ https://forth-standard.org/standard/core/Colon
 \
@@ -41,7 +41,7 @@ m4_require(<!std/value.f!>)
 \ Creates a hidden token definition with a fresh token list, sets list owner,
 \ appends EXIT token, and inserts into current wordlist.
 
-	: (__build,patched) ( c-addr u -- )
+	: (build,patched) ( c-addr u -- )
 		dup 0= #-16 and throw
 		(new-list) (flg-xt-tkn) (new-xt-full)	( c-addr u -- xt )
 		dup (comp^!)
@@ -58,13 +58,13 @@ m4_require(<!std/value.f!>)
 		(wid-curr) swap (lookup-append) drop
 	;
 
-	: __PATCH-BUILD ( -- )
+	: (patch-build) ( -- )
 		s" build,"
-		s" (__build,patched)"
+		s" (build,patched)"
 		PATCH-NAMED
 	;
 
-	__PATCH-BUILD
+	(patch-build)
 
 \ https://forth-standard.org/standard/core/EXECUTE
 \
@@ -76,7 +76,7 @@ m4_require(<!std/value.f!>)
 \ local -> read locals slot
 \ else -> -12 argument type mismatch
 
-	: (__execute,patched) ( xt -- )
+	: (execute-patched) ( xt -- )
 		dup 0= #-9 and throw
 		dup (exec^!)
 		dup (xt>flags@) over (xt>value@)
@@ -113,13 +113,13 @@ m4_require(<!std/value.f!>)
 		#-12 throw
 	;
 
-	: __PATCH-EXECUTE ( -- )
+	: (patch-execute) ( -- )
 		s" EXECUTE"
-		s" (__execute,patched)"
+		s" (execute-patched)"
 		PATCH-NAMED
 	;
 
-	__PATCH-EXECUTE
+	(patch-execute)
 
 \ https://forth-standard.org/standard/core/QUIT
 \ https://forth-standard.org/standard/usage#usage:command
