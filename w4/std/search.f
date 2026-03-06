@@ -259,36 +259,31 @@ m4_require(<!ext/list.f!>)
 
 \ Forth-side replacement for native (find-name), returning nt|0.
 \ Search order matches FIND: locals first, then active wordlists.
-
+\
 	: (find-name,patched) ( c-addr u -- nt | 0 )
-		2dup (locals-wid) ?dup if
-			(lookup-search) ?dup if 2nip exit then
-			drop
+		0 0 {: c-addr u i nt :}
+
+		c-addr u (locals-wid) ?dup if
+			(lookup-search) to nt
 		else
-			drop
+			2drop
 		then
 
-		0 {: i :}
 		begin
-			i (wid-count) <
+			nt 0= i (wid-count) < and
 		while
-			2dup
+			c-addr u
 			i cells
 			(wid-list) + @
-			(lookup-search) ?dup if
-				2nip
-				exit
-			then
-			drop
+			(lookup-search) ?dup if to nt else drop then
 			i 1+ to i
 		repeat
 
-		2drop
-		$0
+		nt
 	;
 
 	: (patch-find-name) ( -- )
-		s" (find-name)"
+		s" FIND-NAME"
 		s" (find-name,patched)"
 		PATCH-NAMED
 	;
