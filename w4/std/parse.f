@@ -69,7 +69,7 @@ m4_require(<!std/string.f!>)
 
 	: (parse-whitespace-skip) ( -- )
 		begin
-			source nip >in @ <
+			>in @ source nip u<
 		while
 			source drop >in @ + c@
 			#33 u<
@@ -88,7 +88,7 @@ m4_require(<!std/string.f!>)
 
 			\ scan until end-of-source or next whitespace
 			begin
-				source nip >in @ < if
+				>in @ source nip u< if
 					source drop >in @ + c@ #33 u< 0=
 				else false then
 			while
@@ -99,7 +99,7 @@ m4_require(<!std/string.f!>)
 			source drop >in @ + swap -
 
 			\ consume one delimiter when present (PARSE-compatible >in advance)
-			source nip >in @ < if
+			>in @ source nip u< if
 				$1 >in +!
 			then
 		else parse then

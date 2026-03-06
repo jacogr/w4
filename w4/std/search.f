@@ -232,7 +232,7 @@ m4_require(<!ext/list.f!>)
 			c-addr u
 			i cells
 			(wid-list) + @
-			(lookup-search) ?dup if to nt else drop then
+			(lookup-search) ?dup if to nt then
 			i 1+ to i
 		repeat
 
