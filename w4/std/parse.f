@@ -59,6 +59,52 @@ m4_require(<!std/string.f!>)
 		r> drop					( r: in0 -- )
 	;
 
+\ https://forth-standard.org/standard/core/PARSE-NAME
+\
+\ Skip leading space delimiters. Parse name delimited by a space.
+\
+\ c-addr is the address of the selected string within the input buffer
+\ and u is its length in characters. If the parse area is empty or contains
+\ only white space, the resulting string has length zero.
+
+	: (parse-whitespace-skip) ( -- )
+		begin
+			source nip >in @ <
+		while
+			source drop >in @ + c@
+			#33 u<
+		while
+			$1 >in +!
+		repeat then
+	;
+
+	: (parse-token,patched) ( delim -- c-addr u )
+		dup #33 u< if
+			drop
+			(parse-whitespace-skip)
+
+			\ start = source-base + >in
+			source drop >in @ + dup
+
+			\ scan until end-of-source or next whitespace
+			begin
+				source nip >in @ < if
+					source drop >in @ + c@ #33 u< 0=
+				else false then
+			while
+				$1 >in +!
+			repeat
+
+			\ u = cur - start
+			source drop >in @ + swap -
+
+			\ consume one delimiter when present (PARSE-compatible >in advance)
+			source nip >in @ < if
+				$1 >in +!
+			then
+		else parse then
+	;
+
 \ https://forth-standard.org/standard/core/WORD
 \
 \ Skip leading delimiters. Parse characters ccc delimited by char. An
@@ -71,17 +117,6 @@ m4_require(<!std/string.f!>)
 \ replace characters within the string.
 
 	string-max 1+ buffer: (word-tmp-buf) \ 256 + 1 (length byte at 0)
-
-	: (parse-whitespace-skip) ( -- )
-		begin
-			source nip >in @ <
-		while
-			source drop >in @ + c@
-			#33 u<
-		while
-			$1 >in +!
-		repeat then
-	;
 
 	: WORD ( char "<chars>ccc<char>" -- c-addr )
 		(parse-whitespace-skip)	\ skip leading whitespace

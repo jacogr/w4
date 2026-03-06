@@ -214,49 +214,6 @@ m4_require(<!ext/list.f!>)
 		reveal					\ set visible
 	;
 
-\ https://forth-standard.org/standard/search/FIND
-\
-\ Extend the semantics of 6.1.1550 FIND to be: ( c-addr -- c-addr 0 | xt 1 | xt -1 )
-\
-\ Find the definition named in the counted string at c-addr. If the definition
-\ is not found after searching all the word lists in the search order, return
-\ c-addr and zero. If the definition is found, return xt. If the definition is
-\ immediate, also return one (1); otherwise also return minus-one (-1). For a
-\ given string, the values returned by FIND while compiling may differ from
-\ those returned while not compiling.
-\
-\ NOTE the FIND in parse.f already uses FIND-NAME internally which searches
-\ both the locals-wid and the wordlists. Until we get to untangle FIND-NAME,
-\ this doesn't actually add any new functionality.
-
-	: FIND ( c-addr -- c-addr 0 | xt 1 | xt -1 )
-		$0								( c-addr -- c-addr 0 )
-
-		\ search locals word list (if available)
-		(locals-wid) ?dup if
-			over count rot				( c-addr 0 wid -- c-addr 0 c-addr' u wid )
-			search-wordlist				( ... -- c-addr 0; 0 | w 1 | q -1 )
-
-			?dup if						( ... -- c-addr 0; w 1 | w -1 )
-				2swap 2drop
-				exit
-			then
-		then
-
-		\ search all available wordlists
-		(wid-count) 0 ?do
-			over count					( ... -- c-addr 0 c-addr' u )
-			i cells
-			(wid-list) + @				( ... -- c-addr 0 c-addr' u wid )
-			search-wordlist				( ... -- c-addr 0; 0 | w 1 | q -1 )
-
-			?dup if						( ... -- c-addr 0; w 1 | w -1 )
-				2swap 2drop
-				leave					( ... -- w 1 | w -1 )
-			then						( ... -- c-addr 0 )
-		loop							( ... -- c-addr 0 | w 1 | w -1 )
-	;
-
 \ Forth-side replacement for native (find-name), returning nt|0.
 \ Search order matches FIND: locals first, then active wordlists.
 \
@@ -289,6 +246,14 @@ m4_require(<!ext/list.f!>)
 	;
 
 	(patch-find-name)
+
+	: (patch-parse-token) ( -- )
+		s" (parse-token)"
+		s" (parse-token,patched)"
+		PATCH-NAMED
+	;
+
+	(patch-parse-token)
 
 \ setup, make it usable via the standard init string
 
