@@ -84,33 +84,34 @@ m4_require(<!std/value.f!>)
 
 		flg (flg-xt-asm) is-flag? if
 			xt (execute)
-			exit
-		then
-
-		flg (flg-xt-tkn) is-flag? if
-			xt (execute)
-			exit
-		then
-
-		flg (flg-xt-lit) is-flag? if
-			val
-			flg (flg-is-var) is-flag? if
-				val 0< if -1 else 0 then
+		else
+			flg (flg-xt-tkn) is-flag? if
+				val (lst>head@)
+				begin
+					?dup
+				while
+					dup (nt>value@) execute
+					(nt>next@)
+				repeat
+			else
+				flg (flg-xt-lit) is-flag? if
+					val
+					flg (flg-is-var) is-flag? if
+						val 0< if -1 else 0 then
+					then
+				else
+					flg (flg-xt-does) is-flag? if
+						xt (execute)
+					else
+						flg (flg-xt-local) is-flag? if
+							val (from-local)
+						else
+							#-12 throw
+						then
+					then
+				then
 			then
-			exit
 		then
-
-		flg (flg-xt-does) is-flag? if
-			xt (execute)
-			exit
-		then
-
-		flg (flg-xt-local) is-flag? if
-			val (from-local)
-			exit
-		then
-
-		#-12 throw
 	;
 
 	: (patch-execute) ( -- )
