@@ -218,7 +218,7 @@ m4_require(<!ext/list.f!>)
 \ Search order matches FIND: locals first, then active wordlists.
 \
 	: (find-name,patched) ( c-addr u -- nt | 0 )
-		0 0 {: c-addr u i nt :}
+		0 0 {: c-addr u wid-idx nt :}
 
 		c-addr u (locals-wid) ?dup if
 			(lookup-search) to nt
@@ -227,13 +227,13 @@ m4_require(<!ext/list.f!>)
 		then
 
 		begin
-			nt 0= i (wid-count) < and
+			nt 0= wid-idx (wid-count) < and
 		while
 			c-addr u
-			i cells
+			wid-idx cells
 			(wid-list) + @
 			(lookup-search) ?dup if to nt then
-			i 1+ to i
+			wid-idx 1+ to wid-idx
 		repeat
 
 		nt
