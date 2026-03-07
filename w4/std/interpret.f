@@ -76,7 +76,7 @@ m4_require(<!std/value.f!>)
 \ local -> read locals slot
 \ else -> -12 argument type mismatch
 
-	: (execute-patched) ( xt -- )
+	: (execute,patched) ( xt -- )
 		dup 0= #-9 and throw
 		dup (exec^!)
 		dup (xt>flags@) over (xt>value@)
@@ -116,7 +116,7 @@ m4_require(<!std/value.f!>)
 
 	: (patch-execute) ( -- )
 		s" EXECUTE"
-		s" (execute-patched)"
+		s" (execute,patched)"
 		PATCH-NAMED
 	;
 
