@@ -4,16 +4,16 @@ m4_require(<!std/stack-ptr.f!>)
 \ unconditional branch to destination
 \ (Standard in older versions of ANS Forth, not in 2012)
 
-	: BRANCH ( dest -- ) r! ;
+	: BRANCH ( dest -- ) ( r: ret-branch -- dest ) r! ;
 
 \ https://forth-standard.org/standard/core/toR
 \
 \ Move x to the return stack.
 
 	: >R ( x -- r: x )
-		r@ swap		\ Swap the input & address
-		r!			\ Write input to location
-		branch
+		r@ swap		( x -- ret x ) ( r: ret -- ret )
+		r!			( ret x -- ret ) ( r: ret -- x )
+		branch		( ret -- )
 	;
 
 \ https://forth-standard.org/standard/core/TwotoR
@@ -22,8 +22,8 @@ m4_require(<!std/stack-ptr.f!>)
 \ equivalent to SWAP >R >R.
 
 	: (2>radd) ( ret x2 -- ) ( r: -- x1 x2 )
-		r!				( ret x2 -- ret ) ( r: x1 ret-2>r -- x1 x2 )
-		branch
+		r!			( ret x2 -- ret ) ( r: x1 ret-2>r -- x1 x2 )
+		branch		( ret -- )
 	;
 
 	: 2>R ( x1 x2 -- ) ( r: -- x1 x2 )
