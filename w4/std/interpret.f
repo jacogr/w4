@@ -28,7 +28,7 @@ m4_require(<!std/value.f!>)
 	;
 
 	: (patch-compile) ( -- )
-		s" COMPILE,"
+		s" compile,"
 		s" (compile,patched)"
 		PATCH-NAMED
 	;
@@ -115,7 +115,7 @@ m4_require(<!std/value.f!>)
 	;
 
 	: (patch-execute) ( -- )
-		s" EXECUTE"
+		s" execute"
 		s" (execute,patched)"
 		PATCH-NAMED
 	;

@@ -1,6 +1,8 @@
 
-	#32 (parse-token) ] build, 1 $0130 ! 1 $0130 ! ;
-	#32 (parse-token) : build, ] #32 (parse-token) build, ] ;
+	#32 (parse-token) build, (build,) 1 $0130 ! (build,) ;
+	#32 (parse-token) parse-token build, 1 $0130 ! (parse-token) ;
+	#32 parse-token ] build, 1 $0130 ! 1 $0130 ! ;
+	#32 parse-token : build, ] #32 parse-token build, ] ;
 
 	: (ds^) $0140 @ ;
 	: (rs^) $0144 @ ;
@@ -156,7 +158,7 @@
 \ operations.
 
 	: (
-		')' (parse-token)	\ ( -- c-addr u )
+		')' parse-token	\ ( -- c-addr u )
 
 		\ -14 interpreting a compile-only word
 		0= #-14 and throw	\ ( c-addr u -- c-addr )

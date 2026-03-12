@@ -21,7 +21,7 @@
 	;; names & flags for native functions
 	(data (i32.const 1000) ;; PTR_NATIVE_TEXT
 		(;  0 ;) "exit"					"\00\00"
-		(;  1 ;) "build,"				"\00\00"
+		(;  1 ;) "(build,)"				"\00\00"
 		(;  2 ;) ";"					"\00\ff"
 		(;  3 ;) "@"					"\00\00"
 		(;  4 ;) "!"					"\00\00"
