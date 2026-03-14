@@ -41,9 +41,29 @@ m4_require(<!std/value.f!>)
 \ Creates a hidden token definition with a fresh token list, sets list owner,
 \ appends EXIT token, and inserts into current wordlist.
 
+	: (xt-clone) ( xt -- xt' )
+		dup (xt>value@) over (xt>flags@) (new-xt)
+		>r
+		dup (xt>str+len@) r@ (xt>str+len!)
+		dup (xt>hash@) r@ (xt>hash!)
+		drop
+		r>
+	;
+
 	: (build,patched) ( c-addr u -- )
-		dup 0= #-16 and throw
-		(new-list) (flg-xt-tkn) (new-xt-full)	( c-addr u -- xt )
+		\ Match $__internal_builds semantics:
+		\ anonymous (name=0 or len=0) still builds xt/list, but skips lookup insert.
+		2dup or >r
+		r@ if
+			(new-list) (flg-xt-tkn) (new-xt-full)	( c-addr u -- xt )
+		else
+			2drop
+			(new-list) (flg-xt-tkn) (new-xt)		( -- xt )
+			dup >r
+			$0 r@ (xt>str!)
+			$0 r@ (xt>len!)
+			$0 r> (xt>hash!)
+		then
 		dup (comp^!)
 
 		\ set token-list owner to this xt
@@ -52,10 +72,15 @@ m4_require(<!std/value.f!>)
 		\ append EXIT token to list
 		dup (xt>value@)
 		s" exit" ?find-name (nt>value@)
+		(xt-clone)
 		(list-append) drop
 
-		\ add hidden definition to current dictionary lookup
-		(wid-curr) swap (lookup-append) drop
+		\ add hidden definition to current dictionary lookup for named entries
+		r> if
+			(wid-curr) swap (lookup-append) drop
+		else
+			drop
+		then
 	;
 
 	: (patch-build) ( -- )
@@ -79,8 +104,8 @@ m4_require(<!std/value.f!>)
 	: (execute,patched) ( xt -- )
 		dup 0= #-9 and throw
 		dup (exec^!)
-		dup (xt>flags@) over (xt>value@)
-		{: xt flg val :}
+		dup (xt>flags@) over (xt>value@) 0
+		{: xt flg val nxt :}
 
 		flg (flg-xt-asm) is-flag? if
 			xt (execute)
@@ -90,8 +115,9 @@ m4_require(<!std/value.f!>)
 				begin
 					?dup
 				while
-					dup (nt>value@) execute
-					(nt>next@)
+					dup (nt>next@) to nxt
+					(nt>value@) execute
+					nxt
 				repeat
 			else
 				flg (flg-xt-lit) is-flag? if
