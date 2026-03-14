@@ -106,25 +106,6 @@
 				(global.get $FLG_VISIBLE)
 				(call $__val_get_flags (global.get $xt_comp))))
 
-	m4_ifdef(<!DEBUG!>, <!
-		;; DEBUG, output the token name and definition
-		(call $__iov_emit_chr_stdout (i32.const 10))
-		(call $__iov_emit_chr_stdout (i32.const 10))
-		(call $__iov_emit_chr_stdout (i32.const 59)) ;; semi
-
-		(call $__iov_emit_chr_stdout (i32.const 32))
-		(call $__iov_emit_stdout (global.get $xt_comp))
-		(call $__iov_emit_chr_stdout (i32.const 32))
-		(call $__DEBUG_emit_num (global.get $xt_comp) (i32.const 16))
-		(call $__iov_emit_chr_stdout (i32.const 32))
-		(call $__DEBUG_emit_num (call $__val_get_flags (global.get $xt_comp)) (i32.const 16))
-		(call $__iov_emit_chr_stdout (i32.const 32))
-		(call $__iov_emit_chr_stdout (i32.const 10))
-
-		(call $__iov_emit_chr_stdout (i32.const 10))
-		(call $__DEBUG_emit_list (call $__val_get_value (global.get $xt_comp)))
-	!>)
-
 		;; change to interpret state
 		(i32.store (global.get $PTR_STATE) (i32.const 0))
 	)

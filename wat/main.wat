@@ -28,8 +28,6 @@
 	m4_include(<!string.wat!>)
 	m4_include(<!util.wat!>)
 
-	m4_ifdef(<!DEBUG!>, <!m4_include(<!debug.wat!>)!>)
-
 (;
 
 	main.wat
@@ -56,11 +54,6 @@
 
 		;; execute embedded
 		(call $__internal_evaluate (global.get $W4_FORTH_START) (global.get $W4_FORTH_SIZE))
-
-	m4_ifdef(<!DEBUG!>, <!
-		;; DERUG, emit dictionary
-		(call $__DEBUG_emit_dict)
-	!>)
 	)
 
 	m4_include(<!build/w4-forth.wat!>)
