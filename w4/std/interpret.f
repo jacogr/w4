@@ -30,7 +30,7 @@ m4_require(<!std/value.f!>)
 	: (patch-compile) ( -- )
 		s" compile,"
 		s" (compile,patched)"
-		PATCH-NAMED
+		patch-named
 	;
 
 	(patch-compile)
@@ -86,7 +86,7 @@ m4_require(<!std/value.f!>)
 	: (patch-build) ( -- )
 		s" build,"
 		s" (build,patched)"
-		PATCH-NAMED
+		patch-named
 	;
 
 	(patch-build)
@@ -116,7 +116,7 @@ m4_require(<!std/value.f!>)
 					?dup
 				while
 					dup (nt>next@) to nxt
-					(nt>value@) execute
+					(nt>value@) (execute)
 					nxt
 				repeat
 			else
@@ -143,7 +143,7 @@ m4_require(<!std/value.f!>)
 	: (patch-execute) ( -- )
 		s" execute"
 		s" (execute,patched)"
-		PATCH-NAMED
+		patch-named
 	;
 
 	(patch-execute)

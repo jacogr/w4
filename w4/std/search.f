@@ -242,7 +242,7 @@ m4_require(<!ext/list.f!>)
 	: (patch-find-name) ( -- )
 		s" find-name"
 		s" (find-name,patched)"
-		PATCH-NAMED
+		patch-named
 	;
 
 	(patch-find-name)
@@ -250,7 +250,7 @@ m4_require(<!ext/list.f!>)
 	: (patch-parse-token) ( -- )
 		s" parse-token"
 		s" (parse-token,patched)"
-		PATCH-NAMED
+		patch-named
 	;
 
 	(patch-parse-token)
