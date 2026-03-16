@@ -18,13 +18,7 @@ m4_require(<!std/value.f!>)
 		$0 state !	\ exit compilation mode
 	; immediate
 
-	: (patch-semi) ( -- )
-		s" ;"
-		s" (semi,patched)"
-		patch-named
-	;
-
-	(patch-semi)
+	s" ;" s" (semi,patched)" patch-named
 
 \ https://forth-standard.org/standard/core/COMPILEComma
 \
@@ -48,13 +42,7 @@ m4_require(<!std/value.f!>)
 		swap (list-insert) drop
 	;
 
-	: (patch-compile) ( -- )
-		s" compile,"
-		s" (compile,patched)"
-		patch-named
-	;
-
-	(patch-compile)
+	s" compile," s" (compile,patched)" patch-named
 
 \ https://forth-standard.org/standard/core/Colon
 \
@@ -104,13 +92,7 @@ m4_require(<!std/value.f!>)
 		then
 	;
 
-	: (patch-build) ( -- )
-		s" build,"
-		s" (build,patched)"
-		patch-named
-	;
-
-	(patch-build)
+	s" build," s" (build,patched)" patch-named
 
 \ https://forth-standard.org/standard/core/EXECUTE
 \
@@ -161,13 +143,7 @@ m4_require(<!std/value.f!>)
 		then
 	;
 
-	: (patch-execute) ( -- )
-		s" execute"
-		s" (execute,patched)"
-		patch-named
-	;
-
-	(patch-execute)
+	s" execute" s" (execute,patched)" patch-named
 
 \ https://forth-standard.org/standard/core/QUIT
 \ https://forth-standard.org/standard/usage#usage:command

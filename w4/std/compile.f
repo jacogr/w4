@@ -26,12 +26,6 @@ m4_require(<!std/stack-rs.f!>)
 
 	: LITERAL ( x -- ) lit, ; immediate
 
-\ https://forth-standard.org/proposals/find-name
-
-	: FIND-NAME ( c-addr u -- nt | 0 ) (find-name) ;
-
-	: ?FIND-NAME ( c-addr u -- nt ) find-name dup 0= #-13 and throw ;
-
 \ https://forth-standard.org/standard/core/Tick
 \
 \ Skip leading space delimiters. Parse name delimited by a space. Find name

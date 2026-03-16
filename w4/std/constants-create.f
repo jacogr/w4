@@ -89,6 +89,12 @@ m4_require(<!std/constants-structs.f!>)
 
 	: ?PARSE-NAME ( "name" -- c-addr u ) parse-name dup 0= #-16 and throw ;
 
+\ https://forth-standard.org/proposals/find-name
+
+	: FIND-NAME ( c-addr u -- nt | 0 ) (find-name) ;
+
+	: ?FIND-NAME ( c-addr u -- nt ) find-name dup 0= #-13 and throw ;
+
 \ https://forth-standard.org/standard/core/CREATE
 \
 \ Skip leading space delimiters. Parse name delimited by a space. Create a
@@ -182,10 +188,7 @@ m4_require(<!std/constants-structs.f!>)
 
 	variable (patch-old)
 
-	: (patch-find-xt) ( c-addr u -- xt )
-		(find-name) dup 0= #-13 and throw
-		(nt>value@)
-	;
+	: (patch-find-xt) ( c-addr u -- xt ) ?find-name (nt>value@) ;
 
 	: PATCH-NAMED ( c-addr-old u-old c-addr-new u-new -- )
 		(patch-find-xt) (patch-old) !

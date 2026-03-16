@@ -214,7 +214,7 @@ m4_require(<!ext/list.f!>)
 		reveal					\ set visible
 	;
 
-\ Forth-side replacement for native (find-name), returning nt|0.
+\ Forth-side replacement for native find-name wrapper, returning nt|0.
 \ Search order matches FIND: locals first, then active wordlists.
 \
 	: (find-name,patched) ( c-addr u -- nt | 0 )
@@ -239,21 +239,8 @@ m4_require(<!ext/list.f!>)
 		nt
 	;
 
-	: (patch-find-name) ( -- )
-		s" find-name"
-		s" (find-name,patched)"
-		patch-named
-	;
-
-	(patch-find-name)
-
-	: (patch-parse-token) ( -- )
-		s" parse-token"
-		s" (parse-token,patched)"
-		patch-named
-	;
-
-	(patch-parse-token)
+	s" find-name" s" (find-name,patched)" patch-named
+	s" parse-token" s" (parse-token,patched)" patch-named
 
 \ setup, make it usable via the standard init string
 
