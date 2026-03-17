@@ -186,19 +186,6 @@ m4_require(<!std/constants-structs.f!>)
 \ dispatch fields (flags + value). Existing compiled references to old will
 \ then execute with new semantics.
 
-	variable (patch-old)
-
-	: (patch-find-xt) ( c-addr u -- xt ) ?find-name (nt>value@) ;
-
-	: PATCH-NAMED ( c-addr-old u-old c-addr-new u-new -- )
-		(patch-find-xt) (patch-old) !
-		(patch-find-xt)
-		(patch-old) @ swap
-		swap (patch-old) !
-		dup (xt>flags@) (patch-old) @ (xt>flags!)
-		(xt>value@) (patch-old) @ (xt>value!)
-	;
-
 	: PATCH ( "name" -- )
 		\ retrieve original to patch
 		?parse-name ?find-name				( "name" -- nt-orig )
@@ -208,7 +195,7 @@ m4_require(<!std/constants-structs.f!>)
 		(xt>hash@) latest (xt>hash!)		( nt-orig xt-orig xt-orig -- nt-orig xt-orig )
 		(xt>str+len@) latest (xt>str+len!)	( nt-orig xt-orig -- nt-orig )
 
-		\ move orig xt to latest
+		\ move orig value/xt to latest
 		latest swap							( nt-orig -- xt-new nt-orig )
 		(nt>value!)							( xt-new nt-orig -- )
 	;

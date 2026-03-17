@@ -13,12 +13,10 @@ m4_require(<!std/value.f!>)
 \ not aligned, reserve enough data space to align it.
 
 	: (semi,patched)
-		state @ 1 = #-29 and throw
+		state @ $1 <> #-29 and throw
 		reveal		\ make latest visible
 		$0 state !	\ exit compilation mode
-	; immediate
-
-	s" ;" s" (semi,patched)" patch-named
+	; immediate \ patch ;
 
 \ https://forth-standard.org/standard/core/COMPILEComma
 \
@@ -66,10 +64,8 @@ m4_require(<!std/value.f!>)
 		else
 			2drop
 			(new-list) (flg-xt-tkn) (new-xt)		( -- xt )
-			dup >r
-			$0 r@ (xt>str!)
-			$0 r@ (xt>len!)
-			$0 r> (xt>hash!)
+			$0 $0 sp-2@ (xt>str+len!)
+			$0 sp-1@ (xt>hash!)
 		then
 		dup (comp^!)
 
@@ -110,14 +106,15 @@ m4_require(<!std/value.f!>)
 			xt (execute)
 		else
 			flg (flg-xt-tkn) is-flag? if
-				val (lst>head@)
-				begin
-					?dup
-				while
-					dup (nt>next@) to nxt
-					(nt>value@) (execute)
-					nxt
-				repeat
+				\ val (lst>head@)
+				\ begin
+				\ 	?dup
+				\ while
+				\ 	dup (nt>next@) to nxt
+				\ 	(nt>value@) (execute)
+				\ 	nxt
+				\ repeat
+				xt (execute)
 			else
 				flg (flg-xt-lit) is-flag? if
 					val
@@ -137,9 +134,7 @@ m4_require(<!std/value.f!>)
 				then
 			then
 		then
-	;
-
-	s" execute" s" (execute,patched)" patch-named
+	; patch execute
 
 \ https://forth-standard.org/standard/core/QUIT
 \ https://forth-standard.org/standard/usage#usage:command
