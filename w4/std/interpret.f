@@ -40,9 +40,7 @@ m4_require(<!std/value.f!>)
 		latest (xt>value@)
 		dup (lst>flags@) (flg-list) and (flg-list) = 0= #-50 and throw
 		swap (list-insert) drop
-	;
-
-	s" compile," s" (compile,patched)" patch-named
+	; patch compile,
 
 \ https://forth-standard.org/standard/core/Colon
 \
@@ -90,9 +88,7 @@ m4_require(<!std/value.f!>)
 		else
 			drop
 		then
-	;
-
-	s" build," s" (build,patched)" patch-named
+	; patch build,
 
 \ https://forth-standard.org/standard/core/EXECUTE
 \

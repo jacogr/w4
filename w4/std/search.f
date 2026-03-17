@@ -237,10 +237,7 @@ m4_require(<!ext/list.f!>)
 		repeat
 
 		nt
-	;
-
-	s" find-name" s" (find-name,patched)" patch-named
-	s" parse-token" s" (parse-token,patched)" patch-named
+	; patch find-name
 
 \ setup, make it usable via the standard init string
 

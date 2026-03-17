@@ -199,6 +199,20 @@ m4_require(<!std/constants-structs.f!>)
 		(xt>value@) (patch-old) @ (xt>value!)
 	;
 
+	: PATCH ( "name" -- )
+		\ retrieve original to patch
+		?parse-name ?find-name				( "name" -- nt-orig )
+		dup (nt>value@) dup					( nt-orig -- nt-orig xt-orig xt-orig )
+
+		\ set patch name/len/hash to values from orig
+		(xt>hash@) latest (xt>hash!)		( nt-orig xt-orig xt-orig -- nt-orig xt-orig )
+		(xt>str+len@) latest (xt>str+len!)	( nt-orig xt-orig -- nt-orig )
+
+		\ move orig xt to latest
+		latest swap							( nt-orig -- xt-new nt-orig )
+		(nt>value!)							( xt-new nt-orig -- )
+	;
+
 \ https://forth-standard.org/standard/core/BUFFERColon
 \
 \ Skip leading space delimiters. Parse name delimited by a space. Create a

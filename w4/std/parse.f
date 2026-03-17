@@ -103,7 +103,7 @@ m4_require(<!std/string.f!>)
 				$1 >in +!
 			then
 		else parse then
-	;
+	; patch parse-token
 
 \ https://forth-standard.org/standard/core/WORD
 \
