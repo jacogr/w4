@@ -50,8 +50,7 @@ m4_require(<!std/value.f!>)
 		dup (xt>value@) over (xt>flags@) (new-xt)
 		>r
 		dup (xt>str+len@) r@ (xt>str+len!)
-		dup (xt>hash@) r@ (xt>hash!)
-		drop
+		(xt>hash@) r@ (xt>hash!)
 		r>
 	;
 
