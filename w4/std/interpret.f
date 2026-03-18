@@ -5,19 +5,6 @@ m4_require(<!std/locals.f!>)
 m4_require(<!std/memory.f!>)
 m4_require(<!std/value.f!>)
 
-\ https://forth-standard.org/standard/core/Semi
-\
-\ Append the run-time semantics below to the current definition. End the
-\ current definition, allow it to be found in the dictionary and enter
-\ interpretation state, consuming colon-sys. If the data-space pointer is
-\ not aligned, reserve enough data space to align it.
-
-	: (semi,patched)
-		state @ $1 <> #-29 and throw
-		reveal		\ make latest visible
-		$0 state !	\ exit compilation mode
-	; immediate \ patch ;
-
 \ https://forth-standard.org/standard/core/COMPILEComma
 \
 \ Append the execution semantics of the definition represented by xt to

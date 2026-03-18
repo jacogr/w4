@@ -212,7 +212,10 @@ m4_require(<!ext/list.f!>)
 \ interpretation state, consuming colon-sys. If the data-space pointer is
 \ not aligned, reserve enough data space to align it.
 
-	: ; ( -- )
+	: (;,patched) ( -- )
+		\ only when compiling
+		state @ 0= #-29 and throw
+
 		\ Overrides for when we have locals. At the end of the function
 		\ we should exit the actual local stack
 		(locals-wid) 0<> if
@@ -228,9 +231,9 @@ m4_require(<!ext/list.f!>)
 			postpone locals-exit
 		then
 
-		\ execute original (also immediate)
-		postpone ;
-	; immediate
+		reveal		\ make latest visible
+		$0 state !	\ exit compilation mode
+	; immediate patch ;
 
 \ https://forth-standard.org/standard/core/DOES
 \
