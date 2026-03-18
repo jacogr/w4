@@ -85,21 +85,14 @@ m4_require(<!std/value.f!>)
 	: (execute,patched) ( xt -- )
 		dup 0= #-9 and throw
 		dup (exec^!)
-		dup (xt>flags@) over (xt>value@) 0
-		{: xt flg val nxt :}
+		dup (xt>flags@)
+		over (xt>value@)
+		{: xt flg val :}
 
 		flg (flg-xt-asm) is-flag? if
 			xt (execute)
 		else
 			flg (flg-xt-tkn) is-flag? if
-				\ val (lst>head@)
-				\ begin
-				\ 	?dup
-				\ while
-				\ 	dup (nt>next@) to nxt
-				\ 	(nt>value@) (execute)
-				\ 	nxt
-				\ repeat
 				xt (execute)
 			else
 				flg (flg-xt-lit) is-flag? if
