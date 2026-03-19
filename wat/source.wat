@@ -96,6 +96,15 @@
 	;; Push a frame to the stack
 	;;
 	(func $__src_push_frame (param $s i32)
+		;; kind?
+		(call $__src_get_kind (local.get $s)) (if
+
+			;; file, not handled
+			(then unreachable)
+
+			;; memory, nothing to do
+			(else))
+
 		;; store it on the stack, closed on pop
 		(call $__stack_push (i32.const 0) (i32.load (global.get $PTR_PTR_STACK_SRC)) (local.get $s))
 		(call $__src_restore (local.get $s))
@@ -116,23 +125,8 @@
 				;; kind?
 				(call $__src_get_kind (local.get $s)) (if
 
-					;; file, close it
-					(then
-						;; not stdin/stdout/stderr?
-						(i32.gt_u
-							(local.tee $fd (call $__src_get_fd (local.get $s)))
-							(i32.const 2)) (if
-
-							;; iov in-range
-							(then
-								;; close it, ignore error, we are done
-								(drop (call $__wasi::fd_close (local.get $fd)))
-
-								;; prevent double-close if unwound twice
-								(call $__src_set_fd (local.get $s) (i32.const 0)))
-
-							;; std* fd
-							(else)))
+					;; file, not handled
+					(then unreachable)
 
 					;; memory, ignore
 					(else)))
