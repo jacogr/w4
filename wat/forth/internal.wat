@@ -119,7 +119,7 @@
 		;; FIXME Would prefer if we can just _always_ pop, instead
 		;; of peeking if we have data... exit should be clean
 		;;
-		;; (global.set $exec_next (call $__stack_ret_pop))
+		;; (i32.store (global.get $PTR_PTR_TOK_NXT) (call $__stack_ret_pop))
 
 		;; set instruction pointer
 		(i32.store (global.get $PTR_PTR_TOK_NXT)
@@ -524,6 +524,7 @@
 	;;
 	(func $__internal_evaluate (export "evaluate") (param $code_ptr i32) (param $code_len i32)
 		(local $s i32)
+		(local $orig_s i32)
 
 		;; create structure
 		(local.set $s (call $__alloc (global.get $SIZEOF_SRC)))
@@ -531,16 +532,6 @@
 		;; store base info
 		(call $__src_set_ln_ptr (local.get $s) (local.get $code_ptr))
 		(call $__src_set_ln_len (local.get $s) (local.get $code_len))
-
-		;; evaluate the source
-		(call $__internal_include_file (local.get $s))
-	)
-
-	;;
-	;; Runs the evaulation loop over a source
-	;;
-	(func $__internal_include_file (param $s i32)
-		(local $orig_s i32)
 
 		;; save caller frame pointer (0 if none)
 		(local.set $orig_s (call $__src_frame_peek))

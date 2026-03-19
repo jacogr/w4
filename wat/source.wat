@@ -96,20 +96,6 @@
 	;; Push a frame to the stack
 	;;
 	(func $__src_push_frame (param $s i32)
-		;; kind?
-		(call $__src_get_kind (local.get $s)) (if
-
-			;; file, open it
-			(then
-				;; store file descriptor
-				(call $__src_set_fd
-					(local.get $s)
-					(call $__file_open
-						(call $__iov_get_str_len (local.get $s)))))
-
-			;; memory, nothing to do
-			(else))
-
 		;; store it on the stack, closed on pop
 		(call $__stack_push (i32.const 0) (i32.load (global.get $PTR_PTR_STACK_SRC)) (local.get $s))
 		(call $__src_restore (local.get $s))

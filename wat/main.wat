@@ -16,7 +16,6 @@
 	m4_include(<!forth/math.wat!>)
 
 	m4_include(<!assert.wat!>)
-	m4_include(<!file.wat!>)
 	m4_include(<!hash.wat!>)
 	m4_include(<!iov.wat!>)
 	m4_include(<!list.wat!>)
