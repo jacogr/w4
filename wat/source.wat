@@ -96,14 +96,8 @@
 	;; Push a frame to the stack
 	;;
 	(func $__src_push_frame (param $s i32)
-		;; kind?
-		(call $__src_get_kind (local.get $s)) (if
-
-			;; file, not handled
-			(then unreachable)
-
-			;; memory, nothing to do
-			(else))
+		;; kind == memory?
+		(call $__assert (i32.eqz (call $__src_get_kind (local.get $s))) (i32.const -79))
 
 		;; store it on the stack, closed on pop
 		(call $__stack_push (i32.const 0) (i32.load (global.get $PTR_PTR_STACK_SRC)) (local.get $s))
@@ -122,14 +116,8 @@
 
 			;; we have a source
 			(then
-				;; kind?
-				(call $__src_get_kind (local.get $s)) (if
-
-					;; file, not handled
-					(then unreachable)
-
-					;; memory, ignore
-					(else)))
+				;; kind == memory?
+				(call $__assert (i32.eqz (call $__src_get_kind (local.get $s))) (i32.const -79)))
 
 				;; no source
 				(else))
