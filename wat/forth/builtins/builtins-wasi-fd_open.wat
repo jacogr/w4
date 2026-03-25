@@ -1,3 +1,4 @@
+	(func $__forth_fn_wasi_path_open (type $TypeForthFn)
 		(local $opened_fd_ptr i32)
 		(local $fdflags i32)
 		(local $fs_rights_inheriting i64)
@@ -34,3 +35,4 @@
 				(local.get $fs_rights_inheriting)
 				(local.get $fdflags)
 				(local.get $opened_fd_ptr)))
+	)

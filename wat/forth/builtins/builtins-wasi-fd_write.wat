@@ -1,3 +1,4 @@
+	(func $__forth_fn_wasi_fd_write (type $TypeForthFn)
 		(local $iovs i32)
 		(local $iovs_len i32)
 		(local $n_ptr i32)
@@ -12,3 +13,4 @@
 				(local.get $iovs)
 				(local.get $iovs_len)
 				(local.get $n_ptr)))
+	)

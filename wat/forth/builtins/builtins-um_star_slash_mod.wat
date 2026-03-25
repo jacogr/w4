@@ -1,3 +1,4 @@
+	(func $__forth_fn_um_star_slash_mod (type $TypeForthFn)
 		(local $lo i32)
 		(local $hi i32)
 		(local $mul i32)
@@ -27,3 +28,4 @@
 		(call $__stack_dat_push (local.get $rem))
 		(call $__stack_dat_push (local.get $qlo))
 		(call $__stack_dat_push (local.get $qhi))
+	)
