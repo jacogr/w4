@@ -78,24 +78,22 @@
 	;;
 	(func $__hash_fmix32 (param $hash i32) (result i32)
 		;; h ^= h >> 16
-		(local.set $hash
-			(i32.xor
-				(local.get $hash)
-				(i32.shr_u (local.get $hash) (i32.const 16))))
-
 		;; h *= FMIX32_C1
 		(local.set $hash
-			(i32.mul (local.get $hash) (global.get $FMIX32_C1)))
+			(i32.mul
+				(i32.xor
+					(local.get $hash)
+					(i32.shr_u (local.get $hash) (i32.const 16)))
+				(global.get $FMIX32_C1)))
 
 		;; h ^= h >> 13
-		(local.set $hash
-			(i32.xor
-				(local.get $hash)
-				(i32.shr_u (local.get $hash) (i32.const 13))))
-
 		;; h *= FMIX32_C2
 		(local.set $hash
-			(i32.mul (local.get $hash) (global.get $FMIX32_C2)))
+			(i32.mul
+				(i32.xor
+					(local.get $hash)
+					(i32.shr_u (local.get $hash) (i32.const 13)))
+				(global.get $FMIX32_C2)))
 
 		;; h ^= h >> 16, final result
 		(i32.xor
