@@ -38,8 +38,6 @@
 	(global $IDX_SRC_IN_POS i32 (i32.const 44)) ;; b
 	(global $IDX_SRC_IS_EOF i32 (i32.const 48)) ;; c
 	(global $SIZEOF_SRC     i32 (i32.const 52))
-	(global $SIZEOF_SRC_IN  i32 (i32.const 256)) ;; file read buffer size
-	(global $SIZEOF_SRC_LN  i32 (i32.const 1024)) ;; line buffer size
 
 	;;
 	;; Restores overall state from a source buffer
