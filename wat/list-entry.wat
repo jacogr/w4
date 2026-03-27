@@ -130,9 +130,6 @@
 	;; Helpers for list entries
 	;;
 
-	(func $__ent_get_prev (param $ptr i32) (result i32)
-		(i32.load (i32.add (local.get $ptr) (global.get $IDX_ENT_PREV))))
-
 	(func $__ent_set_prev (param $ptr i32) (param $val i32)
 		(i32.store (i32.add (local.get $ptr) (global.get $IDX_ENT_PREV)) (local.get $val)))
 

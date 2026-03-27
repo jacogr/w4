@@ -134,15 +134,6 @@
 	(func $__stack_ret_push (param $val i32)
 		(call $__stack_push (i32.const 2) (i32.load (global.get $PTR_PTR_STACK_RET)) (local.get $val)))
 
-	(func $__stack_ret_peek (result i32)
-		(call $__stack_ret_count) (if (result i32)
-
-			;; have a count, get top
-			(then (call $__stack_peek (i32.const 2) (i32.load (global.get $PTR_PTR_STACK_RET))))
-
-			;; no count, return -1
-			(else (i32.const -1))))
-
 	;; local values
 
 	(func $__stack_loc_peek_at (param $idx i32) (result i32)

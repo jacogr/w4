@@ -130,38 +130,11 @@
 	;; Helpers for the source structure
 	;;
 
-	(func $__src_get_is_eof (param $s i32) (result i32)
-		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_IS_EOF))))
-
-	(func $__src_set_is_eof (param $s i32) (param $v i32)
-		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_IS_EOF)) (local.get $v)))
-
 	(func $__src_get_kind (param $s i32) (result i32)
 		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_KIND))))
 
-	(func $__src_set_kind (param $s i32) (param $v i32)
-		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_KIND)) (local.get $v)))
-
-	(func $__src_get_in_iov (param $s i32) (result i32)
-		(i32.add (local.get $s) (global.get $IDX_SRC_IN_PTR)))
-
-	(func $__src_get_in_ptr (param $s i32) (result i32)
-		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_IN_PTR))))
-
-	(func $__src_set_in_ptr (param $s i32) (param $v i32)
-		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_IN_PTR)) (local.get $v)))
-
-	(func $__src_get_in_len (param $s i32) (result i32)
-		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_IN_LEN))))
-
-	(func $__src_set_in_len (param $s i32) (param $v i32)
-		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_IN_LEN)) (local.get $v)))
-
 	(func $__src_get_in_off (param $s i32) (result i32)
 		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_IN_POS))))
-
-	(func $__src_set_in_off (param $s i32) (param $v i32)
-		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_IN_POS)) (local.get $v)))
 
 	(func $__src_get_ln_iov (param $s i32) (result i32)
 		(i32.add (local.get $s) (global.get $IDX_SRC_LN_PTR)))
@@ -184,23 +157,8 @@
 	(func $__src_get_ln_off (param $s i32) (result i32)
 		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_LN_POS))))
 
-	(func $__src_set_ln_off (param $s i32) (param $v i32)
-		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_LN_POS)) (local.get $v)))
-
 	(func $__src_get_row (param $s i32) (result i32)
 		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_ROW))))
-
-	(func $__src_set_row (param $s i32) (param $v i32)
-		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_ROW)) (local.get $v)))
-
-	(func $__src_inc_row (param $s i32)
-		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_ROW)) (i32.add (i32.const 1) (call $__src_get_row (local.get $s)))))
-
-	(func $__src_get_fd (param $s i32) (result i32)
-		(i32.load (i32.add (local.get $s) (global.get $IDX_SRC_FD))))
-
-	(func $__src_set_fd (param $s i32) (param $v i32)
-		(i32.store (i32.add (local.get $s) (global.get $IDX_SRC_FD)) (local.get $v)))
 
 	;;
 	;; Helpers for PTR_PTR_LINE_OFF = >IN and PTR_LINE_IOV = SOURCE

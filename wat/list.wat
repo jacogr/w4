@@ -149,19 +149,3 @@
 				(i32.and (local.get $row) (i32.const 0xffff))
 				(i32.shl (local.get $col) (i32.const 16))))
 	)
-
-	;; (file, row, col)
-	(func $__list_get_file (param $ptr i32) (result i32 i32 i32)
-		(local $rc i32)
-
-		;; file
-		(i32.load (i32.add (local.get $ptr) (global.get $IDX_LST_FILE)))
-
-		;; row
-		(i32.and
-			(local.tee $rc (i32.load (i32.add (local.get $ptr) (global.get $IDX_LST_ROW_COL))))
-			(i32.const 0xffff))
-
-		;; col
-		(i32.shr_u (local.get $rc) (i32.const 16))
-	)
