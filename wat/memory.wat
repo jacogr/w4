@@ -49,8 +49,7 @@
 	;; (we further break up into general areas)
 	(global $PTR_PRI_EMIT_STR i32 (i32.const 0x0200)) ;; scratch for emit string, 64 total
 	(global $PTR_PRI_EMIT_RES i32 (i32.const 0x0240)) ;; scratch for emit result, 64 total
-	(global $PTR_PRI_IN       i32 (i32.const 0x0280)) ;; scatch for in values, 64 total
-	(global $PTR_PRI_IOV      i32 (i32.const 0x02c0)) ;; 256 total
+	(global $PTR_PRI_IOV      i32 (i32.const 0x0280)) ;; 256 total
 	;; next layout at 980 (0x03d4), memory in-between is sparse for future usage
 
 	;; text definitions as used
