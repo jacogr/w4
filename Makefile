@@ -23,7 +23,7 @@ TEST_LIB       = $(DIR_TEST)/w4-test-suite.f
 
 SCR_AWK_FIL    = $(DIR_SCR)/minify-filter.awk
 SCR_AWK_COL    = $(DIR_SCR)/minify-collapse.awk
-SCR_PYT_FTH    = $(DIR_SCR)/embed-forth.py
+SCR_AWK_FTH    = $(DIR_SCR)/embed-forth.awk
 
 
 # flags
@@ -50,7 +50,7 @@ EXE_M4         = m4 $(FLAGS_M4)
 EXE_NODE       = node $(FLAGS_NODE) w4.js
 EXE_OPT        = wasm-opt $(FLAGS_OPT)
 EXE_WAT        = wat2wasm
-EXE_PYT        = python3
+EXE_AWK        = awk
 
 # targets
 
@@ -66,7 +66,7 @@ $(FTH_GEN): $(FTH_SRC) | $(DIR_BUILD)
 
 # forth -> wat
 $(WAT_FTH_GEN): $(FTH_GEN)
-	$(EXE_PYT) $(SCR_PYT_FTH) $(FTH_GEN) $@
+	$(EXE_AWK) -f $(SCR_AWK_FTH) -v src=$(FTH_GEN) -v out=$@
 
 # wat m4 expand
 $(WAT_GEN): $(WAT_FTH_GEN) $(WAT_SRC) | $(DIR_BUILD)
