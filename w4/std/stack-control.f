@@ -32,6 +32,7 @@ m4_require(<!std/control.f!>)
 			cs> >r		( c: i*x-1 i*x -- i*x-1 ) ( r: -- i*x )
 			1- recurse	( u.i -- u.i' )
 			r> >cs		( c: ... -- ... i*x ) ( r: i*x -- )
+			cs-swap
 		then
 	;
 
