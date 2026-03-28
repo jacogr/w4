@@ -1,6 +1,6 @@
 ## w4
 
-What you found is a [Forth](https://forth-standard.org/) interpreter (and possibly a compiler in the future) implemented with [WAT](https://developer.mozilla.org/en-US/docs/WebAssembly/Guides/Understanding_the_text_format) using [WASI](https://github.com/WebAssembly/WASI/blob/main/docs/Proposals.md) to ensure compatibility accross platforms.
+What you found is a [Forth](https://forth-standard.org/) interpreter implemented with [WAT](https://developer.mozilla.org/en-US/docs/WebAssembly/Guides/Understanding_the_text_format) using [WASI](https://github.com/WebAssembly/WASI/blob/main/docs/Proposals.md) to ensure compatibility accross runtimes.
 
 
 ## requirements
@@ -11,6 +11,7 @@ There are a couple of tools needed to actually build and run the demos. There ce
 - [m4](https://en.wikipedia.org/wiki/M4_(computer_language)) - Used for macro processing, specifically around includes for sources. It should be included if you are using a unix-y OS.
 - [awk](https://en.wikipedia.org/wiki/AWK) - Provides some cleanups for sources when combined. As with m4, it should be availble on a unix-y OS.
 - [find](https://en.wikipedia.org/wiki/Find_(Unix)) - Used in the Makefile to build a source list, standard on unix-y OS.
+- [python3](https://https://www.python.org/) - Used to embed the expanded Forth sources into the WAT
 - [wat2wasm & wasmopt](https://github.com/WebAssembly/wabt) - Used to build the WAT sources.
 - (optional) [node](https://nodejs.org/en) - Used to run the included `w4.js` sample (other language bridges should follow).
 
@@ -57,8 +58,6 @@ Current plans are -
 
 **The directory structure is weird** Certainly. All `wat` (combined into 1 via `m4`) inside `wat/` and the forth libs in `w4/`. No specific `src/` at this point.
 
-**The build is weird** WAT doesn't quite have includes. There needed to be a minimal overhead way to just combine stuff so there is no single 100k file to edit. `m4` is available, it is being used.
-
-**It is not quite ready to be packaged** Yes, sadly. The `w4.js` for instance looking for `build/w4-opt.wasm` and it assumes a root `w4/w4.f` for the Forth sources. These 3 folders can be copied as-is? Non-optimal, it is what it is (at this point).
+**The build is weird** WAT doesn't quite have includes. There needed to be a minimal overhead way to just combine stuff so there is no single 100k file to edit. `m4` is available, it is being used. Forth does have includes, but we bundle it into the WAT, once again combining the sources via `m4`.
 
 **I don't like the name** Cannot say the author is over-the-moon with it either. Something about naming and coding... Either way, renames can be on the cards, the builtin lib will (most probably) stay at `w4/w4.f`, but the repo and actual runnable executables can be whatever.
