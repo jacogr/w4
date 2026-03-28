@@ -236,10 +236,12 @@
 		;; flag
 		(select
 			;; literal type based on long flag
-			(select
-				(global.get $FLG_LITD)
+			(i32.or
 				(global.get $FLG_LIT)
-				(local.get $long_set))
+				(select
+					(global.get $FLG_VARIANT)
+					(i32.const 0)
+					(local.get $long_set)))
 			;; invalid
 			(i32.const 0)
 			;; at least one digit and no error

@@ -210,7 +210,7 @@
 		;; double value?
 		(call $__has_flag
 			(local.get $flg)
-			(global.get $FLG_LITD)) (if
+			(global.get $FLG_VARIANT)) (if
 
 			;; double, push hi=0 on positive, hi=-1 on negative
 			(then

@@ -41,7 +41,6 @@
 	(global $FLG_ASM     	i32 (i32.const 0xc0de0010))
 	(global $FLG_TKN     	i32 (i32.const 0xc0de0020))
 	(global $FLG_LIT        i32 (i32.const 0xc0de0040))
-	(global $FLG_LITD       i32 (i32.const 0xc0de0044))
 	(global $FLG_DO_MARK    i32 (i32.const 0xc0de0080))
 	(global $FLG_DO_EXEC    i32 (i32.const 0xc0de0084))
 	(global $FLG_LOCAL		i32 (i32.const 0xc0de0100))
