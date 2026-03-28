@@ -171,7 +171,7 @@
 		;; exec?
 		(call $__has_flag
 			(local.get $flg)
-			(global.get $FLG_DO_EXEC)) (if
+			(global.get $FLG_VARIANT)) (if
 
 			;; execute the jump
 			(then (call $__internal_jump (local.get $val)))
@@ -189,7 +189,7 @@
 					(call $__strlen_z (global.get $PTR_DO_EXEC_TEXT))
 					(i32.const 0)
 					(local.get $val)
-					(global.get $FLG_DO_EXEC))
+					(i32.or (global.get $FLG_DOES) (global.get $FLG_VARIANT)))
 
 				;; Find the real exit - since we override the end token list
 				;; via does, we cannot just grab the last
@@ -288,7 +288,7 @@
 							(else
 								(call $__has_flag
 									(local.get $flg)
-									(global.get $FLG_DO_MARK)) (if
+									(global.get $FLG_DOES)) (if
 
 									;; does marker, check for execution
 									(then (call $__internal_execute_does (local.get $val) (local.get $flg)))
