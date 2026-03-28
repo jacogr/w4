@@ -22,16 +22,14 @@ m4_require(<!ext/is.f!>)
 \ the function of -2 THROW, displaying ccc if there is no exception frame on
 \ the exception stack.
 
-	\ TODO(stage2): ABORT" disabled for src->wat bootstrap path.
-	\ Re-enable once postpone+s" handling is fully stable in generator.
-	\ : ABORT" ( "ccc<quote>" -- )
-	\ 	postpone if
-	\ 		postpone s"
-	\ 		postpone type
-	\ 		$-2 lit,
-	\ 		postpone throw
-	\ 	postpone then
-	\ ; immediate
+	: ABORT" ( "ccc<quote>" -- )
+		postpone if
+			postpone s"
+			postpone type
+			$-2 lit,
+			postpone throw
+		postpone then
+	; immediate
 
 \ https://forth-standard.org/standard/core/VALUE
 \
