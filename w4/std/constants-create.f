@@ -188,16 +188,17 @@ m4_require(<!std/constants-structs.f!>)
 
 	: PATCH ( "name" -- )
 		\ retrieve original to patch
-		?parse-name ?find-name				( "name" -- nt-orig )
-		dup (nt>value@) dup					( nt-orig -- nt-orig xt-orig xt-orig )
+		?parse-name ?find-name dup (nt>value@)	( "name" -- nt-orig xt-orig )
 
 		\ set patch name/len/hash to values from orig
-		(xt>hash@) latest (xt>hash!)		( nt-orig xt-orig xt-orig -- nt-orig xt-orig )
-		(xt>str+len@) latest (xt>str+len!)	( nt-orig xt-orig -- nt-orig )
+		dup (xt>hash@) latest (xt>hash!)		( nt-orig xt-orig -- nt-orig xt-orig )
+		dup (xt>str+len@) latest (xt>str+len!)	( nt-orig xt-orig -- nt-orig xt-orig )
 
-		\ move orig value/xt to latest
-		latest swap							( nt-orig -- xt-new nt-orig )
-		(nt>value!)							( xt-new nt-orig -- )
+		\ move lookup token to latest xt
+		swap latest swap (nt>value!)			( nt-orig xt-orig -- xt-orig )
+
+		\ rewrite original xt dispatch value to latest xt dispatch value
+		latest (xt>value@) swap (xt>value!)		( xt-orig -- )
 	;
 
 \ https://forth-standard.org/standard/core/BUFFERColon
