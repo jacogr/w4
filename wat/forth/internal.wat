@@ -111,39 +111,35 @@
 	)
 
 	;;
-	;; Handle exit, unwinds a jump
+	;; Jump to a new execution location
+	;;
+	(func $__internal_next (param $ptr_to i32)
+		;; set jump location
+		(i32.store (global.get $PTR_PTR_TOK_NXT) (local.get $ptr_to))
+	)
+
+	;;
+	;; Handle exit, unwinds a call
 	;;
 	;; https://forth-standard.org/standard/core/EXIT
 	;;
 	(func $__internal_exit
-		(i32.store (global.get $PTR_PTR_TOK_NXT) (call $__stack_ret_pop))
+		;; restore next jump location
+		(call $__internal_next (call $__stack_ret_pop))
 	)
 
 	;;
 	;; Call to a new execution location
 	;;
 	(func $__internal_call (param $ptr_to i32)
-		(local $exec_next i32)
-
 		;; store return location (can be 0 for outermost call)
-		(call $__stack_ret_push
-			(local.tee $exec_next
-				(i32.load (global.get $PTR_PTR_TOK_NXT))))
+		(call $__stack_ret_push (i32.load (global.get $PTR_PTR_TOK_NXT)))
 
 		;; set jump location
-		(call $__internal_jump (local.get $ptr_to))
-	)
-
-	;;
-	;; Jump to a new execution location
-	;;
-	(func $__internal_jump (param $ptr_to i32)
-		;; set jump location
-		(i32.store (global.get $PTR_PTR_TOK_NXT) (local.get $ptr_to))
+		(call $__internal_next (local.get $ptr_to))
 	)
 
 	(func $__internal_execute_does (param $val i32) (param $flg i32)
-		(local $rep i32)
 		(local $next i32)
 
 		;; exec?
@@ -151,8 +147,8 @@
 			(local.get $flg)
 			(global.get $FLG_VARIANT)) (if
 
-			;; execute the jump
-			(then (call $__internal_jump (local.get $val)))
+			;; execute the jump below
+			(then)
 
 			;; mark the jump, replace behaviour
 			(else
@@ -176,9 +172,10 @@
 						(i32.eqz (local.tee $next (call $__ent_get_next (local.get $val)))))
 
 					(local.set $val (local.get $next))
-					(br $loop)))
+					(br $loop)))))
 
-				(i32.store (global.get $PTR_PTR_TOK_NXT) (local.get $val))))
+		;; excute the jump
+		(call $__internal_next (local.get $val))
 	)
 
 	(func $__internal_execute_literal (param $val i32) (param $flg i32)
@@ -323,8 +320,8 @@
 				(i32.eqz (local.tee $ptr_xt
 					(call $__val_get_value (i32.load (global.get $PTR_PTR_TOK_NXT))))))
 
-			;; set next instruction pointer
-			(i32.store (global.get $PTR_PTR_TOK_NXT) (call $__ent_get_next (i32.load (global.get $PTR_PTR_TOK_NXT))))
+			;; jump to next
+			(call $__internal_next (call $__ent_get_next (i32.load (global.get $PTR_PTR_TOK_NXT))))
 
 			;; execute current
 			(call $__internal_execute (local.get $ptr_xt))
