@@ -49,10 +49,11 @@ m4_require(<!std/stack-rs.f!>)
 \ uses: false ^ ((false ^ true) & flag)
 
 	: SELECT ( flag true false -- result )
-		dup >r		( flag true false -- flag true false ) ( r: -- false )
-		xor			( flag true false -- flag r1 )			\ r1 = (false^true)
-		and r>		( flag r1 -- r2 false ) ( r: false -- )	\ r2 = r1 & flag
-		xor			( f2 false -- result )					\ result = false ^ r2
+		swap over	( flag true false -- flag false true false )
+		xor			( flag false true false -- flag false r1 ) \ r1 = (true ^ false)
+		rot			( flag false r1 -- false r1 flag )
+		and			( false r1 flag -- false r2 ) \ r2 = (r1 & flag)
+		xor			( false r2 -- result ) \ result = (r2 ^ false)
 	;
 
 \ https://forth-standard.org/standard/tools/NAMEtoCOMPILE
