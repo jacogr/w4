@@ -116,24 +116,7 @@
 	;; https://forth-standard.org/standard/core/EXIT
 	;;
 	(func $__internal_exit
-		;; FIXME Would prefer if we can just _always_ pop, instead
-		;; of peeking if we have data... exit should be clean
-		;;
-		;; (i32.store (global.get $PTR_PTR_TOK_NXT) (call $__stack_ret_pop))
-
-		;; set instruction pointer
-		(i32.store (global.get $PTR_PTR_TOK_NXT)
-
-			;; value on return stack?
-			(call $__stack_ret_count) (if (result i32)
-
-				;; have return location
-				(then
-					;; pop pointer
-					(call $__stack_ret_pop))
-
-				;; zero pointer
-				(else (i32.const 0))))
+		(i32.store (global.get $PTR_PTR_TOK_NXT) (call $__stack_ret_pop))
 	)
 
 	;;
@@ -142,15 +125,10 @@
 	(func $__internal_call (param $ptr_to i32)
 		(local $exec_next i32)
 
-		;; global next available?
-		(local.tee $exec_next (i32.load (global.get $PTR_PTR_TOK_NXT))) (if
-
-			;; global next available
-			(then
-				;; store return location
-				(call $__stack_ret_push (local.get $exec_next)))
-
-			(else))
+		;; store return location (can be 0 for outermost call)
+		(call $__stack_ret_push
+			(local.tee $exec_next
+				(i32.load (global.get $PTR_PTR_TOK_NXT))))
 
 		;; set jump location
 		(call $__internal_jump (local.get $ptr_to))
