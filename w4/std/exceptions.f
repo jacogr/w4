@@ -26,10 +26,11 @@ m4_require(<!std/value.f!>)
 	variable (catch-in)
 	variable (catch-sp)
 	variable (rp-live)
-	$20 constant (catch-locals-max#)
-	(catch-locals-max#) cells buffer: (catch-locals^)
-	variable (catch-locals#)
 	variable (catch-locals-last)
+	$20 constant (catch-frames-max#)
+	$6 constant (catch-frame-cells#) \ sp >in sid sc locals^ prev-handler
+	(catch-frames-max#) (catch-frame-cells#) * cells buffer: (catch-frames^)
+	variable (catch-frames#)
 
 	\ Restore data stack depth from an address within stack storage.
 	: SP! ( a-addr -- ) (ds^) - $2 rshift (ds^) ! ;
@@ -43,47 +44,62 @@ m4_require(<!std/value.f!>)
 	: (rp-live-restore) ( -- ) (rp-live) @ (rs^) dup @ cells + ! ;
 	: (rp-restore^) ( a-addr -- ) (rp-live-save) rp! (rp-live-restore) ;
 
-	: (catch-locals-push) ( a-addr -- )
-		(catch-locals#) @ dup 1+ (catch-locals#) !
-		cells (catch-locals^) + !
+	: (catch-frame^) ( i -- a-addr )
+		(catch-frame-cells#) * cells (catch-frames^) +
 	;
 
-	: (catch-locals-pop) ( -- a-addr )
-		(catch-locals#) @ 1- dup (catch-locals#) !
-		cells (catch-locals^) + @
+	: (catch-frame-push) ( sp in sid sc locals^ prev-handler -- )
+		(catch-frames#) @ dup 1+ (catch-frames#) !
+		(catch-frame^) >r
+		r@ $5 cells + !	\ prev-handler
+		r@ $4 cells + !	\ locals^
+		r@ $3 cells + !	\ source-count
+		r@ $2 cells + !	\ source-id
+		r@ $1 cells + !	\ >in
+		r> !			\ sp
+	;
+
+	: (catch-frame-pop) ( -- )
+		(catch-frames#) @ 1- dup (catch-frames#) !
+		(catch-frame^) >r
+		r@ $5 cells + @ handler !
+		r@ $4 cells + @ (catch-locals-last) !
+		r@ $3 cells + @ (catch-sc) !
+		r@ $2 cells + @ (catch-sid) !
+		r@ $1 cells + @ (catch-in) !
+		r> @ (catch-sp) !
+	;
+
+	: (catch-restore-source) ( -- )
+		begin
+			(source-count) (catch-sc) @ >
+		while
+			(source-pop) drop
+		repeat
+		(catch-sc) @ if
+			(catch-sc) @ (source-cell@) (source-global-set)
+		else
+			(catch-sid) @ (source-id!)
+		then
+		(catch-in) @ >in !
+	;
+
+	: (catch-apply-throw) ( -- exception# )
+		(throw-value) @ (catch-sp) @ !
+		(catch-sp) @ sp!
+		(catch-locals-last) @ (locals-base^) !
+		(catch-restore-source)
+		$0 (throw-active) !
 	;
 
 	: CATCH ( xt -- exception# | 0 )	\ return addr on stack
-		sp@ >r			( xt -- xt )	\ save data stack pointer
-		>in @ >r
-		source-id >r
-		(source-count) >r
-		(locals-base^) @ (catch-locals-push)
-		handler @ >r	( xt -- xt )	\ and previous handler
+		sp@ >in @ source-id (source-count)
+		(locals-base^) @ handler @ (catch-frame-push)
 		rp@ cell + handler !	( xt -- xt )	\ set current handler
 		execute			( xt -- )		\ execute returns if no THROW
-		r> handler !	( -- )			\ restore previous handler
-		(catch-locals-pop) (catch-locals-last) !
-		r> (catch-sc) !
-		r> (catch-sid) !
-		r> (catch-in) !
-		r> (catch-sp) !
+		(catch-frame-pop)
 		(throw-active) @ if
-			(throw-value) @ (catch-sp) @ !
-			(catch-sp) @ sp!
-			(catch-locals-last) @ (locals-base^) !
-			begin
-				(source-count) (catch-sc) @ >
-			while
-				(source-pop) drop
-			repeat
-			(catch-sc) @ if
-				(catch-sc) @ (source-cell@) (source-global-set)
-			else
-				(catch-sid) @ (source-id!)
-			then
-			(catch-in) @ >in !
-			$0 (throw-active) !
+			(catch-apply-throw)
 		else
 			$0
 		then
@@ -126,7 +142,7 @@ m4_require(<!std/value.f!>)
 
 \ https://forth-standard.org/standard/exception/THROW
 \
-	\ If any bits of n are non-zero, pop the topmost exception frame from the
+\ If any bits of n are non-zero, pop the topmost exception frame from the
 \ exception stack, along with everything on the return stack above that
 \ frame. Then restore the input source specification in use before the
 \ corresponding CATCH and adjust the depths of all stacks defined by this
@@ -150,25 +166,34 @@ m4_require(<!std/value.f!>)
 \ the system shall perform the function of 6.1.0670 ABORT (the version of ABORT in
 \ the Core word set).
 
-	: (throw,patched) ( ??? exception# -- ??? exception# )
-		dup 0<> handler @ 0<> and		( n -- n f )
-
-		\ update throw-value only when f is true; preserve on 0 THROW
+	: (throw-capture-state) ( n f -- n f )
+		\ update throw-value only when f=true; preserve on 0 THROW
 		dup sp-2@ (throw-value) @
 		select (throw-value) !			( n f f n old -- n f )
 
-		\ throw-active <- throw-active OR f (do not clear during 0 THROW)
+		\ throw-active <- throw-active OR f (never clear on 0 THROW)
 		dup (throw-active) @ or
 		dup (throw-active) !
 		swap nip						( n f new -- n f )
+	;
 
+	: (throw-restore-rs) ( n f -- n f )
 		\ restore return stack only when f=true, otherwise a no-op pointer
 		dup (rp-noop^) handler @ swap
 		select
 		(rp-restore^)					( n f -- n f )
+	;
 
-		\ pass 0 to native throw when f=true (handled by CATCH path), else pass n
+	: (throw-pass-code) ( n f -- n|0 )
+		\ pass 0 to native throw when f=true (handled by CATCH), else pass n
 		$0 rot
 		select
+	;
+
+	: (throw,patched) ( ??? exception# -- ??? exception# )
+		dup 0<> handler @ 0<> and		( n -- n f )
+		(throw-capture-state)			( n f -- n f )
+		(throw-restore-rs)				( n f -- n f )
+		(throw-pass-code)				( n f -- n|0 )
 		(throw)
 	; patch throw
