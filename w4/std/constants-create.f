@@ -197,8 +197,10 @@ m4_require(<!std/constants-structs.f!>)
 		\ move lookup token to latest xt
 		swap latest swap (nt>value!)			( nt-orig xt-orig -- xt-orig )
 
-		\ rewrite original xt dispatch value to latest xt dispatch value
-		latest (xt>value@) swap (xt>value!)		( xt-orig -- )
+		\ rewrite original xt dispatch fields to latest xt dispatch fields
+		\ (value + flags must move together when patch crosses xt kind, e.g. asm -> tkn)
+		dup latest (xt>value@) swap (xt>value!)	( xt-orig -- xt-orig )
+		latest (xt>flags@) swap (xt>flags!)		( xt-orig -- )
 	;
 
 \ https://forth-standard.org/standard/core/BUFFERColon
