@@ -34,7 +34,7 @@ S" forth2012-test-suite/src/coreexttest.fth" INCLUDED
 \ UNPLANNED S" forth2012-test-suite/src/blocktest.fth" INCLUDED
 
 S" forth2012-test-suite/src/doubletest.fth" INCLUDED
-\ TODO S" forth2012-test-suite/src/exceptiontest.fth" INCLUDED
+S" forth2012-test-suite/src/exceptiontest.fth" INCLUDED
 S" forth2012-test-suite/src/facilitytest.fth" INCLUDED
 
 \ TODO S" forth2012-test-suite/src/filetest.fth" INCLUDED
