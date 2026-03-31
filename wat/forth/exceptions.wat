@@ -10,10 +10,10 @@
 
 	;; mapping of exception codes to strings
 	;; (space for 80 codes)
-	(data (i32.const 1264)) ;; PTR_EXCEP_CODE
+	(data (i32.const 1360)) ;; PTR_EXCEP_CODE
 
-	;; actual exception strings, 1264 + 160 = 1424
-	(data (i32.const 1424) ;; PTR_EXCEP_TEXT
+	;; actual exception strings, 1360 + 160 = 1424
+	(data (i32.const 1520) ;; PTR_EXCEP_TEXT
 		(;  -1 ;) "ABORT\00"
 		(;  -2 ;) "ABORT\"\00"
 		(;  -3 ;) "stack overflow\00"
