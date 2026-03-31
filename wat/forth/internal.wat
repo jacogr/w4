@@ -221,6 +221,7 @@
 	;; https://forth-standard.org/standard/core/EXECUTE
 	;;
 	(func $__internal_execute (param $ptr_xt i32)
+		(local $fcl i32)
 		(local $flg i32)
 		(local $val i32)
 
@@ -233,10 +234,14 @@
 		;; retrieve item value & flag
 		(local.set $val (call $__val_get_value (local.get $ptr_xt)))
 		(local.set $flg (call $__val_get_flags (local.get $ptr_xt)))
+		(local.set $fcl
+			(i32.and
+				(local.get $flg)
+				(i32.const -16)))
 
 		;; check for native functions
-		(call $__has_flag
-			(local.get $flg)
+		(i32.eq
+			(local.get $fcl)
 			(global.get $FLG_ASM)) (if
 
 			;; native, call directly
@@ -244,8 +249,8 @@
 
 			;; non-native, check tokens
 			(else
-				(call $__has_flag
-					(local.get $flg)
+				(i32.eq
+					(local.get $fcl)
 					(global.get $FLG_TKN)) (if
 
 					;; token list, jump to it
@@ -253,8 +258,8 @@
 
 					;; non-tokens, check literals
 					(else
-						(call $__has_flag
-							(local.get $flg)
+						(i32.eq
+							(local.get $fcl)
 							(global.get $FLG_LIT)) (if
 
 							;; literals
@@ -262,8 +267,8 @@
 
 							;; not literals, check does
 							(else
-								(call $__has_flag
-									(local.get $flg)
+								(i32.eq
+									(local.get $fcl)
 									(global.get $FLG_DOES)) (if
 
 									;; does marker, check for execution
@@ -271,8 +276,8 @@
 
 									;; not does, check locals
 									(else
-										(call $__has_flag
-											(local.get $flg)
+										(i32.eq
+											(local.get $fcl)
 											(global.get $FLG_LOCAL)) (if
 
 										;; local
