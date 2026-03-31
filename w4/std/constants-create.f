@@ -42,7 +42,7 @@ m4_require(<!std/constants-structs.f!>)
 \ Non-standard but widely known words to create literals and compile it
 \ into the body of the latest definition
 \
-\ $c0de0140 defined below as literal
+\ $c0de0040 defined below as literal
 
 	: (new-xt) ( n flags -- a-addr )
 		align here				( n flags -- n flags a-addr )
@@ -51,7 +51,7 @@ m4_require(<!std/constants-structs.f!>)
 		swap over (xt>value!) 	( n a-addr -- a-addr )
 	;
 
-	: LIT ( n -- ) $c0de0140 (new-xt) ; \ aligned with (flg-xt-lit) below
+	: LIT ( n -- ) $c0de0040 (new-xt) ; \ aligned with (flg-xt-lit) below
 	: LIT, ( n -- ) lit compile, ;
 
 \ Swap a dictionary entry from "hidden" to "available to lookups" by
