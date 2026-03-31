@@ -20,30 +20,38 @@
 
 	;; names & flags for native functions
 	(data (i32.const 1000) ;; PTR_NATIVE_TEXT
-		(;  0 ;) "exit"					"\00\00"
-		(;  1 ;) "(build,)"				"\00\00"
-		(;  2 ;) ";"					"\00\ff"
-		(;  3 ;) "@"					"\00\00"
-		(;  4 ;) "!"					"\00\00"
-		(;  5 ;) "0="					"\00\00"
-		(;  6 ;) "lshift"				"\00\00"
-		(;  7 ;) "rshift"				"\00\00"
-		(;  8 ;) "+"					"\00\00"
-		(;  9 ;) "-"					"\00\00"
-		(; 10 ;) "um*/mod"				"\00\00"
-		(; 11 ;) "m*/mod"				"\00\00"
-		(; 12 ;) "and"					"\00\00"
-		(; 13 ;) "xor"					"\00\00"
-		(; 14 ;) "or"					"\00\00"
-		(; 15 ;) "(find-name)"			"\00\00"
-		(; 16 ;) "(parse-token)"		"\00\00"
-		(; 17 ;) "(execute)"			"\00\00"
-		(; 18 ;) "(compile,)"			"\00\00"
-		(; 19 ;) "(throw)"				"\00\00"
-		(; 20 ;) "wasi::fd_write"		"\00\00"
-		(; 21 ;) "wasi::fd_read"		"\00\00"
-		(; 22 ;) "wasi::fd_close"		"\00\00"
-		(; 23 ;) "wasi::path_open"		"\00\00"
+		(;  0 ;) "exit"							"\00\00"
+		(;  1 ;) "(build,)"						"\00\00"
+		(;  2 ;) ";"							"\00\ff"
+		(;  3 ;) "@"							"\00\00"
+		(;  4 ;) "!"							"\00\00"
+		(;  5 ;) "0="							"\00\00"
+		(;  6 ;) "lshift"						"\00\00"
+		(;  7 ;) "rshift"						"\00\00"
+		(;  8 ;) "+"							"\00\00"
+		(;  9 ;) "-"							"\00\00"
+		(; 10 ;) "um*/mod"						"\00\00"
+		(; 11 ;) "m*/mod"						"\00\00"
+		(; 12 ;) "and"							"\00\00"
+		(; 13 ;) "xor"							"\00\00"
+		(; 14 ;) "or"							"\00\00"
+		(; 15 ;) "(find-name)"					"\00\00"
+		(; 16 ;) "(parse-token)"				"\00\00"
+		(; 17 ;) "(execute)"					"\00\00"
+		(; 18 ;) "(compile,)"					"\00\00"
+		(; 19 ;) "(throw)"						"\00\00"
+		(; 20 ;) "wasi::fd_write"				"\00\00"
+		(; 21 ;) "wasi::fd_read"				"\00\00"
+		(; 22 ;) "wasi::fd_close"				"\00\00"
+		(; 23 ;) "wasi::path_open"				"\00\00"
+		(; 24 ;) "wasi::fd_seek"				"\00\00"
+		(; 25 ;) "wasi::fd_tell"				"\00\00"
+		(; 26 ;) "wasi::fd_filestat_get"		"\00\00"
+		(; 27 ;) "wasi::fd_filestat_set_size"	"\00\00"
+		(; 28 ;) "wasi::fd_sync"				"\00\00"
+		(; 29 ;) "wasi::path_unlink_file"		"\00\00"
+		(; 30 ;) "wasi::path_rename"			"\00\00"
+		(; 31 ;) "wasi::path_filestat_get"		"\00\00"
 		(;  z ;)
 	)
 
@@ -252,6 +260,54 @@
 	;;  fdflags:i32, opened_fd_ptr:i32) -> errno:i32
 	(elem (i32.const 23) $__forth_fn_wasi_path_open)
 	m4_include(<!forth/builtins/builtins-wasi-fd_open.wat!>)
+
+	;; Expose wasmi for seeking on a file descriptor
+	;;
+	;; (fd:i32, offset:i64, whence:u8, newoffset_ptr:i32) -> errno:i32
+	(elem (i32.const 24) $__forth_fn_wasi_fd_seek)
+	m4_include(<!forth/builtins/builtins-wasi-fd_seek.wat!>)
+
+	;; Expose wasmi for retrieving current fd offset
+	;;
+	;; (fd:i32, offset_ptr:i32) -> errno:i32
+	(elem (i32.const 25) $__forth_fn_wasi_fd_tell)
+	m4_include(<!forth/builtins/builtins-wasi-fd_tell.wat!>)
+
+	;; Expose wasmi for retrieving fd file stats
+	;;
+	;; (fd:i32, filestat_ptr:i32) -> errno:i32
+	(elem (i32.const 26) $__forth_fn_wasi_fd_filestat_get)
+	m4_include(<!forth/builtins/builtins-wasi-fd_filestat_get.wat!>)
+
+	;; Expose wasmi for setting fd file size
+	;;
+	;; (fd:i32, size:i64) -> errno:i32
+	(elem (i32.const 27) $__forth_fn_wasi_fd_filestat_set_size)
+	m4_include(<!forth/builtins/builtins-wasi-fd_filestat_set_size.wat!>)
+
+	;; Expose wasmi for syncing a file descriptor
+	;;
+	;; (fd:i32) -> errno:i32
+	(elem (i32.const 28) $__forth_fn_wasi_fd_sync)
+	m4_include(<!forth/builtins/builtins-wasi-fd_sync.wat!>)
+
+	;; Expose wasmi for deleting a file path
+	;;
+	;; (dirfd:i32, path_ptr:i32, path_len:i32) -> errno:i32
+	(elem (i32.const 29) $__forth_fn_wasi_path_unlink_file)
+	m4_include(<!forth/builtins/builtins-wasi-path_unlink_file.wat!>)
+
+	;; Expose wasmi for renaming a path
+	;;
+	;; (old_dirfd:i32, old_ptr:i32, old_len:i32, new_dirfd:i32, new_ptr:i32, new_len:i32) -> errno:i32
+	(elem (i32.const 30) $__forth_fn_wasi_path_rename)
+	m4_include(<!forth/builtins/builtins-wasi-path_rename.wat!>)
+
+	;; Expose wasmi for retrieving file stats by path
+	;;
+	;; (dirfd:i32, flags:i32, path_ptr:i32, path_len:i32, filestat_ptr:i32) -> errno:i32
+	(elem (i32.const 31) $__forth_fn_wasi_path_filestat_get)
+	m4_include(<!forth/builtins/builtins-wasi-path_filestat_get.wat!>)
 
 	;;
 	;; Initialize the native dictionary
