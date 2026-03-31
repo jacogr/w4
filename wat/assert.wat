@@ -135,7 +135,7 @@
 
 		;; current token (still valid if xt_exec is maintained)
 		(call $__iov_emit_chr_stderr (i32.const 32)) ;; ' '
-		(call $__iov_emit_stderr (global.get $xt_exec))
+		(call $__iov_emit_stderr (i32.load (global.get $PTR_PTR_TOK_EXE)))
 		(call $__iov_emit_chr_stderr (i32.const 32))
 
 		;; unknown word marker?

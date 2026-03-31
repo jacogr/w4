@@ -12,8 +12,6 @@
 	;; execution & compilation variables
 	(global $exec_list      (mut i32) (i32.const 0))
 	(global $dict_exit_ptr  (mut i32) (i32.const 0))
-	(global $xt_comp		(mut i32) (i32.const 0)) ;; PTR_PTR_TOK_CMP
-	(global $xt_exec		(mut i32) (i32.const 0)) ;; PTR_PTR_TOK_EXE
 
 	;;
 	;; Internal functions. These implement FORTH words, but do so on the
@@ -46,15 +44,14 @@
 				(local.set $hash (call $__hash (local.get $name) (local.get $len)))))
 
 		;; create a hidden definition for this word (w/ non-transient string)
-		(global.set $xt_comp
-			(call $__store
-				(global.get $PTR_PTR_TOK_CMP)
-				(call $__val_new
-					(local.get $name)
-					(local.get $len)
-					(local.get $hash)
-					(local.tee $list (call $__list_new))
-					(global.get $FLG_TKN))))
+		(i32.store
+			(global.get $PTR_PTR_TOK_CMP)
+			(call $__val_new
+				(local.get $name)
+				(local.get $len)
+				(local.get $hash)
+				(local.tee $list (call $__list_new))
+				(global.get $FLG_TKN)))
 
 		;; set the row/col value
 		(local.set $s (call $__src_frame_peek))
@@ -67,7 +64,7 @@
 		;; set the owner for the list
 		(call $__list_set_owner
 			(local.get $list)
-			(global.get $xt_comp))
+			(i32.load (global.get $PTR_PTR_TOK_CMP)))
 
 		;; add an exit token
 		(call $__list_append
@@ -82,7 +79,7 @@
 				(call $__lookup_append
 					(i32.load (global.get $PTR_WID_CURR))
 					(local.get $hash)
-					(global.get $xt_comp)))
+					(i32.load (global.get $PTR_PTR_TOK_CMP))))
 
 			;; skip it
 			(else))
@@ -101,10 +98,10 @@
 
 		;; make visible
 		(call $__val_set_flags
-			(global.get $xt_comp)
+			(i32.load (global.get $PTR_PTR_TOK_CMP))
 			(i32.or
 				(global.get $FLG_VISIBLE)
-				(call $__val_get_flags (global.get $xt_comp))))
+				(call $__val_get_flags (i32.load (global.get $PTR_PTR_TOK_CMP)))))
 
 		;; change to interpret state
 		(i32.store (global.get $PTR_STATE) (i32.const 0))
@@ -226,8 +223,7 @@
 		(call $__assert_ptr (local.get $ptr_xt))
 
 		;; store current executing
-		(global.set $xt_exec
-			(call $__store (global.get $PTR_PTR_TOK_EXE) (local.get $ptr_xt)))
+		(i32.store (global.get $PTR_PTR_TOK_EXE) (local.get $ptr_xt))
 
 		;; retrieve item value & flag
 		(local.set $val (call $__val_get_value (local.get $ptr_xt)))
@@ -291,8 +287,7 @@
 		(call $__assert_ptr (local.get $ptr_xt))
 
 		;; store current executing token
-		(global.set $xt_exec
-			(call $__store (global.get $PTR_PTR_TOK_EXE) (local.get $ptr_xt)))
+		(i32.store (global.get $PTR_PTR_TOK_EXE) (local.get $ptr_xt))
 
 		;; ensure we have valid flags, -13 undefined word
 		(call $__assert
@@ -455,21 +450,19 @@
 					;; either compiling or invalid
 					(else
 						;; store token already (need it for assert debug trace)
-						(global.set $xt_exec
+						(i32.store
+							(global.get $PTR_PTR_TOK_EXE)
 							(local.tee $ptr_xt
-								(call $__store
-									(global.get $PTR_PTR_TOK_EXE)
-									(local.tee $ptr_xt
-										(call $__val_new
-											;; no ptr/len for lits
-											(local.get $xt_flg) (if (result i32 i32)
-												;; literal, drop string
-												(then (i32.const 0) (i32.const 0))
-												;; unknown, will error below
-												(else (local.get $wptr) (local.get $wlen)))
-											(i32.const 0)
-											(local.get $xt_val)
-											(local.get $xt_flg))))))
+								(call $__val_new
+									;; no ptr/len for lits
+									(local.get $xt_flg) (if (result i32 i32)
+										;; literal, drop string
+										(then (i32.const 0) (i32.const 0))
+										;; unknown, will error below
+										(else (local.get $wptr) (local.get $wlen)))
+									(i32.const 0)
+									(local.get $xt_val)
+									(local.get $xt_flg))))
 
 						;; should have a non-zero flag, -13 undefined word
 						(call $__assert (local.get $xt_flg) (i32.const -13))))))
