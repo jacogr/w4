@@ -107,33 +107,6 @@
 	)
 
 	;;
-	;; Returns a character value if it would end a word (eol or space/tab)
-	;;
-	;; In our implementation we follow
-	;;
-	;; https://forth-standard.org/standard/usage#subsubsection.3.4.1.1
-	;; https://forth-standard.org/standard/usage#subsubsection.3.1.2.2
-	;;
-	;; From 3.4.1.1 Delimiters: If the delimiter is the space character, hex 20 (BL)
-	;; control character may be treated as delimiters
-	;;
-	(func $__ch_is_eow (param $ch i32) (result i32)
-		(local $eol i32)
-
-		;; check for characters that end the line - this is not handled
-		;; as part of the control check since we treat \0 the same as an eof
-		(i32.and
-			(i32.eqz (local.tee $eol (call $__ch_is_eol (local.get $ch))))
-			(i32.le_u (local.get $ch) (i32.const 32))) (if (result i32)
-
-			;; it is an eow character
-			(then (local.get $ch))
-
-			;; no eol, check for <= 32 (space, hex 0x20)
-			(else (local.get $eol)))
-	)
-
-	;;
 	;; Lowercase version of a character
 	;;
 	(func $__ch_lower (param $ch i32) (result i32)

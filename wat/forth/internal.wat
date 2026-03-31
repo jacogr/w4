@@ -550,129 +550,137 @@
 	;; The implementation here always skips leading whitespace.
 	;;
 	(func $__internal_parse (param $delim i32) (result i32 i32)
-		(local $idx_curr i32)
-		(local $idx_find i32)
+		(local $idx i32)
+		(local $start i32)
+		(local $end i32)
 		(local $str i32)
 		(local $len i32)
 		(local $ch i32)
-		(local $is_eow i32)
-		(local $is_len i32)
+		(local $is_eol i32)
+		(local $iov i32)
 
-		(block $exit
+		;; phase 1: validate current source iov
+		(local.set $iov (call $__line_get_iov))
+		(i32.or
+			(i32.eqz (local.get $iov))
+			(i32.ge_u (local.get $iov) (i32.load (global.get $PTR_ALLOC)))) (if
+			(then
+				(return (i32.const 0) (i32.const 0)))
+			(else))
 
-			;; check for iov, needs to be non-zero and in-range
-			(br_if $exit
+		;; phase 2: load source span and current parse offset (>in)
+		(call $__iov_get_str_len (local.get $iov))
+		local.set $len
+		local.set $str
+		(local.set $idx (call $__line_get_off))
+
+		;; phase 3: skip leading separators (eow)
+		(block $skip_done (loop $skip
+			(br_if $skip_done
+				(i32.ge_u (local.get $idx) (local.get $len)))
+
+			(local.set $ch
+				(i32.load8_u
+					(i32.add (local.get $str) (local.get $idx))))
+			(local.set $is_eol
 				(i32.or
-					(i32.eqz (call $__line_get_iov))
-					(i32.ge_u
-						(call $__line_get_iov)
-						(i32.load (global.get $PTR_ALLOC)))))
-
-			;; load the current index from >in, set invalid find idx
-			(local.set $idx_curr (call $__line_get_off))
-			(local.set $idx_find (i32.const -1))
-
-			;; load the iov and extract src, len
-			(call $__iov_get_str_len (call $__line_get_iov))
-			local.set $len
-			local.set $str
-
-			;; parse the line until delim (or eol)
-			(loop $loop
-
-				;; exit if we have exhausted the string
-				(br_if $exit
-					(i32.ge_u (local.get $idx_curr) (local.get $len)))
-
-				;; get the character and check for eow
-				(i32.and
-					(i32.eqz (local.tee $is_eow
-						(call $__ch_is_eow (local.tee $ch
-							(i32.load8_u (i32.add (local.get $str) (local.get $idx_curr)))))))
-					(i32.eq
-						(local.get $idx_find)
-						(i32.const -1))) (if
-
-					;; set index now
-					(then (local.set $idx_find (local.get $idx_curr)))
-
-					;; continue
-					(else))
-
-				;; increment index & >in (done after leading whitespace check)
-				(call $__line_set_off
-					(local.tee $idx_curr (i32.add (local.get $idx_curr) (i32.const 1))))
-
-				;; expand eow checks for 32 and 0 lookups
-				(local.set $is_eow
+					(i32.eq (local.get $ch) (i32.const 10))
 					(i32.or
-						;; space, all eow characters
-						(i32.and
-							(i32.eq (local.get $delim) (i32.const 32))
-							(i32.ne (local.get $is_eow) (i32.const 0)))
-						;; 0, all eol characters
-						(i32.and
-							(i32.eqz (local.get $delim))
-							(i32.ne (call $__ch_is_eol (local.get $ch)) (i32.const 0)))))
+						(i32.eqz (local.get $ch))
+						(i32.eq (local.get $ch) (i32.const 4)))))
 
-				;; do we have a starting index?
-				(i32.ne
-					(local.get $idx_find)
-					(i32.const -1)) (if
+			;; stop skipping once non-eow is reached
+			(br_if $skip_done
+				(i32.eqz
+					(i32.or
+						(local.get $is_eol)
+						(i32.le_u (local.get $ch) (i32.const 32)))))
 
-					;; starting index, check for matches, direct, eow or eol
-					(then
+			(local.set $idx (i32.add (local.get $idx) (i32.const 1)))
+			(br $skip)))
+
+		;; no token left after leading-separator skip
+		(i32.ge_u (local.get $idx) (local.get $len)) (if
+			(then
+				(call $__line_set_off (local.get $idx))
+				(return (i32.const 0) (i32.const 0)))
+			(else))
+
+		(local.set $start (local.get $idx))
+
+		;; phase 4: scan token body according to delimiter mode
+		;; delim = BL => stop on eow
+		(i32.eq (local.get $delim) (i32.const 32)) (if
+			(then
+				(block $scan_done (loop $scan
+					(br_if $scan_done
+						(i32.ge_u (local.get $idx) (local.get $len)))
+
+					(local.set $ch
+						(i32.load8_u
+							(i32.add (local.get $str) (local.get $idx))))
+					(local.set $is_eol
 						(i32.or
-							;; direct match
-							(i32.eq (local.get $ch) (local.get $delim))
-							;; end of data stream
+							(i32.eq (local.get $ch) (i32.const 10))
 							(i32.or
-								;; eow and eol checks
-								(local.get $is_eow)
-								;; exhausted checks
-								(local.tee $is_len
-									(i32.and
-										;; line was exhausted
-										(i32.eq (local.get $idx_curr) (local.get $len))
-										;; no eow flag and needs either eow or eol
-										(i32.and
-											(i32.eqz (local.get $is_eow))
-											(i32.or
-												(i32.eq (local.get $delim) (i32.const 32))
-												(i32.eqz (local.get $delim)))))))) (if
+								(i32.eqz (local.get $ch))
+								(i32.eq (local.get $ch) (i32.const 4)))))
 
-							;; match found, return (ptr, len)
-							(then
-								;; set length now (too messy to inline below, possible as-is into
-								;; the alloc, which works, but it has no readability at all)
-								(local.set $len
-									(i32.sub
-										(i32.sub (local.get $idx_curr) (local.get $idx_find))
-										(select
-											;; we broke on length, keep everything
-											(i32.const 0)
-											;; eow found, one less, skip it
-											(i32.const 1)
-											;; no match and length exhausted?
-											(local.get $is_len))))
+					(br_if $scan_done
+						(i32.or
+							(local.get $is_eol)
+							(i32.le_u (local.get $ch) (i32.const 32))))
 
-								;; NOTE The string here is transient - callers should ensure that they
-								;; have their own copy (and it should be copied for forth inside builtins)
-								;; (ptr, len)
-								(return
-									(i32.add (local.get $str) (local.get $idx_find))
-									(local.get $len)))
+					(local.set $idx (i32.add (local.get $idx) (i32.const 1)))
+					(br $scan))))
+			;; delim = 0 => stop on eol
+			(else
+				(i32.eqz (local.get $delim)) (if
+					(then
+						(block $scan_done (loop $scan
+							(br_if $scan_done
+								(i32.ge_u (local.get $idx) (local.get $len)))
 
-							;; nothing matches, we will continue
-							(else)))
+							(local.set $ch
+								(i32.load8_u
+									(i32.add (local.get $str) (local.get $idx))))
+							(local.set $is_eol
+								(i32.or
+									(i32.eq (local.get $ch) (i32.const 10))
+									(i32.or
+										(i32.eqz (local.get $ch))
+										(i32.eq (local.get $ch) (i32.const 4)))))
 
-					;; still on leading whitespace, continue
-					(else))
+							(br_if $scan_done (local.get $is_eol))
+							(local.set $idx (i32.add (local.get $idx) (i32.const 1)))
+							(br $scan))))
+					;; generic delimiter (direct char match)
+					(else
+						(block $scan_done (loop $scan
+							(br_if $scan_done
+								(i32.ge_u (local.get $idx) (local.get $len)))
 
-				;; continue
-				br $loop))
+							(local.set $ch
+								(i32.load8_u
+									(i32.add (local.get $str) (local.get $idx))))
+							(br_if $scan_done
+								(i32.eq (local.get $ch) (local.get $delim)))
 
-		;; (ptr, len)
-		i32.const 0
-		i32.const 0
+								(local.set $idx (i32.add (local.get $idx) (i32.const 1)))
+								(br $scan)))))))
+
+		(local.set $end (local.get $idx))
+
+		;; phase 5: consume one delimiter/eol when present
+		(i32.lt_u (local.get $idx) (local.get $len)) (if
+			(then (local.set $idx (i32.add (local.get $idx) (i32.const 1))))
+			(else))
+
+		(call $__line_set_off (local.get $idx))
+
+		;; phase 6: return transient slice and length
+		;; NOTE The string here is transient - callers should ensure that they
+		;; have their own copy (and it should be copied for forth inside builtins)
+		(i32.add (local.get $str) (local.get $start))
+		(i32.sub (local.get $end) (local.get $start))
 	)
