@@ -13,28 +13,6 @@
 	(global $STACK_MAX i32 (i32.const 255))
 
 	;;
-	;; Retrieve the specified stack pointer
-	;;
-	;; Calculated via loading the count and multiplying this by the size of
-	;; the entries (i32, 4 bytes).
-	;;
-	(func $__stack_ptr (param $o i32) (param $ptr i32) (result i32)
-		;; existing stack count, -4 stack underflow (-6 return)
-		 (call $__assert
-			(i32.gt_s
-				(i32.load (local.get $ptr))
-				(i32.const 0))
-			(i32.sub (i32.const -4) (local.get $o)))
-
-		;; calculate the stack pointer based on count
-		(i32.add
-			(local.get $ptr)
-			(i32.mul
-				(i32.load (local.get $ptr))
-				(i32.const 4)))
-	)
-
-	;;
 	;; Push data to a stack
 	;;
 	(func $__stack_push (param $o i32) (param $ptr i32) (param $val i32)
@@ -50,9 +28,13 @@
 		;; store the updated count
 		(i32.store (local.get $ptr) (local.get $count))
 
-		;; store the value to the ptr + offset
+		;; store the value to ptr + count*4
 		(i32.store
-			(call $__stack_ptr (local.get $o) (local.get $ptr))
+			(i32.add
+				(local.get $ptr)
+				(i32.mul
+					(local.get $count)
+					(i32.const 4)))
 			(local.get $val))
 	)
 
@@ -60,8 +42,22 @@
 	;; Peek data from a stack
 	;;
 	(func $__stack_peek (param $o i32) (param $ptr i32) (result i32)
+		(local $count i32)
+
+		;; existing stack count, -4 stack underflow (-6 return)
+		(call $__assert
+			(i32.gt_s
+				(local.tee $count (i32.load (local.get $ptr)))
+				(i32.const 0))
+			(i32.sub (i32.const -4) (local.get $o)))
+
 		;; load value at top of stack for return
-		(i32.load (call $__stack_ptr (local.get $o) (local.get $ptr)))
+		(i32.load
+			(i32.add
+				(local.get $ptr)
+				(i32.mul
+					(local.get $count)
+					(i32.const 4))))
 	)
 
 	;;
@@ -109,11 +105,46 @@
 		(call $__stack_pop (i32.const 0) (i32.load (global.get $PTR_PTR_STACK_DAT))))
 
 	(func $__stack_dat_2pop (result i32 i32)
+		(local $ptr i32)
+		(local $count i32)
+		(local $a i32)
 		(local $top i32)
 
-		(local.set $top (call $__stack_dat_pop))
+		(local.set $ptr (i32.load (global.get $PTR_PTR_STACK_DAT)))
 
-		(call $__stack_dat_pop)
+		;; need at least 2 items on data stack
+		(call $__assert
+			(i32.ge_u
+				(local.tee $count (i32.load (local.get $ptr)))
+				(i32.const 2))
+			(i32.const -4))
+
+		;; top (x2)
+		(local.set $top
+			(i32.load
+				(i32.add
+					(local.get $ptr)
+					(i32.mul
+						(local.get $count)
+						(i32.const 4)))))
+
+		;; next (x1)
+		(local.set $a
+			(i32.load
+				(i32.add
+					(local.get $ptr)
+					(i32.mul
+						(i32.sub (local.get $count) (i32.const 1))
+						(i32.const 4)))))
+
+		;; drop both
+		(i32.store
+			(local.get $ptr)
+			(i32.sub
+				(local.get $count)
+				(i32.const 2)))
+
+		(local.get $a)
 		(local.get $top))
 
 	(func $__stack_dat_push (param $val i32)
