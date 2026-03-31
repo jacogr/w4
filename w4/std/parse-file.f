@@ -55,6 +55,100 @@ m4_require(<!ext/list.f!>)
 \ INCLUDED may allocate memory in data space before it starts interpreting the file.
 
 	(new-lookup-small) constant (included-wid)
+	$400 buffer: (included-rel-buf)
+
+	: (last-slash-idx) ( c-addr u -- n|-1 )
+		{: ptr len | idx at :}
+
+		-1 to at
+
+		len 0<> if
+			len 1- to idx
+
+			begin
+				idx 0< 0=
+				at -1 =
+				and
+			while
+				ptr idx + c@ #47 = if
+					idx to at
+				else
+					idx 1- to idx
+				then
+			repeat
+		then
+
+		at
+	;
+
+	: (open-file-maybe-rel) ( c-addr u -- fid ior )
+		{: req req-len | fid ior cur src src-len dir-len :}
+
+		\ direct open first
+		req req-len r/o open-file
+		to ior
+		to fid
+
+		\ try include-relative fallback on failure
+		ior if
+			\ absolute paths are not resolved relative to current source
+			req c@ #47 <> if
+				(source-current) to cur
+				cur if
+					cur (fid>flags@) if
+						cur (fid>path+len@)
+						to src-len
+						to src
+
+						src src-len (last-slash-idx)
+						dup 0< 0= if
+							1+ to dir-len
+
+							\ room in local scratch?
+							dir-len req-len + dup $400 u< if
+								drop
+								src (included-rel-buf) dir-len move
+								req (included-rel-buf) dir-len + req-len move
+
+								(included-rel-buf) dir-len req-len + r/o open-file
+								to ior
+								to fid
+							else
+								drop
+							then
+						else
+							drop
+						then
+					then
+				then
+			then
+		then
+
+		fid ior
+	;
+
+	: (fid-path-set-dup) ( c-addr u fid -- )
+		>r
+		strdup
+		2dup r@ (fid>path+len!)
+		host::hash r> (fid>hash!)
+	;
+
+	: (fid-rewind) ( fid -- fid )
+		dup >r
+
+		\ reset host file position
+		$0 $0 r@ reposition-file drop
+
+		\ reset read/line state for subsequent include-file
+		$0 r@ (fid>is-eof!)
+		$0 r@ (fid>in-len!)
+		$0 r@ (fid>in-pos!)
+		$0 r@ (fid>ln-len!)
+		$0 r@ (fid>ln-pos!)
+
+		drop r>
+	;
 
 	: (if-not-included-add) ( c-addr u -- fid f )
 		(included-wid) sp-2@ sp-2@		( c-addr u -- c-addr u wid c-addr u )
@@ -66,8 +160,11 @@ m4_require(<!ext/list.f!>)
 			2nip false					( c-addr u nt -- nt false )
 		else							( c-addr u nt -- c-addr u )
 			\ open file
-			r/o open-file				( c-addr u -- fid ior )
+			2dup (open-file-maybe-rel)	( c-addr u -- c-addr u fid ior )
 			0<> #-38 and throw			( fid ior -- fid )
+			dup >r						( c-addr u fid -- c-addr u fid ) ( r: -- fid )
+			(fid-path-set-dup)			( c-addr u fid -- )
+			r>							( -- fid )
 
 			\ append
 			(included-wid)				( fid -- fid wid )
@@ -81,7 +178,7 @@ m4_require(<!ext/list.f!>)
 
 	: INCLUDED ( i * x c-addr u -- j * x )
 		(if-not-included-add)			( c-addr u -- fid f )
-		drop include-file				( fid f -- )
+		drop (fid-rewind) include-file	( fid f -- )
 	;
 
 \ https://forth-standard.org/standard/file/INCLUDE

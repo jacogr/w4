@@ -159,8 +159,100 @@ m4_require(<!std/string.f!>)
 \ Minimal (evaluate-friendly) save/restore: only snapshots >in, ignores source
 \ identity, i.e. cannot restore accross input sources (or lines)
 
+	$2 cells buffer: (save-input-off)
+	$100 constant (savei-in-size#)
+	$400 constant (savei-ln-size#)
+
+	$0 constant (savei-sid#)
+	$1 constant (savei-in#)
+	$2 constant (savei-fdlo#)
+	$3 constant (savei-fdhi#)
+	$4 constant (savei-ln-len#)
+	$5 constant (savei-ln-pos#)
+	$6 constant (savei-in-len#)
+	$7 constant (savei-in-pos#)
+	$8 constant (savei-eof#)
+	$9 constant (savei-row#)
+	$a constant (savei-meta#)
+
+	: (savei-size#) ( -- u )
+		(savei-meta#) cells
+		(savei-ln-size#) 1+ +
+		(savei-in-size#) 1+ +
+	;
+
+	: (savei-cell^) ( frame idx -- a-addr ) cells + ;
+	: (savei@) ( frame idx -- u ) (savei-cell^) @ ;
+	: (savei!) ( u frame idx -- ) (savei-cell^) ! ;
+
+	: (savei-ln^) ( frame -- c-addr ) (savei-meta#) cells + ;
+	: (savei-in^) ( frame -- c-addr ) (savei-ln^) (savei-ln-size#) 1+ + ;
+
+	: (save-input-file) ( fid -- frame n )
+		align here >r
+		(savei-size#) allot
+
+		dup r@ (savei-sid#) (savei!)
+		>in @ r@ (savei-in#) (savei!)
+
+		(save-input-off) over (fid>fd@) wasi::fd_tell drop
+		(save-input-off) @ r@ (savei-fdlo#) (savei!)
+		(save-input-off) cell+ @ r@ (savei-fdhi#) (savei!)
+
+		dup (fid>ln-len@) r@ (savei-ln-len#) (savei!)
+		dup (fid>ln-pos@) r@ (savei-ln-pos#) (savei!)
+		dup (fid>in-len@) r@ (savei-in-len#) (savei!)
+		dup (fid>in-pos@) r@ (savei-in-pos#) (savei!)
+		dup (fid>is-eof@) r@ (savei-eof#) (savei!)
+		dup (fid>row@) r@ (savei-row#) (savei!)
+
+		dup (fid>ln-ptr@) r@ (savei-ln^) (savei-ln-size#) 1+ move
+		dup (fid>in-ptr@) r@ (savei-in^) (savei-in-size#) 1+ move
+		drop
+
+		r> $1
+	;
+
+	: (restore-input-file) ( frame -- flag )
+		dup (savei-sid#) (savei@) dup >r
+		source-id <> if
+			drop r> drop true exit
+		then
+
+		dup (savei-fdlo#) (savei@) (save-input-off) !
+		dup (savei-fdhi#) (savei@) (save-input-off) cell+ !
+
+		r@ (fid>fd@)
+		(save-input-off) @
+		(save-input-off) cell+ @
+		$0 (save-input-off)
+		wasi::fd_seek
+		if
+			drop r> drop true exit
+		then
+
+		dup (savei-ln-len#) (savei@) r@ (fid>ln-len!)
+		dup (savei-ln-pos#) (savei@) r@ (fid>ln-pos!)
+		dup (savei-in-len#) (savei@) r@ (fid>in-len!)
+		dup (savei-in-pos#) (savei@) r@ (fid>in-pos!)
+		dup (savei-eof#) (savei@) r@ (fid>is-eof!)
+		dup (savei-row#) (savei@) r@ (fid>row!)
+
+		dup (savei-ln^) r@ (fid>ln-ptr@) (savei-ln-size#) 1+ move
+		dup (savei-in^) r@ (fid>in-ptr@) (savei-in-size#) 1+ move
+
+		dup (savei-in#) (savei@) >in !
+		drop r> drop false
+	;
+
 	: SAVE-INPUT ( -- x1 n )
-		>in @ source-id $2
+		source-id dup 0<> over $-1 <> and if
+			dup (fid>flags@) if
+				(save-input-file) exit
+			then
+		then
+
+		drop >in @ source-id $2
 	;
 
 \ https://forth-standard.org/standard/core/RESTORE-INPUT
@@ -173,12 +265,15 @@ m4_require(<!std/string.f!>)
 \ is not the same as the current input source.
 
 	: RESTORE-INPUT ( x1 .. xn n -- flag )
-		dup $2 = if
+		dup $1 = if
+			drop
+			(restore-input-file)
+		else dup $2 = if
 			drop                 \ x1 x2
 			source-id <> if      \ source-id changed => cannot restore
 				drop true
 			else
 				>in ! false 	\ restore >in
 			then
-		else $0 ?do drop loop true then
+		else $0 ?do drop loop true then then
 	;

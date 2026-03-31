@@ -2,6 +2,7 @@
 
 | date | result | source |
 |--|--|--|
+| Tue 31 Mar 2026 | passes file tests | [filetest.fth](forth2012-test-suite/src/filetest.fth) |
 | Mon 30 Mar 2026 | passes exception tests | [exceptiontest.fth](forth2012-test-suite/src/exceptiontest.fth) |
 | Sat 28 Mar 2026 | passes tools tests | [toolstest.fth](forth2012-test-suite/src/toolstest.fth) |
 | Mon 27 Jan 2026 | passes struct tests | [facilitytest.fth](forth2012-test-suite/src/facilitytest.fth) |

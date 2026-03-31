@@ -38,6 +38,17 @@ m4_require(<!std/stack-base.f!>)
 		(iov-tmp-nread) @	( err -- err nread )				\ fetch nread
 	;
 
+	: IOV>FD? ( c-addr u fd -- err nwritten )
+		>r 					( c-addr u fd -- c-addr u ) ( r: -- fd )
+		(iov-tmp-in) iov! 	( c-addr u -- ) ( r: fd -- fd )
+		r> 					( -- fd )							\ restore fd
+		(iov-tmp-in) 		( fd -- fd iovs_ptr )				\ iovs_ptr
+		1 					( ... -- fd iovs_ptr iovs_len )		\ iovs_len = 1
+		(iov-tmp-nwrite) 	( ... -- fd iovs_ptr iovs_len nwritten_ptr )
+		wasi::fd_write 		( ... -- err )						\ call wrapper -> err
+		(iov-tmp-nwrite) @	( err -- err nwritten )				\ fetch nwritten
+	;
+
 	: IOV<FD ( c-addr u fd -- nread )
 		iov<fd?						( c-addr u fd -- err nread )
 

@@ -13,27 +13,43 @@ m4_require(<!ext/wasi.f!>)
 \ fam is the implementation-defined value for selecting the "read only"
 \ file access method.
 
-	\ 1<<1  FD_READ         = $00000002
-	\ 1<<21 FD_FILESTAT_GET = $00200000
-	$00200002 constant R/O
+	\ 1<<1  FD_READ             = $00000002
+	\ 1<<2  FD_SEEK             = $00000004
+	\ 1<<5  FD_TELL             = $00000020
+	\ 1<<21 FD_FILESTAT_GET     = $00200000
+	$00200026 constant R/O
 
 \ https://forth-standard.org/standard/file/WDivO
 \
 \ fam is the implementation-defined value for selecting the "write only"
 \ file access method.
 \
-\ TODO Only file reads available at this point
-\
-\	$00000000 constant W/O
+	\ 1<<2  FD_SEEK             = $00000004
+	\ 1<<4  FD_SYNC             = $00000010
+	\ 1<<5  FD_TELL             = $00000020
+	\ 1<<6  FD_WRITE            = $00000040
+	\ 1<<21 FD_FILESTAT_GET     = $00200000
+	\ 1<<22 FD_FILESTAT_SET_SIZE= $00400000
+	$00600074 constant W/O
 
 \ https://forth-standard.org/standard/file/RDivW
 \
 \ fam is the implementation-defined value for selecting the "read/write"
 \ file access method.
 \
-\ TODO Only file reads available at this point
+	\ W/O with FD_READ
+	$00600076 constant R/W
+
+\ https://forth-standard.org/standard/file/BIN
 \
-\	$00000000 constant R/W
+\ This implementation does not distinguish between text and binary.
+
+	: BIN ( fam1 -- fam2 ) ;
+
+	$2 cells buffer: (wasi-file-off)
+	$40 buffer: (wasi-filestat)
+
+	: (wasi-filestat-size^) ( -- a-addr ) (wasi-filestat) $8 cells + ;
 
 \ https://forth-standard.org/standard/file/OPEN-FILE
 \
@@ -47,15 +63,15 @@ m4_require(<!ext/wasi.f!>)
 \ Otherwise, ior is the implementation-defined I/O result code and fileid
 \ is undefined.
 
-	: OPEN-FILE ( c-addr u fam -- fileid ior )
-		sp-2@ sp-2@ (new-file-src)	( c-addr u fam -- c-addr-u fam fid ) \ fid = here^
-		{: path len rb fid :}		( c-addr u fam fid -- )
+	: (open-file) ( c-addr u fam oflags -- fileid ior )
+		2over (new-file-src)		( c-addr u fam of -- c-addr u fam of fid ) \ fid = here^
+		{: path len rb of fid :}	( c-addr u fam of fid -- )
 
 		\ dir fd (cwd = 3) & flags, path & len
 		$3 $0 path len				( -- dir_fd dir_f c-addr u )
 
 		\ of (no create/trunc), rights (base = fam, inherit = 0), file flags & fd
-		$0 rb $0 $0					( dir_fd dir_f c-addr u -- dir_fd dir_f c-addr u of rb ri fd_f )
+		of rb $0 $0					( dir_fd dir_f c-addr u -- dir_fd dir_f c-addr u of rb ri fd_f )
 		fid (fid>fd^)				( dir_fd dir_f c-addr u of rb ri fd_f -- dir_fd dir_flags c-addr u of rb ri fd_f fd^ )
 
 		\ call into host
@@ -65,6 +81,14 @@ m4_require(<!ext/wasi.f!>)
 		\ ior = 0 on success, -1 on failure
 		swap 0<>					( err fileid -- fileid ior )
 	;
+
+	: OPEN-FILE ( c-addr u fam -- fileid ior ) $0 (open-file) ;
+
+\ https://forth-standard.org/standard/file/CREATE-FILE
+\
+\ Create (or truncate) named file and open with access mode fam.
+
+	: CREATE-FILE ( c-addr u fam -- fileid ior ) $9 (open-file) ;
 
 \ Non-standard helper for source->wat stdin mode.
 \ Creates a normal file-style fid and binds it to fd 0.
@@ -116,6 +140,98 @@ m4_require(<!ext/wasi.f!>)
 \ I/O result code.
 
 	: CLOSE-FILE ( fileid -- ior ) (fid>fd@) wasi::fd_close 0<> ;
+
+\ https://forth-standard.org/standard/file/WRITE-FILE
+
+	: WRITE-FILE ( c-addr u fileid -- ior )
+		(fid>fd@) iov>fd?			( c-addr u fileid -- err nwritten )
+		drop 0<>					( err nwritten -- ior )
+	;
+
+\ https://forth-standard.org/standard/file/WRITE-LINE
+
+	: WRITE-LINE ( c-addr u fileid -- ior )
+		{: buf len fid :}
+
+		buf len fid write-file		( -- ior )
+		?dup if
+			\ failed initial write
+		else
+			#10 PAD c!
+			PAD 1 fid write-file
+		then
+	;
+
+\ https://forth-standard.org/standard/file/FILE-POSITION
+
+	: FILE-POSITION ( fileid -- ud ior )
+		(wasi-file-off) over (fid>fd@) wasi::fd_tell ( fileid -- fileid err )
+		swap drop									( fileid err -- err )
+
+		if
+			$0 $0 true
+		else
+			(wasi-file-off) 2@ swap false
+		then
+	;
+
+\ https://forth-standard.org/standard/file/REPOSITION-FILE
+
+	: REPOSITION-FILE ( ud fileid -- ior )
+		{: lo hi fid :}
+		fid (fid>fd@) lo hi $0 (wasi-file-off)
+		wasi::fd_seek 0<>
+	;
+
+\ https://forth-standard.org/standard/file/FILE-SIZE
+
+	: FILE-SIZE ( fileid -- ud ior )
+		(wasi-filestat) over (fid>fd@) wasi::fd_filestat_get ( fileid -- fileid err )
+		swap drop											( fileid err -- err )
+
+		if
+			$0 $0 true
+		else
+			(wasi-filestat-size^) 2@ swap false
+		then
+	;
+
+\ https://forth-standard.org/standard/file/RESIZE-FILE
+
+	: RESIZE-FILE ( ud fileid -- ior )
+		{: lo hi fid :}
+		fid (fid>fd@) lo hi
+		wasi::fd_filestat_set_size 0<>
+	;
+
+\ https://forth-standard.org/standard/file/FLUSH-FILE
+
+	: FLUSH-FILE ( fileid -- ior ) (fid>fd@) wasi::fd_sync 0<> ;
+
+\ https://forth-standard.org/standard/file/DELETE-FILE
+
+	: DELETE-FILE ( c-addr u -- ior )
+		$3 -rot
+		wasi::path_unlink_file 0<>
+	;
+
+\ https://forth-standard.org/standard/file/RENAME-FILE
+
+	: RENAME-FILE ( c-addr1 u1 c-addr2 u2 -- ior )
+		{: old-path old-len new-path new-len :}
+		$3 old-path old-len
+		$3 new-path new-len
+		wasi::path_rename 0<>
+	;
+
+\ https://forth-standard.org/standard/file/FILE-STATUS
+
+	: FILE-STATUS ( c-addr u -- x ior )
+		{: path len :}
+		$3 $0 path len (wasi-filestat)
+		wasi::path_filestat_get
+		0<> $0 swap
+	;
 
 \ https://forth-standard.org/standard/file/READ-LINE
 \

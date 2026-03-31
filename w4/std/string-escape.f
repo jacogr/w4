@@ -23,8 +23,18 @@ m4_require(<!std/string-format.f!>)
 \ implementation from original proposal:
 \ http://www.forth200x.org/escaped-strings.html
 
-	create (s"\-result)
-		string-max 1+ allot                   \ 256 + count byte
+	$1 cells buffer: (s"\-idx)
+
+	string-max 1+ buffer: (s"\-result1)     \ 256 + count byte
+	string-max 1+ buffer: (s"\-result2)     \ 256 + count byte
+
+	: (s"\-result^) ( -- c-addr )
+		(s"\-idx) @ if (s"\-result2) else (s"\-result1) then
+	;
+
+	: (s"\-result-toggle) ( -- )
+		(s"\-idx) @ 0= (s"\-idx) !
+	;
 
 	create (s"\-escapetable)
 		 #7 c,	\ \a bel
@@ -138,7 +148,8 @@ m4_require(<!std/string-format.f!>)
 
 	: (s"\-readescaped) ( "ccc" -- c-addr )
 		source >in @ /string tuck
-  		(s"\-result) dup >r (s"\-parse)
+		(s"\-result-toggle)
+  		(s"\-result^) dup >r (s"\-parse)
   		nip - >in +! r>
 	;
 
