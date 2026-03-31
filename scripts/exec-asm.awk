@@ -5,6 +5,8 @@
 #   awk -f scripts/exec-asm.awk -v src=wat/forth/builtins.wat -v out=build/w4-exec-asm.wat
 
 BEGIN {
+  MAX_BUILTIN_INDEX = 31
+
   if (src == "" || out == "") {
     print "usage: awk -f exec-asm.awk -v src=<builtins.wat> -v out=<out.wat>" > "/dev/stderr"
     exit 2
@@ -42,6 +44,11 @@ END {
     exit 1
   }
 
+  if (max_idx > MAX_BUILTIN_INDEX) {
+    printf "error: builtin elem index %d exceeds max supported %d (table size 32) in %s\n", max_idx, MAX_BUILTIN_INDEX, src > "/dev/stderr"
+    exit 1
+  }
+
   # Require dense 0..max to keep dispatch predictable.
   for (i = 0; i <= max_idx; i++) {
     if (!seen[i]) {
@@ -53,26 +60,32 @@ END {
   print ";; auto-generated from " src > out
   print ";; do not edit manually" >> out
   print "(func $__internal_execute_asm (param $idx i32)" >> out
+  print "\t(block $done" >> out
+  print "\t\t(block $invalid" >> out
 
-  for (i = 0; i <= max_idx; i++) {
-    printf "\t(if (i32.eq (local.get $idx) (i32.const %d))\n", i >> out
-    printf "\t\t(then (call %s))\n", funcs[i] >> out
-    printf "\t\t(else\n" >> out
+  indent = "\t\t\t"
+  for (i = max_idx; i >= 0; i--) {
+    printf "%s(block $c%d\n", indent, i >> out
+    indent = indent "\t"
   }
 
-  printf "\t\t\t(call $__assert (i32.const 0) (i32.const -12))\n" >> out
+  printf "%s(local.get $idx)\n", indent >> out
+  printf "%s(br_table", indent >> out
+  for (i = 0; i <= max_idx; i++) {
+    printf " $c%d", i >> out
+  }
+  print " $invalid)" >> out
 
   for (i = 0; i <= max_idx; i++) {
-    printf "\t\t\t)\n" >> out
+    indent = substr(indent, 1, length(indent) - 1)
+    printf "%s)\n", indent >> out
+    printf "%s(call %s)\n", indent, funcs[i] >> out
+    printf "%s(br $done)\n", indent >> out
   }
 
-  # Close the nested "(if ...)" wrappers.
-  close_ifs = "\t"
-  for (i = 0; i <= max_idx; i++) {
-    close_ifs = close_ifs ")"
-  }
-  print close_ifs >> out
-
+  print "\t\t)" >> out
+  print "\t\t(call $__assert (i32.const 0) (i32.const -12))" >> out
+  print "\t)" >> out
   print ")" >> out
   close(out)
 }
