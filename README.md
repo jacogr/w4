@@ -10,9 +10,9 @@ There are a couple of tools needed to actually build and run the demos. There ce
 - [wat2wasm & wasmopt](https://github.com/WebAssembly/wabt) - Used to build the WAT sources.
 - (optional) [node](https://nodejs.org/en) - Used to run the included `w4.js` sample (other language bridges should follow).
 
-Additionally some standard Unix-y tools (should be already available in your environment) are required for the build process, these are:
+Additionally some standard Unix-y tools (these should be already available in your environment) are required for the build process, these are:
 
-[awk](https://en.wikipedia.org/wiki/AWK), [find](https://en.wikipedia.org/wiki/Find_(Unix)), [m4](https://en.wikipedia.org/wiki/M4_(computer_language)), [make](https://en.wikipedia.org/wiki/Make_(software)) and [wc](https://en.wikipedia.org/wiki/Wc_(Unix))
+[awk](https://en.wikipedia.org/wiki/AWK), [cat](https://en.wikipedia.org/wiki/Cat_(Unix)), [find](https://en.wikipedia.org/wiki/Find_(Unix)), [m4](https://en.wikipedia.org/wiki/M4_(computer_language)), [make](https://en.wikipedia.org/wiki/Make_(software)), [tee](https://en.wikipedia.org/wiki/Tee_(command)) and [wc](https://en.wikipedia.org/wiki/Wc_(Unix))
 
 
 ## building

@@ -85,7 +85,30 @@ check-lib: $(FTH_GEN) $(WASM_GEN_OPT) $(TEST_LIB)
 	$(EXE_NODE) $(TEST_LIB)
 
 check-std: $(FTH_GEN) $(WASM_GEN_OPT) $(TEST_STD)
-	$(EXE_NODE) $(TEST_STD) <test/forth2012-test-input.txt
+	@out=$$(mktemp); \
+	fifo=$$(mktemp -u); \
+	mkfifo "$$fifo"; \
+	tee "$$out" <"$$fifo" & \
+	teepid=$$!; \
+	$(EXE_NODE) $(TEST_STD) <test/forth2012-test-input.txt >"$$fifo" 2>&1; \
+	status=$$?; \
+	wait $$teepid; \
+	rm -f "$$fifo"; \
+	if [ $$status -ne 0 ]; then \
+		rm -f "$$out"; \
+		exit $$status; \
+	fi; \
+	grep -F "Error Report" "$$out" >/dev/null || { \
+		echo "check-std failed: missing 'Error Report' in output"; \
+		rm -f "$$out"; \
+		exit 1; \
+	}; \
+	grep -F "Total                   0 " "$$out" >/dev/null || { \
+		echo "check-std failed: expected 'Total                   0 ' in output"; \
+		rm -f "$$out"; \
+		exit 1; \
+	}; \
+	rm -f "$$out"
 
 check: check-lib check-std
 
