@@ -24,18 +24,23 @@ function line_ends_def(line, n) {
 
 	n = split(line, t, /[[:space:]]+/)
 
-	# End forms:
-	#   ... ;
+	# End forms, in priority order:
+	#   ... patch <word>
 	#   ... ; immediate
+	#   ... ;
 	#
 	# But DO NOT treat "postpone ;" as a terminator.
-	if (n >= 1 && t[n] == ";") {
-		if (n >= 2 && t[n-1] == "postpone") return 0
+	if (n >= 2 && t[n-1] == "patch") {
 		return 1
 	}
 
 	if (n >= 2 && t[n] == "immediate" && t[n-1] == ";") {
 		if (n >= 3 && t[n-2] == "postpone") return 0
+		return 1
+	}
+
+	if (n >= 1 && t[n] == ";") {
+		if (n >= 2 && t[n-1] == "postpone") return 0
 		return 1
 	}
 
