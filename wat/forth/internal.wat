@@ -211,6 +211,11 @@
 	)
 
 	;;
+	;; Execute native builtin by direct index dispatch.
+	;;
+	m4_include(<!build/w4-exec-asm.wat!>)
+
+	;;
 	;; Execute a word based on the embedded flags
 	;;
 	;; https://forth-standard.org/standard/core/EXECUTE
@@ -235,7 +240,7 @@
 			(global.get $FLG_ASM)) (if
 
 			;; native, call directly
-			(then (call_indirect (type $TypeForthFn) (local.get $val)))
+			(then (call $__internal_execute_asm (local.get $val)))
 
 			;; non-native, check tokens
 			(else

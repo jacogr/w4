@@ -13,7 +13,9 @@ FTH_SRC       := $(shell find $(DIR_FTH) -type f -name '*.f' -print)
 WAT_ENTRY      = $(DIR_WAT)/main.wat
 WAT_GEN        = $(DIR_BUILD)/w4.wat
 WAT_FTH_GEN    = $(DIR_BUILD)/w4-forth.wat
+WAT_ASM_GEN    = $(DIR_BUILD)/w4-exec-asm.wat
 WAT_SRC       := $(shell find $(DIR_WAT) -type f -name '*.wat' -print)
+WAT_BUILTINS   = $(DIR_WAT)/forth/builtins.wat
 
 WASM_GEN       = $(DIR_BUILD)/w4.wasm
 WASM_GEN_OPT   = $(DIR_BUILD)/w4-opt.wasm
@@ -24,6 +26,7 @@ TEST_LIB       = $(DIR_TEST)/w4-test-suite.f
 SCR_AWK_FIL    = $(DIR_SCR)/minify-filter.awk
 SCR_AWK_COL    = $(DIR_SCR)/minify-collapse.awk
 SCR_AWK_FTH    = $(DIR_SCR)/embed-forth.awk
+SCR_AWK_ASM    = $(DIR_SCR)/exec-asm.awk
 
 
 # flags
@@ -68,8 +71,12 @@ $(FTH_GEN): $(FTH_SRC) | $(DIR_BUILD)
 $(WAT_FTH_GEN): $(FTH_GEN)
 	$(EXE_AWK) -f $(SCR_AWK_FTH) -v src=$(FTH_GEN) -v out=$@
 
+# build dispatch from builtin table
+$(WAT_ASM_GEN): $(WAT_BUILTINS) $(SCR_AWK_ASM) | $(DIR_BUILD)
+	$(EXE_AWK) -f $(SCR_AWK_ASM) -v src=$(WAT_BUILTINS) -v out=$@ $(WAT_BUILTINS)
+
 # wat m4 expand
-$(WAT_GEN): $(WAT_FTH_GEN) $(WAT_SRC) | $(DIR_BUILD)
+$(WAT_GEN): $(WAT_FTH_GEN) $(WAT_ASM_GEN) $(WAT_SRC) | $(DIR_BUILD)
 	$(EXE_M4) -I$(DIR_WAT) $(WAT_ENTRY) > $@
 
 # wat -> wasm
