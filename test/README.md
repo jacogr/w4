@@ -1,6 +1,6 @@
 ## status for the 2012 suite
 
-| date | result | source |
+| date | status | source |
 |--|--|--|
 | `Tue 31 Mar 2026` | passes file tests | [filetest.fth](forth2012-test-suite/src/filetest.fth) |
 | `Mon 30 Mar 2026` | passes exception tests | [exceptiontest.fth](forth2012-test-suite/src/exceptiontest.fth) |
@@ -14,3 +14,11 @@
 | `Fri 16 Jan 2026` | passes core+ tests | [coreplustest.fth](forth2012-test-suite/src/coreplustest.fth) |
 | `Fri 16 Jan 2026` | passes core tests | [core.fth](forth2012-test-suite/src/core.fr) |
 | `Wed 14 Jan 2026` | passes preliminary tests | [prelimtest.fth](forth2012-test-suite/src/prelimtest.fth) |
+
+## not implemented
+
+| type | status | source |
+|--|--|--|
+| blocks | possible, not planned without memory remaps | [blocktest.fth](forth2012-test-suite/src/blocktest.fth) |
+| system memory | no system allocator available | [memorytest.fth](forth2012-test-suite/src/memorytest.fth) |
+| floating point | possible w/ emulation, not started | [fp](forth2012-test-suite/src/fp/) |
