@@ -78,9 +78,46 @@ m4_require(<!std/value.f!>)
 \ asm -> native (execute)
 \ tkn -> native (execute)
 \ lit -> push literal (and sign-extend for double)
-\ does -> native (execute)
+\ does -> Forth-side patch/jump handling
 \ local -> read locals slot
 \ else -> -12 argument type mismatch
+
+	: (execute-does-find-tail) ( nt -- nt-tail )
+		begin
+			dup (nt>next@) ?dup
+		while
+			nip
+		repeat
+	;
+
+	: (execute-does-patch) ( val -- )
+		\ update CREATE runtime token (head->next) to DOES variant jump
+		(comp^) (xt>value@)			( val -- val list )
+		(lst>head@)					( val list -- val nt-head )
+		(nt>next@)					( val nt-head -- val nt-does )
+		(nt>value@)					( val nt-does -- val xt-does )
+		dup >r						( val xt-does -- val xt-does ) ( r: -- xt-does )
+
+		s" does:exec" r@ (xt>str+len!)
+		$0 r@ (xt>hash!)
+		dup r@ (xt>value!)
+		(flg-xt-does) (flg-is-var) or r@ (xt>flags!)
+		r> drop
+	;
+
+	: (execute-does) ( flg val -- )
+		{: flg val :}
+
+		\ execute-time variant: jump directly to does body
+		flg (flg-is-var) is-flag? if
+			val (next^!)
+			exit
+		then
+
+		\ defining-time marker: patch CREATE semantics, then skip does body
+		val (execute-does-patch)
+		val (execute-does-find-tail) (next^!)
+	;
 
 	: (execute,patched) ( xt -- )
 		dup 0= #-9 and throw
@@ -102,7 +139,7 @@ m4_require(<!std/value.f!>)
 					then
 				else
 					flg (flg-xt-does) is-flag? if
-						xt (execute)
+						flg val (execute-does)
 					else
 						flg (flg-xt-local) is-flag? if
 							val (from-local)
