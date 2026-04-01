@@ -76,11 +76,20 @@ m4_require(<!std/value.f!>)
 \
 \ Forth-side EXECUTE replacement that mirrors $__internal_execute dispatch:
 \ asm -> native (execute)
-\ tkn -> native (execute)
+\ tkn -> Forth-side call to list head
 \ lit -> push literal (and sign-extend for double)
 \ does -> Forth-side patch/jump handling
 \ local -> read locals slot
 \ else -> -12 argument type mismatch
+
+	: (execute-call) ( nt -- )
+		(next^) r!
+		(next^!)
+	;
+
+	: (execute-list) ( list -- )
+		(lst>head@) (execute-call)
+	;
 
 	: (execute-does-find-tail) ( nt -- nt-tail )
 		begin
@@ -130,7 +139,7 @@ m4_require(<!std/value.f!>)
 			xt (execute)
 		else
 			flg (flg-xt-tkn) is-flag? if
-				xt (execute)
+				val (execute-list)
 			else
 				flg (flg-xt-lit) is-flag? if
 					val
