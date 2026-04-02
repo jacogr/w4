@@ -10,7 +10,6 @@
 ;)
 
 	;; execution & compilation variables
-	(global $exec_list      (mut i32) (i32.const 0))
 	(global $exec_ptr_nt    (mut i32) (i32.const 0))
 	(global $dict_exit_ptr  (mut i32) (i32.const 0))
 
@@ -92,8 +91,6 @@
 	;; https://forth-standard.org/standard/core/Semi
 	;;
 	(func $__internal_compile_end
-		(local $list i32)
-
 		;; check for compilation state, -29 compiler nesting
 		(call $__assert (i32.load (global.get $PTR_STATE)) (i32.const -29))
 
@@ -200,14 +197,13 @@
 			(else))
 	)
 
-	(func $__internal_execute_local (param $xt i32) (param $idx i32)
+	(func $__internal_execute_local (param $idx i32)
 		;; retrieve value, push it
 		(call $__stack_dat_push (call $__stack_loc_peek_at (local.get $idx)))
 	)
 
 	(func $__internal_execute_list (param $val i32)
-		;; store execution list, jump to head
-		(global.set $exec_list (local.get $val))
+		;; jump to list head
 		(call $__internal_call (call $__list_get_head (local.get $val)))
 	)
 
@@ -281,7 +277,7 @@
 											(global.get $FLG_LOCAL)) (if
 
 										;; local
-										(then (call $__internal_execute_local (local.get $ptr_xt) (local.get $val)))
+										(then (call $__internal_execute_local (local.get $val)))
 
 										;; unknown, -12 argument type mismatch
 										(else (call $__assert (i32.const 0) (i32.const -12))))))))))))
@@ -317,6 +313,9 @@
 		(local $fcl i32)
 		(local $ptr_exec_nt i32)
 		(local $ptr_exec_xt i32)
+
+		;; keep exposed semantics for tracing
+		(i32.store (global.get $PTR_PTR_TOK_EXE) (local.get $ptr_xt))
 
 		(local.set $val (call $__val_get_value (local.get $ptr_xt)))
 		(local.set $fcl
