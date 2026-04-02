@@ -313,23 +313,28 @@
 		(local $fcl i32)
 		(local $ptr_exec_nt i32)
 		(local $ptr_exec_xt i32)
+		(local $exec_val i32)
+		(local $exec_fcl i32)
 
 		;; keep exposed semantics for tracing
 		(i32.store (global.get $PTR_PTR_TOK_EXE) (local.get $ptr_xt))
 
 		(local.set $val (call $__val_get_value (local.get $ptr_xt)))
-		(local.set $fcl
-			(i32.and
-				(call $__val_get_flags (local.get $ptr_xt))
-				(i32.const -16)))
 
 		;; fast-path native execution using cached value
 		(i32.eq
-			(local.get $fcl)
+			(local.tee $fcl
+				(i32.and
+					(call $__val_get_flags (local.get $ptr_xt))
+					(i32.const -16)))
 			(global.get $FLG_ASM)) (if
+
+			;; exzecute asm directly
 			(then
 				(call $__internal_execute_asm (local.get $val))
 				return)
+
+			;; execute below
 			(else))
 
 		(local.tee $ptr_exec_nt (call $__internal_lookup_execute_nt)) (if
@@ -337,12 +342,28 @@
 			;; route through Forth `execute`
 			(then
 				(local.set $ptr_exec_xt (call $__val_get_value (local.get $ptr_exec_nt)))
-				(i32.ne (local.get $ptr_exec_xt) (local.get $ptr_xt)) (if
+
+				(i32.or
+					(i32.eq (local.get $ptr_exec_xt) (local.get $ptr_xt))
+					(i32.and
+						(i32.eq
+							(local.tee $exec_fcl
+								(i32.and
+									(call $__val_get_flags (local.get $ptr_exec_xt))
+									(i32.const -16)))
+							(local.get $fcl))
+						(i32.eq
+							(local.tee $exec_val (call $__val_get_value (local.get $ptr_exec_xt)))
+							(local.get $val)))) (if
+
+					;; execute xt directly
 					(then
-						(call $__stack_dat_push (local.get $ptr_xt))
-						(call $__internal_execute_exposed (local.get $ptr_exec_xt)))
+						(call $__internal_execute_exposed (local.get $ptr_xt)))
+
+					;; route via Forth execute
 					(else
-						(call $__internal_execute_exposed (local.get $ptr_xt)))))
+						(call $__stack_dat_push (local.get $ptr_xt))
+						(call $__internal_execute_exposed (local.get $ptr_exec_xt)))))
 
 			;; fallback to raw/exposed direct path
 			(else
