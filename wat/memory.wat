@@ -53,6 +53,7 @@
 	;; next layout at 980 (0x03d4), memory in-between is sparse for future usage
 
 	;; text definitions as used
+	(global $PTR_EXEC_TEXT    i32 (i32.const  970)) ;; location of "execute"
 	(global $PTR_DO_MARK_TEXT i32 (i32.const  980))
 	(global $PTR_DO_EXEC_TEXT i32 (i32.const  990)) ;; location of the jump string
 	(global $PTR_NATIVE_TEXT  i32 (i32.const 1000)) ;; location of the first native, "exit" (1000)

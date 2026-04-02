@@ -10,11 +10,12 @@
 
 ;)
 
-	;; call table for the builtins (max 32 allowed based on memory layouts)
+	;; call table for the builtins (max 48 allowed based on memory layouts)
 	(type $TypeForthFn (func))
-	(table 32 funcref)
+	(table 48 funcref)
 
-	;; does derived operations
+	;; named operations
+	(data (i32.const 970) "execute")   ;; PTR_EXEC_TEXT, length = 7
 	(data (i32.const 980) "does:mark") ;; PTR_DO_MARK_TEXT, length = 10
 	(data (i32.const 990) "does:exec") ;; PTR_DO_EXEC_TEXT, length = 10
 
@@ -215,7 +216,7 @@
 	;; ( i * x xt -- j * x )
 	(elem (i32.const 17) $__forth_fn_execute)
 	(func $__forth_fn_execute (type $TypeForthFn)
-		(call $__internal_execute (call $__stack_dat_pop))
+		(call $__internal_execute_exposed (call $__stack_dat_pop))
 	)
 
 	;; https://forth-standard.org/standard/core/COMPILEComma

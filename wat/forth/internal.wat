@@ -11,6 +11,7 @@
 
 	;; execution & compilation variables
 	(global $exec_list      (mut i32) (i32.const 0))
+	(global $exec_ptr_nt    (mut i32) (i32.const 0))
 	(global $dict_exit_ptr  (mut i32) (i32.const 0))
 
 	;;
@@ -216,11 +217,10 @@
 	m4_include(<!build/w4-exec-asm.wat!>)
 
 	;;
-	;; Execute a word based on the embedded flags
+	;; Execute a word based on the embedded flags (raw/exposed path).
+	;; This is the implementation exposed via builtin `(execute)`.
 	;;
-	;; https://forth-standard.org/standard/core/EXECUTE
-	;;
-	(func $__internal_execute (param $ptr_xt i32)
+	(func $__internal_execute_exposed (param $ptr_xt i32)
 		(local $fcl i32)
 		(local $flg i32)
 		(local $val i32)
@@ -288,6 +288,69 @@
 	)
 
 	;;
+	;; Lookup the Forth-side `execute` word. Returns nt|0.
+	;; Cache the nt once found to avoid repeated dictionary lookups.
+	;;
+	(func $__internal_lookup_execute_nt (result i32)
+		(local $ptr_nt i32)
+
+		;; not cached? lookup once and cache if found
+		(i32.eqz (local.tee $ptr_nt (global.get $exec_ptr_nt))) (if
+			(then
+				(global.set $exec_ptr_nt (local.tee $ptr_nt
+					(call $__internal_lookup
+						(global.get $PTR_EXEC_TEXT)
+						(i32.const 7)
+						(call $__hash
+							(global.get $PTR_EXEC_TEXT)
+							(i32.const 7)))))))
+
+		local.get $ptr_nt
+	)
+
+	;;
+	;; Wrapped execute path: if Forth `execute` exists, route through it;
+	;; otherwise execute directly via the exposed/raw implementation.
+	;;
+	(func $__internal_execute (param $ptr_xt i32)
+		(local $fcl i32)
+		(local $ptr_exec_nt i32)
+		(local $ptr_exec_xt i32)
+
+		(local.set $fcl
+			(i32.and
+				(call $__val_get_flags (local.get $ptr_xt))
+				(i32.const -16)))
+
+		;; never route ASM through Forth `execute` to avoid recursion on `(execute)`
+		(i32.eq
+			(local.get $fcl)
+			(global.get $FLG_ASM)) (if
+			(then
+				(call $__internal_execute_exposed (local.get $ptr_xt))
+				return)
+			(else))
+
+		(local.set $ptr_exec_nt (call $__internal_lookup_execute_nt))
+
+		(local.get $ptr_exec_nt) (if
+
+			;; route through Forth `execute`
+			(then
+				(local.set $ptr_exec_xt (call $__val_get_value (local.get $ptr_exec_nt)))
+				(i32.ne (local.get $ptr_exec_xt) (local.get $ptr_xt)) (if
+					(then
+						(call $__stack_dat_push (local.get $ptr_xt))
+						(call $__internal_execute_exposed (local.get $ptr_exec_xt)))
+					(else
+						(call $__internal_execute_exposed (local.get $ptr_xt)))))
+
+			;; fallback to raw/exposed direct path
+			(else
+				(call $__internal_execute_exposed (local.get $ptr_xt))))
+	)
+
+	;;
 	;; Compiles a word
 	;;
 	;; https://forth-standard.org/standard/core/COMPILEComma
@@ -328,8 +391,8 @@
 			;; jump to next
 			(call $__internal_next (call $__ent_get_next (i32.load (global.get $PTR_PTR_TOK_NXT))))
 
-			;; execute current
-			(call $__internal_execute (local.get $ptr_xt))
+			;; execute current via exposed/raw token path
+			(call $__internal_execute_exposed (local.get $ptr_xt))
 
 			;; continue with next (if non-zero)
 			(br $loop)))
