@@ -39,20 +39,21 @@
 		(; 15 ;) "(find-name)"					"\00\00"
 		(; 16 ;) "(parse-token)"				"\00\00"
 		(; 17 ;) "(execute)"					"\00\00"
-		(; 18 ;) "(compile,)"					"\00\00"
-		(; 19 ;) "(throw)"						"\00\00"
-		(; 20 ;) "wasi::fd_write"				"\00\00"
-		(; 21 ;) "wasi::fd_read"				"\00\00"
-		(; 22 ;) "wasi::fd_close"				"\00\00"
-		(; 23 ;) "wasi::path_open"				"\00\00"
-		(; 24 ;) "wasi::fd_seek"				"\00\00"
-		(; 25 ;) "wasi::fd_tell"				"\00\00"
-		(; 26 ;) "wasi::fd_filestat_get"		"\00\00"
-		(; 27 ;) "wasi::fd_filestat_set_size"	"\00\00"
-		(; 28 ;) "wasi::fd_sync"				"\00\00"
-		(; 29 ;) "wasi::path_unlink_file"		"\00\00"
-		(; 30 ;) "wasi::path_rename"			"\00\00"
-		(; 31 ;) "wasi::path_filestat_get"		"\00\00"
+		(; 18 ;) "(execute-asm)"				"\00\00"
+		(; 19 ;) "(compile,)"					"\00\00"
+		(; 20 ;) "(throw)"						"\00\00"
+		(; 21 ;) "wasi::fd_write"				"\00\00"
+		(; 22 ;) "wasi::fd_read"				"\00\00"
+		(; 23 ;) "wasi::fd_close"				"\00\00"
+		(; 24 ;) "wasi::path_open"				"\00\00"
+		(; 25 ;) "wasi::fd_seek"				"\00\00"
+		(; 26 ;) "wasi::fd_tell"				"\00\00"
+		(; 27 ;) "wasi::fd_filestat_get"		"\00\00"
+		(; 28 ;) "wasi::fd_filestat_set_size"	"\00\00"
+		(; 29 ;) "wasi::fd_sync"				"\00\00"
+		(; 30 ;) "wasi::path_unlink_file"		"\00\00"
+		(; 31 ;) "wasi::path_rename"			"\00\00"
+		(; 32 ;) "wasi::path_filestat_get"		"\00\00"
 		(;  z ;)
 	)
 
@@ -219,15 +220,22 @@
 		(call $__internal_execute_exposed (call $__stack_dat_pop))
 	)
 
+	;; Non-standard: execute native builtin by asm index
+	;; ( idx -- )
+	(elem (i32.const 18) $__forth_fn_execute_asm)
+	(func $__forth_fn_execute_asm (type $TypeForthFn)
+		(call $__internal_execute_asm (call $__stack_dat_pop))
+	)
+
 	;; https://forth-standard.org/standard/core/COMPILEComma
 	;; ( xt -- )
-	(elem (i32.const 18) $__forth_fn_compile)
+	(elem (i32.const 19) $__forth_fn_compile)
 	(func $__forth_fn_compile (type $TypeForthFn)
 		(call $__internal_compile (call $__stack_dat_pop))
 	)
 
 	;; https://forth-standard.org/standard/exception/THROW
-	(elem (i32.const 19) $__forth_fn_throw)
+	(elem (i32.const 20) $__forth_fn_throw)
 	(func $__forth_fn_throw (type $TypeForthFn)
 		(local $err i32)
 
@@ -239,19 +247,19 @@
 	;; Expose wasmi function for writing to file
 	;;
 	;; (fd:i32, iovs_ptr:i32, iovs_len:i32, nwritten_ptr:i32) -> errno:i32
-	(elem (i32.const 20) $__forth_fn_wasi_fd_write)
+	(elem (i32.const 21) $__forth_fn_wasi_fd_write)
 	m4_include(<!forth/builtins/builtins-wasi-fd_write.wat!>)
 
 	;; Expose wasmi for reading from file
 	;;
 	;; (fd:i32, iovs_ptr:i32, iovs_len:i32, nread_ptr:i32) -> errno:i32
-	(elem (i32.const 21) $__forth_fn_wasi_fd_read)
+	(elem (i32.const 22) $__forth_fn_wasi_fd_read)
 	m4_include(<!forth/builtins/builtins-wasi-fd_read.wat!>)
 
 	;; Expose wasmi for closing a file
 	;;
 	;; (fd:i32) -> errno:i32
-	(elem (i32.const 22) $__forth_fn_wasi_fd_close)
+	(elem (i32.const 23) $__forth_fn_wasi_fd_close)
 	m4_include(<!forth/builtins/builtins-wasi-fd_close.wat!>)
 
 	;; Expose wasmi for opening a path
@@ -259,55 +267,55 @@
 	;; (dirfd:i32, dirflags:i32, path_ptr:i32, path_len:i32,
 	;;  oflags:i32, fs_rights_base:i64, fs_rights_inheriting:i64,
 	;;  fdflags:i32, opened_fd_ptr:i32) -> errno:i32
-	(elem (i32.const 23) $__forth_fn_wasi_path_open)
+	(elem (i32.const 24) $__forth_fn_wasi_path_open)
 	m4_include(<!forth/builtins/builtins-wasi-fd_open.wat!>)
 
 	;; Expose wasmi for seeking on a file descriptor
 	;;
 	;; (fd:i32, offset:i64, whence:u8, newoffset_ptr:i32) -> errno:i32
-	(elem (i32.const 24) $__forth_fn_wasi_fd_seek)
+	(elem (i32.const 25) $__forth_fn_wasi_fd_seek)
 	m4_include(<!forth/builtins/builtins-wasi-fd_seek.wat!>)
 
 	;; Expose wasmi for retrieving current fd offset
 	;;
 	;; (fd:i32, offset_ptr:i32) -> errno:i32
-	(elem (i32.const 25) $__forth_fn_wasi_fd_tell)
+	(elem (i32.const 26) $__forth_fn_wasi_fd_tell)
 	m4_include(<!forth/builtins/builtins-wasi-fd_tell.wat!>)
 
 	;; Expose wasmi for retrieving fd file stats
 	;;
 	;; (fd:i32, filestat_ptr:i32) -> errno:i32
-	(elem (i32.const 26) $__forth_fn_wasi_fd_filestat_get)
+	(elem (i32.const 27) $__forth_fn_wasi_fd_filestat_get)
 	m4_include(<!forth/builtins/builtins-wasi-fd_filestat_get.wat!>)
 
 	;; Expose wasmi for setting fd file size
 	;;
 	;; (fd:i32, size:i64) -> errno:i32
-	(elem (i32.const 27) $__forth_fn_wasi_fd_filestat_set_size)
+	(elem (i32.const 28) $__forth_fn_wasi_fd_filestat_set_size)
 	m4_include(<!forth/builtins/builtins-wasi-fd_filestat_set_size.wat!>)
 
 	;; Expose wasmi for syncing a file descriptor
 	;;
 	;; (fd:i32) -> errno:i32
-	(elem (i32.const 28) $__forth_fn_wasi_fd_sync)
+	(elem (i32.const 29) $__forth_fn_wasi_fd_sync)
 	m4_include(<!forth/builtins/builtins-wasi-fd_sync.wat!>)
 
 	;; Expose wasmi for deleting a file path
 	;;
 	;; (dirfd:i32, path_ptr:i32, path_len:i32) -> errno:i32
-	(elem (i32.const 29) $__forth_fn_wasi_path_unlink_file)
+	(elem (i32.const 30) $__forth_fn_wasi_path_unlink_file)
 	m4_include(<!forth/builtins/builtins-wasi-path_unlink_file.wat!>)
 
 	;; Expose wasmi for renaming a path
 	;;
 	;; (old_dirfd:i32, old_ptr:i32, old_len:i32, new_dirfd:i32, new_ptr:i32, new_len:i32) -> errno:i32
-	(elem (i32.const 30) $__forth_fn_wasi_path_rename)
+	(elem (i32.const 31) $__forth_fn_wasi_path_rename)
 	m4_include(<!forth/builtins/builtins-wasi-path_rename.wat!>)
 
 	;; Expose wasmi for retrieving file stats by path
 	;;
 	;; (dirfd:i32, flags:i32, path_ptr:i32, path_len:i32, filestat_ptr:i32) -> errno:i32
-	(elem (i32.const 31) $__forth_fn_wasi_path_filestat_get)
+	(elem (i32.const 32) $__forth_fn_wasi_path_filestat_get)
 	m4_include(<!forth/builtins/builtins-wasi-path_filestat_get.wat!>)
 
 	;;

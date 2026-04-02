@@ -136,7 +136,7 @@ m4_require(<!std/value.f!>)
 		{: xt flg val :}
 
 		flg (flg-xt-asm) is-flag? if
-			xt (execute)
+			val (execute-asm)
 		else
 			flg (flg-xt-tkn) is-flag? if
 				val (execute-list)
