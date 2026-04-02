@@ -5,7 +5,8 @@
 #   awk -f scripts/exec-asm.awk -v src=wat/forth/builtins.wat -v out=build/w4-exec-asm.wat
 
 BEGIN {
-  MAX_BUILTIN_INDEX = 31
+  # 48 functions, indexes 0-47
+  MAX_BUILTIN_INDEX = 47
 
   if (src == "" || out == "") {
     print "usage: awk -f exec-asm.awk -v src=<builtins.wat> -v out=<out.wat>" > "/dev/stderr"
