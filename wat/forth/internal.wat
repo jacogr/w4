@@ -313,27 +313,27 @@
 	;; otherwise execute directly via the exposed/raw implementation.
 	;;
 	(func $__internal_execute (param $ptr_xt i32)
+		(local $val i32)
 		(local $fcl i32)
 		(local $ptr_exec_nt i32)
 		(local $ptr_exec_xt i32)
 
+		(local.set $val (call $__val_get_value (local.get $ptr_xt)))
 		(local.set $fcl
 			(i32.and
 				(call $__val_get_flags (local.get $ptr_xt))
 				(i32.const -16)))
 
-		;; never route ASM through Forth `execute` to avoid recursion on `(execute)`
+		;; fast-path native execution using cached value
 		(i32.eq
 			(local.get $fcl)
 			(global.get $FLG_ASM)) (if
 			(then
-				(call $__internal_execute_exposed (local.get $ptr_xt))
+				(call $__internal_execute_asm (local.get $val))
 				return)
 			(else))
 
-		(local.set $ptr_exec_nt (call $__internal_lookup_execute_nt))
-
-		(local.get $ptr_exec_nt) (if
+		(local.tee $ptr_exec_nt (call $__internal_lookup_execute_nt)) (if
 
 			;; route through Forth `execute`
 			(then
