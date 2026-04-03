@@ -423,14 +423,18 @@
 	;;
 	(func $__internal_lookup (param $str i32) (param $len i32) (param $hash i32) (result i32)
 		(local $lwid i32)
-		(local $idx i32)
-		(local $num i32)
 		(local $ptr i32)
+		(local $end i32)
 		(local $xt i32)
 
-		;; get the number of wids
-		(local.set $num (i32.load (global.get $PTR_WID_COUNT)))
+		;; get wid list bounds [ptr, end)
 		(local.set $ptr (i32.load (global.get $PTR_PTR_WID_LIST)))
+		(local.set $end
+			(i32.add
+				(local.get $ptr)
+				(i32.shl
+					(i32.load (global.get $PTR_WID_COUNT))
+					(i32.const 2))))
 
 		;; local wid?
 		(local.tee $lwid (i32.load (global.get $PTR_LOC_WID))) (if
@@ -449,11 +453,11 @@
 
 		;; lookup until found or no next
 		(block $exit (loop $loop
-			;; exit if xt found or no more lists
+			;; exit if xt found or no more wordlists
 			(br_if $exit
 				(i32.or
 					(local.get $xt)
-					(i32.eq (local.get $idx) (local.get $num))))
+					(i32.eq (local.get $ptr) (local.get $end))))
 
 			;; get xt
 			(local.set $xt
@@ -464,7 +468,6 @@
 					(local.get $hash)))
 
 			;; move to next entry
-			(local.set $idx (i32.add (local.get $idx) (i32.const 1)))
 			(local.set $ptr (i32.add (local.get $ptr) (i32.const 4)))
 
 			;; continue loop

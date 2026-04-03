@@ -25,19 +25,23 @@
 		(local $ptr_ent i32)
 		(local $ptr_val i32)
 		(local $hi i32)
+		(local $buckets i32)
+		(local $mask i32)
 
 		;; load index
 		(local.set $hi (call $__list_get_owner (local.get $ptr_list)))
+		(local.set $buckets (call $__lookup_get_buckets (local.get $hi)))
+		(local.set $mask (call $__lookup_get_mask (local.get $hi)))
 
 		;; ptr_ent = buckets[hash & mask]
 		(local.set $ptr_ent
 			(i32.load
 			(i32.add
-				(call $__lookup_get_buckets (local.get $hi))
+				(local.get $buckets)
 				(i32.shl
 					(i32.and
 						(local.get $hash)
-						(call $__lookup_get_mask (local.get $hi)))
+						(local.get $mask))
 					(i32.const 2)))))
 
 		;; walk through linked list until found (or end)

@@ -169,31 +169,19 @@
 
 	(func $__stack_loc_peek_at (param $idx i32) (result i32)
 		(local $base i32)
-		(local $start i32)
-		(local $at i32)
 
-		;; base pointer
+		;; base pointer to locals frame top
 		(local.set $base (i32.load (global.get $PTR_LOC_VALUE_AT)))
 
-		;; start pointer (index 0)
-		(local.set $start
-			(i32.sub
-				(local.get $base)
-				(i32.mul
-					(i32.load (local.get $base))
-					(i32.const 4))))
-
-		;; start + index
-		;;
-		;; ... yes, this can be combined with the above into 1 operation,
-		;; split here for clarity (and hoping the optimizer optimizes)
-		(local.set $at
+		;; load value at index from frame start: base - (count*4) + (idx*4)
+		(i32.load
 			(i32.add
-				(local.get $start)
+				(i32.sub
+					(local.get $base)
+					(i32.mul
+						(i32.load (local.get $base))
+						(i32.const 4)))
 				(i32.mul
 					(local.get $idx)
 					(i32.const 4))))
-
-		;; load specific value
-		(i32.load (local.get $at))
 	)
