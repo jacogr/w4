@@ -9,19 +9,12 @@ m4_require(<!std/string-utils.f!>)
 \ https://en.wikipedia.org/wiki/Daniel_J._Bernstein
 
 	: DJB2A-i ( c-addr u -- u )
-		$1505 swap				( c-addr u -- c-addr hash u -- )
-		begin
-			dup 0<>
-		while					( c-addr hash u -- c-addr hash u )
-			>r					( c-addr hash u -- c-addr hash ) ( r: -- u )
-			over c@ >lower-ascii	( c-addr hash -- c-addr hash ch )
-			swap dup			( c-addr hash ch -- c-addr ch hash hash )
-			#5 lshift			( c-addr ch hash hash -- c-addr ch hash hash<<5 )
-			+ xor				( c-addr ch hash hash<<5 -- c-addr hash )
-			swap 1+ swap		( c-addr hash -- c-addr' hash )
-			r> 1-				( c-addr' hash -- c-addr' hash u' )
-		repeat
-		drop nip				( c-addr hash 0 -- hash )
+		bounds					( c-addr u -- end start )
+		$1505 -rot				( end start -- hash end start )
+		?do						( hash -- hash )
+			i c@ >lower-ascii	( hash -- hash ch )
+			swap dup #5 lshift + swap xor
+		loop
 	;
 
 \ fnv1a hash
@@ -30,17 +23,12 @@ m4_require(<!std/string-utils.f!>)
 \ https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
 
 	: FNV1A-i ( c-addr u -- u )
-		$811c9dc5 swap			( c-addr u -- c-addr hash u )
-		begin
-			dup 0<>
-		while					( c-addr hash u -- c-addr hash u )
-			>r					( c-addr hash u -- c-addr hash ) ( r: -- u )
-			over c@ >lower-ascii	( c-addr hash -- c-addr hash ch )
-			xor	$01000193 *		( c-addr hash ch -- c-addr hash' )
-			swap 1+ swap		( c-addr hash' -- c-addr' hash' )
-			r> 1-				( c-addr' hash' -- c-addr' hash' u' )
-		repeat
-		drop nip				( c-addr hash 0 -- hash )
+		bounds					( c-addr u -- end start )
+		$811c9dc5 -rot			( end start -- hash end start )
+		?do						( hash -- hash )
+			i c@ >lower-ascii xor
+			$01000193 *
+		loop
 	;
 
 \ fmix32
