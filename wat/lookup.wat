@@ -141,6 +141,8 @@
 	(func $__lookup_append (param $ptr_list i32) (param $hash i32) (param $ptr_xt i32)
 		(local $ent i32)
 		(local $hi i32)
+		(local $buckets i32)
+		(local $mask i32)
 		(local $bptr i32)
 
 		;; append to list & get newly created entry value
@@ -149,15 +151,17 @@
 		;; get entry & hash index from list
 		(local.set $ent (call $__list_get_tail (local.get $ptr_list)))
 		(local.set $hi (call $__list_get_owner (local.get $ptr_list)))
+		(local.set $buckets (call $__lookup_get_buckets (local.get $hi)))
+		(local.set $mask (call $__lookup_get_mask (local.get $hi)))
 
 		;; bptr = &buckets[hash & mask]
 		(local.set $bptr
 			(i32.add
-				(call $__lookup_get_buckets (local.get $hi))
+				(local.get $buckets)
 				(i32.shl
 					(i32.and
 						(local.get $hash)
-						(call $__lookup_get_mask (local.get $hi)))
+						(local.get $mask))
 					(i32.const 2))))
 
 		;; ent.hprev = old head
