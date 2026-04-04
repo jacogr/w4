@@ -23,7 +23,12 @@ m4_require(<!ext/list.f!>)
 \ definition is immediate, minus-one (-1) otherwise.
 
 	: SEARCH-WORDLIST ( c-addr u wid -- 0 | xt 1 | xt -1 )
-		(lookup-search-xt) dup if	( c-addr u wid -- xt|0 )
+		\ -18 parsed string overflow
+		over string-max > #-18 and throw
+
+		-rot						( c-addr u wid -- wid c-addr u )
+		2dup host::hash				( wid c-addr u -- wid c-addr u hash )
+		(lookup-find) (nt>value@) dup if	( wid c-addr u hash -- xt|0 )
 			(find-flag-xt)			( xt -- xt f )
 		then
 	;
