@@ -44,7 +44,9 @@ S" forth2012-test-suite/src/localstest.fth" INCLUDED
 \ allocator. these can be stubbed around allot, but never pure system
 \ UNPLANNED S" forth2012-test-suite/src/memorytest.fth" INCLUDED
 
-S" forth2012-test-suite/src/toolstest.fth" INCLUDED
+[UNDEFINED] SKIP-TESTS-TOOLS [IF]
+	S" forth2012-test-suite/src/toolstest.fth" INCLUDED
+[THEN]
 S" forth2012-test-suite/src/searchordertest.fth" INCLUDED
 S" forth2012-test-suite/src/stringtest.fth" INCLUDED
 

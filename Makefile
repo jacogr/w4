@@ -57,7 +57,7 @@ EXE_AWK        = awk
 
 # targets
 
-.PHONY: all clean check
+.PHONY: all clean check bench-std
 all: $(FTH_GEN) $(WASM_GEN_OPT)
 
 $(DIR_BUILD):
@@ -118,6 +118,42 @@ check-std: $(FTH_GEN) $(WASM_GEN_OPT) $(TEST_STD)
 	rm -f "$$out"
 
 check: check-lib check-std
+
+# benchmark std suite without programming tools tests (lower noise)
+# usage: make bench-std RUNS=7 WARMUP=1
+bench-std: $(FTH_GEN) $(WASM_GEN_OPT) $(TEST_STD)
+	@runs=$${RUNS:-5}; \
+	warmup=$${WARMUP:-0}; \
+	tmp=$$(mktemp); \
+	w=1; \
+	while [ $$w -le $$warmup ]; do \
+		ms=$$(W4_SKIP_TESTS=tools $(EXE_NODE) $(TEST_STD) <test/forth2012-test-input.txt 2>&1 | awk '/^ok: /{gsub("ms","",$$2); print $$2}'); \
+		if [ -z "$$ms" ]; then \
+			echo "bench-std failed on warmup $$w (missing ok timing output)"; \
+			rm -f "$$tmp"; \
+			exit 1; \
+		fi; \
+		printf "warmup %d/%d: %sms\n" $$w $$warmup "$$ms"; \
+		w=$$((w + 1)); \
+	done; \
+	i=1; \
+	while [ $$i -le $$runs ]; do \
+		ms=$$(W4_SKIP_TESTS=tools $(EXE_NODE) $(TEST_STD) <test/forth2012-test-input.txt 2>&1 | awk '/^ok: /{gsub("ms","",$$2); print $$2}'); \
+		if [ -z "$$ms" ]; then \
+			echo "bench-std failed on run $$i (missing ok timing output)"; \
+			rm -f "$$tmp"; \
+			exit 1; \
+		fi; \
+		echo "$$ms" >> "$$tmp"; \
+		printf "run %d/%d: %sms\n" $$i $$runs "$$ms"; \
+		i=$$((i + 1)); \
+	done; \
+	min=$$(sort -n "$$tmp" | head -n 1); \
+	max=$$(sort -n "$$tmp" | tail -n 1); \
+	median=$$(sort -n "$$tmp" | awk -v n=$$runs '{ a[NR]=$$1 } END { if (n % 2) print a[(n + 1) / 2]; else print (a[n / 2] + a[(n / 2) + 1]) / 2 }'); \
+	avg=$$(awk '{ s += $$1 } END { printf "%.3f", s / NR }' "$$tmp"); \
+	echo "summary: min=$${min}ms median=$${median}ms avg=$${avg}ms max=$${max}ms"; \
+	rm -f "$$tmp"
 
 # cleanup build
 clean:

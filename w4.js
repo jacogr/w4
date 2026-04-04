@@ -83,6 +83,24 @@ import nodeWasi from 'node:wasi';
 		// initialize the engine (underlying it calls the _start export)
 		wasi.start(instance);
 
+		// optional benchmark mode: skip selected Forth-2012 test groups
+		const skipTests = nodeProcess.env.W4_SKIP_TESTS;
+
+		if (skipTests) {
+			const skipNames = new Set(
+				skipTests
+					.split(',')
+					.map((v) => v.trim())
+					.filter(Boolean)
+					.map((v) => v.toUpperCase().replace(/[^A-Z0-9]+/g, '-').replace(/^-+|-+$/g, ''))
+					.filter(Boolean)
+			);
+
+			for (const skipName of skipNames) {
+				evaluate(`true constant SKIP-TESTS-${skipName}`);
+			}
+		}
+
 		evaluate(`s" ${usrFile}" included`);
 
 		logEnd('ok');
