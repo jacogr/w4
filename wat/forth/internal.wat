@@ -337,7 +337,17 @@
 			;; execute below
 			(else))
 
-		(local.tee $ptr_exec_nt (call $__internal_lookup_execute_nt)) (if
+		;; extract Forth execute (if not available)
+		(global.get $exec_ptr_nt) (if
+			;; already set, ignore
+			(then)
+
+			;; try and extract value
+			(else
+				(local.set $ptr_exec_nt (call $__internal_lookup_execute_nt))))
+
+		;; Forth execute?
+		(local.get $ptr_exec_nt) (if
 
 			;; route through Forth `execute`
 			(then
@@ -397,6 +407,7 @@
 	;; Executes exec_next until all values are consumed
 	;;
 	(func $__internal_run
+		(local $ptr_nxt i32)
 		(local $ptr_xt i32)
 
 		;; loop while we have tokens, we have from parsing (single), but could
@@ -406,10 +417,12 @@
 			;; exit if we don't have a next xt
 			(br_if $exit
 				(i32.eqz (local.tee $ptr_xt
-					(call $__val_get_value (i32.load (global.get $PTR_PTR_TOK_NXT))))))
+					(call $__val_get_value
+						(local.tee $ptr_nxt
+							(i32.load (global.get $PTR_PTR_TOK_NXT)))))))
 
 			;; jump to next
-			(call $__internal_next (call $__ent_get_next (i32.load (global.get $PTR_PTR_TOK_NXT))))
+			(call $__internal_next (call $__ent_get_next (local.get $ptr_nxt)))
 
 			;; execute current via exposed/raw token path
 			(call $__internal_execute_exposed (local.get $ptr_xt))
