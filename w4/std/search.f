@@ -218,21 +218,21 @@ m4_require(<!ext/list.f!>)
 \ Search order matches FIND: locals first, then active wordlists.
 \
 	: (find-name,patched) ( c-addr u -- nt | 0 )
-		0 0 {: c-addr u wid-idx nt :}
+		0 0 0 {: c-addr u hash wid-idx nt :}
 
-		c-addr u (locals-wid) ?dup if
-			(lookup-search) to nt
-		else
-			2drop
+		c-addr u host::hash to hash
+
+		(locals-wid) ?dup if
+			c-addr u hash (lookup-find) to nt
 		then
 
 		begin
 			nt 0= wid-idx (wid-count) < and
 		while
-			c-addr u
 			wid-idx cells
 			(wid-list) + @
-			(lookup-search) ?dup if to nt then
+			c-addr u hash
+			(lookup-find) ?dup if to nt then
 			wid-idx 1+ to wid-idx
 		repeat
 
