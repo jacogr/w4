@@ -12,13 +12,15 @@ m4_require(<!std/stack-ptr.f!>)
 \ length of a zero-terminated string
 
 	: STRLENZ ( c-addr -- u )
-		dup >r
+		dup >r				( c-addr -- c-addr ) ( r: -- c-addr )
+
 		begin
-			dup c@ 0<>
-		while
-			1+
+			dup c@ 0<>		( c-addr -- c-addr f )
+		while				( c-addr f -- c-addr )
+			1+				( c-addr -- c-addr' )
 		repeat
-		r> -
+
+		r> -				( c-addr' -- u ) ( r: c-addr -- )
 	;
 
 \ copy a string
@@ -46,7 +48,7 @@ m4_require(<!std/stack-ptr.f!>)
 
 		here swap			( src len -- src dst len )
 		dup allot			( src dst len -- src dst len )
-		strcpy
+		strcpy				( src dst len -- dst len )
 	;
 
 \ Compare two strings byte for byte until the specified length
