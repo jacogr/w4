@@ -46,10 +46,10 @@ m4_require(<!std/value.f!>)
 		\ anonymous (name=0 or len=0) still builds xt/list, but skips lookup insert.
 		2dup or >r
 		r@ if
-			(new-list) (flg-xt-tkn) (new-xt-full)	( c-addr u -- xt )
+			$0 (new-list) (flg-xt-tkn) (new-xt-full)	( c-addr u -- xt )
 		else
 			2drop
-			(new-list) (flg-xt-tkn) (new-xt)		( -- xt )
+			$0 (new-list) (flg-xt-tkn) (new-xt)		( -- xt )
 			$0 $0 sp-2@ (xt>str+len!)
 			$0 sp-1@ (xt>hash!)
 		then

@@ -9,14 +9,12 @@ m4_require(<!ext/is.f!>)
 
 \ Non-standard, but needed for this environment. Create a new list.
 
-	: ((new-list)) ( flags -- a-addr )
+	: (new-list) ( flags -- a-addr )
 		align here swap			( flags -- here^ flags )
 		(sizeof-lst) allot		\ allocate
 		(flg-list) or			( here^ flags -- here^ flags' )
 		over (lst>flags!)		( here^ flags' -- here^ )	\ write flags
 	;
-
-	: (new-list) ( -- a-addr ) 0 ((new-list)) ;
 
 \ Create a list entry with next/prev.
 
@@ -41,7 +39,7 @@ m4_require(<!ext/is.f!>)
 		0= #-49 and throw			( count f -- count ) 						\ throw if not power of 2 & big enough
 
 		\ allocate list (aligned) & buckets
-		(flg-is-var) ((new-list)) 	( count flags -- count list )
+		(flg-is-var) (new-list) 	( count flags -- count list )
 		swap dup 1- >r 				( count list -- list count ) ( r: -- mask )	\ mask = count - 1
 		here swap					( list count -- list buckets count )
 		cells allot					( list buckets count -- list buckets )		\ allocate count cells
