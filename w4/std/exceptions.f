@@ -168,8 +168,8 @@ m4_require(<!std/value.f!>)
 
 	: (throw-capture-state) ( n f -- n f )
 		\ update throw-value only when f=true; preserve on 0 THROW
-		dup sp-2@ (throw-value) @
-		select (throw-value) !			( n f f n old -- n f )
+		dup (throw-value) @ sp-3@
+		select (throw-value) !			( n f f old n -- n f )
 
 		\ throw-active <- throw-active OR f (never clear on 0 THROW)
 		dup (throw-active) @ or
@@ -179,14 +179,14 @@ m4_require(<!std/value.f!>)
 
 	: (throw-restore-rs) ( n f -- n f )
 		\ restore return stack only when f=true, otherwise a no-op pointer
-		dup (rp-noop^) handler @ swap
+		dup (rp-noop^) handler @
 		select
 		(rp-restore^)					( n f -- n f )
 	;
 
 	: (throw-pass-code) ( n f -- n|0 )
 		\ pass 0 to native throw when f=true (handled by CATCH), else pass n
-		$0 rot
+		$0 rot swap
 		select
 	;
 

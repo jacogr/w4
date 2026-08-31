@@ -237,8 +237,8 @@ m4_require(<!std/stack.f!>)
 \ leaving the most-significant bit unchanged.
 
 	: ARSHIFT1 ( n -- n' )
-		dup 0< msb 0	( n -- n flag msb 0 )
-		select 			( flag msb 0 -- n mask )
+		dup 0< $0 msb	( n -- n flag 0 msb )
+		select 			( flag 0 msb -- n mask )
 		swap $1 rshift 	( n mask -- mask n>>1 )
 		or				( mask n -- n' )
 	;

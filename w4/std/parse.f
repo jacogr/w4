@@ -134,7 +134,7 @@ m4_require(<!std/string.f!>)
 
 	: (find-flag-xt) ( xt -- xt f )
 		dup is-xt-immediate?	( xt -- xt f )
-		$1 $-1 select			\ -1 normal, 1 immediate
+		$-1 $1 select			\ -1 normal, 1 immediate
 	;
 
 	: FIND ( c-addr -- c-addr 0 | xt 1 | xt -1 )

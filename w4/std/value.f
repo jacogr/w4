@@ -139,7 +139,7 @@ m4_require(<!ext/is.f!>)
 				hide ' , reveal
 			does>
 				@ state @ 0= over is-xt-immediate? or
-				['] execute ['] compile,
+				['] compile, ['] execute
 				select
 				execute
 		; immediate

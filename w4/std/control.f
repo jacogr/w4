@@ -10,8 +10,8 @@ m4_require(<!std/stack-ptr.f!>)
 
 	: ?BRANCH ( f dst -- ) ( r: ret -- ret|dst )
 		swap 0<> swap	( f dst -- f' dst )	\ f' = f <> 0
-		r@ swap			( f dst -- f retr dst ) ( r: ret -- ret )
-		select			( f ret dst -- ret|dst )
+		r@				( f dst -- f dst ret ) ( r: ret -- ret )
+		select			( f dst ret -- ret|dst )
 		r!				( ret|dst -- ) ( r: ret -- ret|dst )
 	;
 

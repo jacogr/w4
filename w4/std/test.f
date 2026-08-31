@@ -94,7 +94,7 @@ m4_require(<!std/string-format.f!>)
 		then
 
 		(test-is-error) @ 0=
-		'*' 'x' select emit
+		'x' '*' select emit
 
 		false (test-is-error) !
 

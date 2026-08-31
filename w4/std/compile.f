@@ -48,12 +48,12 @@ m4_require(<!std/stack-rs.f!>)
 \ matches C (cond ? true : false)
 \ uses: false ^ ((false ^ true) & flag)
 
-	: SELECT ( flag true false -- result )
-		swap over	( flag true false -- flag false true false )
-		xor			( flag false true false -- flag false r1 ) \ r1 = (true ^ false)
-		rot			( flag false r1 -- false r1 flag )
-		and			( false r1 flag -- false r2 ) \ r2 = (r1 & flag)
-		xor			( false r2 -- result ) \ result = (r2 ^ false)
+	: SELECT ( flag false true -- result )
+		over	( flag false true -- flag false true false )
+		xor		( flag false true false -- flag false r1 ) \ r1 = (true ^ false)
+		rot		( flag false r1 -- false r1 flag )
+		and		( false r1 flag -- false r2 ) \ r2 = (r1 & flag)
+		xor		( false r2 -- result ) \ result = (r2 ^ false)
 	;
 
 \ https://forth-standard.org/standard/tools/NAMEtoCOMPILE
@@ -67,8 +67,8 @@ m4_require(<!std/stack-rs.f!>)
 	: NAME>COMPILE ( nt -- xt action-xt )
 		(nt>value@)					( nt -- xt )
   		dup is-xt-immediate?		( xt -- xt flag )
-  		['] execute ['] compile,	( xt flag -- xt flag xte xtc )
-		select						( xt flag xte xtc -- xt action-xt )
+  		['] compile, ['] execute	( xt flag -- xt flag xtc xte )
+		select						( xt flag xtc xte -- xt action-xt )
 	;
 
 \ https://forth-standard.org/standard/tools/NAMEtoINTERPRET
