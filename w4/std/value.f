@@ -134,15 +134,15 @@ m4_require(<!ext/is.f!>)
 \ An ambiguous conditions exists if oldname can not be found or IMMEDIATE is
 \ applied to newname.
 
-		: SYNONYM ( "newname" "oldname" -- )
-			create
-				hide ' , reveal
-			does>
-				@ state @ 0= over is-xt-immediate? or
-				['] compile, ['] execute
-				select
-				execute
-		; immediate
+	: SYNONYM ( "newname" "oldname" -- )
+		create
+			hide ' , reveal
+		does>
+			@ state @ 0= over is-xt-immediate? or
+			['] compile, ['] execute
+			select
+			execute
+	; immediate
 
 \ https://forth-standard.org/standard/core/IS
 \
