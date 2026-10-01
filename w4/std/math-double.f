@@ -236,17 +236,10 @@ m4_require(<!std/stack.f!>)
 \ xd2 is the result of shifting xd1 one bit toward the least-significant bit,
 \ leaving the most-significant bit unchanged.
 
-	: ARSHIFT1 ( n -- n' )
-		dup 0< $0 msb	( n -- n flag 0 msb )
-		select 			( flag 0 msb -- n mask )
-		swap $1 rshift 	( n mask -- mask n>>1 )
-		or				( mask n -- n' )
-	;
-
 	: D2/ ( lo hi -- lo' hi' )
 		dup $1 and 			\ lo hi hibit
 		>r
-		arshift1			\ lo hi'
+		2/					\ lo hi', preserving the sign bit
 		swap $1 rshift		\ hi' lo>>1
 		r> #31 lshift or	\ hi' lo'
 		swap				\ lo' hi'
