@@ -263,44 +263,6 @@ m4_require(<!ext/wasi.f!>)
 	: (fid>row++) ( fid -- ) dup (fid>row@) 1+ swap (fid>row!) ;
 	: (fid>idx++) ( fid -- ) dup (fid>in-pos@) 1+ swap (fid>in-pos!) ;
 
-	: (read-char) ( buf fid -- no-eof no-err )
-		true true \ only called by read-line, which already did eof check
-		{: buf fid not-eof not-err :}
-
-		fid (fid>in-pos@)			( -- pos )
-		fid (fid>in-len@)			( pos -- pos len )
-
-		\ (pos < len) == 0? (pos >= len?)
-		u< 0= if
-			fid (fid>in-ptr@)		( -- buf )
-			(sizeof-fid-in)			( buf -- buf u )
-			fid read-file			( buf u -- u ior )
-			0= to not-err			( u ior -- u )	\ not-err = ior == 0
-
-			\ not eof? (u <> 0)
-			?dup if
-				fid (fid>in-len!)	( u -- )
-				$0 fid (fid>in-pos!)
-			else
-				false to not-eof
-				false fid (fid>is-eof!)
-			then
-		then
-
-		\ not eof and not err?
-		not-eof not-err and if
-			\ populate buf with char
-			fid (fid>in-ptr@)		( -- c-addr )
-			fid (fid>in-pos@)		( c-addr -- c-addr u )
-			+ c@ buf c!
-
-			\ increment for next
-			fid (fid>idx++)
-		then
-
-		not-eof not-err
-	;
-
 	: READ-LINE ( c-addr u fid -- u2 flag ior )
 		dup (fid>is-eof@) 0= true true $0 				( c-addr u fid -- c-addr u fid not-eof not-eol not-err num )
 		{: buf max fid not-eof not-eol not-err num :}	( c-addr u fid not-eof not-eol not-err num -- )
@@ -310,7 +272,39 @@ m4_require(<!ext/wasi.f!>)
 			not-eof not-eol not-err			( f1 -- f1 not-eof not-eol not-err )
 			and and and						( f1 not-eof not-eol not-err -- f )
 		while								( f -- )
-			buf fid (read-char)				( -- no-eof no-err )
+			\ Read one character using this frame; the loop guarantees not-eof/not-err.
+			fid (fid>in-pos@)			( -- pos )
+			fid (fid>in-len@)			( pos -- pos len )
+
+			\ (pos < len) == 0? (pos >= len?)
+			u< 0= if
+				fid (fid>in-ptr@)		( -- buf )
+				(sizeof-fid-in)			( buf -- buf u )
+				fid read-file			( buf u -- u ior )
+				0= to not-err			( u ior -- u )	\ not-err = ior == 0
+
+				\ not eof? (u <> 0)
+				?dup if
+					fid (fid>in-len!)	( u -- )
+					$0 fid (fid>in-pos!)
+				else
+					false to not-eof
+					false fid (fid>is-eof!)
+				then
+			then
+
+			\ not eof and not err?
+			not-eof not-err and if
+				\ populate buf with char
+				fid (fid>in-ptr@)		( -- c-addr )
+				fid (fid>in-pos@)		( c-addr -- c-addr u )
+				+ c@ buf c!
+
+				\ increment for next
+				fid (fid>idx++)
+			then
+
+			not-eof not-err
 
 			\ no err?
 			if								( no-eof no-err -- no-eof )
