@@ -191,9 +191,17 @@ m4_require(<!std/value.f!>)
 	;
 
 	: (throw,patched) ( ??? exception# -- ??? exception# )
-		dup 0<> handler @ 0<> and		( n -- n f )
+		\ Successful checks need no exception-state or return-stack updates.
+		\ Consume zero with the native primitive: DROP itself calls THROW.
+		dup 0= if						( n -- n f )
+			depth $1 - (ds^) !			( n -- ) 		\ DROP w/o checks
+			exit
+		then							( n -- n )
+
+		\ n is nonzero here, so only the handler determines the flag.
+		handler @ 0<>					( n -- n f )
 		(throw-capture-state)			( n f -- n f )
 		(throw-restore-rs)				( n f -- n f )
 		(throw-pass-code)				( n f -- n|0 )
-		(throw)
+		(throw)							( n|0 -- )
 	; patch throw
