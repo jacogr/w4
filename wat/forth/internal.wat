@@ -240,8 +240,12 @@
 			(local.get $fcl)
 			(global.get $FLG_ASM)) (if
 
-			;; native, call directly
-			(then (call $__internal_execute_asm (local.get $val)))
+			;; EXIT is builtin index 0. Handle hot returns here without entering
+			;; the large builtin dispatcher; other native words use it as usual.
+			(then
+				(if (i32.eqz (local.get $val))
+					(then (call $__internal_exit))
+					(else (call $__internal_execute_asm (local.get $val)))))
 
 			;; non-native, check tokens
 			(else
