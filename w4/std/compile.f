@@ -49,11 +49,9 @@ m4_require(<!std/stack-rs.f!>)
 \ uses: false ^ ((false ^ true) & flag)
 
 	: SELECT ( flag false true -- result )
-		over	( flag false true -- flag false true false )
-		xor		( flag false true false -- flag false r1 ) \ r1 = (true ^ false)
-		rot		( flag false r1 -- false r1 flag )
-		and		( false r1 flag -- false r2 ) \ r2 = (r1 & flag)
-		xor		( false r2 -- result ) \ result = (r2 ^ false)
+		over xor	( flag false true -- flag false diff )
+		sp-2@ and	( flag false diff -- flag false masked )
+		xor nip		( flag false masked -- result )
 	;
 
 \ https://forth-standard.org/standard/tools/NAMEtoCOMPILE

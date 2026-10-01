@@ -6,5 +6,6 @@ include w4/hash.f
 include w4/interpret.f
 include w4/list.f
 include w4/patch.f
+include w4/select.f
 include w4/string-utils.f
 include w4/throw-path.f

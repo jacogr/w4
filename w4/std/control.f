@@ -9,6 +9,7 @@ m4_require(<!std/stack-ptr.f!>)
 \ (Standard in older versions of ANS Forth, not in 2012)
 
 	: ?BRANCH ( f dst -- ) ( r: ret -- ret|dst )
+		\ Embedded SELECT avoids two SWAPs and a SELECT call on every branch.
 		\ Choose dst ^ ((dst ^ ret) & mask), where mask = (f <> 0).
 		over 0<>		( f dst -- f dst mask )
 		r@ sp-2@ xor	( f dst mask -- f dst mask diff )
