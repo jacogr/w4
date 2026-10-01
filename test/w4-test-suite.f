@@ -8,5 +8,6 @@ include w4/list.f
 include w4/logic-number.f
 include w4/patch.f
 include w4/select.f
+include w4/stack-ptr.f
 include w4/string-utils.f
 include w4/throw-path.f
