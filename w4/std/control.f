@@ -9,9 +9,10 @@ m4_require(<!std/stack-ptr.f!>)
 \ (Standard in older versions of ANS Forth, not in 2012)
 
 	: ?BRANCH ( f dst -- ) ( r: ret -- ret|dst )
-		swap 0<> swap	( f dst -- f' dst )	\ f' = f <> 0
-		r@				( f dst -- f dst ret ) ( r: ret -- ret )
-		select			( f dst ret -- ret|dst )
+		\ Choose dst ^ ((dst ^ ret) & mask), where mask = (f <> 0).
+		over 0<>		( f dst -- f dst mask )
+		r@ sp-2@ xor	( f dst mask -- f dst mask diff )
+		and xor nip		( f dst mask diff -- ret|dst )
 		r!				( ret|dst -- ) ( r: ret -- ret|dst )
 	;
 
