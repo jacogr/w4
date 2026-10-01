@@ -85,3 +85,10 @@ T{ 123 stack-r-store4 -> 123 70 60 50 40 99 20 10 }T
 T{ 123 stack-r-store5 -> 123 70 60 50 40 30 99 10 }T
 : stack-r-store6 10 >r 20 >r 30 >r 40 >r 50 >r 60 >r 70 >r 99 r-6! r> r> r> r> r> r> r> ;
 T{ 123 stack-r-store6 -> 123 70 60 50 40 30 20 99 }T
+
+testing R@ and R! call-frame offsets
+
+\ Read and replace the top return-stack value, preserving the one below it.
+: stack-r-access 11 >r 22 >r r@ 33 r! r@ r> r> ;
+T{ 123 stack-r-access -> 123 22 33 33 11 }T
+T{ 123 ' stack-r-access catch -> 123 22 33 33 11 0 }T

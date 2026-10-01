@@ -110,5 +110,8 @@ m4_require(<!std/logic-base.f!>)
 	: R-6@ ( -- x ) rp@ #28 - @ ;
 	: R-6! ( -- x ) rp@ #28 - ! ;
 
-	: R@ r-1@ ; \ -1, not -0, remove call into this
-	: R! r-1! ; \ -1, not -0, remove call into this
+\ Direct access avoids the R-1@/R-1! wrapper frame. Skip only this word's
+\ return address, using the same embedded one-cell offset as R-0@/R-0!.
+
+	: R@ ( -- x ) rp@ #4 - @ ;
+	: R! ( x -- ) rp@ #4 - ! ;
