@@ -84,26 +84,25 @@ m4_require(<!std/string.f!>)
 			drop
 			(parse-whitespace-skip)
 
-			\ start = source-base + >in
-			source drop >in @ + dup
+			\ Keep source bounds and offsets on the stack throughout the scan.
+			source >in @ dup			( -- base len start pos )
 
 			\ scan until end-of-source or next whitespace
 			begin
-				>in @ source nip u< if
+				dup sp-3@ u< if		( base len start pos -- base len start pos )
 					\ Same bounded byte check as in whitespace skipping.
-					source drop >in @ + c@ #33 - 0< 0=
+					dup sp-4@ + c@ #33 - 0< 0=
 				else false then
 			while
-				$1 >in +!
+				1+					( base len start pos -- base len start pos' )
 			repeat
 
-			\ u = cur - start
-			source drop >in @ + swap -
-
 			\ consume one delimiter when present (PARSE-compatible >in advance)
-			>in @ source nip u< if
-				$1 >in +!
-			then
+			dup sp-3@ u< negate over + >in !	( base len start pos -- base len start pos )
+
+			\ Return base+start and pos-start.
+			over - >r				( base len start pos -- base len start ) ( r: -- u )
+			rot + nip r>			( base len start -- c-addr u ) ( r: u -- )
 		else parse then
 	; patch parse-token
 

@@ -21,3 +21,25 @@ T{ s\" parse-byte-probe x\xff" evaluate -> 2 true }T
 
 T{ s\" parse-byte-probe " evaluate -> 0 true }T
 T{ s\" parse-byte-probe \x00\t\r\n " evaluate -> 0 true }T
+
+\ Each scan commits >IN before the next token is parsed.
+: parse-sequence-probe
+	parse-name s" one" compare
+	parse-name s" two" compare
+	parse-name s" three" compare
+	>in @ source nip =
+;
+T{ 123 s" parse-sequence-probe one   two three " evaluate -> 123 0 0 0 true }T
+
+\ An offset past the source must remain unchanged and produce an empty token.
+: parse-beyond-probe
+	source nip #3 + >in !
+	parse-name swap source drop - >in @ =
+;
+T{ 123 s" parse-beyond-probe" evaluate -> 123 0 true }T
+
+: parse-max-offset-probe
+	$ffffffff >in !
+	parse-name swap source drop - >in @ =
+;
+T{ 123 s" parse-max-offset-probe" evaluate -> 123 0 true }T
