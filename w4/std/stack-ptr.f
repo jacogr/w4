@@ -7,7 +7,7 @@ m4_require(<!std/logic-base.f!>)
 \ count is just offset by the index
 
 	: (ds^-n) ( n -- a-addr )
-		1+ negate		\ remove effect of count
+		invert			\ -(n + 1), removing the effect of count
 		depth +			( -n -- c-n )
 		cells (ds^) +	( c-n -- a-addr )
 	;
@@ -77,7 +77,7 @@ m4_require(<!std/logic-base.f!>)
 	: RP@ ( -- a-addr ) r-depth 1- cells (rs^) + ; \ extra 1- for call to this
 
 	: (rs^-n) ( n -- a-addr )
-		1+ negate
+		invert			\ -(n + 1), including the call offset
 		r-depth +
 		cells (rs^) +
 	;
