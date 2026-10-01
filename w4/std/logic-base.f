@@ -38,7 +38,9 @@
 \
 \ lag is true if and only if x is not equal to zero.
 
-	: 0<> ( n -- flag ) 0= invert ;
+\ Two native 0= operations produce a canonical flag without an INVERT call.
+
+	: 0<> ( n -- flag ) 0= 0= ;
 
 \ https://forth-standard.org/standard/core/Zeroless
 \
