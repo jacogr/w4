@@ -212,10 +212,8 @@ m4_require(<!std/stack-ptr.f!>)
 \ control parameters are discarded.
 
 	: (do) ( u i exit-dst -- ) ( r: -- exit-dst u i ret )
-		>r swap r>	( u i exit-dst -- i u exit-dst ) ( r: ret -- ret )
-		r> swap >r  ( i u exit-dst -- i u ret ) ( r: ret -- exit-dst )
-		swap >r		( i u ret -- i ret ) ( r: exit-dst -- exit-dst u )
-		swap >r		( i ret -- ret ) ( r: exit-dst u -- exit-dst u i )
+		r@ swap r!	( u i exit-dst -- u i ret ) ( r: ret -- exit-dst )
+		-rot 2>r	( u i ret -- ret ) ( r: exit-dst -- exit-dst u i )
 		>r			( ret -- ) ( r: exit-dst u i -- exit-dst u i ret )
 	;
 
