@@ -10,7 +10,7 @@
 	: THROW (throw) ;
 	: CELLS $2 lshift ;
 	: DEPTH (ds^) @ ;
-	: SP@ depth cells (ds^) + ;
+	: SP@ (ds^) @ cells (ds^) + ;
 	: DUP sp@ @ ;
 	: DROP depth dup 0= #-4 and throw $1 - (ds^) ! ;
 	: OVER sp@ $1 cells - @ ;
@@ -78,9 +78,10 @@
 \
 \ We define this quite early since it makes the base stack words
 \ eay to define (without resorting to yet more "magic constants")
+\ Inline DEPTH's body to avoid an extra call on every stack address lookup.
 \
 \		: SP@ ( -- addr )
-\			depth cells \ depth in terms of cells
+\			(ds^) @ cells \ depth in terms of cells
 \			(ds^) + 	\ add to stack pointer for offet addr
 \		;
 
