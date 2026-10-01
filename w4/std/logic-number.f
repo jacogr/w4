@@ -27,9 +27,14 @@ m4_require(<!std/stack-ptr.f!>)
 \ flag is true if and only if u1 is less than u2.
 
 	: U< ( u1 u2 -- f )
-		swap msb xor
-		swap msb xor
-		<
+		\ With d = u1-u2, use d ^ ((u1 ^ u2) & (u2 ^ d)).
+		\ Equal high bits use d's sign; different high bits use u2's.
+		\ This avoids flipping both sign bits and calling signed <.
+		2dup -				( u1 u2 -- u1 u2 d )
+		sp-2@ sp-2@ xor		( u1 u2 d -- u1 u2 d signs )
+		sp-2@ sp-2@ xor		( u1 u2 d signs -- u1 u2 d signs correction )
+		and xor 0<			( u1 u2 d signs correction -- u1 u2 flag )
+		2nip				( u1 u2 flag -- flag )
 	;
 
 \ https://forth-standard.org/standard/core/Umore
@@ -47,4 +52,4 @@ m4_require(<!std/stack-ptr.f!>)
 \ otherwise. An ambiguous condition exists n1 | u1, n2 | u2, and n3 | u3 are
 \ not all the same type.
 
-	: WITHIN ( test low high -- flag ) over - rot rot - u> ;
+	: WITHIN ( test low high -- flag ) over - -rot - u> ;

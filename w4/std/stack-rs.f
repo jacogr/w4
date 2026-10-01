@@ -38,7 +38,8 @@ m4_require(<!std/stack-ptr.f!>)
 
 	: (r-drop) ( -- )
 		\ -6 return stack underflow
-		r-depth #3 < #-6 and throw	\ call into r-drop & this
+		\ Depth is bounded, so subtraction cannot overflow the sign test.
+		r-depth #3 - 0< #-6 and throw	\ call into r-drop & this
 
 		r-1@ r-2!					\ slide caller’s return-to down
 		r-depth #2 - (rs^) !			\ drop one slot under it
@@ -62,7 +63,8 @@ m4_require(<!std/stack-ptr.f!>)
 
 	: (r-2drop) ( -- )
 		\ -6 return stack underflow
-		r-depth #4 < #-6 and throw	\ call into r-drop & this
+		\ As above, use the bounded depth's difference instead of general <.
+		r-depth #4 - 0< #-6 and throw	\ call into r-drop & this
 
 		r-1@ r-3!					\ slide caller’s return-to down
 		r-depth #3 - (rs^) !			\ drop two slots under it

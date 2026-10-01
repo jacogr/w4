@@ -72,7 +72,8 @@ m4_require(<!std/string.f!>)
 			>in @ source nip u<
 		while
 			source drop >in @ + c@
-			#33 u<
+			\ C@ is 0..255, so the subtraction cannot overflow.
+			#33 - 0<
 		while
 			$1 >in +!
 		repeat then
@@ -89,7 +90,8 @@ m4_require(<!std/string.f!>)
 			\ scan until end-of-source or next whitespace
 			begin
 				>in @ source nip u< if
-					source drop >in @ + c@ #33 u< 0=
+					\ Same bounded byte check as in whitespace skipping.
+					source drop >in @ + c@ #33 - 0< 0=
 				else false then
 			while
 				$1 >in +!
