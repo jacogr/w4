@@ -302,33 +302,20 @@ m4_require(<!ext/wasi.f!>)
 
 				\ increment for next
 				fid (fid>idx++)
-			then
 
-			not-eof not-err
-
-			\ no err?
-			if								( no-eof no-err -- no-eof )
-				\ no eof?
-				if							( no-eof -- )
-					buf c@					( -- char )
-
-					dup #10 = if			( char -- char )
-						drop				( char -- )
-						fid (fid>row++)
-						false to not-eol
-					else
-						#13 <> if			( char -- )
-							\ increment count & buf pos
-							num 1+ to num
-							buf 1+ to buf
-						then
-					then
+				\ Process the character under the same EOF/error guard.
+				buf c@						( -- char )
+				dup #10 = if				( char -- char )
+					drop					( char -- )
+					fid (fid>row++)
+					false to not-eol
 				else
-					false to not-eof		( -- )
+					#13 <> if				( char -- )
+						\ increment count & buf pos
+						num 1+ to num
+						buf 1+ to buf
+					then
 				then
-			else
-				drop 						( no-eof -- )
-				false to not-err
 			then
 		repeat
 
