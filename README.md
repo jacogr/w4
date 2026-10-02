@@ -29,12 +29,42 @@ Something useful in development has been `make clean && make check && ls -al bui
 
 ## testing
 
-The core tests are from the [forth2012-test-suite](https://github.com/gerryjackson/forth2012-test-suite). Instead of just copying, these are added as a git submodule. On a fresh clone, this is not immediate available, so a couple of command are needed to pull it down (if you wish to run the tests).
+The core tests are from the [forth-standard-test-suite](https://github.com/Forth-Standard/forth-standard-test-suite), maintained by Forth-Standard following the transfer from Gerry Jackson. The suite is pinned as a git submodule at `test/forth-standard-test-suite`.
 
-- `git submodule init` initializes the submodules
-- `git submodule update` updates the actual code from the test suite
+On a fresh clone, download the pinned suite with `git submodule update --init --recursive`.
+For an existing checkout after the migration, synchronize the URL and initialize the renamed submodule:
+
+```sh
+git submodule sync --recursive
+git submodule update --init --recursive
+```
 
 At the root, tests can be executed with `make check` to execute both the built-in tests (for functionality not fully tested in the standard suite) as well as the tests pulled it by the git submodule, ensuring compliance to a wide range of Forth tests.
+
+
+## execution benchmarks
+
+`make bench-runtime` measures arithmetic loops, word calls, branches, and memory
+access in one initialized interpreter. Each workload runs 10,000 iterations;
+definitions and command buffers are prepared before timing. Results and stack
+balance are checked after every sample, outside the measured interval.
+
+Use `make bench-runtime RUNS=9 WARMUP=5` to change the sample counts (both must be
+positive integers). JSON output includes individual samples, medians, runtime and
+CPU details, the Wasm SHA-256, and separate Wasm compilation, instantiation, Forth
+bootstrap, and workload loading/compilation timings. Samples include evaluating the
+workload name, but exclude setup, validation, and output. These synthetic workloads
+complement the test suite; they do not represent every Forth program.
+
+For a JSON file, run:
+
+```sh
+node --disable-warning=ExperimentalWarning scripts/bench-runtime.js > build/runtime-baseline.json
+```
+
+Set `W4_WASM` to compare a saved Wasm binary. Run comparisons on an otherwise idle
+machine and repeat them before concluding a change is faster. `make bench-std`
+remains available for whole-suite timings, including startup and compilation.
 
 
 ## future

@@ -1,0 +1,55 @@
+\
+\ this duplicates the base
+\
+\	forth-standard-test-suite/src/runtests.fth
+\
+\ allowing us to run it through our tester (with no changes to the core),
+\ this has better error reporting than the original
+\
+
+1 (test-verbose) !
+
+\ ANS Forth tests - run all tests
+
+\ Adjust the file paths as appropriate to your system
+\ Select the appropriate test harness, either the simple tester.fr
+\ or the more complex ttester.fs
+
+CR .( Running ANS Forth and Forth 2012 test programs, version 0.13.4) CR
+
+S" forth-standard-test-suite/src/prelimtest.fth" INCLUDED
+
+\ skipped, base version of T{ .. }T included as standard
+\ S" forth-standard-test-suite/src/tester.fr" INCLUDED
+\ S" forth-standard-test-suite/src/ttester.fs" INCLUDED
+
+S" forth-standard-test-suite/src/core.fr" INCLUDED
+S" forth-standard-test-suite/src/coreplustest.fth" INCLUDED
+S" forth-standard-test-suite/src/utilities.fth" INCLUDED
+S" forth-standard-test-suite/src/errorreport.fth" INCLUDED
+S" forth-standard-test-suite/src/coreexttest.fth" INCLUDED
+
+\ The host is wasi, with preloaded file access, depending on environment.
+\ Adding a block layer need to take this constraint into account.
+\ UNPLANNED S" forth-standard-test-suite/src/blocktest.fth" INCLUDED
+
+S" forth-standard-test-suite/src/doubletest.fth" INCLUDED
+S" forth-standard-test-suite/src/exceptiontest.fth" INCLUDED
+S" forth-standard-test-suite/src/facilitytest.fth" INCLUDED
+
+S" forth-standard-test-suite/src/filetest.fth" INCLUDED
+S" forth-standard-test-suite/src/localstest.fth" INCLUDED
+
+\ The host is wasi, it doesn't have access to the lower-level system
+\ allocator. these can be stubbed around allot, but never pure system
+\ UNPLANNED S" forth-standard-test-suite/src/memorytest.fth" INCLUDED
+
+[UNDEFINED] SKIP-TESTS-TOOLS [IF]
+	S" forth-standard-test-suite/src/toolstest.fth" INCLUDED
+[THEN]
+S" forth-standard-test-suite/src/searchordertest.fth" INCLUDED
+S" forth-standard-test-suite/src/stringtest.fth" INCLUDED
+
+REPORT-ERRORS
+
+CR .( Forth tests completed ) CR CR

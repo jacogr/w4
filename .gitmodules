@@ -1,3 +1,3 @@
-[submodule "test/forth2012-test-suite"]
-	path = test/forth2012-test-suite
-	url = git@github.com:gerryjackson/forth2012-test-suite.git
+[submodule "test/forth-standard-test-suite"]
+	path = test/forth-standard-test-suite
+	url = https://github.com/Forth-Standard/forth-standard-test-suite.git

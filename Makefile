@@ -20,7 +20,7 @@ WAT_BUILTINS   = $(DIR_WAT)/forth/builtins.wat
 WASM_GEN       = $(DIR_BUILD)/w4.wasm
 WASM_GEN_OPT   = $(DIR_BUILD)/w4-opt.wasm
 
-TEST_STD       = $(DIR_TEST)/forth2012-test-suite.f
+TEST_STD       = $(DIR_TEST)/forth-standard-test-suite.f
 TEST_LIB       = $(DIR_TEST)/w4-test-suite.f
 
 SCR_AWK_FIL    = $(DIR_SCR)/minify-filter.awk
@@ -57,7 +57,7 @@ EXE_AWK        = awk
 
 # targets
 
-.PHONY: all clean check bench-std
+.PHONY: all clean check bench-std bench-runtime
 all: $(FTH_GEN) $(WASM_GEN_OPT)
 
 $(DIR_BUILD):
@@ -97,7 +97,7 @@ check-std: $(FTH_GEN) $(WASM_GEN_OPT) $(TEST_STD)
 	mkfifo "$$fifo"; \
 	tee "$$out" <"$$fifo" & \
 	teepid=$$!; \
-	$(EXE_NODE) $(TEST_STD) <test/forth2012-test-input.txt >"$$fifo" 2>&1; \
+	$(EXE_NODE) $(TEST_STD) <test/forth-standard-test-input.txt >"$$fifo" 2>&1; \
 	status=$$?; \
 	wait $$teepid; \
 	rm -f "$$fifo"; \
@@ -119,6 +119,10 @@ check-std: $(FTH_GEN) $(WASM_GEN_OPT) $(TEST_STD)
 
 check: check-lib check-std
 
+# benchmark repeated execution in one initialized interpreter
+bench-runtime: $(FTH_GEN) $(WASM_GEN_OPT)
+	node $(FLAGS_NODE) scripts/bench-runtime.js
+
 # benchmark std suite without programming tools tests (lower noise)
 # usage: make bench-std RUNS=7 WARMUP=1
 bench-std: $(FTH_GEN) $(WASM_GEN_OPT) $(TEST_STD)
@@ -127,7 +131,7 @@ bench-std: $(FTH_GEN) $(WASM_GEN_OPT) $(TEST_STD)
 	tmp=$$(mktemp); \
 	w=1; \
 	while [ $$w -le $$warmup ]; do \
-		ms=$$(W4_SKIP_TESTS=tools $(EXE_NODE) $(TEST_STD) <test/forth2012-test-input.txt 2>&1 | awk '/^ok: /{gsub("ms","",$$2); print $$2}'); \
+		ms=$$(W4_SKIP_TESTS=tools $(EXE_NODE) $(TEST_STD) <test/forth-standard-test-input.txt 2>&1 | awk '/^ok: /{gsub("ms","",$$2); print $$2}'); \
 		if [ -z "$$ms" ]; then \
 			echo "bench-std failed on warmup $$w (missing ok timing output)"; \
 			rm -f "$$tmp"; \
@@ -138,7 +142,7 @@ bench-std: $(FTH_GEN) $(WASM_GEN_OPT) $(TEST_STD)
 	done; \
 	i=1; \
 	while [ $$i -le $$runs ]; do \
-		ms=$$(W4_SKIP_TESTS=tools $(EXE_NODE) $(TEST_STD) <test/forth2012-test-input.txt 2>&1 | awk '/^ok: /{gsub("ms","",$$2); print $$2}'); \
+		ms=$$(W4_SKIP_TESTS=tools $(EXE_NODE) $(TEST_STD) <test/forth-standard-test-input.txt 2>&1 | awk '/^ok: /{gsub("ms","",$$2); print $$2}'); \
 		if [ -z "$$ms" ]; then \
 			echo "bench-std failed on run $$i (missing ok timing output)"; \
 			rm -f "$$tmp"; \

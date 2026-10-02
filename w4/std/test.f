@@ -2,9 +2,9 @@ m4_require(<!std/parse.f!>)
 m4_require(<!std/string-format.f!>)
 
 \ Adapted from
-\ https://github.com/gerryjackson/forth2012-test-suite/blob/387ca77a3586dcc5f366f8ac3ff707ab80a1e3df/src/tester.fr
+\ https://github.com/Forth-Standard/forth-standard-test-suite/blob/387ca77a3586dcc5f366f8ac3ff707ab80a1e3df/src/tester.fr
 \
-\ (As included in the submodule test/forth2012-test-suite/src/tester.fr file)
+\ (As included in the submodule test/forth-standard-test-suite/src/tester.fr file)
 \
 \ From: John Hayes S1I
 \ Subject: tester.fr
