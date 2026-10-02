@@ -12,13 +12,13 @@ jobs:
 
     steps:
       - name: Checkout (with submodules)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "lts/*"
 
@@ -30,7 +30,7 @@ jobs:
       - name: Install Binaryen (new wasm-opt)
         run: |
           set -eux
-          BIN_VER=123
+          BIN_VER=133
           curl -L -o binaryen.tar.gz \
             "https://github.com/WebAssembly/binaryen/releases/download/version_${BIN_VER}/binaryen-version_${BIN_VER}-x86_64-linux.tar.gz"
           tar -xzf binaryen.tar.gz
